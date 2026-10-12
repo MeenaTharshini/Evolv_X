@@ -1,0 +1,145 @@
+/* Add these shared theme values near the top of auth.css */
+
+:root {
+  --ev-ink: #253a35;
+  --ev-muted: #778780;
+  --ev-green: #4b8065;
+  --ev-green-dark: #315f4b;
+  --ev-cream: #fbf8ef;
+  --ev-paper: #fffefa;
+  --ev-border: #e8e8dc;
+  --ev-orange: #e9a15d;
+}
+
+.ev-auth {
+  min-height: 100vh;
+  color: var(--ev-ink);
+  background:
+    radial-gradient(ellipse at 10% 12%, #e8f1e2 0, transparent 31%),
+    radial-gradient(ellipse at 90% 90%, #f8e7d6 0, transparent 33%),
+    var(--ev-cream);
+  font-family: Inter, "Segoe UI", sans-serif;
+}
+
+.ev-auth .primary-button {
+  color: white;
+  background: var(--ev-green-dark);
+  box-shadow: 0 8px 18px rgba(49, 95, 75, .16);
+  transition: transform .2s ease, background .2s ease;
+}
+
+.ev-auth .primary-button:hover {
+  transform: translateY(-2px);
+  background: #254d3a;
+}
+
+.ev-auth .form-card {
+  border: 1px solid rgba(255,255,255,.9);
+  border-radius: 25px;
+  background: rgba(255,254,250,.96);
+  box-shadow: 0 20px 60px rgba(42,68,53,.09);
+}
+
+.ev-auth .ev-field input,
+.ev-auth .ev-field select {
+  width: 100%;
+  min-height: 47px;
+  padding: 0 13px;
+  border: 1px solid #e2e8dc;
+  border-radius: 12px;
+  outline: none;
+  color: var(--ev-ink);
+  background: #fffefa;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.ev-auth .ev-field input:focus,
+.ev-auth .ev-field select:focus {
+  border-color: #80aa83;
+  box-shadow: 0 0 0 4px rgba(104,153,108,.12);
+}
+
+.ev-auth .mode-switch,
+.ev-auth .level-card,
+.ev-auth .interest-card,
+.ev-auth .goal-option,
+.ev-auth .style-option {
+  border: 1px solid #e4e9df;
+  border-radius: 13px;
+  background: #fffefa;
+  transition: border-color .2s ease, background .2s ease, transform .2s ease;
+}
+
+.ev-auth .mode-switch.active,
+.ev-auth .level-card.selected,
+.ev-auth .interest-card.selected,
+.ev-auth .goal-option.selected,
+.ev-auth .style-option.selected {
+  border-color: #85ad83;
+  background: #edf5e8;
+  box-shadow: 0 0 0 2px rgba(104,153,108,.08);
+}
+
+.ev-auth .level-card:hover,
+.ev-auth .interest-card:hover,
+.ev-auth .goal-option:hover,
+.ev-auth .style-option:hover {
+  transform: translateY(-2px);
+  border-color: #a9c5a1;
+}
+
+.ev-auth .companion {
+  filter: drop-shadow(0 12px 14px rgba(59, 91, 57, .12));
+  animation: auth-companion-float 3.6s ease-in-out infinite;
+}
+
+.ev-auth .companion-face,
+.ev-auth .companion-body {
+  transition: transform .25s ease;
+}
+
+.ev-auth .companion-spark {
+  color: #dda64f;
+  animation: auth-sparkle 2.4s ease-in-out infinite;
+}
+
+.ev-auth .decor-cloud,
+.ev-auth .decor-chip,
+.ev-auth .decor-book,
+.ev-auth .decor-star,
+.ev-auth .decor-sign,
+.ev-auth .decor-island {
+  pointer-events: none;
+}
+
+.ev-auth .form-message {
+  padding: 11px 13px;
+  border-radius: 11px;
+  color: #9b5148;
+  background: #fbebe6;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.ev-auth .form-message:empty {
+  display: none;
+}
+
+@keyframes auth-companion-float {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-7px) rotate(2deg); }
+}
+
+@keyframes auth-sparkle {
+  0%, 100% { opacity: .65; transform: scale(.9) rotate(0); }
+  50% { opacity: 1; transform: scale(1.12) rotate(12deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ev-auth *,
+  .ev-auth *::before,
+  .ev-auth *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
