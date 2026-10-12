@@ -3,6 +3,7 @@ import { Router } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import db, { saveDatabase } from "./db.js";
+import { requireAuth } from "./middleware/authMiddleware.js";
 
 const router = Router();
 
@@ -167,37 +168,10 @@ router.post("/login", async (req, res) => {
 });
 
 // CURRENT USER
-router.get("/me", (req, res) => {
-  const header = req.headers.authorization || "";
-  const [scheme, token] = header.split(" ");
-
-  if (scheme !== "Bearer" || !token) {
-    return res.status(401).json({ error: "Please log in." });
-  }
-
-  try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
-    const result = db.exec(
-      "SELECT * FROM users WHERE id = ?",
-      [Number(payload.sub)]
-    );
-
-    if (!result.length || !result[0].values.length) {
-      return res.status(401).json({ error: "Account not found." });
-    }
-
-    const columns = result[0].columns;
-    const values = result[0].values[0];
-    const user = Object.fromEntries(
-      columns.map((column, index) => [column, valueOrNull(values[index])])
-    );
-
-    return res.json({ user: publicUser(user) });
-  } catch {
-    return res.status(401).json({
-      error: "Your session is invalid or expired. Please log in again."
-    });
-  }
+router.get("/me", requireAuth, (req, res) => {
+  res.status(200).json({
+    user: publicUser(req.user)
+  });
 });
 
 function valueOrNull(value) {
