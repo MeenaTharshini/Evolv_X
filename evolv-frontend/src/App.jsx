@@ -4,6 +4,7 @@ import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import AuthPage from "./pages/AuthPage";
 import Home from "./pages/Home";
 import StudyMap from "./pages/StudyMap";
+import LessonPage from "./pages/LessonPage";
 
 function ProtectedRoute({ children }) {
   const token =
@@ -53,7 +54,7 @@ export default function App() {
           }
         />
 
-        {/* Home page after successful login or signup */}
+        {/* Dashboard */}
         <Route
           path="/dashboard"
           element={
@@ -62,15 +63,28 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* Learning map for each course */}
         <Route
-  path="/study/:courseId"
-  element={
-    <ProtectedRoute>
-      <StudyMap />
-    </ProtectedRoute>
-  }
-/>
-        {/* Unknown routes return to the appropriate page */}
+          path="/study/:courseId"
+          element={
+            <ProtectedRoute>
+              <StudyMap />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Lessons within any course */}
+        <Route
+          path="/study/:courseId/lesson/:lessonId"
+          element={
+            <ProtectedRoute>
+              <LessonPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Unknown routes */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </HashRouter>

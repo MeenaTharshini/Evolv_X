@@ -1,851 +1,977 @@
 
-import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  ArrowLeft,
+  ArrowRight,
+  Award,
   BookOpen,
+  Brain,
   Check,
-  ChevronRight,
+  CheckCircle2,
+  ChevronDown,
   Clock3,
-  Code2,
   Flame,
-  GraduationCap,
-  Home,
-  LogOut,
+  Flag,
   LockKeyhole,
-  Menu,
-  ShieldCheck,
+  Map,
+  Play,
   Sparkles,
   Star,
   Target,
   Trophy,
-  Users,
-  X,
+  Wrench,
   Zap,
 } from "lucide-react";
-
-import { coursePaths } from "../data/coursePaths";
+import { Link, useParams } from "react-router-dom";
+import Navbar from "../components/Navbar";
+import Rightbar from "../components/Rightbar";
+import { pythonLessons } from "../data/pythonLessons";
 import "../styles/study-map.css";
 
-const courseOptions = Object.values(coursePaths);
+const DEFAULT_COURSE = "python";
+const QUIZ_TOTAL_MARKS = 5;
 
-const areaInfo = {
-  "Coding Forest": {
-    icon: "🌲",
-    subtitle: "Chapter 1",
-    description: "Learn the foundations, one exercise at a time.",
-  },
-  "Logic Cave": {
-    icon: "🪨",
-    subtitle: "Chapter 2",
-    description: "Build your problem-solving skills.",
-  },
-  "Loop Bridge": {
-    icon: "🌉",
-    subtitle: "Chapter 3",
-    description: "Practise patterns and repetition.",
-  },
-  "Innovation Island": {
-    icon: "🏝️",
-    subtitle: "Chapter 4",
-    description: "Combine concepts and build your skills.",
-  },
-  "Challenge Peak": {
-    icon: "🏔️",
-    subtitle: "Chapter 5",
-    description: "Put everything together in a final challenge.",
+const COURSE_INFO = {
+  python: {
+    title: "Python Foundations",
+    subtitle: "Code Forest",
+    description:
+      "Climb through Python one skill at a time. Understand concepts, practise code, and solve challenges.",
+    icon: "🐍",
   },
 };
 
-function ExplorerCompanion() {
-  return (
-    <div className="sm-companion" aria-label="EVOLV learning companion">
-      <span className="sm-companion-leaf">✦</span>
-      <span className="sm-companion-eye sm-eye-left" />
-      <span className="sm-companion-eye sm-eye-right" />
-      <span className="sm-companion-cheek sm-cheek-left" />
-      <span className="sm-companion-cheek sm-cheek-right" />
-      <span className="sm-companion-mouth" />
-    </div>
-  );
+const WORLD_ICONS = ["🌱", "🌲", "🌊", "💎", "⛰️", "🏰"];
+
+const WORLD_DESCRIPTIONS = [
+  "Start with the basics and meet Python.",
+  "Make decisions with code.",
+  "Repeat actions and build logic.",
+  "Store and organise data.",
+  "Build reusable blocks of code.",
+  "Use your skills to solve challenges.",
+];
+
+const STAGES = [
+  {
+    id: "video",
+    label: "01",
+    title: "Watch",
+    description: "Watch the lesson",
+    icon: Play,
+    color: "video",
+  },
+  {
+    id: "understand",
+    label: "02",
+    title: "Understand",
+    description: "Learn the concepts",
+    icon: Brain,
+    color: "understand",
+  },
+  {
+    id: "apply",
+    label: "03",
+    title: "Apply",
+    description: "Practise with code",
+    icon: Wrench,
+    color: "apply",
+  },
+  {
+    id: "solve",
+    label: "04",
+    title: "Solve",
+    description: "Take the 5-mark quiz",
+    icon: Trophy,
+    color: "solve",
+  },
+];
+
+const safeRead = (key, fallback) => {
+  try {
+    const value = localStorage.getItem(key);
+    return value === null ? fallback : JSON.parse(value);
+  } catch {
+    return fallback;
+  }
+};
+
+const readCompleted = (courseId) => {
+  const value = safeRead(`evolv_${courseId}_completed`, []);
+
+  return Array.isArray(value)
+    ? [...new Set(value.map(Number).filter(Number.isFinite))]
+    : [];
+};
+
+const readNumber = (key, fallback = 0) => {
+  try {
+    const value = localStorage.getItem(key);
+
+    if (value === null || value.trim() === "") return fallback;
+
+    const number = Number(value);
+    return Number.isFinite(number) && number >= 0
+      ? number
+      : fallback;
+  } catch {
+    return fallback;
+  }
+};
+
+const readQuizScores = (courseId) => {
+  const value = safeRead(`evolv_${courseId}_quiz_scores`, {});
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? value
+    : {};
+};
+
+const durationFor = (lesson) => lesson.duration || "8 min";
+
+const xpFor = (lesson) => {
+  const value = Number(lesson.xp);
+  return Number.isFinite(value) && value > 0 ? value : 10;
+};
+
+const areaFor = (lesson, index) =>
+  lesson.area ||
+  lesson.chapter ||
+  lesson.category ||
+  (index < 10
+    ? "Python Meadow"
+    : index < 20
+      ? "Logic Forest"
+      : index < 30
+        ? "Loop River"
+        : index < 40
+          ? "Data Kingdom"
+          : index < 50
+            ? "Function Mountains"
+            : "EVOLV Citadel");
+
+function groupLessons(lessons) {
+  const groups = [];
+
+  lessons.forEach((lesson, index) => {
+    const title = areaFor(lesson, index);
+    let group = groups[groups.length - 1];
+
+    if (!group || group.title !== title) {
+      group = { title, lessons: [] };
+      groups.push(group);
+    }
+
+    group.lessons.push({ ...lesson, _index: index });
+  });
+
+  return groups;
 }
 
-function Sidebar({ course, closeMobile, onLogout }) {
-  return (
-    <aside className="sm-sidebar">
-      <Link
-        to="/dashboard"
-        className="sm-brand"
-        onClick={closeMobile}
-        aria-label="EVOLV dashboard"
-      >
-        <span className="sm-brand-icon">
-          <BookOpen size={24} />
-        </span>
-        <span>
-          EVOLV<span className="sm-brand-dot">.</span>
-        </span>
-      </Link>
+function formatMinutes(lessons) {
+  return lessons.reduce((total, lesson) => {
+    const match = String(durationFor(lesson)).match(/\d+/);
+    return total + (match ? Number(match[0]) : 8);
+  }, 0);
+}
 
-      <div className="sm-sidebar-label">YOUR LEARNING SPACE</div>
+function quizResultFor(scores, lessonId) {
+  const value = scores[String(lessonId)];
 
-      <nav className="sm-sidebar-nav" aria-label="Main navigation">
-        <Link to="/dashboard" className="sm-nav-item" onClick={closeMobile}>
-          <Home size={20} />
-          <span>Home</span>
-        </Link>
+  if (typeof value === "number" && Number.isFinite(value)) {
+    const score = Math.min(QUIZ_TOTAL_MARKS, Math.max(0, value));
+    return { latestScore: score, bestScore: score, attempts: 1 };
+  }
 
-        <Link
-          to={`/study/${course.id}`}
-          className="sm-nav-item sm-nav-active"
-          onClick={closeMobile}
-          aria-current="page"
-        >
-          <BookOpen size={20} />
-          <span>Learn</span>
-        </Link>
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return { latestScore: null, bestScore: null, attempts: 0 };
+  }
 
-        <Link to="/dashboard" className="sm-nav-item" onClick={closeMobile}>
-          <Target size={20} />
-          <span>My progress</span>
-        </Link>
+  const rawLatest =
+    typeof value.latestScore === "number"
+      ? value.latestScore
+      : typeof value.score === "number"
+        ? value.score
+        : null;
 
-        <Link to="/dashboard" className="sm-nav-item" onClick={closeMobile}>
-          <Trophy size={20} />
-          <span>Achievements</span>
-        </Link>
+  const rawBest =
+    typeof value.bestScore === "number" ? value.bestScore : rawLatest;
 
-        <Link to="/dashboard" className="sm-nav-item" onClick={closeMobile}>
-          <Users size={20} />
-          <span>Community</span>
-        </Link>
-      </nav>
+  const latest =
+    rawLatest === null || !Number.isFinite(rawLatest)
+      ? null
+      : Math.min(QUIZ_TOTAL_MARKS, Math.max(0, rawLatest));
 
-      <div className="sm-sidebar-bottom">
-        <div className="sm-sidebar-tip">
-          <span className="sm-tip-icon">
-            <Sparkles size={19} />
-          </span>
-          <strong>Keep growing!</strong>
-          <p>One small lesson can make a big difference.</p>
-        </div>
+  const best =
+    rawBest === null || !Number.isFinite(rawBest)
+      ? null
+      : Math.min(QUIZ_TOTAL_MARKS, Math.max(0, rawBest));
 
-        <button
-          type="button"
-          className="sm-nav-item sm-logout"
-          onClick={onLogout}
-        >
-          <LogOut size={20} />
-          <span>Log out</span>
-        </button>
-      </div>
-    </aside>
-  );
+  const savedAttempts = Number(value.attempts);
+
+  return {
+    latestScore: latest,
+    bestScore: best,
+    attempts:
+      Number.isFinite(savedAttempts) && savedAttempts > 0
+        ? savedAttempts
+        : value.submittedAt
+          ? 1
+          : 0,
+  };
+}
+
+function stageStatus(stageId, completed, lessonUnlocked) {
+  if (!lessonUnlocked) return "locked";
+  if (completed) return "completed";
+  if (stageId === "solve") return "locked";
+  if (stageId === "video") return "current";
+  return "available";
 }
 
 export default function StudyMap() {
-  const { courseId = "python" } = useParams();
-  const navigate = useNavigate();
-  const course = coursePaths[courseId] || coursePaths.python;
+  const { courseId: routeCourseId } = useParams();
 
-  const lessons = course?.lessons || [];
-  const storageKey = `evolv_${course.id}_completed`;
+  const requestedCourseId = routeCourseId || DEFAULT_COURSE;
+  const courseId = COURSE_INFO[requestedCourseId]
+    ? requestedCourseId
+    : DEFAULT_COURSE;
 
-  const [completedIds, setCompletedIds] = useState([]);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const course = COURSE_INFO[courseId];
+  const lessons = pythonLessons;
 
-  useEffect(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem(storageKey) || "[]");
-      const validIds = new Set(lessons.map((lesson) => lesson.id));
+  const groups = useMemo(() => groupLessons(lessons), [lessons]);
 
-      setCompletedIds(
-        Array.isArray(saved)
-          ? saved.filter((id) => validIds.has(id))
-          : []
-      );
-    } catch {
-      setCompletedIds([]);
-    }
-  }, [storageKey, course.id]);
+  const [completedIds, setCompletedIds] = useState(
+    () => readCompleted(courseId)
+  );
+  const [quizScores, setQuizScores] = useState(
+    () => readQuizScores(courseId)
+  );
+  const [xp, setXp] = useState(
+    () => readNumber(`evolv_${courseId}_xp`, 0)
+  );
+  const [streak, setStreak] = useState(
+    () => readNumber(`evolv_${courseId}_streak`, 0)
+  );
+
+  const [expandedWorld, setExpandedWorld] = useState(0);
+  const [selectedTopic, setSelectedTopic] = useState(null);
 
   const completedSet = useMemo(
-    () => new Set(completedIds),
+    () => new Set(completedIds.map(Number)),
     [completedIds]
   );
 
   const completedCount = lessons.filter((lesson) =>
-    completedSet.has(lesson.id)
+    completedSet.has(Number(lesson.id))
   ).length;
 
-  const totalLessons = lessons.length;
+  const progress = lessons.length
+    ? Math.round((completedCount / lessons.length) * 100)
+    : 0;
 
-  const totalXP = lessons.reduce(
-    (sum, lesson) =>
-      sum +
-      (completedSet.has(lesson.id) ? Number(lesson.xp) || 0 : 0),
+  const nextLesson =
+    lessons.find((lesson) => !completedSet.has(Number(lesson.id))) || null;
+
+  const activeWorldIndex = nextLesson
+    ? groups.findIndex((group) =>
+        group.lessons.some(
+          (lesson) => Number(lesson.id) === Number(nextLesson.id)
+        )
+      )
+    : Math.max(0, groups.length - 1);
+
+  const allComplete =
+    lessons.length > 0 && completedCount === lessons.length;
+
+  const earnedXp = lessons.reduce(
+    (total, lesson) =>
+      completedSet.has(Number(lesson.id))
+        ? total + xpFor(lesson)
+        : total,
     0
   );
 
-  const progress = totalLessons
-    ? Math.round((completedCount / totalLessons) * 100)
-    : 0;
+  const displayedXp = Math.max(xp, earnedXp);
 
-  // Find the first lesson that has not been completed.
-  const nextLessonIndex = lessons.findIndex(
-    (lesson) => !completedSet.has(lesson.id)
+  const quizAttemptCount = lessons.reduce(
+    (total, lesson) =>
+      total + quizResultFor(quizScores, lesson.id).attempts,
+    0
   );
 
-  const nextLesson =
-    nextLessonIndex >= 0 ? lessons[nextLessonIndex] : null;
+  const refreshProgress = useCallback(() => {
+    setCompletedIds(readCompleted(courseId));
+    setQuizScores(readQuizScores(courseId));
+    setXp(readNumber(`evolv_${courseId}_xp`, 0));
+    setStreak(readNumber(`evolv_${courseId}_streak`, 0));
+  }, [courseId]);
 
-  const groupedLessons = useMemo(() => {
-    const groups = new Map();
+  useEffect(() => {
+    refreshProgress();
 
-    lessons.forEach((lesson, index) => {
-      const area = lesson.area || "Learning Trail";
-
-      if (!groups.has(area)) groups.set(area, []);
-
-      groups.get(area).push({
-        ...lesson,
-        originalIndex: index,
-      });
-    });
-
-    return Array.from(groups.entries());
-  }, [lessons]);
-
-  // A lesson unlocks only when the immediately previous lesson is complete.
-  function isUnlocked(index) {
-    if (index === 0) return true;
-    return completedSet.has(lessons[index - 1]?.id);
-  }
-
-  function completeLesson(lessonId) {
-    setCompletedIds((current) => {
-      if (current.includes(lessonId)) return current;
-
-      const updated = [...current, lessonId];
-
-      try {
-        localStorage.setItem(storageKey, JSON.stringify(updated));
-      } catch (error) {
-        console.error("Could not save lesson progress:", error);
+    const handleStorage = (event) => {
+      if (
+        !event ||
+        event.key === null ||
+        event.key === `evolv_${courseId}_completed` ||
+        event.key === `evolv_${courseId}_xp` ||
+        event.key === `evolv_${courseId}_streak` ||
+        event.key === `evolv_${courseId}_quiz_scores`
+      ) {
+        refreshProgress();
       }
+    };
 
-      return updated;
-    });
-  }
+    window.addEventListener("focus", refreshProgress);
+    window.addEventListener("storage", handleStorage);
+    window.addEventListener("evolv-progress-updated", refreshProgress);
 
-  function handleLogout() {
-    localStorage.removeItem("evolv_token");
-    sessionStorage.removeItem("evolv_token");
-    localStorage.removeItem("evolv_user");
-    sessionStorage.removeItem("evolv_user");
+    return () => {
+      window.removeEventListener("focus", refreshProgress);
+      window.removeEventListener("storage", handleStorage);
+      window.removeEventListener(
+        "evolv-progress-updated",
+        refreshProgress
+      );
+    };
+  }, [courseId, refreshProgress]);
 
-    navigate("/login", { replace: true });
-  }
-
-  function openLesson(lesson) {
-    navigate(`/study/${course.id}/lesson/${lesson.id}`);
-  }
-
-  function startNextLesson() {
-    if (nextLesson && isUnlocked(nextLessonIndex)) {
-      openLesson(nextLesson);
+  useEffect(() => {
+    if (activeWorldIndex < 0) {
+      setExpandedWorld(0);
+      setSelectedTopic(null);
+      return;
     }
+
+    setExpandedWorld(activeWorldIndex);
+
+    const activeLesson = groups[activeWorldIndex]?.lessons.find(
+      (lesson) => Number(lesson.id) === Number(nextLesson?.id)
+    );
+
+    setSelectedTopic(
+      activeLesson ? Number(activeLesson.id) : null
+    );
+  }, [courseId, activeWorldIndex, nextLesson?.id, groups]);
+
+  function isWorldUnlocked(groupIndex) {
+    if (groupIndex === 0) return true;
+
+    return groups
+      .slice(0, groupIndex)
+      .every((group) =>
+        group.lessons.every((lesson) =>
+          completedSet.has(Number(lesson.id))
+        )
+      );
   }
+
+  function isLessonUnlocked(index) {
+    if (index === 0) return true;
+
+    return completedSet.has(Number(lessons[index - 1]?.id));
+  }
+
+  function toggleWorld(index) {
+    const group = groups[index];
+    if (!group || !isWorldUnlocked(index)) return;
+
+    if (expandedWorld === index) {
+      setExpandedWorld(null);
+      setSelectedTopic(null);
+      return;
+    }
+
+    setExpandedWorld(index);
+
+    const firstAvailable =
+      group.lessons.find((lesson) =>
+        isLessonUnlocked(lesson._index)
+      ) || group.lessons[0];
+
+    setSelectedTopic(firstAvailable ? Number(firstAvailable.id) : null);
+  }
+
+  function selectTopic(lesson) {
+    if (!isLessonUnlocked(lesson._index)) return;
+    setSelectedTopic(Number(lesson.id));
+  }
+
+  const selectedGroup =
+    expandedWorld === null ? null : groups[expandedWorld];
+
+  const selectedLesson =
+    selectedGroup?.lessons.find(
+      (lesson) => Number(lesson.id) === Number(selectedTopic)
+    ) || null;
+
+  const selectedLessonCompleted = selectedLesson
+    ? completedSet.has(Number(selectedLesson.id))
+    : false;
+
+  const selectedLessonUnlocked = selectedLesson
+    ? isLessonUnlocked(selectedLesson._index)
+    : false;
+
+  const selectedQuizResult = selectedLesson
+    ? quizResultFor(quizScores, selectedLesson.id)
+    : null;
 
   return (
-    <div className={`study-map-page theme-${course.color || "green"}`}>
-      <button
-        type="button"
-        className="sm-mobile-menu"
-        onClick={() => setMobileMenuOpen((open) => !open)}
-        aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-        aria-expanded={mobileMenuOpen}
-      >
-        {mobileMenuOpen ? <X size={23} /> : <Menu size={23} />}
-      </button>
+    <div className="sm-page">
+      <Navbar />
 
-      {mobileMenuOpen && (
-        <button
-          type="button"
-          className="sm-mobile-backdrop"
-          aria-label="Close navigation"
-          onClick={() => setMobileMenuOpen(false)}
-        />
-      )}
+      <main className="sm-main">
+        <header className="sm-topbar">
+          <div className="sm-breadcrumb">
+            <Link to="/dashboard">Workspace</Link>
+            <span>/</span>
+            <strong>Study Map</strong>
+          </div>
 
-      <div className="sm-app-layout">
-        <div
-          className={`sm-sidebar-shell ${
-            mobileMenuOpen ? "sm-sidebar-open" : ""
-          }`}
-        >
-          <Sidebar
-            course={course}
-            closeMobile={() => setMobileMenuOpen(false)}
-            onLogout={handleLogout}
-          />
-        </div>
+          <div className="sm-topbar-actions">
+            <span>One checkpoint at a time</span>
+            <span className="sm-topbar-avatar">{course.icon}</span>
+          </div>
+        </header>
 
-        <main className="sm-main">
-          <header className="sm-topbar">
-            <div>
-              <span className="sm-eyebrow">
-                <Sparkles size={14} />
-                YOUR LEARNING ADVENTURE
-              </span>
-              <h1>{course.language} learning path</h1>
-              <p>Little lessons. Big progress.</p>
-            </div>
+        <div className="sm-content">
+          <section className="sm-page-heading">
+            <Link to="/dashboard" className="sm-back-link">
+              <ArrowLeft size={15} />
+              Back to Home
+            </Link>
 
-            <div className="sm-topbar-badge">
-              <span className="sm-topbar-badge-icon">
-                <GraduationCap size={21} />
-              </span>
-              <div>
-                <strong>
-                  {completedCount}/{totalLessons}
-                </strong>
-                <span>Levels completed</span>
+            <div className="sm-heading-main">
+              <div className="sm-heading-copy">
+                <span className="sm-eyebrow">
+                  <Sparkles size={14} />
+                  YOUR LEARNING ADVENTURE
+                </span>
+
+                <h1>Your Study Map</h1>
+
+                <p>
+                  Travel through learning worlds. Choose a topic and
+                  follow its levels to master Python.
+                </p>
+              </div>
+
+              <div className="sm-course-emblem">
+                <span>{course.icon}</span>
+                <Sparkles className="sm-emblem-spark" size={18} />
               </div>
             </div>
-          </header>
+          </section>
 
-          <section className="sm-hero">
-            <div className="sm-hero-copy">
-              <span className="sm-hero-pill">
-                <Sparkles size={14} />
-                YOUR NEXT ADVENTURE
+          <section className="sm-course-banner">
+            <div className="sm-course-banner-copy">
+              <span className="sm-course-label">
+                <span className="sm-status-dot" />
+                ACTIVE COURSE
               </span>
 
-              <h2>
-                Learn a little.
-                <br />
-                <span>Grow a lot.</span>
-              </h2>
+              <h2>{course.title}</h2>
+              <p>{course.description}</p>
 
-              <p>
-                {course.subtitle ||
-                  "Follow your path, complete exercises, and unlock new levels."}
-              </p>
-
-              <p className="sm-hero-subtext">
-                Complete each level to unlock the next step in your journey.
-              </p>
-
-              <div className="sm-hero-actions">
-                <button
-                  type="button"
-                  className="sm-primary-button"
-                  onClick={startNextLesson}
-                  disabled={!nextLesson}
-                >
-                  {nextLesson ? "Continue learning" : "Journey completed"}
-                  <ChevronRight size={19} />
-                </button>
-
-                <span className="sm-hero-note">
-                  <span />
-                  {progress}% of your path complete
+              <div className="sm-course-meta">
+                <span>
+                  <BookOpen size={15} />
+                  {lessons.length} topics
+                </span>
+                <span>
+                  <Clock3 size={15} />
+                  About {formatMinutes(lessons)} min
+                </span>
+                <span>
+                  <Target size={15} />
+                  Beginner friendly
                 </span>
               </div>
             </div>
 
-            <div className="sm-hero-art" aria-hidden="true">
-              <span className="sm-art-orbit sm-orbit-one" />
-              <span className="sm-art-orbit sm-orbit-two" />
-              <span className="sm-art-spark sm-art-spark-one">✦</span>
-              <span className="sm-art-spark sm-art-spark-two">✧</span>
+            <div className="sm-course-progress">
+              <div
+                className="sm-progress-ring"
+                style={{ "--progress": `${progress}%` }}
+                role="img"
+                aria-label={`${progress}% of lessons completed`}
+              >
+                <div className="sm-progress-ring-inner">
+                  <strong>{progress}%</strong>
+                  <span>complete</span>
+                </div>
+              </div>
 
-              <div className="sm-art-book">{course.icon || "📘"}</div>
-              <ExplorerCompanion />
-
-              <span className="sm-art-float sm-art-float-top">
-                <Code2 size={16} />
-                Keep learning!
-              </span>
-
-              <span className="sm-art-float sm-art-float-bottom">
-                <Zap size={16} />
-                Earn XP
-              </span>
+              <div className="sm-course-progress-text">
+                <strong>
+                  {completedCount} of {lessons.length}
+                </strong>
+                <span>lessons completed</span>
+              </div>
             </div>
           </section>
 
           <section className="sm-stat-grid" aria-label="Learning statistics">
-            <article className="sm-stat-card">
-              <span className="sm-stat-icon sm-stat-pink">
-                <Check size={23} />
-              </span>
+            <article className="sm-stat-card sm-stat-xp">
+              <span className="sm-stat-icon"><Zap size={19} /></span>
+              <div><span>Total XP</span><strong>{displayedXp}</strong></div>
+            </article>
+
+            <article className="sm-stat-card sm-stat-streak">
+              <span className="sm-stat-icon"><Flame size={19} /></span>
+              <div><span>Learning streak</span><strong>{streak} days</strong></div>
+            </article>
+
+            <article className="sm-stat-card sm-stat-completed">
+              <span className="sm-stat-icon"><CheckCircle2 size={19} /></span>
               <div>
-                <span className="sm-stat-label">Levels completed</span>
-                <div className="sm-stat-value">
-                  {completedCount}
-                  <small> / {totalLessons}</small>
-                </div>
-                <p>Every step counts!</p>
+                <span>Lessons completed</span>
+                <strong>{completedCount}/{lessons.length}</strong>
               </div>
             </article>
 
-            <article className="sm-stat-card">
-              <span className="sm-stat-icon sm-stat-blue">
-                <Trophy size={23} />
-              </span>
-              <div>
-                <span className="sm-stat-label">Experience points</span>
-                <div className="sm-stat-value">
-                  {totalXP}
-                  <small> XP</small>
-                </div>
-                <p>{totalXP ? "Great work so far!" : "Your first reward awaits"}</p>
-              </div>
-            </article>
-
-            <article className="sm-stat-card">
-              <span className="sm-stat-icon sm-stat-green">
-                <Flame size={23} />
-              </span>
-              <div>
-                <span className="sm-stat-label">Learning streak</span>
-                <div className="sm-stat-value">
-                  {completedCount > 0 ? 1 : 0}
-                  <small> day demo</small>
-                </div>
-                <p>Keep building your habit!</p>
-              </div>
-            </article>
-
-            <article className="sm-stat-card">
-              <span className="sm-stat-icon sm-stat-purple">
-                <Target size={23} />
-              </span>
-              <div>
-                <span className="sm-stat-label">Course progress</span>
-                <div className="sm-stat-value">
-                  {progress}
-                  <small>%</small>
-                </div>
-                <p>Your journey starts here</p>
-              </div>
+            <article className="sm-stat-card sm-stat-next">
+              <span className="sm-stat-icon"><Award size={19} /></span>
+              <div><span>Quiz attempts</span><strong>{quizAttemptCount}</strong></div>
             </article>
           </section>
 
-          <section className="sm-course-switcher">
-            <div className="sm-switcher-heading">
-              <span className="sm-eyebrow">CHOOSE YOUR WORLD</span>
-              <h2>Where shall we explore?</h2>
-            </div>
-
-            <div className="sm-course-options">
-              {courseOptions.map((option) => (
-                <button
-                  key={option.id}
-                  type="button"
-                  className={`sm-course-option ${
-                    option.id === course.id ? "selected" : ""
-                  }`}
-                  onClick={() => navigate(`/study/${option.id}`)}
-                  aria-pressed={option.id === course.id}
-                >
-                  <span>{option.icon || "📘"}</span>
-                  {option.language}
-                  {option.id === course.id && <Check size={15} />}
-                </button>
-              ))}
-            </div>
-          </section>
-
-          <section className="sm-journey-section">
+          <section className="sm-path-section">
             <div className="sm-section-heading">
               <div>
-                <span className="sm-eyebrow">YOUR LEARNING PATH</span>
-                <h2>Your adventure map</h2>
+                <span className="sm-eyebrow">EXPLORE · LEARN · LEVEL UP</span>
+                <h2>Your learning worlds</h2>
                 <p>
-                  Follow the trail, finish each level, and unlock your next
-                  checkpoint.
+                  Open a world, travel across its topic train, then
+                  explore the levels underneath your chosen topic.
                 </p>
               </div>
 
-              <div className="sm-legend">
-                <span><i className="sm-legend-available" /> Available</span>
-                <span><i className="sm-legend-done" /> Completed</span>
-                <span><i className="sm-legend-locked" /> Locked</span>
-              </div>
+              <span className="sm-path-count">
+                <Map size={15} />
+                {completedCount}/{lessons.length}
+              </span>
             </div>
 
-            {lessons.length === 0 ? (
-              <div className="sm-empty-state">
-                <BookOpen size={38} />
-                <h3>Your learning trail is waiting</h3>
-                <p>Add lessons to this course in coursePaths to build your map.</p>
-              </div>
-            ) : (
-              <div className="sm-map-landscape">
-                <span className="sm-landscape-cloud sm-cloud-one">☁</span>
-                <span className="sm-landscape-cloud sm-cloud-two">☁</span>
-                <span className="sm-landscape-sun">✳</span>
-                <span className="sm-landscape-plant sm-plant-one">🌿</span>
-                <span className="sm-landscape-plant sm-plant-two">🌱</span>
+            <div className="sm-legend">
+              <span><i className="legend-current" /> Current topic</span>
+              <span><i className="legend-completed" /> Completed</span>
+              <span><i className="legend-locked" /> Locked</span>
+            </div>
 
-                <div className="sm-map-path">
-                  {groupedLessons.map(([area, lessonsInArea], areaIndex) => {
-                    const info = areaInfo[area] || {
-                      icon: "🌿",
-                      subtitle: `Chapter ${areaIndex + 1}`,
-                      description: "Keep exploring and growing.",
-                    };
+            <div className="sm-world-list">
+              {groups.map((group, groupIndex) => {
+                const expanded = expandedWorld === groupIndex;
+                const worldLocked = !isWorldUnlocked(groupIndex);
 
-                    const chapterDone = lessonsInArea.every((lesson) =>
-                      completedSet.has(lesson.id)
-                    );
+                const worldCompleted = group.lessons.filter((lesson) =>
+                  completedSet.has(Number(lesson.id))
+                ).length;
 
-                    const firstIndex = lessonsInArea[0].originalIndex;
-                    const chapterUnlocked = isUnlocked(firstIndex);
+                const worldComplete =
+                  group.lessons.length > 0 &&
+                  worldCompleted === group.lessons.length;
 
-                    const chapterCompleted = lessonsInArea.filter((lesson) =>
-                      completedSet.has(lesson.id)
-                    ).length;
+                const worldHasCurrent = group.lessons.some(
+                  (lesson) =>
+                    Number(lesson.id) === Number(nextLesson?.id)
+                );
 
-                    return (
-                      <section className="sm-map-area" key={area}>
-                        <div className="sm-map-area-heading">
-                          <span
-                            className={`sm-map-area-icon ${
-                              chapterDone ? "sm-chapter-done" : ""
-                            }`}
-                          >
-                            {chapterDone ? <Check size={25} /> : info.icon}
-                          </span>
+                return (
+                  <section
+                    className={[
+                      "sm-world",
+                      expanded ? "is-expanded" : "",
+                      worldHasCurrent ? "is-active-world" : "",
+                      worldLocked ? "is-locked-world" : "",
+                      worldComplete ? "is-complete-world" : "",
+                    ].filter(Boolean).join(" ")}
+                    key={`${group.title}-${groupIndex}`}
+                  >
+                    <button
+                      type="button"
+                      className="sm-world-header"
+                      onClick={() => toggleWorld(groupIndex)}
+                      aria-expanded={expanded}
+                      disabled={worldLocked}
+                    >
+                      <span className="sm-world-icon">
+                        {worldComplete ? (
+                          <Check size={24} strokeWidth={3} />
+                        ) : worldLocked ? (
+                          <LockKeyhole size={21} />
+                        ) : (
+                          WORLD_ICONS[groupIndex % WORLD_ICONS.length]
+                        )}
+                      </span>
 
-                          <div className="sm-chapter-heading-copy">
-                            <span className="sm-chapter-kicker">
-                              {info.subtitle || `Chapter ${areaIndex + 1}`}
+                      <span className="sm-world-heading-copy">
+                        <span className="sm-world-kicker">
+                          WORLD {String(groupIndex + 1).padStart(2, "0")}
+                          {worldHasCurrent && (
+                            <span className="sm-world-current-label">
+                              CURRENT WORLD
                             </span>
-                            <h3>{area}</h3>
-                            <p>{info.description}</p>
-                          </div>
+                          )}
+                          {worldLocked && (
+                            <span className="sm-world-locked-label">LOCKED</span>
+                          )}
+                        </span>
 
-                          <span className="sm-chapter-count">
-                            {chapterCompleted}/{lessonsInArea.length}
-                          </span>
-                        </div>
+                        <strong>{group.title}</strong>
 
-                        <div className="sm-chapter-progress">
+                        <span className="sm-world-description">
+                          {WORLD_DESCRIPTIONS[groupIndex % WORLD_DESCRIPTIONS.length]}
+                        </span>
+                      </span>
+
+                      <span className="sm-world-progress">
+                        <span>{worldCompleted}/{group.lessons.length}</span>
+                        <span className="sm-world-progress-track">
                           <span
                             style={{
                               width: `${
-                                (chapterCompleted / lessonsInArea.length) * 100
+                                group.lessons.length
+                                  ? (worldCompleted / group.lessons.length) * 100
+                                  : 0
                               }%`,
                             }}
                           />
-                        </div>
+                        </span>
+                      </span>
 
-                        {!chapterUnlocked && (
-                          <div className="sm-chapter-locked-note">
-                            <LockKeyhole size={15} />
-                            Complete the previous level to unlock this chapter.
+                      <span className="sm-world-chevron">
+                        <ChevronDown size={20} />
+                      </span>
+                    </button>
+
+                    {expanded && (
+                      <div className="sm-world-content">
+                        <div className="sm-world-content-inner">
+                          <div className="sm-climb-intro">
+                            <span className="sm-climb-intro-icon">
+                              <Sparkles size={17} />
+                            </span>
+                            <div>
+                              <strong>Choose your next topic</strong>
+                              <p>
+                                Follow the train from left to right.
+                                Select a station to reveal its four levels.
+                              </p>
+                            </div>
                           </div>
-                        )}
 
-                        <div className="sm-checkpoint-grid">
-                          {lessonsInArea.map((lesson, localIndex) => {
-                            const index = lesson.originalIndex;
-                            const done = completedSet.has(lesson.id);
-                            const unlocked = isUnlocked(index);
-                            const active = unlocked && !done;
+                          {/* HORIZONTAL TOPIC TRAIN */}
+                          <div
+                            className="sm-topic-train"
+                            aria-label={`${group.title} topics`}
+                          >
+                            <div className="sm-topic-train-track" />
 
-                            const position =
-                              (index % 4) + 1;
+                            {group.lessons.map((lesson) => {
+                              const index = lesson._index;
+                              const lessonId = Number(lesson.id);
+                              const completed = completedSet.has(lessonId);
+                              const unlocked = isLessonUnlocked(index);
+                              const selected = selectedTopic === lessonId;
 
-                            return (
-                              <article
-                                className={[
-                                  "sm-checkpoint",
-                                  `sm-node-position-${position}`,
-                                  done ? "sm-checkpoint-done" : "",
-                                  active ? "sm-checkpoint-active" : "",
-                                  !unlocked ? "sm-checkpoint-locked" : "",
-                                ].filter(Boolean).join(" ")}
-                                key={lesson.id}
-                              >
+                              return (
                                 <button
                                   type="button"
-                                  className="sm-checkpoint-button"
+                                  key={lesson.id}
+                                  className={[
+                                    "sm-train-station",
+                                    completed ? "is-completed" : "",
+                                    selected ? "is-selected" : "",
+                                    !unlocked ? "is-locked" : "",
+                                    !completed && unlocked ? "is-current" : "",
+                                  ].filter(Boolean).join(" ")}
+                                  onClick={() => selectTopic(lesson)}
                                   disabled={!unlocked}
-                                  onClick={() => openLesson(lesson)}
-                                  aria-label={`${lesson.title}: ${
-                                    done
-                                      ? "completed"
-                                      : unlocked
-                                        ? "available"
-                                        : "locked"
-                                  }`}
+                                  aria-pressed={selected}
+                                  title={
+                                    unlocked
+                                      ? lesson.title
+                                      : "Complete the previous topic to unlock"
+                                  }
                                 >
-                                  <span className="sm-checkpoint-node">
-                                    {done ? (
-                                      <Check size={28} strokeWidth={3} />
+                                  <span className="sm-train-node">
+                                    {completed ? (
+                                      <Check size={17} strokeWidth={3} />
                                     ) : !unlocked ? (
-                                      <LockKeyhole size={23} />
+                                      <LockKeyhole size={15} />
                                     ) : (
-                                      <BookOpen size={26} />
+                                      <span>{index + 1}</span>
                                     )}
                                   </span>
 
-                                  {active && (
-                                    <span className="sm-checkpoint-current">
-                                      START
+                                  <span className="sm-train-card">
+                                    <span className="sm-train-number">
+                                      TOPIC {String(index + 1).padStart(2, "0")}
                                     </span>
-                                  )}
-
-                                  {done && (
-                                    <span className="sm-checkpoint-spark">✦</span>
-                                  )}
+                                    <strong>{lesson.title}</strong>
+                                    <span className="sm-train-meta">
+                                      <Clock3 size={12} />
+                                      {durationFor(lesson)}
+                                    </span>
+                                    <span className="sm-train-status">
+                                      {completed
+                                        ? "Completed"
+                                        : !unlocked
+                                          ? "Locked"
+                                          : selected
+                                            ? "Selected"
+                                            : `${xpFor(lesson)} XP`}
+                                    </span>
+                                  </span>
                                 </button>
+                              );
+                            })}
+                          </div>
 
-                                <div className="sm-checkpoint-label">
-                                  <span className="sm-checkpoint-status">
-                                    {done
-                                      ? "LEVEL COMPLETED"
-                                      : unlocked
-                                        ? "YOUR NEXT LEVEL"
-                                        : "LEVEL LOCKED"}
-                                  </span>
-
-                                  <span className="sm-level-number">
-                                    Level {index + 1}
-                                  </span>
-
-                                  <h4>{lesson.title}</h4>
-
-                                  <p>
-                                    {lesson.description ||
-                                      "Practise this concept and grow your skills."}
-                                  </p>
-
-                                  <div className="sm-checkpoint-meta">
-                                    <span>
-                                      <Clock3 size={13} />
-                                      {lesson.duration || "5 min"}
-                                    </span>
-                                    <span>
-                                      <Zap size={13} />
-                                      {lesson.xp || 10} XP
-                                    </span>
-                                  </div>
-
-                                  {unlocked && (
-                                    <button
-                                      type="button"
-                                      className="sm-level-action"
-                                      onClick={() => openLesson(lesson)}
-                                    >
-                                      {done ? "Practise again" : "Start level"}
-                                      <ChevronRight size={15} />
-                                    </button>
-                                  )}
-
-                                  {import.meta.env.DEV && unlocked && !done && (
-                                    <button
-                                      type="button"
-                                      className="sm-demo-complete"
-                                      onClick={() => completeLesson(lesson.id)}
-                                      title="Development testing only"
-                                    >
-                                      <Check size={13} />
-                                      Demo: complete level
-                                    </button>
+                          {/* SELECTED TOPIC DETAILS UNDER THE TRAIN */}
+                          {selectedLesson && (
+                            <article className="sm-selected-topic">
+                              <div className="sm-selected-topic-header">
+                                <div className="sm-selected-topic-icon">
+                                  {selectedLessonCompleted ? (
+                                    <CheckCircle2 size={23} />
+                                  ) : (
+                                    <BookOpen size={23} />
                                   )}
                                 </div>
-                              </article>
-                            );
-                          })}
-                        </div>
-                      </section>
-                    );
-                  })}
-                </div>
 
-                <div className="sm-finish-banner">
-                  <span className="sm-finish-icon">
-                    <Trophy size={25} />
-                  </span>
-                  <div>
-                    <strong>
-                      {progress === 100
-                        ? "You reached the summit!"
-                        : "The final challenge awaits!"}
-                    </strong>
-                    <p>
-                      {progress === 100
-                        ? "Amazing work. Keep practising your skills."
-                        : `Keep going to master ${course.language}.`}
-                    </p>
-                  </div>
-                  <Star size={24} className="sm-finish-star" />
-                </div>
-              </div>
+                                <div className="sm-selected-topic-copy">
+                                  <span>
+                                    SELECTED TOPIC · WORLD {groupIndex + 1}
+                                  </span>
+                                  <h3>{selectedLesson.title}</h3>
+                                  <p>
+                                    {selectedLesson.description ||
+                                      "Explore the concept, practise your code, and check your understanding."}
+                                  </p>
+                                </div>
+
+                                <span className="sm-selected-topic-xp">
+                                  <Zap size={14} />
+                                  {xpFor(selectedLesson)} XP
+                                </span>
+                              </div>
+
+                              <div className="sm-level-heading">
+                                <div>
+                                  <span className="sm-eyebrow">YOUR FOUR LEVELS</span>
+                                  <h4>Complete the journey</h4>
+                                </div>
+                                <span className="sm-level-order">01 → 02 → 03 → 04</span>
+                              </div>
+
+                              <div className="sm-level-grid">
+                                {STAGES.map((stage) => {
+                                  const Icon = stage.icon;
+                                  const isQuiz = stage.id === "solve";
+                                  const quizUnlocked =
+                                    selectedLessonUnlocked &&
+                                    selectedLessonCompleted;
+
+                                  const status = stageStatus(
+                                    stage.id,
+                                    selectedLessonCompleted,
+                                    selectedLessonUnlocked
+                                  );
+
+                                  const stageLocked =
+                                    status === "locked" ||
+                                    (isQuiz && !quizUnlocked);
+
+                                  const href = isQuiz
+                                    ? `/study/${courseId}/lesson/${selectedLesson.id}/quiz`
+                                    : `/study/${courseId}/lesson/${selectedLesson.id}?stage=${stage.id}`;
+
+                                  const score = selectedQuizResult?.latestScore;
+
+                                  return (
+                                    <div
+                                      className={[
+                                        "sm-level-card",
+                                        `stage-${stage.color}`,
+                                        `stage-status-${status}`,
+                                        stageLocked ? "is-locked" : "",
+                                      ].filter(Boolean).join(" ")}
+                                      key={stage.id}
+                                    >
+                                      <span className="sm-level-card-number">
+                                        {stage.label}
+                                      </span>
+
+                                      <span className="sm-level-card-icon">
+                                        {status === "completed" ? (
+                                          <Check size={21} strokeWidth={3} />
+                                        ) : stageLocked ? (
+                                          <LockKeyhole size={19} />
+                                        ) : (
+                                          <Icon size={21} />
+                                        )}
+                                      </span>
+
+                                      <div className="sm-level-card-copy">
+                                        <strong>{stage.title}</strong>
+                                        <span>{stage.description}</span>
+
+                                        {isQuiz && score !== null && score !== undefined && (
+                                          <small>
+                                            Latest {score}/5
+                                            {selectedQuizResult.bestScore !== null &&
+                                              ` · Best ${selectedQuizResult.bestScore}/5`}
+                                          </small>
+                                        )}
+                                      </div>
+
+                                      {stageLocked ? (
+                                        <span
+                                          className="sm-level-action is-disabled"
+                                          title={
+                                            isQuiz
+                                              ? "Complete the lesson to unlock the quiz"
+                                              : "Complete the previous topic to unlock this level"
+                                          }
+                                        >
+                                          <LockKeyhole size={14} />
+                                          Locked
+                                        </span>
+                                      ) : (
+                                        <Link
+                                          to={href}
+                                          className="sm-level-action"
+                                        >
+                                          {status === "completed"
+                                            ? "Review"
+                                            : isQuiz
+                                              ? "Take quiz"
+                                              : "Open level"}
+                                          <ArrowRight size={14} />
+                                        </Link>
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+
+                              <div className="sm-selected-topic-footer">
+                                <div className="sm-topic-status">
+                                  {selectedLessonCompleted ? (
+                                    <>
+                                      <CheckCircle2 size={16} />
+                                      Lesson completed
+                                      {selectedQuizResult?.latestScore !== null &&
+                                        selectedQuizResult?.latestScore !== undefined &&
+                                        ` · Quiz ${selectedQuizResult.latestScore}/5`}
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Sparkles size={16} />
+                                      Start with Watch, then continue through each level.
+                                    </>
+                                  )}
+                                </div>
+
+                                <Link
+                                  to={`/study/${courseId}/lesson/${selectedLesson.id}`}
+                                  className="sm-topic-action"
+                                >
+                                  {selectedLessonCompleted ? "Review lesson" : "Start lesson"}
+                                  <ArrowRight size={15} />
+                                </Link>
+                              </div>
+                            </article>
+                          )}
+
+                          {!selectedLesson && (
+                            <div className="sm-select-topic-prompt">
+                              <Map size={22} />
+                              <strong>Choose a station on the topic train</strong>
+                              <p>Select an unlocked topic to see its four learning levels here.</p>
+                            </div>
+                          )}
+
+                          <div className="sm-world-end">
+                            <span className="sm-world-end-icon">
+                              {worldComplete ? <Trophy size={19} /> : <Flag size={18} />}
+                            </span>
+                            <span>
+                              <strong>
+                                {worldComplete ? "World conquered!" : "World milestone"}
+                              </strong>
+                              <small>
+                                {worldCompleted} of {group.lessons.length} topics completed
+                              </small>
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </section>
+                );
+              })}
+            </div>
+          </section>
+
+          <section className="sm-path-finish">
+            <div className="sm-finish-icon">
+              {allComplete ? <Trophy size={26} /> : <Star size={25} />}
+            </div>
+
+            <div className="sm-finish-copy">
+              <span>YOUR NEXT MILESTONE</span>
+              <h3>
+                {allComplete
+                  ? "You conquered every lesson!"
+                  : nextLesson
+                    ? `Continue with ${nextLesson.title}`
+                    : "Your adventure awaits"}
+              </h3>
+              <p>
+                {allComplete
+                  ? "Amazing work. Revisit any lesson and quiz whenever you want to practise."
+                  : "Choose the next station on your train and continue your learning journey."}
+              </p>
+            </div>
+
+            {nextLesson && (
+              <Link
+                to={`/study/${courseId}/lesson/${nextLesson.id}`}
+                className="sm-finish-button"
+              >
+                Continue <ArrowRight size={15} />
+              </Link>
             )}
+          </section>
+
+          <section className="sm-bottom-banner">
+            <div className="sm-bottom-banner-icon">
+              <Sparkles size={23} />
+            </div>
+            <div>
+              <h3>Small steps make big progress.</h3>
+              <p>Watch. Understand. Apply. Solve. Keep evolving.</p>
+            </div>
+            <Link to="/dashboard" className="sm-bottom-link">
+              Home <ArrowRight size={15} />
+            </Link>
           </section>
 
           <footer className="sm-footer">
             <Link to="/dashboard" className="sm-footer-brand">
-              EVOLV<span>.</span>
+              <span>✦</span> EVOLV<span className="sm-footer-dot">.</span>
             </Link>
-            <span>Learn. Build. Grow. Keep becoming.</span>
-            <span>{completedCount}/{totalLessons} levels completed</span>
+            <span>Learn. Practise. Keep evolving.</span>
           </footer>
-        </main>
+        </div>
+      </main>
 
-        <aside className="sm-right-sidebar">
-          <section className="sm-widget sm-super-widget">
-            <span className="sm-widget-eyebrow">
-              <Sparkles size={14} /> YOUR NEXT STEP
-            </span>
-            <div className="sm-super-art">🚀</div>
-            <h3>One level at a time</h3>
-            <p>Finish an exercise, earn XP, and unlock your next challenge.</p>
-            <button
-              type="button"
-              className="sm-widget-button"
-              onClick={startNextLesson}
-              disabled={!nextLesson}
-            >
-              {nextLesson ? "CONTINUE LEARNING" : "COURSE COMPLETED"}
-              <ChevronRight size={16} />
-            </button>
-          </section>
-
-          <section className="sm-widget sm-league-widget">
-            <div className="sm-widget-heading">
-              <h3>Your achievements</h3>
-              <Trophy size={19} />
-            </div>
-
-            <div className="sm-achievement">
-              <span className="sm-achievement-icon">
-                <ShieldCheck size={28} />
-              </span>
-              <div>
-                <strong>
-                  {completedCount > 0 ? "First steps taken!" : "First badge"}
-                </strong>
-                <p>
-                  {completedCount > 0
-                    ? `${completedCount} level${completedCount === 1 ? "" : "s"} completed`
-                    : "Complete your first level to begin."}
-                </p>
-              </div>
-            </div>
-
-            <div className="sm-achievement">
-              <span className="sm-achievement-icon sm-achievement-gold">
-                <Star size={27} />
-              </span>
-              <div>
-                <strong>{totalXP >= 50 ? "XP collector!" : "XP collector"}</strong>
-                <p>
-                  {totalXP >= 50
-                    ? "50 XP milestone reached."
-                    : `${totalXP}/50 XP earned`}
-                </p>
-              </div>
-            </div>
-          </section>
-
-          <section className="sm-widget sm-quests-widget">
-            <div className="sm-widget-heading">
-              <h3>Daily quests</h3>
-              <Sparkles size={19} />
-            </div>
-
-            <div className="sm-quest">
-              <span className="sm-quest-icon sm-quest-yellow">
-                <Zap size={23} />
-              </span>
-              <div className="sm-quest-content">
-                <strong>Complete one level</strong>
-                <p>{Math.min(completedCount, 1)} / 1 completed</p>
-                <div className="sm-quest-track">
-                  <span style={{ width: completedCount > 0 ? "100%" : "0%" }} />
-                </div>
-              </div>
-            </div>
-
-            <div className="sm-quest">
-              <span className="sm-quest-icon sm-quest-green">
-                <Target size={23} />
-              </span>
-              <div className="sm-quest-content">
-                <strong>Reach 50 XP</strong>
-                <p>{Math.min(totalXP, 50)} / 50 XP</p>
-                <div className="sm-quest-track">
-                  <span
-                    style={{
-                      width: `${Math.min((totalXP / 50) * 100, 100)}%`,
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="sm-quest">
-              <span className="sm-quest-icon sm-quest-blue">
-                <BookOpen size={23} />
-              </span>
-              <div className="sm-quest-content">
-                <strong>Explore your course</strong>
-                <p>{completedCount} / {totalLessons} levels</p>
-                <div className="sm-quest-track">
-                  <span style={{ width: `${progress}%` }} />
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section className="sm-widget sm-progress-widget">
-            <div className="sm-widget-heading">
-              <h3>Course progress</h3>
-              <Target size={19} />
-            </div>
-
-            <div className="sm-big-progress">
-              <div
-                className="sm-progress-ring"
-                style={{ "--sm-progress": `${progress}%` }}
-                role="img"
-                aria-label={`${progress}% completed`}
-              >
-                <span>{progress}%</span>
-              </div>
-              <div>
-                <strong>{course.language}</strong>
-                <p>{completedCount} of {totalLessons} levels complete</p>
-              </div>
-            </div>
-
-            <div className="sm-progress-track">
-              <span style={{ width: `${progress}%` }} />
-            </div>
-
-            <p className="sm-progress-message">
-              {nextLesson
-                ? `Next up: ${nextLesson.title}`
-                : "You've completed this learning path!"}
-            </p>
-          </section>
-
-          <section className="sm-companion-widget">
-            <ExplorerCompanion />
-            <div>
-              <strong>You've got this!</strong>
-              <p>Learn at your own pace. Every level matters.</p>
-            </div>
-          </section>
-        </aside>
-      </div>
+      <Rightbar />
     </div>
   );
 }

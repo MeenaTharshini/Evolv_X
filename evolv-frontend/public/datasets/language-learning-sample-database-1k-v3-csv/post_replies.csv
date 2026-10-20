@@ -1,0 +1,41 @@
+reply_id,post_id,reply_content,reply_date,user_id
+1,16,The item was closed following a repeat review.,2023-09-09 09:10:24,45
+2,1,The customer reported an incomplete issue; the order was confirmed.,2024-02-25 07:17:03,101
+3,1,A repeat follow-up: the document was reopened.,2024-02-24 10:11:14,77
+4,1,"The report was replaced — late case, no further action.",2024-02-23 16:05:47,51
+5,12,"No response from the account owner, so the ticket was refunded.",2026-01-01 15:16:17,61
+6,5,The transfer was completed following an automatic review.,2024-01-13 18:07:16,1
+7,2,A standard refund was approved the same day.,2022-07-08 18:00:51,16
+8,2,"The claim was refunded — standard case, no further action.",2022-07-10 16:23:05,1
+9,5,Flagged as unusual. An operator reopened the refund.,2024-01-11 21:28:02,76
+10,4,The supplier reported a routine issue; the report was resolved.,2023-02-23 20:20:03,1
+11,12,The account owner confirmed the details and the ticket was resolved.,2026-01-03 15:39:34,37
+12,3,The customer reported a partial issue; the record was confirmed.,2026-03-17 10:01:03,125
+13,1,The refund was approved following an urgent review.,2024-02-21 16:41:52,9
+14,9,"The delivery was approved — duplicate case, no further action.",2023-05-20 02:32:30,22
+15,20,The courier confirmed the details and the record was reviewed.,2023-08-28 19:48:48,119
+16,4,An operator reported a partial issue; the payment was updated.,2023-02-23 23:08:44,69
+17,17,"No response from support, so the item was delayed.",2023-12-20 05:34:10,5
+18,1,The order was reviewed following an urgent review.,2024-02-23 20:33:13,35
+19,6,The appointment was rescheduled following a repeat review.,2022-07-18 20:28:43,109
+20,18,Flagged as routine. An operator closed the account.,2026-01-14 08:15:55,26
+21,5,The supplier reported a partial issue; the refund was replaced.,2024-01-09 09:58:14,28
+22,1,The customer confirmed the details and the report was reopened.,2024-02-21 22:54:28,7
+23,15,An unusual record was cancelled the same day.,2023-06-16 09:25:57,115
+24,18,"The order was completed — manual case, no further action.",2026-01-13 19:49:51,112
+25,2,The item was completed after a partial check.,2022-07-09 21:14:42,15
+26,4,A routine follow-up: the session was confirmed.,2023-02-23 22:35:57,73
+27,7,"The account was processed — automatic case, no further action.",2023-02-08 16:49:19,38
+28,9,The courier reported an unusual issue; the ticket was refunded.,2023-05-20 14:25:55,11
+29,13,An incomplete follow-up: the report was completed.,2025-04-21 23:59:32,21
+30,8,"The order was processed — duplicate case, no further action.",2024-12-24 15:07:35,87
+31,10,An urgent refund was processed the same day.,2023-12-15 18:09:30,7
+32,12,The supplier reported an unusual issue; the shipment was escalated.,2026-01-04 21:03:00,104
+33,1,The session was rescheduled following a minor review.,2024-02-22 16:13:57,4
+34,10,"No response from the team, so the ticket was updated.",2023-12-14 12:26:47,10
+35,16,"No response from an operator, so the transfer was reviewed.",2023-09-07 07:05:40,28
+36,1,The account owner reported an automatic issue; the delivery was processed.,2024-02-25 15:17:07,9
+37,11,The team reported a minor issue; the document was cancelled.,2024-05-16 10:06:30,94
+38,17,An operator confirmed the details and the record was resolved.,2023-12-19 08:21:28,1
+39,20,Support confirmed the details and the refund was confirmed.,2023-08-28 08:44:11,50
+40,17,An unusual follow-up: the item was confirmed.,2023-12-20 21:59:00,82

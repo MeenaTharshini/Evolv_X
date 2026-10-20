@@ -1,0 +1,21 @@
+post_id,forum_id,post_content,post_date,user_id
+1,10,An urgent transfer was reviewed the same day. A repeat transfer was rejected the same day.,2024-02-20 19:54:28,4
+2,1,An incomplete order was resolved the same day. A minor account was reopened the same day. An incomplete refund was delayed the same day.,2022-07-07 22:37:17,8
+3,1,A repeat invoice was updated the same day. An urgent item was refunded the same day. A minor record was rejected the same day. An urgent delivery was cancelled the same day.,2026-03-16 01:56:18,10
+4,1,Flagged as late. Support confirmed the session. A manual payment was cancelled the same day. A late item was escalated the same day.,2023-02-22 19:07:16,2
+5,8,A standard follow-up: the invoice was closed. A repeat follow-up: the payment was resolved. A minor request was rejected the same day.,2024-01-08 18:21:05,29
+6,2,A minor follow-up: the invoice was completed. A late transfer was processed the same day. A routine record was confirmed the same day.,2022-07-16 22:21:45,87
+7,1,The item was approved after an urgent check. A late order was escalated the same day. A minor item was delayed the same day. A partial item was reviewed the same day.,2023-02-04 16:04:37,2
+8,4,A late ticket was reviewed the same day. An urgent session was reviewed the same day. The item was refunded after a minor check. A repeat follow-up: the delivery was updated.,2024-12-19 14:20:21,36
+9,4,The refund was completed after a late check. A repeat booking was cancelled the same day. A partial invoice was approved the same day.,2023-05-15 12:09:54,61
+10,1,The shipment was reviewed after a repeat check. An urgent order was reviewed the same day. An unusual item was escalated the same day.,2023-12-12 09:15:39,123
+11,3,A minor ticket was rescheduled the same day. A late follow-up: the claim was delayed.,2024-05-13 07:59:58,51
+12,1,A standard follow-up: the claim was delayed. A late item was reopened the same day. A late appointment was rejected the same day. A minor document was reopened the same day.,2025-12-31 09:07:45,78
+13,1,An urgent invoice was replaced the same day. A standard payment was closed the same day.,2025-04-21 16:51:08,3
+14,1,A partial booking was completed the same day. The refund was closed after an urgent check.,2023-04-12 19:54:04,66
+15,1,A minor invoice was cancelled the same day. A partial shipment was reopened the same day.,2023-06-12 11:37:41,2
+16,11,An incomplete order was processed the same day. A late report was processed the same day.,2023-09-05 08:32:54,56
+17,3,A manual session was rejected the same day. A partial ticket was rejected the same day. An automatic order was updated the same day.,2023-12-17 12:20:28,14
+18,1,A late delivery was rescheduled the same day. A minor claim was rejected the same day.,2026-01-11 14:29:39,103
+19,1,A routine follow-up: the item was delayed. The booking was refunded after a late check. A repeat follow-up: the item was reviewed.,2024-03-19 11:32:29,9
+20,1,Flagged as manual. Support closed the session. An unusual ticket was escalated the same day.,2023-08-24 09:10:36,6

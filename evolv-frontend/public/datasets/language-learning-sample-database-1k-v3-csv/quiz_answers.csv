@@ -1,0 +1,4801 @@
+answer_id,answer_text,is_correct,question_id
+1,always,true,1
+2,thank you city please,false,526
+3,tomorrow,true,43
+4,house tomorrow,false,256
+5,never tomorrow,false,78
+6,never water friend,false,20
+7,house,false,269
+8,breakfast yesterday,true,204
+9,friend teacher,true,384
+10,house teacher friend,false,407
+11,beautiful never,false,1058
+12,teacher,false,902
+13,breakfast,false,174
+14,quickly friend,false,907
+15,breakfast house always,false,695
+16,always,false,6
+17,please breakfast quickly,false,529
+18,city station tomorrow,false,2
+19,city water,false,861
+20,ticket house,false,697
+21,yesterday ticket beautiful,false,1
+22,ticket beautiful thank you,false,753
+23,breakfast ticket yesterday,false,1125
+24,please never beautiful,false,837
+25,friend water house,false,227
+26,friend,false,853
+27,please,false,365
+28,teacher,false,212
+29,beautiful,false,8
+30,beautiful thank you,false,4
+31,breakfast water,true,1195
+32,friend never,true,1175
+33,city thank you yesterday,false,113
+34,ticket water city,false,83
+35,teacher please city,false,1124
+36,please,false,952
+37,quickly water,false,87
+38,teacher beautiful house,true,24
+39,ticket breakfast,true,11
+40,beautiful breakfast,true,462
+41,please friend,false,501
+42,teacher yesterday,false,3
+43,station water,false,106
+44,house,false,730
+45,ticket please always,true,587
+46,station water ticket,false,334
+47,city,false,2
+48,water friend house,false,158
+49,ticket quickly thank you,false,245
+50,station breakfast,true,1015
+51,city always breakfast,true,183
+52,house teacher,false,350
+53,teacher water please,false,1154
+54,station quickly tomorrow,false,290
+55,never tomorrow,false,153
+56,ticket always,false,52
+57,ticket quickly,false,534
+58,house quickly,false,4
+59,yesterday water,false,1096
+60,beautiful,true,314
+61,thank you please never,false,218
+62,thank you,false,402
+63,house teacher station,true,298
+64,teacher house,false,29
+65,yesterday friend thank you,false,1128
+66,never beautiful,false,1187
+67,water,false,220
+68,never friend,false,573
+69,city quickly tomorrow,false,1079
+70,always,false,20
+71,house quickly,false,514
+72,breakfast,false,941
+73,teacher,true,137
+74,always breakfast,false,233
+75,friend beautiful,true,13
+76,quickly,false,329
+77,water city,true,577
+78,please,true,999
+79,ticket yesterday breakfast,true,94
+80,breakfast city beautiful,false,412
+81,tomorrow ticket please,false,93
+82,beautiful quickly,true,13
+83,tomorrow please,false,312
+84,beautiful thank you please,false,196
+85,city,false,585
+86,thank you,false,69
+87,yesterday station friend,false,14
+88,beautiful,false,908
+89,house city thank you,true,193
+90,station beautiful,false,139
+91,ticket teacher,true,613
+92,house,false,13
+93,yesterday never,true,383
+94,friend tomorrow,false,89
+95,thank you always breakfast,false,576
+96,please,true,1078
+97,beautiful,false,184
+98,tomorrow yesterday,true,363
+99,tomorrow thank you never,true,67
+100,city yesterday,false,3
+101,quickly tomorrow,false,636
+102,city house,false,22
+103,friend,false,519
+104,house,true,640
+105,beautiful thank you never,false,335
+106,never please,false,1077
+107,water please,false,31
+108,water,true,59
+109,beautiful house,true,1079
+110,yesterday city,true,795
+111,yesterday,false,537
+112,water,false,161
+113,friend,false,42
+114,always water,true,163
+115,station,true,339
+116,quickly tomorrow,false,6
+117,beautiful always,false,93
+118,ticket always water,false,3
+119,station always quickly,true,25
+120,beautiful water house,false,434
+121,yesterday always never,true,323
+122,house thank you,false,298
+123,city station,false,97
+124,teacher,false,1036
+125,yesterday teacher,false,588
+126,tomorrow friend,false,79
+127,water friend,false,411
+128,house never city,false,595
+129,thank you quickly house,true,81
+130,thank you never,false,1031
+131,water please,false,15
+132,city,false,287
+133,tomorrow ticket,true,34
+134,teacher city,false,607
+135,beautiful,false,666
+136,quickly,false,1
+137,friend water,true,11
+138,water teacher,false,66
+139,breakfast tomorrow,false,48
+140,never water quickly,true,1098
+141,quickly,true,11
+142,always teacher,true,917
+143,water house tomorrow,false,2
+144,friend yesterday,false,1071
+145,please never,false,632
+146,tomorrow,false,571
+147,please breakfast,false,53
+148,please always quickly,false,532
+149,tomorrow yesterday please,false,841
+150,quickly always water,false,141
+151,house,false,257
+152,please tomorrow,false,19
+153,quickly friend always,false,795
+154,friend,false,402
+155,please teacher,true,98
+156,always quickly,false,179
+157,never,false,227
+158,breakfast tomorrow please,false,106
+159,city house water,false,578
+160,never,false,56
+161,water,true,563
+162,beautiful,false,366
+163,teacher never quickly,true,812
+164,beautiful ticket water,false,94
+165,never teacher please,false,957
+166,yesterday beautiful teacher,false,244
+167,quickly,true,211
+168,please water teacher,false,810
+169,ticket,true,77
+170,friend city house,false,170
+171,house teacher water,true,11
+172,please house,false,814
+173,water never,true,1103
+174,always quickly please,true,48
+175,friend breakfast,true,708
+176,water,false,336
+177,friend never always,true,1078
+178,breakfast,true,317
+179,quickly city,false,410
+180,beautiful thank you,false,1082
+181,water never yesterday,true,1
+182,yesterday friend,false,1079
+183,please quickly,false,122
+184,teacher house,false,310
+185,thank you always friend,false,1133
+186,always teacher,false,171
+187,never station,false,784
+188,beautiful,true,953
+189,ticket tomorrow water,false,12
+190,breakfast,false,276
+191,teacher house,false,814
+192,beautiful yesterday house,false,43
+193,always,false,55
+194,always ticket,false,1174
+195,ticket city,false,697
+196,water,true,683
+197,friend,false,878
+198,station,false,558
+199,yesterday quickly friend,false,543
+200,yesterday always quickly,false,210
+201,house station yesterday,false,615
+202,always,true,500
+203,tomorrow,true,926
+204,house teacher,false,724
+205,always,true,138
+206,breakfast,true,689
+207,station,false,362
+208,quickly house,true,677
+209,friend thank you always,false,91
+210,beautiful never,false,24
+211,friend yesterday,false,120
+212,always,false,199
+213,tomorrow house,false,170
+214,city always,true,1126
+215,beautiful quickly yesterday,false,404
+216,water never always,false,233
+217,yesterday never beautiful,false,8
+218,beautiful water,false,61
+219,city please station,true,630
+220,yesterday,false,236
+221,please breakfast,false,78
+222,beautiful yesterday,false,803
+223,ticket,true,758
+224,ticket teacher,true,745
+225,never,false,503
+226,city,false,1094
+227,never yesterday,false,134
+228,tomorrow station friend,false,4
+229,city,true,574
+230,station,false,13
+231,thank you,true,433
+232,never tomorrow always,false,79
+233,city,false,1054
+234,teacher please,false,1124
+235,station please always,true,834
+236,breakfast,false,197
+237,beautiful please tomorrow,false,1110
+238,city always,false,664
+239,ticket always,true,72
+240,friend,false,579
+241,friend breakfast thank you,false,465
+242,never,true,908
+243,house,false,210
+244,yesterday station teacher,true,247
+245,friend breakfast thank you,false,1
+246,teacher thank you,false,499
+247,beautiful house yesterday,true,515
+248,never,false,238
+249,ticket beautiful,false,913
+250,water,true,52
+251,beautiful,false,25
+252,friend,false,289
+253,teacher ticket,true,4
+254,thank you house,false,79
+255,always never,false,1093
+256,tomorrow friend,false,105
+257,quickly beautiful friend,false,255
+258,teacher tomorrow,true,2
+259,house,false,1148
+260,house please,false,1053
+261,please ticket,false,1069
+262,please,false,28
+263,city,false,21
+264,water,false,275
+265,always please never,false,14
+266,house please,false,309
+267,tomorrow,false,86
+268,tomorrow friend please,false,143
+269,beautiful yesterday,false,1108
+270,water always,false,762
+271,station,false,345
+272,thank you city teacher,true,662
+273,teacher,true,56
+274,thank you please water,true,529
+275,city thank you ticket,false,369
+276,teacher never beautiful,false,472
+277,quickly house teacher,false,898
+278,house,true,50
+279,friend thank you beautiful,false,607
+280,house city,false,169
+281,yesterday tomorrow,true,1
+282,tomorrow teacher station,true,456
+283,quickly,false,853
+284,city quickly,true,329
+285,friend never water,false,666
+286,friend water,false,27
+287,house,false,874
+288,friend never please,false,52
+289,teacher thank you,false,1006
+290,teacher beautiful thank you,false,990
+291,yesterday house quickly,false,1142
+292,yesterday quickly,false,721
+293,never water,false,771
+294,beautiful house,true,148
+295,please thank you,false,45
+296,always,false,681
+297,quickly yesterday,false,74
+298,house always friend,false,816
+299,always city never,true,949
+300,please house friend,false,71
+301,please water,false,385
+302,yesterday breakfast,false,330
+303,station,false,666
+304,tomorrow thank you never,false,259
+305,always,false,119
+306,thank you station water,false,208
+307,please teacher,false,694
+308,yesterday please,true,27
+309,yesterday friend please,true,579
+310,thank you ticket city,false,563
+311,quickly teacher house,false,90
+312,please thank you yesterday,false,761
+313,city,false,1
+314,city ticket quickly,true,194
+315,quickly,false,568
+316,always yesterday,true,130
+317,friend breakfast ticket,true,841
+318,tomorrow teacher ticket,false,286
+319,station city breakfast,false,743
+320,quickly beautiful water,false,1051
+321,beautiful water tomorrow,false,407
+322,city breakfast water,false,3
+323,thank you,false,4
+324,please friend city,false,317
+325,thank you teacher,false,553
+326,water beautiful station,false,395
+327,breakfast,false,830
+328,always station,false,318
+329,ticket,false,282
+330,house,false,244
+331,water thank you,true,1045
+332,teacher,false,234
+333,never city,false,989
+334,please thank you quickly,false,1090
+335,house station,false,45
+336,tomorrow,false,894
+337,teacher yesterday,false,1063
+338,please city,false,39
+339,ticket breakfast,true,799
+340,quickly friend,true,181
+341,always water,false,1110
+342,please water yesterday,true,921
+343,friend thank you,true,8
+344,quickly friend station,false,157
+345,ticket please,true,820
+346,city teacher yesterday,false,430
+347,teacher always quickly,false,779
+348,beautiful always,false,180
+349,beautiful,false,186
+350,never thank you always,false,153
+351,beautiful quickly city,false,896
+352,friend teacher house,false,5
+353,city,false,4
+354,quickly beautiful water,false,1049
+355,city beautiful,false,805
+356,station,true,12
+357,teacher,false,859
+358,please thank you yesterday,true,279
+359,friend beautiful,false,33
+360,friend,true,99
+361,beautiful friend thank you,false,266
+362,tomorrow beautiful ticket,false,133
+363,thank you city,false,1083
+364,quickly water,false,37
+365,teacher ticket house,true,102
+366,beautiful house,false,46
+367,ticket,false,916
+368,house beautiful,false,15
+369,beautiful city,false,348
+370,tomorrow,true,543
+371,station beautiful,true,575
+372,quickly,false,29
+373,always breakfast tomorrow,false,789
+374,yesterday friend,false,32
+375,friend thank you,false,171
+376,ticket beautiful breakfast,true,22
+377,beautiful teacher city,false,192
+378,city house,false,596
+379,breakfast,false,255
+380,friend ticket,true,68
+381,city tomorrow quickly,false,607
+382,ticket never station,false,1079
+383,house water city,false,1
+384,quickly,false,30
+385,teacher,false,168
+386,beautiful,true,831
+387,ticket teacher,false,227
+388,station teacher tomorrow,false,84
+389,teacher friend thank you,false,180
+390,station breakfast teacher,false,463
+391,always,false,851
+392,breakfast quickly house,false,38
+393,thank you beautiful teacher,false,158
+394,station never tomorrow,true,2
+395,tomorrow,false,332
+396,quickly station,false,272
+397,water,true,215
+398,teacher,true,579
+399,thank you ticket,true,829
+400,yesterday,false,534
+401,ticket,true,311
+402,friend never quickly,false,8
+403,city beautiful tomorrow,false,637
+404,thank you beautiful,false,22
+405,tomorrow beautiful quickly,true,23
+406,ticket,true,647
+407,never,false,34
+408,beautiful,false,1075
+409,house,false,2
+410,always thank you,true,39
+411,teacher water beautiful,false,68
+412,beautiful breakfast,false,6
+413,thank you breakfast,false,280
+414,station,true,6
+415,beautiful,false,13
+416,tomorrow,true,64
+417,ticket,true,62
+418,friend water,true,777
+419,breakfast,false,212
+420,quickly ticket water,false,172
+421,thank you please,true,1074
+422,always tomorrow station,false,907
+423,water,false,1064
+424,ticket,false,264
+425,tomorrow,false,305
+426,teacher,false,6
+427,never,true,297
+428,beautiful,true,749
+429,breakfast teacher city,true,112
+430,quickly house,false,3
+431,ticket,false,767
+432,yesterday tomorrow,false,456
+433,beautiful ticket station,true,347
+434,please,false,58
+435,please,false,523
+436,never,false,17
+437,city ticket,false,46
+438,tomorrow,false,1175
+439,house,false,130
+440,tomorrow station,true,248
+441,please always never,false,7
+442,tomorrow house please,false,2
+443,never,false,686
+444,teacher always city,false,654
+445,tomorrow,false,38
+446,yesterday tomorrow always,false,186
+447,station always,false,481
+448,tomorrow city,true,603
+449,yesterday station,false,62
+450,tomorrow please,true,57
+451,friend,false,722
+452,always,true,534
+453,quickly always teacher,false,404
+454,breakfast,false,165
+455,ticket house,false,54
+456,house,true,943
+457,ticket,false,85
+458,yesterday city,false,582
+459,station never,true,50
+460,teacher always,true,464
+461,friend station,false,2
+462,quickly,true,506
+463,water,false,1049
+464,city quickly teacher,false,470
+465,city tomorrow yesterday,true,498
+466,please,false,684
+467,ticket house quickly,true,116
+468,city,false,1
+469,yesterday,true,765
+470,always,false,876
+471,city beautiful,false,351
+472,beautiful city friend,false,397
+473,city,false,158
+474,thank you,false,9
+475,quickly always,false,142
+476,yesterday station tomorrow,true,547
+477,station please,false,178
+478,ticket,false,773
+479,ticket breakfast,false,352
+480,water,false,759
+481,thank you,false,495
+482,station always,false,28
+483,please always tomorrow,false,188
+484,quickly ticket house,true,160
+485,friend,false,633
+486,quickly,false,29
+487,thank you tomorrow beautiful,true,400
+488,never,true,1012
+489,station always,true,912
+490,tomorrow breakfast,true,141
+491,always,true,6
+492,beautiful,false,7
+493,water city,false,1008
+494,quickly friend station,false,614
+495,water ticket station,false,75
+496,breakfast,true,765
+497,teacher beautiful,false,72
+498,water,false,36
+499,quickly tomorrow,false,346
+500,tomorrow beautiful,false,29
+501,thank you water,false,6
+502,yesterday breakfast beautiful,false,259
+503,water teacher,false,62
+504,house thank you always,true,116
+505,breakfast never,true,45
+506,friend please teacher,false,612
+507,yesterday,true,1004
+508,breakfast tomorrow,true,1057
+509,station yesterday teacher,false,5
+510,breakfast house,false,148
+511,quickly teacher,false,959
+512,tomorrow beautiful,false,458
+513,quickly,false,862
+514,never quickly,false,1116
+515,yesterday,false,5
+516,beautiful always,false,37
+517,water station,true,38
+518,thank you water,false,534
+519,house quickly,false,627
+520,city friend,false,1133
+521,house breakfast never,false,253
+522,always,false,310
+523,water yesterday,false,100
+524,thank you never quickly,false,367
+525,tomorrow,false,25
+526,ticket friend,false,960
+527,beautiful yesterday please,true,73
+528,teacher house friend,true,28
+529,never water tomorrow,false,274
+530,ticket,false,3
+531,breakfast friend never,false,12
+532,house,false,54
+533,please always,false,468
+534,beautiful never yesterday,false,1119
+535,breakfast please,false,334
+536,yesterday never,false,4
+537,yesterday thank you station,false,721
+538,thank you beautiful,false,433
+539,please beautiful,false,1129
+540,quickly beautiful,false,1080
+541,friend,true,201
+542,thank you,false,1102
+543,water,false,712
+544,water city beautiful,false,386
+545,house never water,false,1130
+546,thank you,false,1062
+547,house station,false,125
+548,please friend,false,80
+549,beautiful,false,21
+550,yesterday breakfast tomorrow,false,14
+551,quickly friend city,true,1
+552,water,true,422
+553,yesterday,true,54
+554,quickly station friend,false,535
+555,house,true,60
+556,house city,false,439
+557,never,false,1042
+558,house beautiful,true,11
+559,never always house,true,42
+560,thank you city station,false,1
+561,water beautiful please,false,1011
+562,yesterday house never,true,845
+563,never please,false,940
+564,tomorrow station,false,97
+565,water,false,3
+566,house please always,false,494
+567,water station,false,24
+568,beautiful always,true,853
+569,beautiful,false,665
+570,house,true,249
+571,house,false,502
+572,quickly station,true,887
+573,please friend,false,59
+574,city water always,false,95
+575,thank you,true,289
+576,station friend teacher,false,21
+577,thank you beautiful always,false,9
+578,station city,false,1016
+579,house water,false,197
+580,tomorrow yesterday water,false,1133
+581,friend beautiful teacher,false,239
+582,teacher beautiful,false,24
+583,always quickly,false,138
+584,teacher house breakfast,true,126
+585,ticket,false,953
+586,house always water,false,999
+587,tomorrow ticket,true,114
+588,house thank you,false,244
+589,teacher friend,false,50
+590,yesterday,false,165
+591,friend never,false,787
+592,friend,false,872
+593,teacher,true,270
+594,quickly city,false,153
+595,yesterday,true,693
+596,breakfast,false,22
+597,beautiful,false,289
+598,never,false,976
+599,city,false,702
+600,station,false,366
+601,teacher yesterday,false,167
+602,city ticket thank you,false,72
+603,teacher friend station,false,798
+604,city thank you,false,3
+605,city please,false,54
+606,thank you water,true,346
+607,breakfast yesterday house,false,121
+608,never beautiful please,false,1192
+609,water,false,807
+610,house,false,41
+611,tomorrow teacher please,true,11
+612,tomorrow,false,812
+613,water house,false,535
+614,water,false,1
+615,always house breakfast,true,13
+616,thank you,true,848
+617,quickly,false,19
+618,friend breakfast,false,968
+619,water,false,29
+620,thank you house tomorrow,false,696
+621,please,false,948
+622,breakfast,false,37
+623,never teacher water,true,230
+624,thank you ticket,true,85
+625,teacher ticket breakfast,false,299
+626,thank you breakfast station,false,244
+627,ticket,false,14
+628,house station,false,187
+629,never breakfast,true,679
+630,friend house beautiful,false,120
+631,yesterday quickly,true,29
+632,friend thank you teacher,false,101
+633,always,false,945
+634,quickly,false,1154
+635,house,false,773
+636,thank you quickly,false,821
+637,friend please,false,188
+638,water teacher,false,1
+639,breakfast yesterday,true,70
+640,friend,false,59
+641,ticket friend,true,14
+642,city quickly ticket,false,4
+643,beautiful,false,338
+644,please beautiful,false,39
+645,thank you,false,892
+646,ticket teacher never,false,82
+647,ticket,false,531
+648,tomorrow friend quickly,false,721
+649,always,false,382
+650,breakfast teacher,false,102
+651,ticket,false,96
+652,always please,false,82
+653,yesterday,false,576
+654,always yesterday never,false,685
+655,house teacher,true,26
+656,house,false,70
+657,yesterday,false,97
+658,yesterday,false,85
+659,please yesterday,false,643
+660,breakfast,false,853
+661,tomorrow always,false,720
+662,yesterday,false,211
+663,tomorrow yesterday,false,456
+664,quickly ticket,false,115
+665,never station,false,777
+666,yesterday,false,646
+667,yesterday never please,false,481
+668,never station,false,499
+669,breakfast house,false,5
+670,breakfast,false,167
+671,ticket please,false,966
+672,yesterday thank you breakfast,false,866
+673,beautiful city,false,52
+674,friend,false,424
+675,breakfast,true,823
+676,beautiful always house,false,1182
+677,station,true,627
+678,thank you,true,1056
+679,friend,false,225
+680,teacher ticket,false,54
+681,thank you,false,231
+682,house beautiful,false,1
+683,tomorrow yesterday,false,115
+684,always station,false,604
+685,city,false,64
+686,quickly please teacher,false,436
+687,yesterday station,false,375
+688,breakfast,false,134
+689,ticket station,false,603
+690,water breakfast tomorrow,true,311
+691,beautiful tomorrow,false,816
+692,breakfast,false,118
+693,house,true,388
+694,friend,false,1139
+695,never,false,167
+696,station always,false,1133
+697,teacher ticket yesterday,false,4
+698,tomorrow,false,837
+699,never breakfast city,false,639
+700,breakfast,true,134
+701,always yesterday never,false,223
+702,thank you beautiful,false,900
+703,beautiful water,true,110
+704,never city,false,999
+705,teacher,true,785
+706,beautiful quickly,true,592
+707,always,false,396
+708,always tomorrow station,true,78
+709,please,false,189
+710,teacher tomorrow yesterday,false,29
+711,station city tomorrow,false,536
+712,house,false,700
+713,water,false,580
+714,ticket water,false,84
+715,breakfast city,false,1141
+716,friend station,false,125
+717,never breakfast always,true,570
+718,please,false,1145
+719,beautiful please quickly,false,210
+720,tomorrow,false,163
+721,water always beautiful,true,3
+722,thank you please,false,86
+723,always,true,3
+724,friend,false,50
+725,never please always,true,257
+726,yesterday ticket teacher,false,259
+727,city,false,9
+728,breakfast station city,true,374
+729,friend,false,153
+730,house,false,100
+731,thank you,true,897
+732,always water beautiful,false,343
+733,please never,false,10
+734,beautiful thank you teacher,true,589
+735,station house breakfast,false,71
+736,never,false,589
+737,beautiful thank you teacher,false,87
+738,tomorrow yesterday house,true,162
+739,water,false,46
+740,never,true,1067
+741,please teacher,false,325
+742,thank you please,false,134
+743,house please,false,33
+744,tomorrow yesterday,false,24
+745,please city,false,899
+746,ticket quickly,true,749
+747,never city tomorrow,false,661
+748,ticket,true,328
+749,quickly,false,237
+750,water tomorrow,false,1115
+751,thank you,false,578
+752,tomorrow teacher breakfast,false,700
+753,friend thank you teacher,false,750
+754,beautiful water breakfast,false,477
+755,yesterday,false,227
+756,never always house,true,669
+757,ticket city station,true,75
+758,breakfast tomorrow,false,1
+759,teacher always,false,14
+760,always beautiful ticket,false,57
+761,beautiful quickly,false,11
+762,house station,false,855
+763,quickly teacher thank you,false,63
+764,quickly,false,370
+765,city,false,297
+766,always friend,false,728
+767,yesterday friend water,true,220
+768,breakfast yesterday friend,true,133
+769,thank you yesterday,false,592
+770,water,true,38
+771,city friend,false,12
+772,always,true,95
+773,tomorrow beautiful,true,875
+774,tomorrow,true,118
+775,thank you friend breakfast,false,18
+776,station water,false,426
+777,station,false,71
+778,always,false,1130
+779,always friend yesterday,false,402
+780,never thank you please,false,1
+781,yesterday never,false,368
+782,breakfast,false,364
+783,please never friend,false,182
+784,water never,true,925
+785,never breakfast tomorrow,false,55
+786,yesterday beautiful station,false,46
+787,friend water station,false,1070
+788,yesterday water city,false,704
+789,yesterday,false,32
+790,always water,false,300
+791,teacher,true,49
+792,house,false,723
+793,beautiful thank you,true,1127
+794,station,false,110
+795,please beautiful tomorrow,false,279
+796,beautiful,true,982
+797,beautiful yesterday,false,1051
+798,friend quickly,true,45
+799,never quickly station,false,358
+800,ticket,false,412
+801,quickly,false,929
+802,station teacher thank you,false,71
+803,city,true,8
+804,quickly always,false,62
+805,always tomorrow,false,240
+806,station thank you,false,356
+807,house teacher always,false,678
+808,always please,false,398
+809,never quickly,false,67
+810,yesterday,true,225
+811,never,false,56
+812,city,false,595
+813,friend,true,728
+814,city ticket quickly,false,1126
+815,thank you city quickly,false,4
+816,teacher quickly beautiful,false,430
+817,breakfast,false,223
+818,teacher please house,true,79
+819,water,true,61
+820,thank you quickly breakfast,false,675
+821,friend never,false,34
+822,friend water,false,145
+823,yesterday water,false,563
+824,tomorrow,false,526
+825,city house ticket,true,740
+826,quickly breakfast house,false,16
+827,friend teacher house,false,1121
+828,friend,false,43
+829,friend,false,324
+830,friend please,false,247
+831,breakfast beautiful,false,11
+832,station always,false,150
+833,yesterday never house,false,693
+834,city,false,1137
+835,friend,false,5
+836,always,false,525
+837,teacher please,false,168
+838,thank you,false,434
+839,breakfast station,false,13
+840,never city,false,474
+841,station thank you water,false,1033
+842,water,false,11
+843,station,false,38
+844,water,false,16
+845,always quickly please,false,591
+846,friend breakfast teacher,false,113
+847,water teacher ticket,false,370
+848,water,false,334
+849,quickly tomorrow breakfast,false,4
+850,breakfast station tomorrow,true,882
+851,city,false,813
+852,yesterday house beautiful,false,380
+853,city station,true,3
+854,thank you,false,74
+855,teacher,false,613
+856,yesterday water,false,127
+857,please quickly,true,108
+858,ticket,false,188
+859,beautiful breakfast,false,250
+860,teacher,false,890
+861,beautiful,true,139
+862,teacher beautiful city,true,46
+863,breakfast quickly,false,89
+864,beautiful,false,1153
+865,breakfast please city,false,530
+866,friend please beautiful,false,225
+867,teacher always,false,180
+868,ticket thank you,false,89
+869,friend yesterday breakfast,false,284
+870,never thank you ticket,false,1
+871,beautiful house,true,303
+872,house,false,79
+873,yesterday house,false,185
+874,friend yesterday station,false,348
+875,friend,false,514
+876,station,true,90
+877,never breakfast ticket,false,1045
+878,tomorrow breakfast quickly,false,133
+879,teacher yesterday,false,1032
+880,quickly,false,51
+881,city tomorrow,true,321
+882,house,false,422
+883,water,true,128
+884,beautiful please,false,453
+885,thank you beautiful,false,725
+886,never tomorrow breakfast,true,284
+887,please,false,424
+888,never,true,8
+889,yesterday please always,false,999
+890,water please breakfast,true,513
+891,water breakfast please,true,800
+892,quickly always,false,574
+893,city beautiful,true,138
+894,thank you,false,175
+895,beautiful water,true,85
+896,thank you,true,65
+897,never,false,111
+898,quickly,false,819
+899,city thank you friend,false,881
+900,house,false,3
+901,water house friend,false,1146
+902,station quickly never,false,20
+903,house,false,363
+904,never breakfast,true,689
+905,city,false,140
+906,please,false,1032
+907,friend thank you,false,1005
+908,breakfast,false,862
+909,station beautiful,false,185
+910,breakfast,false,262
+911,city,false,551
+912,thank you,false,704
+913,city quickly,false,721
+914,always,false,452
+915,house ticket,false,1041
+916,beautiful always,false,158
+917,beautiful please station,true,990
+918,ticket quickly,false,5
+919,please quickly breakfast,false,346
+920,beautiful never,false,65
+921,always quickly water,false,33
+922,city,true,3
+923,beautiful,false,383
+924,beautiful,true,21
+925,city,false,158
+926,teacher friend,false,605
+927,house quickly,true,746
+928,city station,true,822
+929,never breakfast quickly,false,153
+930,teacher never thank you,false,676
+931,breakfast ticket,true,45
+932,beautiful breakfast,false,973
+933,breakfast station quickly,false,15
+934,always,true,887
+935,city station beautiful,false,333
+936,quickly please always,false,306
+937,teacher,true,993
+938,always friend,false,603
+939,quickly always water,true,482
+940,ticket,false,4
+941,beautiful,false,58
+942,water,false,27
+943,water please,false,106
+944,ticket,true,749
+945,tomorrow always,true,94
+946,breakfast never water,false,630
+947,ticket always station,false,572
+948,city,true,36
+949,quickly never please,false,243
+950,thank you beautiful,false,1
+951,always breakfast water,false,363
+952,always station,false,336
+953,beautiful,false,61
+954,tomorrow,true,130
+955,teacher ticket always,false,219
+956,teacher,true,43
+957,tomorrow teacher station,true,409
+958,water yesterday,true,785
+959,yesterday,true,14
+960,station breakfast thank you,true,70
+961,city house,false,1135
+962,please house,false,40
+963,tomorrow city never,true,720
+964,teacher never please,false,135
+965,thank you,false,227
+966,city never,false,1
+967,yesterday teacher station,true,98
+968,please,false,1133
+969,always quickly,false,41
+970,friend,false,18
+971,house,true,878
+972,always friend thank you,false,298
+973,breakfast ticket house,true,1012
+974,tomorrow,true,853
+975,breakfast,false,122
+976,thank you ticket,false,266
+977,house,false,60
+978,beautiful never quickly,false,1056
+979,tomorrow breakfast,false,186
+980,never city breakfast,true,423
+981,please teacher,false,125
+982,quickly house,false,98
+983,always friend station,true,136
+984,always,true,1144
+985,teacher,false,2
+986,thank you city,true,9
+987,station friend,false,30
+988,thank you breakfast city,false,290
+989,friend,false,1124
+990,water always breakfast,false,419
+991,house,false,742
+992,ticket never,false,186
+993,city please never,true,340
+994,thank you always friend,false,85
+995,breakfast yesterday tomorrow,true,70
+996,breakfast,false,228
+997,yesterday,true,8
+998,ticket friend,false,314
+999,quickly,true,511
+1000,city,false,666
+1001,breakfast quickly tomorrow,false,602
+1002,breakfast,false,427
+1003,water yesterday,false,1068
+1004,yesterday,false,633
+1005,ticket always tomorrow,false,115
+1006,station city thank you,false,970
+1007,house yesterday,false,75
+1008,breakfast thank you city,false,544
+1009,breakfast always beautiful,false,666
+1010,city ticket station,true,32
+1011,house beautiful,false,431
+1012,never ticket,true,2
+1013,city,true,192
+1014,city never,false,542
+1015,thank you,false,875
+1016,teacher quickly beautiful,true,965
+1017,station thank you,false,81
+1018,friend quickly house,true,41
+1019,yesterday never beautiful,false,15
+1020,thank you tomorrow,true,713
+1021,friend please,false,132
+1022,teacher,false,433
+1023,ticket,false,229
+1024,city quickly,false,1053
+1025,station breakfast yesterday,false,414
+1026,friend teacher,false,310
+1027,thank you city always,false,1072
+1028,yesterday,true,34
+1029,water breakfast,true,334
+1030,friend station,false,122
+1031,house always,true,37
+1032,ticket city always,true,705
+1033,teacher ticket,false,994
+1034,yesterday ticket thank you,false,115
+1035,quickly,true,311
+1036,tomorrow quickly never,true,381
+1037,always thank you friend,false,139
+1038,never,false,998
+1039,always never thank you,false,677
+1040,ticket teacher water,true,103
+1041,always never,false,375
+1042,house thank you tomorrow,false,706
+1043,house please never,false,36
+1044,thank you station,false,759
+1045,tomorrow beautiful always,false,1134
+1046,water station please,false,109
+1047,station quickly,true,182
+1048,station never,false,4
+1049,beautiful please house,false,40
+1050,thank you yesterday teacher,false,47
+1051,tomorrow city,true,10
+1052,breakfast city please,true,40
+1053,city never,true,1197
+1054,please,false,441
+1055,thank you beautiful station,false,6
+1056,station tomorrow,true,928
+1057,please friend,false,777
+1058,always,false,644
+1059,always,false,480
+1060,never station,false,707
+1061,teacher city,true,169
+1062,teacher,false,9
+1063,ticket,false,105
+1064,friend station always,true,151
+1065,beautiful water,false,561
+1066,friend house,true,67
+1067,beautiful,false,1
+1068,always station teacher,false,929
+1069,teacher yesterday please,false,752
+1070,quickly beautiful,false,13
+1071,ticket never,false,1126
+1072,beautiful,false,911
+1073,thank you,false,894
+1074,tomorrow quickly,false,757
+1075,quickly,false,289
+1076,water,false,450
+1077,teacher breakfast,true,16
+1078,teacher please quickly,false,48
+1079,station,false,121
+1080,yesterday tomorrow teacher,false,782
+1081,quickly,false,234
+1082,quickly beautiful,false,2
+1083,quickly,false,45
+1084,thank you,false,886
+1085,station city,false,779
+1086,yesterday,false,259
+1087,friend,true,49
+1088,city please,true,523
+1089,thank you house ticket,false,34
+1090,ticket,false,190
+1091,beautiful friend tomorrow,false,22
+1092,yesterday tomorrow friend,false,389
+1093,beautiful tomorrow,true,347
+1094,always water never,true,20
+1095,friend ticket,false,5
+1096,never always house,true,2
+1097,thank you never please,true,240
+1098,yesterday,false,69
+1099,please,false,130
+1100,please yesterday,true,927
+1101,breakfast yesterday never,false,295
+1102,quickly tomorrow house,false,85
+1103,water,false,66
+1104,please house,false,176
+1105,always beautiful please,false,67
+1106,house always tomorrow,false,632
+1107,always,false,575
+1108,please,true,191
+1109,quickly tomorrow,false,30
+1110,beautiful,true,343
+1111,house,true,545
+1112,ticket,false,8
+1113,never tomorrow yesterday,true,189
+1114,house quickly,false,464
+1115,quickly yesterday house,false,146
+1116,thank you,true,332
+1117,tomorrow station,false,515
+1118,beautiful friend,false,481
+1119,house,false,6
+1120,friend quickly,true,107
+1121,thank you always never,false,81
+1122,water quickly please,false,564
+1123,station teacher tomorrow,false,71
+1124,beautiful teacher city,false,106
+1125,please,false,239
+1126,please quickly station,false,1
+1127,tomorrow water breakfast,false,733
+1128,teacher,false,549
+1129,friend always breakfast,false,48
+1130,tomorrow,false,120
+1131,teacher,true,468
+1132,friend,true,553
+1133,quickly house station,true,1000
+1134,house never yesterday,true,1190
+1135,water beautiful thank you,false,75
+1136,water quickly,true,263
+1137,quickly water teacher,true,33
+1138,city yesterday please,false,677
+1139,city please tomorrow,false,28
+1140,teacher house,false,227
+1141,tomorrow thank you,false,683
+1142,please,false,966
+1143,breakfast station,false,7
+1144,city quickly station,false,233
+1145,quickly station,true,1
+1146,station thank you,false,1016
+1147,tomorrow,false,218
+1148,yesterday always,true,387
+1149,friend,false,681
+1150,tomorrow,false,148
+1151,city breakfast,true,118
+1152,yesterday always,false,29
+1153,station,false,788
+1154,city,true,12
+1155,never water,false,841
+1156,yesterday ticket,false,25
+1157,breakfast house please,true,893
+1158,friend tomorrow,false,37
+1159,always house,false,142
+1160,never,false,606
+1161,always,false,248
+1162,city teacher,false,10
+1163,breakfast water,false,846
+1164,tomorrow please always,false,1126
+1165,thank you breakfast never,false,4
+1166,city yesterday,false,330
+1167,tomorrow quickly,false,676
+1168,water tomorrow,true,39
+1169,always,false,17
+1170,city ticket,false,651
+1171,please thank you,false,162
+1172,never thank you,false,241
+1173,yesterday,true,21
+1174,ticket,true,704
+1175,station tomorrow always,false,11
+1176,teacher,false,518
+1177,quickly tomorrow station,false,65
+1178,beautiful,false,373
+1179,tomorrow,true,26
+1180,never please,false,39
+1181,station,false,550
+1182,water always ticket,false,108
+1183,teacher breakfast friend,true,47
+1184,water quickly,false,10
+1185,breakfast quickly yesterday,false,500
+1186,teacher thank you station,true,1
+1187,tomorrow station teacher,false,1012
+1188,beautiful please ticket,false,217
+1189,beautiful,false,134
+1190,water always quickly,false,12
+1191,yesterday quickly,false,144
+1192,teacher,true,378
+1193,ticket always never,true,4
+1194,tomorrow breakfast yesterday,false,42
+1195,thank you house,false,318
+1196,tomorrow ticket teacher,false,133
+1197,please quickly,false,815
+1198,thank you teacher,true,1097
+1199,thank you please yesterday,false,13
+1200,please,false,757
+1201,friend,true,5
+1202,ticket yesterday always,false,364
+1203,never house,false,240
+1204,quickly,false,4
+1205,never,false,1194
+1206,tomorrow never breakfast,false,1
+1207,tomorrow quickly teacher,false,423
+1208,ticket,false,325
+1209,teacher never yesterday,false,743
+1210,station,true,96
+1211,thank you ticket,true,269
+1212,city breakfast,false,250
+1213,station tomorrow teacher,false,220
+1214,teacher water,false,287
+1215,thank you friend city,false,198
+1216,tomorrow ticket,false,184
+1217,ticket teacher,false,199
+1218,quickly,false,472
+1219,yesterday,false,1033
+1220,thank you,true,34
+1221,station,false,1151
+1222,city,false,694
+1223,always city,false,759
+1224,city,false,43
+1225,city ticket thank you,false,230
+1226,yesterday house,false,1077
+1227,teacher never,false,1094
+1228,breakfast beautiful quickly,true,2
+1229,beautiful station,false,174
+1230,never,true,35
+1231,water yesterday,false,46
+1232,water quickly station,false,483
+1233,friend,false,103
+1234,please city always,true,8
+1235,city ticket,false,854
+1236,never teacher station,false,171
+1237,quickly,false,184
+1238,never quickly,false,591
+1239,tomorrow always quickly,false,490
+1240,thank you station ticket,false,1124
+1241,friend,true,915
+1242,quickly,false,742
+1243,city please,true,3
+1244,water,false,297
+1245,quickly,false,224
+1246,house,true,995
+1247,yesterday thank you,false,489
+1248,thank you quickly friend,false,3
+1249,water quickly,false,704
+1250,ticket never station,false,784
+1251,friend,false,549
+1252,ticket,false,26
+1253,house quickly water,true,88
+1254,tomorrow please,false,40
+1255,city,true,1148
+1256,yesterday tomorrow ticket,false,328
+1257,please,false,334
+1258,house quickly breakfast,true,701
+1259,ticket never,false,12
+1260,always station breakfast,false,999
+1261,breakfast friend,true,12
+1262,house,false,947
+1263,friend,false,1060
+1264,beautiful tomorrow,false,339
+1265,tomorrow city,true,261
+1266,quickly,false,780
+1267,teacher water,false,20
+1268,house tomorrow,false,937
+1269,station tomorrow,false,434
+1270,house friend,false,220
+1271,friend city,false,39
+1272,breakfast,true,639
+1273,quickly ticket water,false,635
+1274,thank you,false,1060
+1275,station teacher,false,249
+1276,house beautiful city,false,655
+1277,yesterday always tomorrow,true,558
+1278,teacher,false,1055
+1279,please quickly water,false,928
+1280,ticket house,false,510
+1281,station,true,611
+1282,thank you,true,20
+1283,house beautiful breakfast,false,365
+1284,always,false,1092
+1285,always,false,657
+1286,thank you,true,78
+1287,water,false,846
+1288,breakfast,false,3
+1289,city always station,true,579
+1290,yesterday thank you,true,14
+1291,ticket,false,35
+1292,water quickly never,false,121
+1293,beautiful teacher breakfast,true,382
+1294,breakfast yesterday,false,31
+1295,house water tomorrow,true,1165
+1296,please ticket,true,307
+1297,yesterday,true,31
+1298,quickly station water,true,628
+1299,city thank you,true,542
+1300,station water,false,1
+1301,never ticket house,false,25
+1302,tomorrow thank you,true,1167
+1303,breakfast,false,155
+1304,thank you teacher yesterday,false,19
+1305,friend please water,false,343
+1306,always,false,553
+1307,never ticket yesterday,true,343
+1308,thank you,false,564
+1309,always thank you,false,805
+1310,never teacher,false,303
+1311,teacher water thank you,false,2
+1312,house water quickly,false,186
+1313,teacher water,false,17
+1314,always,false,164
+1315,breakfast friend water,true,86
+1316,yesterday breakfast house,false,671
+1317,beautiful,false,574
+1318,yesterday,true,70
+1319,teacher water yesterday,true,120
+1320,thank you teacher station,false,201
+1321,friend,false,3
+1322,house,false,90
+1323,yesterday thank you ticket,true,234
+1324,never please city,false,1032
+1325,thank you friend teacher,true,635
+1326,always water,true,830
+1327,city,false,10
+1328,never please,false,537
+1329,ticket,true,802
+1330,never teacher ticket,false,435
+1331,please ticket,false,346
+1332,station friend please,true,1117
+1333,friend beautiful,false,292
+1334,quickly,true,584
+1335,always thank you,true,181
+1336,never teacher,false,205
+1337,never tomorrow house,false,337
+1338,station,true,74
+1339,quickly,false,457
+1340,water beautiful thank you,false,26
+1341,yesterday,true,2
+1342,quickly please,true,268
+1343,water,false,1035
+1344,thank you station city,false,152
+1345,city,false,673
+1346,ticket teacher city,false,632
+1347,beautiful quickly house,false,147
+1348,water always yesterday,false,955
+1349,please friend,false,57
+1350,station water,false,601
+1351,friend,false,46
+1352,always,true,460
+1353,tomorrow water city,false,1168
+1354,water,true,1
+1355,quickly please city,false,125
+1356,beautiful station water,false,1151
+1357,always thank you station,false,398
+1358,thank you,false,7
+1359,house,false,68
+1360,city please breakfast,false,632
+1361,always tomorrow,false,404
+1362,never water,false,1054
+1363,station tomorrow,false,719
+1364,friend,true,707
+1365,teacher ticket,true,404
+1366,thank you,false,439
+1367,friend,false,1
+1368,thank you,false,541
+1369,breakfast never tomorrow,true,61
+1370,breakfast water please,false,19
+1371,city please,false,545
+1372,station never,false,123
+1373,station,false,41
+1374,always city beautiful,true,338
+1375,thank you beautiful,false,42
+1376,beautiful please water,false,176
+1377,breakfast,false,1
+1378,house breakfast,false,384
+1379,breakfast,false,17
+1380,friend water,true,548
+1381,beautiful,false,1031
+1382,beautiful thank you,true,378
+1383,quickly tomorrow,false,580
+1384,quickly,true,921
+1385,thank you,false,65
+1386,thank you station quickly,false,29
+1387,tomorrow water,false,351
+1388,water,false,128
+1389,quickly,true,1113
+1390,station,false,1
+1391,beautiful thank you city,false,1
+1392,breakfast house beautiful,false,1115
+1393,city thank you house,true,423
+1394,ticket tomorrow friend,false,284
+1395,ticket,false,1101
+1396,quickly beautiful friend,false,1034
+1397,water,true,171
+1398,house always tomorrow,false,536
+1399,thank you,false,521
+1400,thank you house please,true,241
+1401,beautiful teacher,false,1004
+1402,friend,false,924
+1403,city friend thank you,false,425
+1404,never water city,true,537
+1405,yesterday teacher friend,true,98
+1406,station beautiful water,false,427
+1407,never city please,false,1005
+1408,city station,false,253
+1409,ticket yesterday tomorrow,false,1
+1410,city,true,695
+1411,breakfast city yesterday,true,292
+1412,always never quickly,false,90
+1413,tomorrow always yesterday,false,133
+1414,breakfast station ticket,false,87
+1415,breakfast station,false,22
+1416,yesterday water,false,75
+1417,breakfast,true,54
+1418,friend quickly,false,39
+1419,beautiful,false,572
+1420,please always house,true,623
+1421,breakfast city never,true,140
+1422,water,false,1037
+1423,yesterday teacher water,false,412
+1424,beautiful,false,293
+1425,city,false,215
+1426,water,false,76
+1427,teacher tomorrow water,false,149
+1428,friend,false,937
+1429,yesterday always station,false,622
+1430,water quickly,true,946
+1431,teacher,false,961
+1432,house friend,false,2
+1433,friend,false,592
+1434,breakfast,true,264
+1435,friend never thank you,false,5
+1436,always,false,1122
+1437,station friend,true,315
+1438,tomorrow quickly,false,247
+1439,never,true,127
+1440,ticket,false,475
+1441,teacher friend beautiful,false,493
+1442,ticket,false,202
+1443,city beautiful station,false,597
+1444,friend,true,156
+1445,tomorrow,false,2
+1446,beautiful teacher breakfast,false,657
+1447,tomorrow house always,false,40
+1448,house,false,757
+1449,breakfast station,false,1168
+1450,water yesterday,true,114
+1451,water breakfast,false,954
+1452,yesterday teacher,false,464
+1453,yesterday please ticket,false,831
+1454,breakfast city,true,429
+1455,quickly breakfast,true,315
+1456,never,false,24
+1457,thank you,false,852
+1458,beautiful yesterday breakfast,false,203
+1459,water please city,false,142
+1460,house always,false,426
+1461,quickly beautiful please,false,273
+1462,water,false,195
+1463,ticket,false,5
+1464,never,false,1105
+1465,city please beautiful,false,72
+1466,house teacher yesterday,false,604
+1467,ticket house,false,245
+1468,house friend tomorrow,false,368
+1469,house quickly tomorrow,false,604
+1470,teacher quickly always,false,45
+1471,yesterday,true,72
+1472,always teacher thank you,false,477
+1473,water breakfast tomorrow,false,242
+1474,please yesterday always,false,702
+1475,friend beautiful,false,39
+1476,beautiful,false,60
+1477,beautiful,false,1034
+1478,breakfast,false,785
+1479,never,false,60
+1480,beautiful house,true,272
+1481,breakfast,false,281
+1482,quickly teacher,false,165
+1483,house,false,339
+1484,beautiful,true,11
+1485,water station,false,9
+1486,beautiful friend teacher,false,193
+1487,quickly,true,929
+1488,thank you station beautiful,false,431
+1489,never yesterday,false,61
+1490,yesterday city please,true,1187
+1491,quickly,true,44
+1492,house,false,1120
+1493,house teacher yesterday,false,99
+1494,tomorrow never yesterday,false,103
+1495,always,false,220
+1496,tomorrow breakfast always,true,70
+1497,beautiful,false,69
+1498,friend,false,223
+1499,house thank you breakfast,false,630
+1500,breakfast,false,1083
+1501,breakfast,false,146
+1502,thank you friend,false,528
+1503,teacher quickly always,false,779
+1504,ticket tomorrow please,false,818
+1505,yesterday please always,false,28
+1506,city water,false,57
+1507,thank you,true,172
+1508,never always,false,552
+1509,breakfast always,false,913
+1510,station,false,263
+1511,yesterday teacher,false,571
+1512,beautiful tomorrow water,true,435
+1513,city house,false,414
+1514,always thank you please,true,7
+1515,quickly please,false,35
+1516,city thank you,false,438
+1517,tomorrow yesterday teacher,false,469
+1518,teacher,false,298
+1519,station friend,false,19
+1520,house yesterday quickly,false,1078
+1521,ticket city,true,624
+1522,ticket never breakfast,true,638
+1523,house station always,false,118
+1524,ticket breakfast beautiful,false,210
+1525,teacher,true,475
+1526,never water,false,1133
+1527,tomorrow yesterday teacher,false,103
+1528,house,false,294
+1529,station,false,85
+1530,city friend thank you,false,842
+1531,always thank you,false,136
+1532,city,false,462
+1533,house,false,993
+1534,tomorrow station,true,21
+1535,breakfast,false,184
+1536,station ticket breakfast,false,234
+1537,ticket tomorrow always,false,582
+1538,ticket breakfast,false,4
+1539,water house beautiful,false,243
+1540,water,false,41
+1541,thank you always never,false,471
+1542,water house,false,629
+1543,ticket,false,957
+1544,thank you water city,true,7
+1545,city,false,1051
+1546,water friend,false,53
+1547,friend,false,633
+1548,always,false,715
+1549,thank you,false,12
+1550,station quickly,true,991
+1551,always breakfast,false,259
+1552,yesterday teacher,false,168
+1553,teacher friend always,true,357
+1554,city beautiful,false,462
+1555,please,false,49
+1556,station friend,false,105
+1557,beautiful thank you friend,true,48
+1558,teacher always beautiful,true,710
+1559,city beautiful teacher,true,452
+1560,teacher station thank you,false,168
+1561,breakfast,false,219
+1562,beautiful never,false,24
+1563,water,true,6
+1564,house always water,true,112
+1565,please,false,3
+1566,city,false,155
+1567,ticket,false,65
+1568,please never quickly,false,258
+1569,house,false,576
+1570,water quickly,false,1119
+1571,never station,false,525
+1572,quickly teacher ticket,false,210
+1573,thank you,true,707
+1574,ticket,false,602
+1575,city quickly,false,89
+1576,city water,false,171
+1577,breakfast,true,291
+1578,beautiful please,false,3
+1579,ticket tomorrow,false,72
+1580,friend beautiful,true,647
+1581,station always water,true,1012
+1582,thank you,false,747
+1583,station yesterday always,false,1195
+1584,friend,false,502
+1585,city water,true,82
+1586,always water,false,362
+1587,breakfast beautiful,true,533
+1588,station tomorrow please,false,435
+1589,breakfast,true,421
+1590,station,true,344
+1591,ticket station,false,728
+1592,friend yesterday beautiful,false,1178
+1593,never quickly please,false,1
+1594,city,true,171
+1595,tomorrow teacher city,false,933
+1596,never,false,319
+1597,please friend,false,986
+1598,station never,false,957
+1599,teacher ticket yesterday,false,462
+1600,water please station,false,9
+1601,yesterday water house,true,191
+1602,beautiful city,true,448
+1603,house city always,false,20
+1604,station please friend,false,195
+1605,thank you,true,1
+1606,please always,false,51
+1607,beautiful,false,10
+1608,quickly yesterday,false,6
+1609,yesterday teacher station,false,999
+1610,teacher,false,103
+1611,always quickly house,false,298
+1612,water,false,225
+1613,house,false,376
+1614,friend ticket beautiful,false,1044
+1615,please yesterday,false,161
+1616,friend always tomorrow,false,701
+1617,water friend tomorrow,false,658
+1618,friend breakfast house,false,87
+1619,please breakfast,false,912
+1620,friend breakfast please,false,75
+1621,thank you always,false,24
+1622,water,true,483
+1623,house,true,5
+1624,never station ticket,false,196
+1625,never station thank you,false,311
+1626,please always,false,182
+1627,water ticket,true,1097
+1628,house friend teacher,false,17
+1629,never breakfast,false,116
+1630,never,false,662
+1631,friend teacher yesterday,false,1152
+1632,ticket,false,127
+1633,quickly house,false,607
+1634,station,true,198
+1635,quickly water,false,154
+1636,station,false,84
+1637,teacher,false,945
+1638,water quickly friend,false,1081
+1639,thank you city please,false,119
+1640,please,false,1177
+1641,beautiful breakfast,false,709
+1642,tomorrow,false,762
+1643,station teacher,false,726
+1644,tomorrow quickly please,false,891
+1645,teacher,false,245
+1646,yesterday teacher,false,671
+1647,never,false,816
+1648,teacher,true,1075
+1649,city thank you yesterday,false,1008
+1650,station city please,false,446
+1651,teacher ticket please,false,1008
+1652,please quickly station,false,364
+1653,station,false,632
+1654,ticket quickly,false,326
+1655,station,false,78
+1656,station ticket yesterday,false,173
+1657,quickly breakfast water,true,6
+1658,city,false,1098
+1659,breakfast please yesterday,true,39
+1660,city beautiful,false,145
+1661,beautiful thank you always,false,23
+1662,teacher thank you never,false,435
+1663,station please beautiful,true,59
+1664,beautiful teacher,false,66
+1665,thank you,true,227
+1666,tomorrow city,false,80
+1667,always friend thank you,false,710
+1668,yesterday,false,87
+1669,always,false,1164
+1670,house never,false,237
+1671,quickly,false,74
+1672,please friend,false,79
+1673,always ticket city,false,336
+1674,please friend,false,1128
+1675,always yesterday,false,65
+1676,breakfast thank you,true,551
+1677,ticket,false,211
+1678,breakfast tomorrow,true,213
+1679,friend please,true,8
+1680,house breakfast ticket,false,595
+1681,ticket,true,908
+1682,yesterday,false,788
+1683,never,true,27
+1684,tomorrow teacher,false,57
+1685,teacher city,true,28
+1686,tomorrow friend house,false,72
+1687,ticket tomorrow station,false,358
+1688,please house never,false,435
+1689,ticket beautiful breakfast,false,1147
+1690,yesterday city,true,127
+1691,never friend,false,221
+1692,house always beautiful,true,34
+1693,teacher,false,100
+1694,friend,true,326
+1695,never,false,1199
+1696,always,false,617
+1697,ticket beautiful city,false,285
+1698,thank you,false,1045
+1699,breakfast,false,730
+1700,house water,true,804
+1701,ticket quickly,true,107
+1702,water,false,558
+1703,water,false,666
+1704,teacher thank you ticket,false,255
+1705,quickly,false,544
+1706,never tomorrow breakfast,true,16
+1707,please teacher house,true,773
+1708,thank you always,true,161
+1709,never station,false,510
+1710,please,false,333
+1711,please,false,557
+1712,station never friend,false,177
+1713,house,false,193
+1714,city thank you teacher,false,1145
+1715,city please,false,327
+1716,quickly,false,11
+1717,please,false,31
+1718,tomorrow breakfast,false,54
+1719,yesterday station,true,247
+1720,thank you city never,false,119
+1721,house teacher always,true,411
+1722,breakfast station,true,90
+1723,thank you ticket never,false,211
+1724,breakfast friend water,false,851
+1725,please quickly,true,1111
+1726,ticket,false,9
+1727,friend please,true,57
+1728,house,false,97
+1729,ticket never always,false,459
+1730,yesterday never please,false,25
+1731,city station,false,952
+1732,please always,false,74
+1733,yesterday ticket,false,349
+1734,station,false,734
+1735,tomorrow breakfast teacher,true,173
+1736,ticket yesterday,false,362
+1737,never please,false,38
+1738,tomorrow water,false,145
+1739,breakfast please tomorrow,false,542
+1740,quickly,true,584
+1741,city,true,208
+1742,quickly house,true,1185
+1743,always,false,1052
+1744,city yesterday beautiful,false,1012
+1745,tomorrow always,false,751
+1746,city,false,62
+1747,house ticket,false,141
+1748,station,false,27
+1749,beautiful,false,210
+1750,friend teacher,false,722
+1751,station,false,910
+1752,city,true,793
+1753,quickly station,false,1004
+1754,tomorrow,true,187
+1755,tomorrow breakfast beautiful,false,1017
+1756,always,false,5
+1757,thank you,false,3
+1758,beautiful,false,758
+1759,please breakfast,false,160
+1760,water city always,false,271
+1761,friend,false,666
+1762,house quickly never,false,302
+1763,house water,false,635
+1764,quickly never yesterday,false,1
+1765,station house water,false,107
+1766,station house,false,250
+1767,tomorrow yesterday ticket,false,400
+1768,never friend,false,1125
+1769,water,false,821
+1770,tomorrow thank you,true,20
+1771,ticket teacher friend,true,878
+1772,please teacher,true,149
+1773,city always,false,41
+1774,house water,false,1041
+1775,thank you tomorrow always,false,547
+1776,yesterday,true,286
+1777,house teacher always,false,14
+1778,breakfast teacher water,false,171
+1779,never house tomorrow,false,94
+1780,please quickly friend,false,128
+1781,beautiful ticket,false,839
+1782,please always city,false,223
+1783,always beautiful,false,116
+1784,house tomorrow,false,177
+1785,please,false,17
+1786,station quickly,true,103
+1787,city never,false,50
+1788,station water,false,87
+1789,tomorrow breakfast,false,138
+1790,always station friend,true,413
+1791,station teacher water,true,1023
+1792,station tomorrow,false,413
+1793,yesterday,false,761
+1794,never tomorrow city,false,1
+1795,teacher,false,195
+1796,beautiful house teacher,false,97
+1797,breakfast tomorrow house,true,1058
+1798,teacher,false,1046
+1799,teacher,false,407
+1800,friend breakfast quickly,true,63
+1801,tomorrow always city,false,34
+1802,city,false,929
+1803,yesterday teacher tomorrow,false,28
+1804,house,true,357
+1805,yesterday,false,193
+1806,teacher station,false,112
+1807,station yesterday water,true,931
+1808,tomorrow please,true,571
+1809,always,false,110
+1810,beautiful,true,56
+1811,teacher,false,840
+1812,always yesterday please,true,929
+1813,tomorrow,false,1063
+1814,city yesterday teacher,false,754
+1815,always,false,951
+1816,quickly,true,1175
+1817,beautiful,false,98
+1818,breakfast thank you never,false,189
+1819,quickly station never,false,366
+1820,water,false,898
+1821,thank you yesterday always,false,344
+1822,thank you,false,150
+1823,tomorrow water city,false,483
+1824,friend tomorrow please,true,432
+1825,station,true,539
+1826,city friend,false,152
+1827,city always,false,1136
+1828,station breakfast,false,7
+1829,thank you always house,false,717
+1830,ticket station,false,528
+1831,house,false,144
+1832,thank you beautiful please,false,660
+1833,beautiful,false,718
+1834,tomorrow,false,56
+1835,yesterday house,false,57
+1836,ticket thank you,true,967
+1837,station,true,972
+1838,water friend tomorrow,false,349
+1839,station,true,321
+1840,tomorrow yesterday ticket,true,186
+1841,water,false,580
+1842,friend house thank you,true,189
+1843,thank you,false,49
+1844,teacher always,false,1
+1845,never always please,false,694
+1846,beautiful friend,false,1116
+1847,never,true,123
+1848,breakfast thank you city,true,657
+1849,tomorrow teacher ticket,false,12
+1850,always,false,1194
+1851,station teacher,false,3
+1852,friend house quickly,false,374
+1853,please station city,true,120
+1854,friend,false,488
+1855,thank you breakfast house,true,5
+1856,house teacher,false,36
+1857,station water,false,959
+1858,please friend,false,236
+1859,always,false,1117
+1860,ticket tomorrow station,false,328
+1861,tomorrow ticket,false,35
+1862,water breakfast yesterday,true,103
+1863,house yesterday,true,773
+1864,friend,false,7
+1865,station house please,false,45
+1866,station ticket city,true,8
+1867,quickly yesterday,true,1
+1868,breakfast beautiful,false,791
+1869,breakfast yesterday,true,363
+1870,always quickly water,true,572
+1871,yesterday,false,577
+1872,tomorrow station city,true,39
+1873,ticket city house,false,925
+1874,never ticket teacher,true,15
+1875,teacher water,false,1032
+1876,house tomorrow,true,231
+1877,beautiful,false,263
+1878,breakfast tomorrow,false,229
+1879,friend,true,6
+1880,water please always,false,359
+1881,water,true,246
+1882,please beautiful house,false,501
+1883,breakfast beautiful never,false,64
+1884,house water breakfast,true,427
+1885,ticket,false,969
+1886,ticket thank you,false,350
+1887,breakfast always house,false,933
+1888,water never please,false,464
+1889,friend,true,1
+1890,quickly please,true,73
+1891,never station,true,147
+1892,ticket,false,1
+1893,ticket breakfast water,false,216
+1894,thank you teacher,false,381
+1895,station please,false,358
+1896,tomorrow city friend,false,18
+1897,station breakfast,false,700
+1898,always ticket yesterday,true,451
+1899,beautiful water,true,287
+1900,breakfast,false,1193
+1901,please ticket,false,360
+1902,quickly yesterday,true,210
+1903,teacher,false,551
+1904,quickly always,false,34
+1905,house friend,false,4
+1906,thank you quickly house,true,384
+1907,never,false,267
+1908,beautiful tomorrow,false,907
+1909,always never,true,1
+1910,breakfast always,false,209
+1911,water please house,true,398
+1912,tomorrow,false,69
+1913,breakfast water friend,false,774
+1914,breakfast,false,710
+1915,teacher,false,189
+1916,friend teacher breakfast,true,1130
+1917,please always,true,20
+1918,station friend,false,408
+1919,tomorrow city,false,1111
+1920,quickly thank you,true,63
+1921,tomorrow,false,2
+1922,city thank you yesterday,false,23
+1923,never ticket,false,237
+1924,friend thank you house,false,716
+1925,water teacher,false,244
+1926,breakfast ticket,false,179
+1927,please water,false,1048
+1928,yesterday,true,32
+1929,water house quickly,false,851
+1930,tomorrow,false,58
+1931,always,true,72
+1932,station yesterday,false,270
+1933,never house thank you,false,555
+1934,teacher,false,339
+1935,always,false,533
+1936,yesterday tomorrow,false,590
+1937,always,false,649
+1938,always water,true,6
+1939,house,false,152
+1940,yesterday teacher tomorrow,false,274
+1941,yesterday never breakfast,false,537
+1942,tomorrow,true,605
+1943,house ticket thank you,true,368
+1944,ticket teacher,false,48
+1945,city quickly water,false,91
+1946,teacher ticket,false,2
+1947,beautiful thank you station,false,13
+1948,breakfast never station,false,41
+1949,thank you never,true,143
+1950,station friend teacher,true,353
+1951,beautiful,false,444
+1952,ticket city beautiful,true,297
+1953,quickly always please,false,577
+1954,city,true,90
+1955,breakfast,false,37
+1956,please,false,432
+1957,always breakfast teacher,false,183
+1958,station,false,7
+1959,yesterday city station,false,45
+1960,teacher,true,567
+1961,always water teacher,false,1043
+1962,city,true,6
+1963,thank you tomorrow always,false,846
+1964,tomorrow,false,223
+1965,water,false,978
+1966,friend breakfast,true,622
+1967,quickly,false,1009
+1968,house station,false,265
+1969,friend house,false,344
+1970,station ticket,true,1122
+1971,thank you,false,529
+1972,never,false,426
+1973,friend,false,69
+1974,breakfast city tomorrow,true,228
+1975,thank you,false,72
+1976,yesterday station water,false,5
+1977,quickly beautiful always,false,62
+1978,please breakfast never,true,742
+1979,quickly teacher,false,330
+1980,house,false,929
+1981,please station,false,112
+1982,water please,false,30
+1983,ticket station,true,144
+1984,quickly water,false,1097
+1985,teacher city water,false,203
+1986,tomorrow,false,1091
+1987,friend,true,436
+1988,yesterday ticket,false,1151
+1989,yesterday city,true,365
+1990,city ticket breakfast,false,100
+1991,thank you yesterday,false,471
+1992,breakfast,false,22
+1993,always,false,74
+1994,city water never,false,384
+1995,tomorrow house please,false,59
+1996,tomorrow,false,263
+1997,thank you,false,1057
+1998,breakfast never,false,526
+1999,please,false,1
+2000,city,false,1104
+2001,teacher,false,635
+2002,beautiful breakfast thank you,false,661
+2003,quickly water,false,306
+2004,house,false,109
+2005,never ticket,true,470
+2006,ticket please water,false,621
+2007,breakfast yesterday friend,false,483
+2008,beautiful station,false,65
+2009,house ticket,false,406
+2010,never water thank you,true,1
+2011,house friend,false,860
+2012,beautiful friend,false,481
+2013,beautiful breakfast teacher,true,266
+2014,water friend,false,578
+2015,city beautiful,false,1
+2016,always beautiful,true,130
+2017,teacher quickly thank you,false,93
+2018,city,true,244
+2019,house please,false,450
+2020,ticket station,false,157
+2021,please,false,209
+2022,always,false,614
+2023,house station,true,847
+2024,house,true,1192
+2025,city beautiful,false,930
+2026,water beautiful station,false,66
+2027,yesterday thank you city,false,406
+2028,thank you yesterday teacher,false,538
+2029,ticket,false,18
+2030,tomorrow,false,319
+2031,thank you never,false,79
+2032,thank you teacher,false,174
+2033,thank you tomorrow,false,1150
+2034,please,false,155
+2035,friend ticket,true,116
+2036,friend,false,2
+2037,ticket never house,false,700
+2038,quickly,false,824
+2039,station,false,308
+2040,friend,false,474
+2041,quickly,false,168
+2042,city,false,1037
+2043,yesterday,false,191
+2044,quickly teacher tomorrow,false,1
+2045,please city,false,717
+2046,teacher,false,723
+2047,breakfast,false,80
+2048,beautiful station water,true,119
+2049,never please,false,233
+2050,teacher,false,1144
+2051,yesterday never,false,259
+2052,ticket,true,483
+2053,beautiful,false,97
+2054,tomorrow please,false,67
+2055,teacher beautiful,false,822
+2056,house breakfast teacher,false,1067
+2057,beautiful,false,244
+2058,quickly ticket never,false,235
+2059,beautiful friend,false,21
+2060,tomorrow quickly ticket,true,576
+2061,city,true,297
+2062,breakfast water city,false,9
+2063,beautiful teacher,true,487
+2064,never,false,1192
+2065,station teacher,false,809
+2066,ticket tomorrow water,false,237
+2067,ticket,false,70
+2068,breakfast station,false,940
+2069,house beautiful,false,573
+2070,house quickly station,true,213
+2071,beautiful,true,26
+2072,always thank you never,false,352
+2073,tomorrow,true,207
+2074,ticket please always,false,838
+2075,tomorrow city please,true,524
+2076,breakfast thank you always,false,338
+2077,breakfast house,false,444
+2078,quickly ticket station,false,253
+2079,water please,false,916
+2080,always friend please,false,232
+2081,house yesterday breakfast,false,711
+2082,friend,false,1178
+2083,never city thank you,false,1142
+2084,please water,false,500
+2085,ticket house,false,423
+2086,friend,false,454
+2087,beautiful teacher tomorrow,false,20
+2088,quickly,false,1128
+2089,city friend water,false,4
+2090,friend,true,898
+2091,please,false,66
+2092,house breakfast friend,false,376
+2093,please,false,187
+2094,thank you friend teacher,true,912
+2095,tomorrow,true,11
+2096,thank you yesterday,false,20
+2097,tomorrow friend thank you,false,254
+2098,breakfast tomorrow station,true,427
+2099,friend,true,77
+2100,yesterday,true,1066
+2101,always quickly,true,574
+2102,friend beautiful tomorrow,false,466
+2103,tomorrow,false,91
+2104,thank you quickly city,false,58
+2105,station always yesterday,true,1085
+2106,breakfast quickly,true,133
+2107,never teacher,true,7
+2108,house,true,854
+2109,city water,false,11
+2110,station,false,791
+2111,friend teacher tomorrow,false,588
+2112,please water station,false,353
+2113,water,false,1005
+2114,house,false,737
+2115,ticket city never,false,445
+2116,breakfast yesterday,false,318
+2117,city quickly teacher,false,2
+2118,please,true,1
+2119,beautiful station,false,214
+2120,friend beautiful,false,24
+2121,beautiful,false,773
+2122,water tomorrow,true,141
+2123,friend,false,534
+2124,tomorrow,false,252
+2125,always tomorrow breakfast,false,214
+2126,quickly,false,1059
+2127,water beautiful,false,812
+2128,beautiful never city,false,246
+2129,never,false,238
+2130,never please beautiful,false,499
+2131,yesterday please,false,103
+2132,station,false,674
+2133,please tomorrow city,false,292
+2134,thank you never,false,13
+2135,station yesterday,false,433
+2136,quickly always tomorrow,true,83
+2137,quickly station,false,697
+2138,ticket,true,477
+2139,tomorrow yesterday quickly,false,268
+2140,please beautiful friend,false,993
+2141,tomorrow,false,42
+2142,breakfast station,true,323
+2143,house thank you,false,1
+2144,breakfast beautiful,true,608
+2145,station,false,730
+2146,friend,false,508
+2147,always house,false,272
+2148,house,true,198
+2149,yesterday water,false,226
+2150,yesterday never,false,321
+2151,thank you,false,386
+2152,station breakfast,false,1
+2153,thank you friend tomorrow,false,80
+2154,breakfast city water,true,339
+2155,friend,false,1
+2156,friend never always,false,6
+2157,teacher breakfast,false,729
+2158,never,true,187
+2159,please,false,46
+2160,water quickly beautiful,false,757
+2161,beautiful tomorrow teacher,true,787
+2162,beautiful thank you breakfast,false,417
+2163,friend,false,328
+2164,ticket water,false,4
+2165,city water,false,131
+2166,friend station,true,607
+2167,quickly please yesterday,false,163
+2168,quickly,false,722
+2169,beautiful never water,false,1024
+2170,please breakfast,false,171
+2171,water tomorrow ticket,false,101
+2172,beautiful never house,true,154
+2173,quickly station tomorrow,false,57
+2174,station always,false,816
+2175,yesterday,false,701
+2176,beautiful always please,false,1057
+2177,station tomorrow please,true,676
+2178,breakfast thank you house,false,1189
+2179,beautiful never,true,700
+2180,station teacher,false,15
+2181,yesterday water,true,441
+2182,quickly thank you,false,521
+2183,breakfast quickly beautiful,false,135
+2184,yesterday,false,542
+2185,please never,false,20
+2186,water,false,445
+2187,city breakfast,false,1063
+2188,house always,false,731
+2189,breakfast,false,62
+2190,quickly thank you please,false,436
+2191,always,true,12
+2192,quickly,false,157
+2193,never,false,1107
+2194,teacher thank you yesterday,false,454
+2195,station water,false,271
+2196,water quickly thank you,false,600
+2197,please breakfast thank you,false,56
+2198,breakfast teacher,false,22
+2199,ticket breakfast,true,29
+2200,thank you house never,false,554
+2201,breakfast,false,466
+2202,please breakfast thank you,true,1
+2203,friend never,false,256
+2204,always ticket thank you,false,208
+2205,quickly city never,false,616
+2206,yesterday,false,826
+2207,beautiful,true,287
+2208,never,false,820
+2209,yesterday,false,422
+2210,yesterday please water,false,331
+2211,breakfast,false,79
+2212,tomorrow,false,59
+2213,tomorrow,false,977
+2214,city friend,true,307
+2215,please city friend,false,588
+2216,breakfast please tomorrow,false,894
+2217,yesterday teacher tomorrow,false,22
+2218,yesterday,true,448
+2219,thank you breakfast friend,false,349
+2220,friend beautiful breakfast,true,9
+2221,house beautiful,false,85
+2222,friend never,false,254
+2223,ticket,false,1156
+2224,breakfast,true,857
+2225,house,false,14
+2226,teacher station city,false,1
+2227,tomorrow always house,false,216
+2228,never quickly,false,666
+2229,ticket,false,755
+2230,never,true,78
+2231,always,false,252
+2232,thank you never,false,500
+2233,station,true,514
+2234,thank you,false,96
+2235,yesterday breakfast,false,1008
+2236,please ticket house,false,1000
+2237,always house station,false,521
+2238,house city beautiful,false,887
+2239,teacher thank you water,false,25
+2240,beautiful,false,347
+2241,never city,false,152
+2242,teacher house,false,1030
+2243,ticket breakfast,false,59
+2244,thank you please,true,169
+2245,beautiful,false,696
+2246,breakfast always house,true,106
+2247,tomorrow station city,true,82
+2248,please always,false,472
+2249,always breakfast,true,1156
+2250,never,true,1049
+2251,always tomorrow,true,776
+2252,friend,true,432
+2253,station,false,131
+2254,please station,false,447
+2255,ticket water thank you,false,3
+2256,quickly,false,169
+2257,tomorrow ticket,false,547
+2258,station never,true,60
+2259,station tomorrow house,false,83
+2260,tomorrow,false,58
+2261,beautiful,false,4
+2262,never station,true,1
+2263,beautiful always yesterday,false,564
+2264,quickly teacher ticket,false,741
+2265,never teacher please,false,415
+2266,thank you,false,119
+2267,teacher tomorrow,false,6
+2268,quickly,false,921
+2269,please water quickly,true,391
+2270,house beautiful tomorrow,false,527
+2271,please,false,117
+2272,water always,false,1070
+2273,thank you water,false,56
+2274,please,false,271
+2275,friend yesterday ticket,false,726
+2276,yesterday tomorrow please,true,602
+2277,never,false,645
+2278,breakfast,false,3
+2279,breakfast please,false,159
+2280,never friend tomorrow,false,157
+2281,yesterday water,false,1067
+2282,friend,true,199
+2283,beautiful,false,20
+2284,yesterday always,false,1046
+2285,beautiful house thank you,false,673
+2286,teacher yesterday,false,578
+2287,station house,true,453
+2288,never tomorrow house,false,51
+2289,yesterday,true,934
+2290,yesterday thank you station,false,3
+2291,never,true,1007
+2292,water always city,true,1
+2293,beautiful friend yesterday,false,221
+2294,tomorrow,false,439
+2295,quickly yesterday never,false,259
+2296,house always,false,936
+2297,station please friend,false,647
+2298,water please,false,708
+2299,city thank you house,false,1082
+2300,ticket tomorrow house,true,97
+2301,friend breakfast,false,16
+2302,water,false,848
+2303,never tomorrow,false,58
+2304,city,false,993
+2305,always,false,1063
+2306,station,false,128
+2307,station teacher quickly,false,79
+2308,house,false,1109
+2309,water thank you,false,27
+2310,ticket station friend,false,610
+2311,breakfast city teacher,false,52
+2312,station house,true,722
+2313,city water quickly,false,891
+2314,always,false,4
+2315,ticket always friend,false,37
+2316,tomorrow,false,85
+2317,teacher,false,73
+2318,city,false,16
+2319,yesterday,true,707
+2320,never water,true,628
+2321,house tomorrow,false,999
+2322,house breakfast city,false,163
+2323,water,false,964
+2324,always city never,false,19
+2325,never tomorrow city,false,70
+2326,please,true,37
+2327,thank you,false,1
+2328,quickly breakfast,true,94
+2329,ticket,false,749
+2330,friend never water,true,170
+2331,breakfast,true,1005
+2332,ticket teacher,false,1188
+2333,please city,false,351
+2334,always beautiful,false,456
+2335,ticket station house,true,333
+2336,yesterday water tomorrow,false,210
+2337,please water house,false,798
+2338,quickly friend teacher,false,120
+2339,teacher breakfast please,false,17
+2340,thank you,true,791
+2341,teacher,false,8
+2342,always station,false,967
+2343,please teacher,true,30
+2344,city,false,640
+2345,always,false,441
+2346,ticket tomorrow,false,272
+2347,quickly yesterday ticket,true,355
+2348,breakfast city,false,1002
+2349,house,true,225
+2350,city,false,64
+2351,always quickly never,true,147
+2352,yesterday never quickly,false,9
+2353,house,false,701
+2354,please beautiful,false,513
+2355,teacher,false,194
+2356,quickly station never,true,240
+2357,ticket never,true,85
+2358,city beautiful water,false,6
+2359,always friend ticket,false,584
+2360,beautiful,false,398
+2361,house,false,119
+2362,quickly,true,12
+2363,water,false,118
+2364,thank you city,false,960
+2365,tomorrow never teacher,true,1015
+2366,ticket,false,471
+2367,friend,false,32
+2368,never,false,359
+2369,breakfast house,true,6
+2370,ticket,false,907
+2371,friend,false,839
+2372,please house,true,47
+2373,city breakfast friend,false,5
+2374,ticket house,true,141
+2375,tomorrow thank you yesterday,true,150
+2376,house,true,816
+2377,always,false,489
+2378,always,false,947
+2379,friend water yesterday,false,602
+2380,teacher friend,true,295
+2381,beautiful house,false,635
+2382,friend house,false,632
+2383,thank you,false,342
+2384,beautiful water,false,222
+2385,beautiful,false,401
+2386,always house,false,1
+2387,tomorrow city,false,91
+2388,always station city,false,267
+2389,thank you,false,6
+2390,never water,true,1049
+2391,water always house,true,1169
+2392,thank you station,true,393
+2393,house never friend,true,404
+2394,please thank you,false,271
+2395,beautiful ticket,true,959
+2396,breakfast station,true,67
+2397,station,false,17
+2398,house friend never,true,717
+2399,tomorrow yesterday beautiful,false,1017
+2400,yesterday never,true,182
+2401,teacher,false,949
+2402,friend,false,1
+2403,breakfast yesterday,false,197
+2404,ticket quickly house,false,215
+2405,never,false,1127
+2406,yesterday,true,680
+2407,yesterday always,false,191
+2408,thank you,true,1155
+2409,water,false,450
+2410,ticket city house,false,573
+2411,quickly city,false,21
+2412,beautiful water,true,770
+2413,yesterday water ticket,false,84
+2414,station,false,480
+2415,always teacher,true,8
+2416,always never house,false,735
+2417,always thank you ticket,false,77
+2418,quickly always beautiful,false,69
+2419,breakfast thank you house,true,9
+2420,friend never,false,470
+2421,yesterday never,false,1135
+2422,always house,false,26
+2423,ticket breakfast never,false,7
+2424,water ticket,false,374
+2425,tomorrow friend always,true,1149
+2426,friend always teacher,false,86
+2427,teacher friend ticket,true,92
+2428,thank you please breakfast,false,1074
+2429,thank you house teacher,false,1
+2430,house breakfast,true,905
+2431,teacher,false,68
+2432,beautiful,false,160
+2433,breakfast ticket,false,141
+2434,yesterday friend,true,3
+2435,thank you always,false,801
+2436,city,false,351
+2437,thank you,false,652
+2438,beautiful always,false,148
+2439,thank you breakfast,true,23
+2440,tomorrow please always,true,371
+2441,friend always,true,21
+2442,breakfast station ticket,false,812
+2443,breakfast tomorrow beautiful,false,626
+2444,quickly city yesterday,false,15
+2445,tomorrow,false,704
+2446,beautiful please,false,1138
+2447,beautiful ticket,false,1169
+2448,always quickly thank you,false,483
+2449,house friend,false,565
+2450,please city station,false,156
+2451,friend,true,17
+2452,city,false,618
+2453,tomorrow beautiful,true,799
+2454,ticket water,true,473
+2455,friend station,false,3
+2456,breakfast,false,6
+2457,house always,false,17
+2458,quickly water,false,912
+2459,yesterday beautiful,false,128
+2460,friend teacher never,false,544
+2461,beautiful,true,472
+2462,yesterday,false,684
+2463,yesterday beautiful,false,821
+2464,water tomorrow,false,490
+2465,house quickly station,false,926
+2466,breakfast please beautiful,false,237
+2467,beautiful,false,273
+2468,tomorrow yesterday,true,813
+2469,please thank you,false,774
+2470,house beautiful,false,150
+2471,water,false,145
+2472,ticket water,false,31
+2473,always water,false,9
+2474,friend,false,565
+2475,please house,false,230
+2476,thank you,false,353
+2477,never breakfast,false,603
+2478,teacher,false,144
+2479,beautiful,false,555
+2480,yesterday quickly,false,545
+2481,tomorrow,false,218
+2482,tomorrow thank you house,true,1058
+2483,city house please,false,609
+2484,quickly,false,71
+2485,friend yesterday house,false,59
+2486,beautiful please station,false,86
+2487,ticket city beautiful,false,485
+2488,please,false,94
+2489,water,false,870
+2490,always,false,702
+2491,water,false,280
+2492,city beautiful,true,416
+2493,yesterday,false,552
+2494,breakfast house teacher,false,154
+2495,house,true,1102
+2496,please,true,329
+2497,tomorrow,true,296
+2498,water city ticket,false,23
+2499,friend city,false,55
+2500,teacher,false,139
+2501,thank you,false,424
+2502,thank you,true,1062
+2503,always house friend,false,1054
+2504,always thank you,false,16
+2505,ticket,false,42
+2506,house,false,630
+2507,city friend breakfast,true,362
+2508,ticket,false,918
+2509,beautiful tomorrow never,true,115
+2510,please teacher,true,4
+2511,friend,true,920
+2512,quickly,false,18
+2513,ticket thank you,false,1
+2514,teacher tomorrow,false,668
+2515,quickly,false,519
+2516,never water quickly,true,1078
+2517,never,false,1167
+2518,thank you beautiful never,true,410
+2519,tomorrow ticket water,false,1109
+2520,station,false,668
+2521,please water,false,122
+2522,city ticket always,true,812
+2523,thank you ticket tomorrow,true,17
+2524,breakfast quickly always,false,203
+2525,city,false,1187
+2526,please station ticket,false,72
+2527,tomorrow never always,true,569
+2528,house never quickly,false,6
+2529,tomorrow,false,274
+2530,tomorrow,false,187
+2531,please ticket house,false,880
+2532,thank you,false,73
+2533,please yesterday water,false,349
+2534,quickly,false,131
+2535,never,false,207
+2536,never please,false,354
+2537,always tomorrow,false,419
+2538,ticket,false,250
+2539,beautiful city,true,1197
+2540,yesterday,false,70
+2541,water ticket,false,22
+2542,city please always,false,982
+2543,thank you beautiful,true,721
+2544,teacher ticket,false,431
+2545,always water,false,1110
+2546,always city never,false,1039
+2547,house,false,867
+2548,please quickly,false,915
+2549,please water always,true,152
+2550,house yesterday,false,84
+2551,station thank you water,false,583
+2552,water beautiful,false,18
+2553,city,false,396
+2554,water friend,false,3
+2555,breakfast,false,166
+2556,quickly city breakfast,true,814
+2557,friend house quickly,false,67
+2558,house friend beautiful,false,437
+2559,station thank you city,true,669
+2560,never,false,480
+2561,friend tomorrow thank you,false,703
+2562,always quickly,false,453
+2563,station never teacher,false,1159
+2564,breakfast,false,426
+2565,ticket,true,143
+2566,tomorrow city station,false,14
+2567,quickly water beautiful,true,63
+2568,please teacher friend,false,544
+2569,quickly always teacher,true,393
+2570,water ticket breakfast,false,935
+2571,tomorrow teacher,false,332
+2572,breakfast always yesterday,false,1133
+2573,station always,true,1167
+2574,teacher breakfast always,true,762
+2575,friend house,false,1160
+2576,ticket always,false,909
+2577,tomorrow,false,3
+2578,breakfast,false,336
+2579,ticket,false,74
+2580,city water,true,514
+2581,always teacher,false,632
+2582,friend,true,356
+2583,city thank you teacher,false,542
+2584,ticket,true,827
+2585,breakfast,false,276
+2586,quickly never house,false,441
+2587,ticket,false,72
+2588,beautiful,true,468
+2589,please thank you ticket,false,351
+2590,quickly water teacher,true,1
+2591,beautiful,true,84
+2592,house beautiful water,true,127
+2593,never,false,739
+2594,thank you breakfast never,false,266
+2595,beautiful,false,14
+2596,thank you,false,9
+2597,thank you,false,713
+2598,water please friend,true,44
+2599,water,false,1177
+2600,thank you,true,304
+2601,friend,false,664
+2602,teacher ticket,false,757
+2603,city beautiful ticket,false,229
+2604,water yesterday,false,484
+2605,water friend house,true,641
+2606,yesterday,true,540
+2607,always quickly,false,26
+2608,city,false,954
+2609,friend thank you,true,88
+2610,beautiful,false,10
+2611,teacher breakfast water,false,27
+2612,friend water yesterday,false,466
+2613,beautiful yesterday,false,11
+2614,please,false,10
+2615,water quickly,false,410
+2616,teacher always,true,411
+2617,never,true,317
+2618,friend station,false,387
+2619,breakfast,false,96
+2620,station never ticket,false,75
+2621,tomorrow teacher quickly,true,783
+2622,tomorrow,true,1095
+2623,always,false,322
+2624,please friend teacher,false,399
+2625,ticket beautiful,false,1167
+2626,yesterday quickly,true,485
+2627,station ticket beautiful,false,111
+2628,breakfast city,false,213
+2629,house water tomorrow,false,92
+2630,beautiful water,false,1125
+2631,please,true,654
+2632,breakfast thank you yesterday,false,454
+2633,city friend please,true,365
+2634,quickly,false,943
+2635,please,false,514
+2636,station quickly,false,342
+2637,house thank you,false,244
+2638,beautiful friend,false,998
+2639,never,false,751
+2640,yesterday city beautiful,true,137
+2641,quickly,true,485
+2642,tomorrow station always,false,937
+2643,yesterday thank you,false,771
+2644,house ticket,false,1108
+2645,please yesterday,true,835
+2646,yesterday,false,278
+2647,house friend,false,634
+2648,friend yesterday,true,64
+2649,breakfast friend,false,69
+2650,station never,false,632
+2651,teacher house,true,810
+2652,breakfast water tomorrow,false,392
+2653,ticket beautiful,false,1070
+2654,please city water,false,57
+2655,teacher,false,133
+2656,quickly city water,true,672
+2657,water station breakfast,false,124
+2658,always,false,508
+2659,city,true,530
+2660,yesterday tomorrow always,false,1060
+2661,city,true,518
+2662,yesterday beautiful,false,149
+2663,water quickly,true,473
+2664,water teacher,true,79
+2665,water teacher yesterday,false,16
+2666,quickly city,false,156
+2667,beautiful,true,441
+2668,city,true,194
+2669,breakfast,false,768
+2670,water city thank you,false,210
+2671,please beautiful,false,57
+2672,house,false,11
+2673,friend beautiful teacher,false,89
+2674,city friend,true,722
+2675,quickly city friend,false,45
+2676,yesterday never station,true,880
+2677,tomorrow beautiful,true,280
+2678,house always friend,false,885
+2679,never,false,28
+2680,always quickly friend,false,1
+2681,friend,false,37
+2682,tomorrow ticket beautiful,true,886
+2683,water city,false,19
+2684,city please thank you,true,1019
+2685,quickly,true,216
+2686,station never,true,72
+2687,breakfast tomorrow station,false,2
+2688,teacher city,true,779
+2689,never ticket,true,1181
+2690,ticket always station,false,36
+2691,breakfast water,false,1122
+2692,tomorrow quickly water,false,45
+2693,water,false,157
+2694,house never,false,13
+2695,quickly,false,493
+2696,beautiful,true,391
+2697,yesterday,false,880
+2698,thank you,false,1
+2699,always water,false,132
+2700,beautiful,false,196
+2701,never yesterday house,false,1004
+2702,beautiful,false,459
+2703,tomorrow,false,22
+2704,city,false,332
+2705,quickly,false,135
+2706,water thank you,false,124
+2707,friend thank you,false,1013
+2708,beautiful please,false,1162
+2709,quickly thank you,false,1076
+2710,breakfast always,false,28
+2711,tomorrow,true,481
+2712,never quickly please,false,909
+2713,always house ticket,false,118
+2714,always please teacher,false,128
+2715,station breakfast,false,429
+2716,always,true,879
+2717,never always teacher,false,891
+2718,breakfast tomorrow,true,31
+2719,water,false,861
+2720,house city,false,79
+2721,always yesterday water,false,115
+2722,water breakfast friend,true,226
+2723,city beautiful thank you,false,836
+2724,tomorrow house,false,32
+2725,tomorrow quickly house,true,1184
+2726,tomorrow please station,false,3
+2727,always house tomorrow,false,327
+2728,never friend,false,44
+2729,house breakfast yesterday,false,9
+2730,thank you quickly,false,414
+2731,please beautiful,false,262
+2732,station ticket beautiful,true,1012
+2733,always friend please,false,381
+2734,thank you ticket quickly,false,1034
+2735,always quickly,false,207
+2736,city thank you yesterday,false,770
+2737,teacher,false,20
+2738,yesterday beautiful tomorrow,false,443
+2739,never ticket,false,163
+2740,house breakfast,false,664
+2741,tomorrow station,false,894
+2742,ticket thank you house,true,41
+2743,tomorrow ticket station,false,75
+2744,always,false,1136
+2745,water,false,89
+2746,tomorrow,false,218
+2747,thank you quickly,true,672
+2748,friend,true,1115
+2749,never,false,444
+2750,always,false,1172
+2751,city quickly,false,88
+2752,ticket breakfast,true,40
+2753,never,false,12
+2754,friend,true,662
+2755,thank you ticket never,false,108
+2756,teacher breakfast please,true,1087
+2757,station ticket breakfast,true,303
+2758,beautiful,false,617
+2759,station thank you quickly,false,1044
+2760,breakfast quickly,false,116
+2761,thank you never,true,348
+2762,quickly yesterday,false,691
+2763,breakfast house,false,337
+2764,teacher friend house,true,32
+2765,house ticket never,true,364
+2766,city,false,609
+2767,water ticket station,true,588
+2768,please,false,876
+2769,quickly,false,87
+2770,tomorrow,false,679
+2771,thank you,false,518
+2772,beautiful thank you,true,729
+2773,water yesterday house,false,85
+2774,station city tomorrow,true,720
+2775,city thank you quickly,false,154
+2776,never always yesterday,true,940
+2777,breakfast never,false,247
+2778,never yesterday water,false,300
+2779,please water,false,25
+2780,beautiful station city,false,15
+2781,ticket always city,true,292
+2782,thank you teacher yesterday,false,408
+2783,please yesterday,true,314
+2784,always,true,475
+2785,city tomorrow water,false,12
+2786,yesterday,false,456
+2787,yesterday city thank you,false,567
+2788,please thank you,false,54
+2789,house,false,997
+2790,breakfast,false,152
+2791,water,true,387
+2792,water,false,221
+2793,teacher beautiful,false,323
+2794,thank you city breakfast,false,105
+2795,city water never,false,45
+2796,quickly,false,44
+2797,friend beautiful please,false,82
+2798,teacher never,false,38
+2799,quickly never,false,678
+2800,please teacher,false,1175
+2801,tomorrow,true,3
+2802,city breakfast,true,367
+2803,breakfast city ticket,true,867
+2804,city,false,665
+2805,always,true,157
+2806,quickly,false,686
+2807,teacher,false,340
+2808,tomorrow always city,true,164
+2809,quickly always house,false,268
+2810,always ticket,false,1143
+2811,station beautiful thank you,false,188
+2812,ticket city,false,179
+2813,thank you tomorrow,true,131
+2814,house,false,281
+2815,teacher please city,true,523
+2816,ticket teacher,false,232
+2817,station,false,91
+2818,tomorrow,true,974
+2819,friend teacher,false,69
+2820,tomorrow,false,27
+2821,friend beautiful,false,642
+2822,friend,false,405
+2823,ticket,false,235
+2824,please breakfast,false,94
+2825,beautiful city never,false,493
+2826,teacher,false,334
+2827,station friend please,false,230
+2828,tomorrow,false,295
+2829,beautiful,false,1080
+2830,thank you beautiful,false,848
+2831,teacher quickly,true,1
+2832,breakfast,false,1
+2833,friend quickly ticket,false,775
+2834,always yesterday please,false,84
+2835,teacher,false,48
+2836,house,false,111
+2837,breakfast beautiful,false,41
+2838,station,false,381
+2839,beautiful tomorrow,true,1142
+2840,ticket,false,1071
+2841,yesterday,false,219
+2842,teacher breakfast,false,2
+2843,breakfast always teacher,true,1
+2844,please station breakfast,false,427
+2845,never please thank you,false,631
+2846,tomorrow,false,258
+2847,please yesterday,true,244
+2848,city,false,115
+2849,station quickly always,false,1
+2850,always tomorrow,true,415
+2851,teacher quickly,true,1148
+2852,station,true,26
+2853,thank you yesterday,false,823
+2854,never water,true,31
+2855,thank you,true,414
+2856,please,false,906
+2857,beautiful,false,492
+2858,please,false,360
+2859,breakfast quickly,true,227
+2860,city station,false,1154
+2861,house water beautiful,false,223
+2862,quickly,true,479
+2863,house friend,true,1055
+2864,ticket beautiful breakfast,false,704
+2865,quickly water never,false,528
+2866,never house,false,88
+2867,breakfast ticket beautiful,true,28
+2868,water,false,181
+2869,water beautiful city,false,500
+2870,station,false,976
+2871,friend yesterday,false,1
+2872,teacher water,false,613
+2873,quickly station thank you,false,23
+2874,tomorrow,false,130
+2875,never station,false,219
+2876,beautiful thank you,false,130
+2877,teacher house,true,6
+2878,breakfast friend water,false,849
+2879,breakfast please teacher,true,215
+2880,tomorrow,true,688
+2881,never,true,909
+2882,please friend station,true,106
+2883,house ticket,false,490
+2884,station quickly,false,1160
+2885,thank you,false,1
+2886,city house,false,641
+2887,house,false,217
+2888,friend,false,583
+2889,city breakfast station,false,4
+2890,always ticket yesterday,false,50
+2891,city never,true,43
+2892,teacher,false,179
+2893,teacher house,false,1145
+2894,never house,false,308
+2895,teacher city friend,true,13
+2896,please,false,269
+2897,house,false,211
+2898,ticket please,false,1077
+2899,never,false,765
+2900,never tomorrow breakfast,true,594
+2901,ticket station never,false,30
+2902,quickly yesterday,false,806
+2903,breakfast always quickly,false,281
+2904,city,true,1140
+2905,breakfast thank you quickly,false,1153
+2906,water quickly beautiful,false,30
+2907,tomorrow,true,44
+2908,ticket thank you,true,402
+2909,friend tomorrow breakfast,false,149
+2910,please water,false,907
+2911,thank you yesterday beautiful,true,567
+2912,beautiful always,false,331
+2913,breakfast,false,93
+2914,station,true,62
+2915,ticket,true,1
+2916,house thank you beautiful,false,125
+2917,water ticket,false,1004
+2918,never,false,3
+2919,quickly ticket station,false,211
+2920,always house teacher,false,563
+2921,water house,false,440
+2922,never friend,true,689
+2923,station house always,false,1133
+2924,house yesterday beautiful,false,211
+2925,city never,false,94
+2926,house quickly,false,335
+2927,station quickly city,false,214
+2928,beautiful,false,3
+2929,tomorrow,false,143
+2930,never beautiful always,false,485
+2931,water,false,1
+2932,breakfast house,false,410
+2933,yesterday water tomorrow,false,24
+2934,tomorrow water,false,848
+2935,city,false,320
+2936,always,false,957
+2937,teacher water beautiful,true,703
+2938,house city,true,128
+2939,ticket house teacher,true,66
+2940,please never,false,105
+2941,water,false,282
+2942,friend tomorrow quickly,false,17
+2943,house water always,false,535
+2944,yesterday quickly tomorrow,false,1137
+2945,please thank you,false,1082
+2946,quickly house,false,21
+2947,quickly please beautiful,false,1197
+2948,tomorrow,false,322
+2949,thank you water,true,71
+2950,always water house,true,477
+2951,water,false,493
+2952,yesterday always friend,false,99
+2953,never ticket,true,79
+2954,city ticket,true,56
+2955,teacher,false,164
+2956,beautiful,false,709
+2957,breakfast water friend,false,91
+2958,beautiful always,false,441
+2959,always tomorrow ticket,false,944
+2960,never,false,1127
+2961,teacher always ticket,false,6
+2962,thank you tomorrow yesterday,false,1029
+2963,teacher,false,57
+2964,yesterday always water,false,228
+2965,ticket house please,false,4
+2966,water station please,false,47
+2967,water always yesterday,false,20
+2968,water city,false,503
+2969,water,true,659
+2970,never city always,false,315
+2971,teacher ticket,false,216
+2972,tomorrow please,false,624
+2973,water breakfast beautiful,false,628
+2974,quickly never,true,536
+2975,ticket friend station,true,343
+2976,ticket friend tomorrow,false,89
+2977,station never tomorrow,false,1200
+2978,never please,true,319
+2979,thank you,false,12
+2980,friend tomorrow,false,44
+2981,friend,false,179
+2982,station,false,314
+2983,breakfast please,false,1
+2984,station,false,836
+2985,station,true,375
+2986,house water,false,549
+2987,thank you,false,88
+2988,station city tomorrow,false,1007
+2989,beautiful always breakfast,false,137
+2990,ticket please beautiful,false,885
+2991,house city station,true,1056
+2992,water yesterday beautiful,false,831
+2993,city ticket,false,66
+2994,never,false,70
+2995,always ticket,false,229
+2996,water city,false,129
+2997,beautiful friend please,false,453
+2998,beautiful thank you teacher,false,122
+2999,friend yesterday thank you,false,3
+3000,water,true,517
+3001,quickly,true,473
+3002,station quickly please,true,1
+3003,breakfast,false,277
+3004,friend water,true,680
+3005,water ticket breakfast,false,113
+3006,house,false,197
+3007,ticket house yesterday,false,163
+3008,beautiful teacher water,false,166
+3009,tomorrow breakfast,true,26
+3010,city never teacher,true,842
+3011,teacher yesterday ticket,false,29
+3012,please,false,47
+3013,yesterday city friend,false,43
+3014,please station friend,true,18
+3015,house thank you breakfast,false,702
+3016,always,false,3
+3017,house,true,91
+3018,yesterday,false,155
+3019,yesterday,false,288
+3020,city always,false,620
+3021,always breakfast,false,341
+3022,always station thank you,false,16
+3023,please quickly,false,414
+3024,tomorrow house friend,true,539
+3025,teacher house never,false,241
+3026,beautiful never thank you,false,696
+3027,never,false,112
+3028,thank you breakfast yesterday,false,920
+3029,beautiful,false,367
+3030,yesterday friend,true,549
+3031,station yesterday,false,125
+3032,beautiful yesterday,false,22
+3033,friend,true,125
+3034,breakfast,false,248
+3035,friend,false,944
+3036,please quickly,false,36
+3037,water city,false,518
+3038,tomorrow never,false,132
+3039,quickly please,true,802
+3040,ticket never,false,729
+3041,always,false,1
+3042,never,false,615
+3043,city tomorrow beautiful,false,706
+3044,house,true,638
+3045,always quickly,true,321
+3046,never,false,24
+3047,thank you never yesterday,false,11
+3048,house station always,false,1
+3049,friend yesterday thank you,false,863
+3050,friend,false,275
+3051,yesterday never,false,25
+3052,yesterday,false,520
+3053,beautiful house tomorrow,false,10
+3054,please water ticket,true,104
+3055,city beautiful,false,225
+3056,house,true,338
+3057,city quickly yesterday,true,1109
+3058,city house friend,false,1
+3059,ticket,false,604
+3060,beautiful station,false,294
+3061,quickly water please,false,683
+3062,city,true,565
+3063,water house thank you,false,3
+3064,yesterday,false,1019
+3065,beautiful quickly yesterday,true,73
+3066,station,true,186
+3067,please teacher ticket,false,566
+3068,quickly station yesterday,false,5
+3069,never thank you water,true,1
+3070,city please,false,386
+3071,friend never,false,334
+3072,yesterday station,false,1173
+3073,house thank you teacher,false,143
+3074,never beautiful city,false,1092
+3075,tomorrow house,false,449
+3076,station,false,527
+3077,tomorrow,true,590
+3078,breakfast please water,false,3
+3079,water,false,281
+3080,city breakfast house,false,205
+3081,water,false,273
+3082,friend,true,436
+3083,please,false,1080
+3084,quickly city,false,91
+3085,beautiful tomorrow,false,535
+3086,yesterday house tomorrow,true,1161
+3087,city breakfast thank you,false,231
+3088,never,false,67
+3089,city,false,267
+3090,water station,false,667
+3091,thank you water,false,74
+3092,water,false,240
+3093,teacher,false,337
+3094,tomorrow,false,863
+3095,beautiful thank you station,false,879
+3096,house,false,160
+3097,tomorrow station water,false,19
+3098,ticket breakfast water,false,120
+3099,house,false,1060
+3100,tomorrow friend,true,290
+3101,please city,false,21
+3102,breakfast always water,false,157
+3103,breakfast friend,false,967
+3104,always beautiful,false,658
+3105,thank you,false,8
+3106,water,false,1063
+3107,tomorrow never always,true,646
+3108,station house quickly,false,1142
+3109,yesterday,false,1146
+3110,city,false,16
+3111,tomorrow beautiful,false,637
+3112,ticket quickly city,true,417
+3113,thank you yesterday station,false,636
+3114,beautiful,false,384
+3115,city,false,176
+3116,beautiful yesterday always,false,61
+3117,city friend,true,5
+3118,always,false,496
+3119,beautiful water city,false,65
+3120,beautiful water thank you,false,98
+3121,tomorrow,false,1198
+3122,house please water,false,1
+3123,always water,false,1115
+3124,friend,true,606
+3125,always,true,823
+3126,thank you breakfast,false,743
+3127,city ticket,false,159
+3128,station water breakfast,true,394
+3129,never station,false,333
+3130,tomorrow,false,454
+3131,house quickly,false,256
+3132,station quickly teacher,false,82
+3133,tomorrow breakfast ticket,false,3
+3134,house friend city,false,7
+3135,thank you station please,false,947
+3136,please,true,944
+3137,water,true,655
+3138,teacher tomorrow,false,1097
+3139,friend tomorrow quickly,false,1054
+3140,water thank you ticket,false,483
+3141,please water teacher,false,72
+3142,always ticket,true,153
+3143,house,false,370
+3144,breakfast quickly water,false,536
+3145,teacher,false,8
+3146,breakfast friend,false,1002
+3147,station,false,893
+3148,house,false,166
+3149,station,true,246
+3150,ticket,false,1
+3151,breakfast yesterday,true,693
+3152,house friend water,false,423
+3153,friend yesterday,false,1184
+3154,ticket,true,404
+3155,breakfast,false,3
+3156,friend breakfast city,false,577
+3157,always water quickly,false,4
+3158,city house,false,1006
+3159,beautiful teacher,true,255
+3160,never teacher,false,167
+3161,teacher friend,false,835
+3162,please ticket tomorrow,false,81
+3163,thank you yesterday never,false,116
+3164,water always quickly,true,673
+3165,please tomorrow,false,36
+3166,thank you,true,1052
+3167,house,false,468
+3168,please,true,247
+3169,please yesterday water,true,489
+3170,never,false,847
+3171,station never city,false,796
+3172,friend station never,false,712
+3173,friend,false,95
+3174,house,false,496
+3175,thank you,false,143
+3176,thank you,false,141
+3177,teacher thank you breakfast,false,9
+3178,ticket never water,false,67
+3179,quickly yesterday,false,1165
+3180,never,false,84
+3181,tomorrow,true,161
+3182,please,false,701
+3183,city teacher never,false,234
+3184,please,false,964
+3185,beautiful breakfast,false,994
+3186,friend tomorrow,true,270
+3187,quickly yesterday,true,352
+3188,always thank you,false,3
+3189,city teacher,false,97
+3190,always beautiful breakfast,false,874
+3191,water tomorrow,true,97
+3192,yesterday water please,false,336
+3193,city friend,false,58
+3194,never always please,true,940
+3195,station tomorrow,false,1064
+3196,always breakfast teacher,true,26
+3197,please,false,195
+3198,always city beautiful,true,12
+3199,always breakfast,false,753
+3200,water please yesterday,false,2
+3201,never water,false,281
+3202,friend station never,false,701
+3203,never,false,20
+3204,house please thank you,false,162
+3205,beautiful thank you,false,554
+3206,always,false,709
+3207,ticket,true,14
+3208,teacher,false,102
+3209,city,false,465
+3210,please city,false,234
+3211,ticket quickly,false,276
+3212,always,false,1079
+3213,never city,false,1139
+3214,friend house,false,762
+3215,beautiful water,true,317
+3216,breakfast teacher please,true,623
+3217,friend yesterday quickly,true,188
+3218,always friend,false,65
+3219,thank you breakfast,true,43
+3220,please teacher,false,17
+3221,teacher never beautiful,true,590
+3222,please ticket,true,68
+3223,station,false,877
+3224,teacher,true,14
+3225,ticket teacher,true,532
+3226,house tomorrow,false,570
+3227,yesterday,false,364
+3228,please house station,false,8
+3229,friend,false,77
+3230,water tomorrow,false,671
+3231,never,false,662
+3232,please house station,false,569
+3233,teacher house please,true,782
+3234,quickly,true,400
+3235,friend,false,30
+3236,beautiful city station,true,55
+3237,friend teacher,false,675
+3238,tomorrow please,false,381
+3239,water friend,false,1
+3240,tomorrow,false,589
+3241,house always,false,1
+3242,water city,true,1011
+3243,never ticket always,true,1038
+3244,tomorrow breakfast please,false,283
+3245,quickly,false,1
+3246,friend,false,850
+3247,station,false,917
+3248,city station,false,433
+3249,tomorrow,false,4
+3250,house breakfast tomorrow,false,488
+3251,house,false,1095
+3252,quickly never,true,1200
+3253,water ticket,true,1
+3254,thank you ticket teacher,false,326
+3255,beautiful quickly,false,722
+3256,station quickly,false,121
+3257,never city station,false,683
+3258,never water,false,1000
+3259,water please house,true,32
+3260,house,false,7
+3261,station,false,1039
+3262,station,true,1056
+3263,friend,false,43
+3264,breakfast,false,44
+3265,please,false,378
+3266,please teacher ticket,false,513
+3267,ticket,false,897
+3268,breakfast,false,40
+3269,friend please teacher,false,334
+3270,teacher,true,422
+3271,please,false,190
+3272,thank you,false,725
+3273,water quickly,false,112
+3274,beautiful,false,306
+3275,tomorrow thank you,false,104
+3276,tomorrow yesterday,false,219
+3277,always water friend,false,148
+3278,friend tomorrow please,false,357
+3279,yesterday never thank you,false,245
+3280,please yesterday,false,624
+3281,please,false,395
+3282,always,false,63
+3283,ticket friend,false,576
+3284,station,true,55
+3285,beautiful breakfast thank you,false,670
+3286,never friend water,false,673
+3287,please,true,382
+3288,ticket house,false,31
+3289,city quickly tomorrow,false,697
+3290,house teacher quickly,false,2
+3291,city yesterday,false,661
+3292,please never teacher,false,864
+3293,quickly,false,925
+3294,yesterday,true,755
+3295,water always thank you,false,8
+3296,quickly always,false,2
+3297,water,true,109
+3298,house,false,271
+3299,please house,false,606
+3300,friend city,true,973
+3301,never city,false,442
+3302,teacher yesterday,false,265
+3303,friend tomorrow,false,30
+3304,never beautiful,false,26
+3305,water quickly beautiful,false,198
+3306,water quickly,false,545
+3307,teacher,false,134
+3308,please breakfast thank you,false,968
+3309,yesterday,true,2
+3310,water city tomorrow,false,37
+3311,always please thank you,false,264
+3312,teacher please yesterday,false,750
+3313,friend breakfast,false,100
+3314,water never ticket,false,779
+3315,always tomorrow,false,17
+3316,station please,true,1192
+3317,quickly,false,297
+3318,friend ticket,false,525
+3319,house,false,16
+3320,yesterday city,false,698
+3321,teacher,false,592
+3322,city tomorrow friend,false,265
+3323,house tomorrow yesterday,false,255
+3324,breakfast water friend,false,661
+3325,friend,false,23
+3326,beautiful teacher city,false,114
+3327,tomorrow,false,293
+3328,yesterday house,false,8
+3329,station city,false,14
+3330,water,false,5
+3331,quickly city,false,942
+3332,breakfast quickly water,true,661
+3333,teacher,true,1197
+3334,yesterday quickly please,false,677
+3335,thank you city never,false,531
+3336,ticket yesterday house,false,205
+3337,quickly teacher,false,92
+3338,thank you,true,820
+3339,never always friend,false,78
+3340,teacher always friend,false,27
+3341,friend,false,276
+3342,friend please,true,205
+3343,tomorrow,false,80
+3344,please,false,453
+3345,breakfast ticket never,false,673
+3346,quickly always,false,811
+3347,please teacher,false,506
+3348,city ticket,false,127
+3349,breakfast never station,false,866
+3350,station always beautiful,false,385
+3351,friend teacher,false,494
+3352,tomorrow house teacher,false,775
+3353,please teacher,true,197
+3354,breakfast,false,463
+3355,city,false,201
+3356,teacher always,true,284
+3357,ticket breakfast,false,998
+3358,house station,false,173
+3359,water,true,393
+3360,house,true,750
+3361,station yesterday,false,276
+3362,yesterday please,true,110
+3363,never beautiful,false,303
+3364,thank you teacher,false,978
+3365,station,true,69
+3366,always teacher ticket,false,9
+3367,always house,true,6
+3368,house station,true,17
+3369,tomorrow ticket beautiful,false,326
+3370,tomorrow always friend,false,1052
+3371,teacher station yesterday,true,968
+3372,water never tomorrow,true,216
+3373,house,false,64
+3374,yesterday city water,false,13
+3375,always,false,736
+3376,breakfast please tomorrow,false,741
+3377,ticket,false,683
+3378,never,true,251
+3379,tomorrow ticket,false,448
+3380,tomorrow ticket station,true,468
+3381,quickly,true,650
+3382,breakfast beautiful always,false,314
+3383,never,false,2
+3384,beautiful friend,false,44
+3385,please never,false,661
+3386,yesterday,false,914
+3387,city,true,921
+3388,ticket always never,true,238
+3389,never house tomorrow,true,240
+3390,breakfast city,true,38
+3391,station,false,980
+3392,teacher thank you quickly,false,1095
+3393,never water,false,671
+3394,always,false,571
+3395,ticket teacher station,false,253
+3396,always station,false,67
+3397,teacher friend station,true,934
+3398,quickly station always,false,326
+3399,teacher tomorrow,false,587
+3400,ticket house,false,61
+3401,quickly,true,843
+3402,ticket,false,280
+3403,house,false,94
+3404,breakfast teacher city,false,492
+3405,station breakfast ticket,false,690
+3406,ticket water quickly,false,656
+3407,friend city,false,164
+3408,tomorrow,false,693
+3409,breakfast,false,776
+3410,water,false,435
+3411,ticket breakfast,false,159
+3412,beautiful breakfast,true,13
+3413,yesterday breakfast ticket,false,260
+3414,ticket,false,206
+3415,please,true,15
+3416,please ticket,false,430
+3417,water,false,454
+3418,house teacher never,false,289
+3419,friend,false,25
+3420,breakfast teacher yesterday,false,680
+3421,friend please,false,970
+3422,city beautiful,true,444
+3423,yesterday breakfast friend,false,239
+3424,tomorrow friend please,false,147
+3425,ticket breakfast,true,175
+3426,water yesterday,true,70
+3427,city station,false,41
+3428,yesterday,false,1139
+3429,beautiful house,true,836
+3430,ticket thank you never,false,554
+3431,please city never,true,55
+3432,water ticket thank you,true,1187
+3433,city teacher,false,900
+3434,quickly please,false,554
+3435,house never water,false,582
+3436,quickly,false,220
+3437,ticket yesterday,true,766
+3438,please tomorrow never,true,116
+3439,ticket,true,11
+3440,water,true,1032
+3441,city house,false,53
+3442,ticket,false,16
+3443,ticket always,false,251
+3444,city quickly tomorrow,false,552
+3445,quickly city always,true,650
+3446,thank you,false,470
+3447,ticket,true,492
+3448,tomorrow ticket breakfast,false,594
+3449,please breakfast,false,6
+3450,tomorrow,false,533
+3451,yesterday please,false,127
+3452,station,true,638
+3453,city,false,1069
+3454,always beautiful please,false,5
+3455,ticket station,true,941
+3456,station please,true,424
+3457,never ticket,false,29
+3458,water,false,67
+3459,city,true,237
+3460,yesterday,false,367
+3461,always water,false,284
+3462,station quickly,false,790
+3463,city please friend,true,1
+3464,beautiful,false,468
+3465,yesterday teacher,false,400
+3466,breakfast quickly,true,515
+3467,thank you,false,486
+3468,beautiful yesterday,false,1067
+3469,station,false,319
+3470,ticket tomorrow,false,19
+3471,never beautiful house,false,1063
+3472,always quickly,false,108
+3473,teacher,true,697
+3474,always water station,true,348
+3475,beautiful teacher quickly,true,504
+3476,thank you,false,831
+3477,quickly,false,4
+3478,thank you never,true,466
+3479,tomorrow water thank you,true,131
+3480,station please quickly,false,924
+3481,water teacher,false,129
+3482,house,false,966
+3483,beautiful,false,286
+3484,friend ticket quickly,false,242
+3485,friend,false,182
+3486,breakfast,false,968
+3487,please,false,1
+3488,teacher station tomorrow,false,185
+3489,friend,true,740
+3490,teacher,false,375
+3491,teacher,true,111
+3492,teacher,false,71
+3493,teacher beautiful,false,17
+3494,please friend,false,1161
+3495,quickly thank you breakfast,false,300
+3496,quickly,false,650
+3497,please,false,131
+3498,never friend,false,6
+3499,yesterday,true,908
+3500,thank you quickly,false,534
+3501,house,false,297
+3502,please thank you,false,186
+3503,please tomorrow yesterday,false,282
+3504,yesterday,true,515
+3505,tomorrow,false,324
+3506,thank you house friend,false,133
+3507,station please water,false,254
+3508,ticket beautiful,true,7
+3509,city,false,259
+3510,water always please,false,2
+3511,teacher always,false,160
+3512,quickly,false,724
+3513,station always,false,128
+3514,city quickly breakfast,false,46
+3515,city,false,276
+3516,never,false,1193
+3517,breakfast please always,false,83
+3518,tomorrow,true,1032
+3519,friend house always,false,347
+3520,beautiful house tomorrow,true,510
+3521,teacher,false,88
+3522,station beautiful friend,false,62
+3523,thank you,true,752
+3524,ticket never yesterday,false,1009
+3525,teacher water beautiful,false,93
+3526,yesterday teacher,false,95
+3527,breakfast,true,4
+3528,ticket water,false,22
+3529,quickly always water,false,694
+3530,yesterday,false,19
+3531,teacher city yesterday,true,533
+3532,never,false,227
+3533,beautiful house,false,34
+3534,teacher ticket station,false,15
+3535,house city beautiful,false,494
+3536,please thank you quickly,false,740
+3537,quickly,false,54
+3538,yesterday thank you station,false,1
+3539,station,false,579
+3540,city friend quickly,false,44
+3541,city teacher,false,79
+3542,ticket,false,106
+3543,yesterday friend always,false,987
+3544,city,true,21
+3545,never,true,556
+3546,tomorrow friend,false,235
+3547,beautiful thank you,false,42
+3548,thank you station teacher,false,739
+3549,teacher tomorrow city,false,4
+3550,house city,false,6
+3551,breakfast city yesterday,false,485
+3552,breakfast,false,456
+3553,thank you beautiful ticket,false,18
+3554,breakfast ticket,false,589
+3555,house,false,708
+3556,city never water,false,1
+3557,quickly,false,78
+3558,always breakfast never,false,971
+3559,house always breakfast,false,139
+3560,never,true,34
+3561,beautiful,true,576
+3562,ticket never,false,1045
+3563,quickly please,true,186
+3564,yesterday always,false,205
+3565,tomorrow never house,false,530
+3566,quickly,false,175
+3567,please thank you,false,734
+3568,always beautiful water,false,42
+3569,thank you never,false,184
+3570,quickly breakfast,true,366
+3571,house friend never,false,449
+3572,quickly house,false,343
+3573,city,false,1137
+3574,always ticket,false,994
+3575,beautiful house,true,53
+3576,water,false,33
+3577,please,false,41
+3578,city,false,875
+3579,breakfast,false,277
+3580,friend,false,1192
+3581,please,false,735
+3582,water,false,1081
+3583,tomorrow please friend,false,35
+3584,ticket,true,61
+3585,always friend,false,728
+3586,please friend,false,897
+3587,house please friend,false,986
+3588,ticket teacher,false,559
+3589,beautiful house,false,229
+3590,ticket thank you,false,893
+3591,never breakfast house,false,65
+3592,always,false,137
+3593,water please city,false,24
+3594,quickly never friend,true,183
+3595,water please tomorrow,false,1144
+3596,never,false,1192
+3597,ticket never,false,1
+3598,beautiful station,false,50
+3599,beautiful yesterday water,true,708
+3600,always yesterday,false,594
+3601,always,true,430
+3602,never,false,3
+3603,beautiful never,false,170
+3604,thank you yesterday water,true,435
+3605,never breakfast beautiful,true,29
+3606,house breakfast beautiful,false,18
+3607,beautiful teacher breakfast,false,966
+3608,beautiful,false,340
+3609,city house tomorrow,false,33
+3610,breakfast tomorrow water,true,339
+3611,thank you friend,false,620
+3612,water quickly,false,338
+3613,always,false,194
+3614,breakfast city,false,5
+3615,teacher,false,957
+3616,thank you,false,787
+3617,please,false,260
+3618,quickly city yesterday,true,46
+3619,ticket friend,false,107
+3620,beautiful,false,1135
+3621,yesterday,false,350
+3622,ticket breakfast,true,70
+3623,water beautiful station,false,313
+3624,house,false,599
+3625,friend breakfast,false,1083
+3626,station,false,198
+3627,never house,false,124
+3628,never always,false,252
+3629,tomorrow,false,62
+3630,never,false,478
+3631,never breakfast,false,28
+3632,yesterday,false,16
+3633,tomorrow quickly,true,810
+3634,city please,false,125
+3635,teacher city breakfast,false,362
+3636,ticket teacher breakfast,false,14
+3637,breakfast station ticket,false,233
+3638,always city breakfast,false,143
+3639,yesterday teacher quickly,false,129
+3640,never house,false,36
+3641,teacher thank you quickly,true,519
+3642,house station,false,892
+3643,yesterday teacher,true,14
+3644,water teacher please,false,1040
+3645,breakfast,false,9
+3646,friend beautiful,true,15
+3647,city quickly yesterday,true,593
+3648,station,false,580
+3649,water quickly beautiful,true,982
+3650,quickly yesterday thank you,false,431
+3651,station,false,595
+3652,city,false,254
+3653,ticket,true,1011
+3654,station,false,521
+3655,never always,false,28
+3656,water always friend,false,426
+3657,please yesterday,false,130
+3658,teacher,false,1187
+3659,friend,true,54
+3660,never house,false,194
+3661,ticket friend house,false,2
+3662,beautiful,false,4
+3663,friend teacher,false,441
+3664,station,false,3
+3665,city,false,807
+3666,always teacher,false,510
+3667,friend thank you,true,25
+3668,teacher,false,209
+3669,station ticket,false,225
+3670,yesterday teacher,false,49
+3671,always water please,true,263
+3672,teacher quickly,false,209
+3673,station city,true,162
+3674,quickly city never,true,51
+3675,tomorrow house,false,893
+3676,never,true,708
+3677,city ticket,true,808
+3678,station please,false,293
+3679,thank you yesterday,false,192
+3680,friend please tomorrow,false,134
+3681,always please teacher,false,438
+3682,thank you,false,1007
+3683,water,true,320
+3684,beautiful thank you,false,394
+3685,always,true,1096
+3686,tomorrow breakfast,true,414
+3687,station beautiful friend,false,174
+3688,tomorrow,true,65
+3689,breakfast quickly house,true,436
+3690,never,false,164
+3691,breakfast tomorrow ticket,false,7
+3692,thank you,true,121
+3693,yesterday,false,35
+3694,ticket friend,true,9
+3695,please,false,457
+3696,teacher breakfast thank you,true,1053
+3697,please thank you,false,391
+3698,teacher house,false,471
+3699,never always,false,1
+3700,never tomorrow,false,35
+3701,friend,false,72
+3702,quickly station,true,206
+3703,never house beautiful,true,462
+3704,house teacher tomorrow,false,830
+3705,breakfast quickly station,true,2
+3706,station quickly never,false,497
+3707,please always city,true,954
+3708,beautiful teacher city,true,355
+3709,breakfast city,false,936
+3710,always friend ticket,false,114
+3711,breakfast city never,false,785
+3712,beautiful,true,1049
+3713,please,false,249
+3714,please always ticket,true,121
+3715,water,false,321
+3716,teacher thank you water,false,31
+3717,please,false,771
+3718,breakfast city,false,95
+3719,station always,true,35
+3720,please breakfast house,false,414
+3721,please,false,274
+3722,never ticket,false,110
+3723,please house quickly,true,50
+3724,friend,false,103
+3725,tomorrow friend quickly,false,445
+3726,ticket house station,false,667
+3727,quickly beautiful,false,360
+3728,thank you,false,844
+3729,please breakfast teacher,false,21
+3730,teacher please,false,44
+3731,never water,false,215
+3732,beautiful,true,27
+3733,city never ticket,false,32
+3734,always please never,false,1132
+3735,breakfast ticket station,true,614
+3736,teacher,false,814
+3737,quickly house,true,1
+3738,yesterday,false,334
+3739,teacher,false,80
+3740,always never tomorrow,true,198
+3741,quickly thank you,true,202
+3742,teacher ticket please,false,665
+3743,station quickly,false,491
+3744,tomorrow yesterday,false,5
+3745,yesterday thank you,false,495
+3746,beautiful,false,399
+3747,station always,false,601
+3748,quickly friend,false,868
+3749,thank you,false,654
+3750,always house tomorrow,true,262
+3751,teacher,true,273
+3752,please,false,6
+3753,ticket,false,699
+3754,friend never always,true,808
+3755,thank you friend house,false,4
+3756,beautiful friend,false,522
+3757,ticket teacher,false,576
+3758,never,false,537
+3759,breakfast always yesterday,true,186
+3760,ticket friend thank you,false,1144
+3761,breakfast,false,537
+3762,never city,false,932
+3763,always yesterday,true,867
+3764,breakfast city never,false,144
+3765,water,false,61
+3766,breakfast ticket always,false,75
+3767,quickly,false,34
+3768,water ticket,false,153
+3769,station quickly never,false,6
+3770,quickly,true,512
+3771,tomorrow please water,false,142
+3772,city house station,false,854
+3773,city yesterday breakfast,false,584
+3774,house breakfast yesterday,false,961
+3775,house friend,false,324
+3776,never,false,1007
+3777,always breakfast,true,1151
+3778,city,false,131
+3779,breakfast house never,true,582
+3780,city,false,1111
+3781,city tomorrow,false,15
+3782,never thank you teacher,true,815
+3783,teacher,true,17
+3784,house always never,false,547
+3785,never,false,264
+3786,city never teacher,false,518
+3787,quickly city,false,446
+3788,tomorrow always city,true,24
+3789,house friend station,false,8
+3790,never water teacher,false,308
+3791,please water,false,32
+3792,station always water,false,1001
+3793,always water yesterday,true,569
+3794,tomorrow,false,72
+3795,station,false,25
+3796,station teacher,false,998
+3797,station,true,181
+3798,always city water,false,359
+3799,teacher ticket water,false,494
+3800,ticket always,true,1125
+3801,beautiful,false,163
+3802,beautiful,false,4
+3803,water,true,30
+3804,always breakfast,true,628
+3805,city beautiful,false,862
+3806,please yesterday ticket,false,695
+3807,please,false,627
+3808,house,false,64
+3809,always beautiful ticket,false,1023
+3810,water,false,300
+3811,water,false,401
+3812,quickly ticket,false,89
+3813,house,true,666
+3814,tomorrow station beautiful,false,75
+3815,thank you house ticket,false,859
+3816,house,false,14
+3817,ticket always yesterday,false,1
+3818,please always,false,2
+3819,beautiful ticket house,true,348
+3820,beautiful always ticket,false,198
+3821,please beautiful,false,850
+3822,house station city,false,140
+3823,ticket breakfast,false,411
+3824,yesterday tomorrow quickly,false,572
+3825,ticket,false,119
+3826,ticket,false,1178
+3827,city station please,false,1031
+3828,ticket never,false,472
+3829,thank you,false,309
+3830,beautiful water always,false,602
+3831,please station,false,616
+3832,water city teacher,false,410
+3833,ticket,false,287
+3834,house teacher,true,14
+3835,quickly thank you tomorrow,false,28
+3836,friend,false,242
+3837,station house,false,616
+3838,friend thank you,true,876
+3839,always never,false,193
+3840,never water tomorrow,true,300
+3841,thank you please,false,445
+3842,quickly friend,false,36
+3843,teacher,false,1
+3844,yesterday city please,false,1194
+3845,teacher breakfast,false,236
+3846,always beautiful quickly,false,191
+3847,ticket thank you,false,31
+3848,always breakfast quickly,true,285
+3849,teacher station,true,1152
+3850,quickly teacher,false,340
+3851,tomorrow,false,377
+3852,tomorrow,false,504
+3853,friend city,false,60
+3854,always never,true,19
+3855,breakfast house city,false,1087
+3856,house,true,148
+3857,never,false,154
+3858,teacher,false,33
+3859,beautiful,false,7
+3860,breakfast,false,773
+3861,house breakfast thank you,false,112
+3862,friend ticket never,false,1159
+3863,quickly,false,860
+3864,quickly,false,807
+3865,breakfast ticket,false,623
+3866,beautiful,false,79
+3867,please station water,false,206
+3868,breakfast,false,901
+3869,city quickly ticket,false,325
+3870,water city,false,2
+3871,beautiful house,false,29
+3872,tomorrow,false,1
+3873,water,false,3
+3874,ticket please,false,800
+3875,ticket water quickly,false,783
+3876,house yesterday,true,1
+3877,ticket station,false,1154
+3878,tomorrow,false,234
+3879,always house,false,339
+3880,breakfast thank you,false,776
+3881,teacher never,true,5
+3882,yesterday,false,163
+3883,yesterday breakfast,false,388
+3884,breakfast beautiful,false,14
+3885,ticket quickly,false,712
+3886,quickly,false,116
+3887,please always quickly,false,359
+3888,teacher water please,true,91
+3889,beautiful,false,514
+3890,always please,false,474
+3891,beautiful ticket yesterday,false,58
+3892,water yesterday ticket,false,199
+3893,tomorrow ticket never,false,237
+3894,beautiful house tomorrow,false,136
+3895,always tomorrow,false,294
+3896,please yesterday teacher,false,43
+3897,teacher city house,false,495
+3898,tomorrow friend house,false,533
+3899,teacher city tomorrow,false,483
+3900,tomorrow city ticket,true,192
+3901,friend teacher,false,422
+3902,city station breakfast,false,1
+3903,breakfast house ticket,false,487
+3904,ticket,false,1199
+3905,city,false,24
+3906,tomorrow yesterday,false,656
+3907,station,false,380
+3908,thank you,false,778
+3909,yesterday,true,213
+3910,tomorrow,false,845
+3911,teacher,false,709
+3912,friend never,false,823
+3913,ticket,false,346
+3914,yesterday,false,2
+3915,ticket station house,false,317
+3916,water thank you station,true,575
+3917,house,false,74
+3918,yesterday,false,222
+3919,quickly always,false,9
+3920,teacher,true,30
+3921,city,true,25
+3922,ticket beautiful,false,238
+3923,station,false,1012
+3924,water breakfast,false,198
+3925,please friend tomorrow,false,4
+3926,always quickly yesterday,false,1148
+3927,station friend teacher,false,111
+3928,friend beautiful,true,153
+3929,never ticket thank you,false,81
+3930,always,true,1
+3931,tomorrow,false,190
+3932,ticket station beautiful,false,21
+3933,quickly teacher breakfast,false,1060
+3934,never,true,519
+3935,ticket city never,false,955
+3936,tomorrow station yesterday,true,134
+3937,breakfast,false,200
+3938,thank you water,false,440
+3939,quickly always,true,1003
+3940,breakfast friend thank you,false,1153
+3941,never,false,577
+3942,quickly,false,142
+3943,city quickly,false,418
+3944,please friend yesterday,false,100
+3945,always station,false,1
+3946,please station,false,397
+3947,breakfast,false,26
+3948,friend always,false,474
+3949,city station please,true,131
+3950,never friend,false,160
+3951,tomorrow,false,36
+3952,breakfast,false,167
+3953,water tomorrow yesterday,false,32
+3954,beautiful,false,779
+3955,station,false,643
+3956,beautiful house,false,302
+3957,please,false,169
+3958,beautiful tomorrow ticket,false,1029
+3959,yesterday,false,710
+3960,thank you,true,108
+3961,station teacher quickly,false,582
+3962,station please,true,964
+3963,teacher water city,false,714
+3964,station quickly,false,286
+3965,teacher,false,162
+3966,city friend please,true,921
+3967,water friend tomorrow,false,135
+3968,beautiful,false,114
+3969,teacher ticket,false,1005
+3970,tomorrow,false,371
+3971,water station never,true,838
+3972,please breakfast,true,356
+3973,house,true,835
+3974,thank you city,true,1149
+3975,beautiful never,false,883
+3976,please yesterday,false,4
+3977,yesterday house thank you,false,42
+3978,station city,false,433
+3979,water,false,455
+3980,always ticket,false,951
+3981,please house quickly,false,8
+3982,always teacher,false,330
+3983,thank you yesterday water,true,355
+3984,ticket teacher,true,628
+3985,quickly,false,375
+3986,station always water,false,1056
+3987,station,true,398
+3988,ticket city always,false,91
+3989,always water please,false,474
+3990,teacher breakfast water,false,223
+3991,water,false,715
+3992,friend tomorrow,false,51
+3993,friend station,true,503
+3994,friend,false,883
+3995,teacher always,false,37
+3996,teacher house,false,573
+3997,never,false,840
+3998,quickly station ticket,false,726
+3999,always please water,false,717
+4000,never,true,548
+4001,city friend always,true,297
+4002,ticket,false,977
+4003,teacher house water,false,563
+4004,city always station,false,488
+4005,water city breakfast,false,212
+4006,house friend,false,1192
+4007,always thank you,false,22
+4008,water,false,1171
+4009,tomorrow ticket,false,326
+4010,station thank you,false,324
+4011,ticket,true,11
+4012,teacher breakfast,false,703
+4013,water breakfast,false,374
+4014,tomorrow house,true,255
+4015,always,false,353
+4016,always city beautiful,false,931
+4017,please never,false,219
+4018,station tomorrow house,false,728
+4019,beautiful ticket,false,987
+4020,thank you,false,796
+4021,thank you tomorrow,false,84
+4022,water breakfast,false,467
+4023,friend,false,6
+4024,thank you,false,402
+4025,station water,false,6
+4026,breakfast city always,true,9
+4027,quickly tomorrow please,false,263
+4028,city quickly,true,6
+4029,house,true,733
+4030,please tomorrow quickly,false,895
+4031,never city,false,5
+4032,ticket city thank you,true,528
+4033,house tomorrow,false,134
+4034,beautiful tomorrow,false,98
+4035,ticket beautiful station,false,975
+4036,ticket quickly,true,139
+4037,ticket station,false,806
+4038,please thank you quickly,false,790
+4039,ticket breakfast,false,713
+4040,never beautiful always,false,289
+4041,thank you,true,722
+4042,yesterday always never,false,68
+4043,thank you,false,29
+4044,beautiful water friend,false,27
+4045,quickly,false,186
+4046,teacher friend city,false,531
+4047,tomorrow beautiful,true,508
+4048,breakfast always teacher,false,309
+4049,water,true,163
+4050,beautiful water house,false,71
+4051,city,false,713
+4052,beautiful,false,784
+4053,beautiful ticket breakfast,false,349
+4054,please quickly tomorrow,true,4
+4055,breakfast,false,124
+4056,thank you city house,true,460
+4057,station,false,23
+4058,please,false,474
+4059,house thank you,true,254
+4060,city beautiful,false,153
+4061,never station,true,10
+4062,please teacher,false,14
+4063,beautiful friend thank you,false,517
+4064,water quickly station,true,972
+4065,city please,false,603
+4066,always friend,false,136
+4067,always,false,370
+4068,quickly water city,false,30
+4069,city house thank you,false,542
+4070,yesterday ticket quickly,true,1052
+4071,thank you,false,1176
+4072,never breakfast,false,99
+4073,friend house station,true,537
+4074,teacher please,true,394
+4075,please ticket station,false,5
+4076,always thank you,true,57
+4077,house,true,776
+4078,yesterday,false,7
+4079,breakfast,false,41
+4080,never beautiful,false,153
+4081,beautiful station,false,857
+4082,never,true,361
+4083,ticket house,false,70
+4084,please station city,true,95
+4085,teacher always,false,758
+4086,breakfast quickly,false,53
+4087,ticket breakfast,false,517
+4088,house,true,196
+4089,station beautiful yesterday,true,1197
+4090,thank you,false,3
+4091,breakfast tomorrow beautiful,false,3
+4092,never,true,192
+4093,thank you friend,true,102
+4094,please never always,false,590
+4095,yesterday ticket city,false,52
+4096,never yesterday thank you,false,145
+4097,station friend,false,1105
+4098,station,false,87
+4099,water station,true,861
+4100,thank you water friend,false,182
+4101,beautiful tomorrow yesterday,false,1
+4102,never,false,111
+4103,breakfast quickly city,false,403
+4104,quickly,false,1129
+4105,city yesterday,false,385
+4106,tomorrow,false,277
+4107,city,false,735
+4108,beautiful breakfast station,false,227
+4109,yesterday,false,297
+4110,yesterday please,false,873
+4111,teacher,false,2
+4112,please ticket station,false,944
+4113,please,false,74
+4114,water please,false,684
+4115,ticket beautiful,false,718
+4116,thank you,true,954
+4117,city,false,299
+4118,city beautiful thank you,false,17
+4119,please,false,4
+4120,friend station,false,12
+4121,beautiful quickly water,false,725
+4122,water ticket,false,37
+4123,please house,false,6
+4124,always breakfast tomorrow,true,11
+4125,water ticket always,true,17
+4126,water house breakfast,false,273
+4127,yesterday,false,40
+4128,station beautiful,true,22
+4129,house,false,972
+4130,city yesterday station,false,356
+4131,station yesterday teacher,true,215
+4132,beautiful yesterday,false,118
+4133,teacher tomorrow never,true,26
+4134,ticket never breakfast,false,228
+4135,thank you,true,3
+4136,please tomorrow,false,13
+4137,yesterday beautiful tomorrow,true,111
+4138,station water thank you,false,563
+4139,city station,false,1007
+4140,teacher,false,805
+4141,yesterday quickly tomorrow,false,772
+4142,thank you beautiful,true,943
+4143,breakfast,false,766
+4144,ticket always city,false,578
+4145,yesterday please,true,423
+4146,quickly city ticket,true,369
+4147,never tomorrow water,true,132
+4148,ticket yesterday please,false,1121
+4149,breakfast always,false,1076
+4150,tomorrow,false,7
+4151,station tomorrow,false,235
+4152,breakfast never,true,945
+4153,house please teacher,false,556
+4154,friend breakfast,false,481
+4155,tomorrow yesterday teacher,false,130
+4156,yesterday city teacher,false,1
+4157,beautiful ticket please,true,274
+4158,never house,false,972
+4159,yesterday house,false,666
+4160,friend quickly,true,4
+4161,tomorrow beautiful,false,1191
+4162,city,false,804
+4163,tomorrow teacher,false,313
+4164,house,false,316
+4165,breakfast,false,338
+4166,ticket,false,38
+4167,ticket house never,true,1072
+4168,city,false,343
+4169,never tomorrow,true,43
+4170,thank you breakfast,false,744
+4171,never,true,23
+4172,station teacher,false,276
+4173,quickly,false,581
+4174,friend city house,false,149
+4175,city beautiful,true,513
+4176,ticket water quickly,true,15
+4177,ticket friend,false,93
+4178,tomorrow,false,782
+4179,thank you friend quickly,false,108
+4180,please tomorrow ticket,false,12
+4181,quickly beautiful water,true,1054
+4182,always,false,601
+4183,yesterday,true,149
+4184,teacher station quickly,false,361
+4185,tomorrow friend house,true,10
+4186,yesterday tomorrow,true,619
+4187,breakfast beautiful always,false,257
+4188,station always house,true,273
+4189,please quickly friend,false,162
+4190,please ticket thank you,false,688
+4191,quickly water,false,28
+4192,teacher ticket never,false,180
+4193,yesterday ticket,false,550
+4194,never,false,845
+4195,yesterday house station,false,114
+4196,beautiful house,false,1101
+4197,tomorrow thank you,false,704
+4198,yesterday,false,564
+4199,quickly please,false,547
+4200,tomorrow station,false,436
+4201,ticket yesterday,false,279
+4202,always,false,530
+4203,never friend station,false,10
+4204,yesterday,false,385
+4205,thank you tomorrow teacher,false,665
+4206,friend house teacher,false,85
+4207,tomorrow friend,true,1125
+4208,breakfast always station,true,274
+4209,friend tomorrow thank you,false,181
+4210,please breakfast water,false,118
+4211,always friend,false,471
+4212,never,false,6
+4213,house,true,10
+4214,yesterday always,false,261
+4215,yesterday station,false,25
+4216,ticket,false,54
+4217,teacher water,false,163
+4218,ticket,false,35
+4219,station,false,1159
+4220,station,false,78
+4221,quickly city,true,29
+4222,water,false,269
+4223,thank you station,false,164
+4224,quickly,false,662
+4225,station ticket,false,117
+4226,house beautiful,true,917
+4227,friend always thank you,false,137
+4228,water city,false,968
+4229,tomorrow,false,68
+4230,never tomorrow beautiful,false,23
+4231,friend,false,159
+4232,thank you breakfast city,true,89
+4233,beautiful yesterday,false,2
+4234,teacher,false,434
+4235,breakfast water,false,926
+4236,house never,false,125
+4237,breakfast ticket yesterday,true,961
+4238,yesterday,false,643
+4239,teacher please house,false,530
+4240,ticket breakfast,false,497
+4241,never please,false,924
+4242,always,true,365
+4243,water,true,413
+4244,quickly tomorrow breakfast,false,406
+4245,thank you city beautiful,false,126
+4246,breakfast city friend,false,1188
+4247,yesterday,false,2
+4248,thank you house ticket,false,201
+4249,friend never,false,216
+4250,ticket please,true,194
+4251,house,false,1031
+4252,water city,false,216
+4253,thank you friend ticket,false,5
+4254,house,false,402
+4255,water,false,13
+4256,teacher,false,71
+4257,city,false,385
+4258,water,false,403
+4259,city please,false,1191
+4260,friend teacher,false,60
+4261,water always tomorrow,false,1049
+4262,beautiful teacher station,false,384
+4263,breakfast,false,4
+4264,water,false,293
+4265,yesterday,true,805
+4266,tomorrow quickly beautiful,false,849
+4267,house,false,92
+4268,never house,false,748
+4269,station,false,110
+4270,always yesterday tomorrow,false,259
+4271,teacher never quickly,false,286
+4272,always,false,178
+4273,water quickly,true,203
+4274,friend,false,103
+4275,breakfast,false,648
+4276,house,false,75
+4277,quickly always friend,false,1124
+4278,ticket,false,1181
+4279,beautiful teacher,false,373
+4280,water always thank you,false,146
+4281,yesterday,false,335
+4282,quickly please water,false,8
+4283,quickly ticket please,false,345
+4284,water,false,27
+4285,never water quickly,true,418
+4286,yesterday friend,false,387
+4287,teacher friend,false,882
+4288,never station always,false,539
+4289,never please house,false,908
+4290,never beautiful city,true,895
+4291,ticket,false,1
+4292,breakfast never beautiful,false,291
+4293,quickly friend yesterday,true,253
+4294,yesterday please tomorrow,true,66
+4295,always,false,465
+4296,beautiful breakfast please,false,135
+4297,water teacher beautiful,false,938
+4298,please,false,776
+4299,please,false,4
+4300,tomorrow quickly city,false,930
+4301,teacher,false,392
+4302,please,false,155
+4303,city house please,false,972
+4304,thank you breakfast house,true,358
+4305,ticket always,false,97
+4306,beautiful house,true,144
+4307,house,false,1044
+4308,teacher please,false,233
+4309,city,false,426
+4310,tomorrow friend,false,122
+4311,yesterday ticket always,false,1137
+4312,please,true,206
+4313,never,false,647
+4314,water thank you house,false,146
+4315,breakfast thank you friend,false,13
+4316,quickly,false,281
+4317,yesterday,true,311
+4318,house breakfast beautiful,false,4
+4319,please teacher,false,240
+4320,water,false,97
+4321,station thank you house,false,968
+4322,quickly water teacher,false,395
+4323,quickly breakfast tomorrow,false,104
+4324,quickly beautiful,false,592
+4325,friend yesterday,true,58
+4326,house station,false,580
+4327,tomorrow city,true,1
+4328,water please friend,false,320
+4329,never ticket,true,37
+4330,teacher ticket,false,157
+4331,always,true,24
+4332,city,false,683
+4333,water yesterday,false,515
+4334,water,false,407
+4335,please,false,249
+4336,water,false,70
+4337,never,false,237
+4338,thank you breakfast beautiful,false,43
+4339,house,true,561
+4340,never beautiful tomorrow,true,33
+4341,yesterday,false,43
+4342,yesterday beautiful teacher,false,1
+4343,yesterday friend,true,8
+4344,please city thank you,true,108
+4345,city water,true,93
+4346,always,true,236
+4347,thank you quickly always,false,818
+4348,tomorrow,false,488
+4349,please beautiful quickly,false,85
+4350,quickly yesterday,true,256
+4351,water thank you breakfast,false,106
+4352,quickly water,false,1196
+4353,ticket breakfast,false,45
+4354,breakfast,false,149
+4355,beautiful station please,false,216
+4356,ticket breakfast,true,109
+4357,yesterday beautiful please,false,52
+4358,house please,false,266
+4359,ticket quickly,false,913
+4360,please always quickly,true,53
+4361,quickly please breakfast,false,280
+4362,always,false,1135
+4363,city station,false,755
+4364,quickly,false,74
+4365,water,false,132
+4366,friend quickly,false,1169
+4367,never friend,false,703
+4368,friend tomorrow,false,1
+4369,tomorrow ticket,false,38
+4370,station,false,127
+4371,ticket,false,27
+4372,tomorrow beautiful teacher,false,343
+4373,ticket friend yesterday,false,605
+4374,thank you always,false,569
+4375,please ticket city,true,369
+4376,house,true,1
+4377,beautiful,true,286
+4378,thank you,false,37
+4379,station yesterday beautiful,false,1124
+4380,house,false,132
+4381,water teacher,false,766
+4382,city,false,850
+4383,tomorrow station always,false,147
+4384,ticket tomorrow yesterday,false,868
+4385,breakfast ticket never,false,320
+4386,ticket water,false,75
+4387,house,false,399
+4388,station friend,true,23
+4389,yesterday tomorrow please,true,587
+4390,yesterday breakfast thank you,false,98
+4391,station teacher,true,112
+4392,beautiful house,true,764
+4393,city,false,477
+4394,quickly thank you,false,899
+4395,yesterday,true,844
+4396,please thank you,false,1062
+4397,station yesterday,false,18
+4398,beautiful,true,80
+4399,never,false,45
+4400,please yesterday always,false,668
+4401,beautiful,false,194
+4402,station friend,false,487
+4403,tomorrow,false,972
+4404,station yesterday friend,false,1146
+4405,never always city,false,18
+4406,house,false,141
+4407,water always teacher,false,995
+4408,quickly tomorrow please,false,874
+4409,city please teacher,false,38
+4410,never tomorrow city,true,596
+4411,never yesterday,false,35
+4412,thank you,false,748
+4413,always beautiful,false,55
+4414,please beautiful ticket,false,634
+4415,city ticket,false,496
+4416,teacher please friend,true,50
+4417,please water,false,166
+4418,thank you tomorrow beautiful,false,817
+4419,never please,false,31
+4420,quickly station always,false,344
+4421,quickly,true,696
+4422,city ticket quickly,false,503
+4423,please yesterday teacher,false,45
+4424,beautiful tomorrow,true,5
+4425,tomorrow,false,22
+4426,beautiful thank you quickly,false,348
+4427,please,false,56
+4428,tomorrow,false,112
+4429,yesterday please house,false,78
+4430,always thank you teacher,false,534
+4431,house beautiful ticket,false,182
+4432,teacher,false,79
+4433,please breakfast friend,false,226
+4434,house always ticket,false,505
+4435,tomorrow never water,false,52
+4436,quickly city,true,1138
+4437,house beautiful,false,194
+4438,house yesterday,false,30
+4439,teacher city ticket,false,558
+4440,city please teacher,true,8
+4441,ticket breakfast station,false,135
+4442,house,false,28
+4443,yesterday always,true,711
+4444,please,false,197
+4445,please station yesterday,false,948
+4446,ticket,false,177
+4447,city station,false,134
+4448,never always water,false,114
+4449,water thank you,true,492
+4450,quickly always beautiful,false,14
+4451,please,false,42
+4452,beautiful please,false,613
+4453,station,false,63
+4454,quickly,false,414
+4455,never city beautiful,false,15
+4456,yesterday,true,1104
+4457,beautiful friend,true,793
+4458,teacher,true,949
+4459,yesterday,false,460
+4460,quickly station breakfast,true,240
+4461,city tomorrow,false,370
+4462,tomorrow yesterday,false,31
+4463,ticket yesterday tomorrow,false,69
+4464,yesterday quickly house,false,58
+4465,quickly city,false,216
+4466,friend,false,486
+4467,ticket,true,711
+4468,house water never,false,678
+4469,please teacher station,false,209
+4470,house,false,687
+4471,always,true,65
+4472,ticket,true,9
+4473,teacher,false,638
+4474,teacher friend,false,716
+4475,friend tomorrow breakfast,false,1071
+4476,tomorrow breakfast friend,false,83
+4477,yesterday house never,false,301
+4478,friend,false,302
+4479,water,true,328
+4480,breakfast,false,153
+4481,breakfast city always,false,1071
+4482,friend,false,1153
+4483,quickly,false,298
+4484,thank you tomorrow ticket,true,147
+4485,please,false,144
+4486,station thank you never,false,462
+4487,house always,true,24
+4488,thank you,false,665
+4489,always teacher breakfast,false,23
+4490,breakfast yesterday quickly,false,183
+4491,house,false,32
+4492,house teacher,true,83
+4493,yesterday,false,325
+4494,please teacher yesterday,false,610
+4495,beautiful teacher,false,2
+4496,city friend station,false,23
+4497,city quickly tomorrow,true,402
+4498,quickly breakfast,false,12
+4499,beautiful,false,590
+4500,station never yesterday,true,274
+4501,please,false,372
+4502,friend yesterday water,false,529
+4503,station,true,92
+4504,yesterday station,false,754
+4505,friend station water,false,82
+4506,tomorrow always,false,332
+4507,never friend,true,389
+4508,thank you never tomorrow,true,2
+4509,always ticket friend,false,16
+4510,breakfast teacher never,false,548
+4511,ticket city,false,175
+4512,always,false,1091
+4513,house,false,270
+4514,please,false,88
+4515,quickly,false,1
+4516,please yesterday city,false,715
+4517,water,false,1174
+4518,tomorrow,false,365
+4519,tomorrow teacher,false,81
+4520,never,false,166
+4521,ticket quickly,false,340
+4522,always,false,962
+4523,water,true,871
+4524,beautiful,false,891
+4525,teacher yesterday thank you,false,1
+4526,please always thank you,false,379
+4527,please,false,14
+4528,beautiful yesterday,true,567
+4529,yesterday,false,970
+4530,thank you yesterday,false,360
+4531,quickly station,true,914
+4532,friend water,false,82
+4533,friend,false,364
+4534,yesterday,true,8
+4535,never quickly thank you,false,47
+4536,always never,false,975
+4537,beautiful always,true,221
+4538,thank you yesterday ticket,false,899
+4539,please friend house,false,665
+4540,station,false,60
+4541,never quickly,false,14
+4542,please beautiful ticket,false,585
+4543,station city quickly,true,39
+4544,never house yesterday,false,795
+4545,quickly beautiful breakfast,false,723
+4546,always yesterday,false,303
+4547,never yesterday,false,164
+4548,water quickly breakfast,false,1069
+4549,quickly friend tomorrow,false,443
+4550,city always,false,274
+4551,tomorrow station teacher,false,670
+4552,beautiful always thank you,true,286
+4553,breakfast,false,225
+4554,house city,false,526
+4555,teacher breakfast station,false,387
+4556,teacher,false,111
+4557,yesterday,false,78
+4558,yesterday,false,93
+4559,teacher,false,738
+4560,city quickly thank you,false,451
+4561,friend,false,127
+4562,teacher,false,1
+4563,beautiful,false,166
+4564,always beautiful,true,46
+4565,thank you,false,128
+4566,please yesterday teacher,false,107
+4567,city ticket,false,627
+4568,station,false,819
+4569,teacher quickly,false,70
+4570,city never,true,95
+4571,please,false,953
+4572,friend,false,608
+4573,yesterday house beautiful,true,675
+4574,ticket breakfast yesterday,false,696
+4575,always,true,451
+4576,house always,false,3
+4577,quickly thank you,false,129
+4578,city quickly,false,573
+4579,tomorrow,false,793
+4580,ticket,false,582
+4581,beautiful,false,42
+4582,station house yesterday,false,102
+4583,water please city,false,54
+4584,breakfast,true,945
+4585,tomorrow,false,678
+4586,breakfast,false,676
+4587,city beautiful,false,18
+4588,yesterday,false,2
+4589,tomorrow please water,false,279
+4590,please breakfast quickly,false,533
+4591,friend water,false,767
+4592,house city,false,22
+4593,thank you breakfast teacher,false,706
+4594,water always please,true,568
+4595,city thank you breakfast,false,208
+4596,please thank you,false,350
+4597,station tomorrow,true,381
+4598,thank you tomorrow,false,260
+4599,house quickly,true,8
+4600,always please,false,196
+4601,quickly,false,366
+4602,teacher quickly thank you,true,916
+4603,city water house,true,414
+4604,house quickly teacher,false,756
+4605,house,false,397
+4606,station house,true,612
+4607,water thank you friend,false,9
+4608,station,true,637
+4609,always house,false,650
+4610,water,false,705
+4611,please water,false,300
+4612,teacher,false,1098
+4613,never water ticket,false,526
+4614,ticket,false,597
+4615,never thank you tomorrow,true,50
+4616,always station,false,3
+4617,city,false,246
+4618,station teacher quickly,false,676
+4619,thank you city,false,53
+4620,teacher,false,295
+4621,friend,true,10
+4622,house,true,1101
+4623,breakfast beautiful,true,29
+4624,station,false,966
+4625,friend station,false,1001
+4626,yesterday,true,348
+4627,station never tomorrow,false,798
+4628,yesterday,false,1179
+4629,please water tomorrow,false,754
+4630,beautiful yesterday quickly,false,622
+4631,teacher,true,170
+4632,ticket beautiful house,true,71
+4633,always please water,false,335
+4634,never teacher,true,87
+4635,thank you always,false,223
+4636,teacher,false,1008
+4637,station,false,1
+4638,city,false,223
+4639,teacher,false,796
+4640,teacher quickly beautiful,false,30
+4641,breakfast please never,true,28
+4642,never tomorrow,false,125
+4643,breakfast,true,192
+4644,never ticket,true,202
+4645,house,false,242
+4646,station,false,890
+4647,water station,false,2
+4648,thank you always ticket,false,695
+4649,station beautiful ticket,false,23
+4650,station yesterday,true,417
+4651,yesterday,false,774
+4652,teacher water,false,1
+4653,quickly thank you yesterday,true,1018
+4654,tomorrow please always,false,23
+4655,water thank you never,false,509
+4656,always,false,471
+4657,thank you station ticket,false,219
+4658,beautiful,false,78
+4659,always breakfast,false,600
+4660,friend never thank you,false,549
+4661,ticket teacher tomorrow,false,671
+4662,tomorrow,false,1134
+4663,beautiful quickly,false,823
+4664,city,false,73
+4665,always,false,1
+4666,city,true,102
+4667,quickly never,false,338
+4668,ticket quickly always,false,92
+4669,city please water,false,5
+4670,always,false,83
+4671,house,false,297
+4672,please water beautiful,true,782
+4673,quickly station house,true,151
+4674,teacher,false,81
+4675,thank you quickly,true,1
+4676,quickly house,false,75
+4677,breakfast tomorrow station,true,483
+4678,please breakfast,false,1134
+4679,breakfast thank you,false,913
+4680,house always water,false,701
+4681,tomorrow quickly thank you,true,42
+4682,water,false,676
+4683,breakfast,false,1
+4684,tomorrow,false,87
+4685,tomorrow never yesterday,false,655
+4686,tomorrow city water,false,677
+4687,never always,false,1
+4688,always water yesterday,true,113
+4689,water yesterday never,false,195
+4690,friend quickly,false,612
+4691,breakfast ticket,false,60
+4692,ticket always yesterday,false,268
+4693,beautiful,false,332
+4694,quickly breakfast city,false,34
+4695,city yesterday ticket,true,18
+4696,tomorrow never house,false,164
+4697,ticket,false,105
+4698,city station,false,24
+4699,please house breakfast,false,1130
+4700,friend yesterday thank you,false,491
+4701,city station,false,801
+4702,ticket,true,2
+4703,city never,true,154
+4704,teacher yesterday,false,685
+4705,water,false,616
+4706,city yesterday station,false,827
+4707,water,false,126
+4708,beautiful,false,244
+4709,friend ticket,true,578
+4710,yesterday station,false,82
+4711,yesterday house,true,602
+4712,city friend,false,863
+4713,teacher station water,false,898
+4714,station beautiful,true,118
+4715,house quickly,true,238
+4716,yesterday,false,697
+4717,thank you always,true,273
+4718,quickly breakfast,false,43
+4719,water,false,1
+4720,city house,false,612
+4721,never yesterday,false,939
+4722,yesterday water station,true,476
+4723,tomorrow,true,155
+4724,breakfast please station,false,41
+4725,station,true,145
+4726,house,false,938
+4727,never,true,1144
+4728,teacher breakfast,false,129
+4729,please yesterday station,false,1014
+4730,station thank you,false,31
+4731,always friend,false,22
+4732,always,false,575
+4733,friend,true,418
+4734,thank you quickly,false,1140
+4735,teacher,false,244
+4736,thank you,false,762
+4737,teacher beautiful house,false,142
+4738,always tomorrow please,false,493
+4739,thank you city,false,408
+4740,teacher never tomorrow,true,87
+4741,always,true,70
+4742,friend,false,79
+4743,station water,true,735
+4744,always quickly breakfast,false,38
+4745,city ticket,false,1054
+4746,teacher ticket house,false,1
+4747,friend breakfast,false,425
+4748,always please water,true,34
+4749,always,false,412
+4750,please,false,556
+4751,ticket quickly,false,89
+4752,water please never,true,3
+4753,breakfast,false,191
+4754,city,false,315
+4755,yesterday thank you never,false,961
+4756,city thank you please,false,767
+4757,please beautiful teacher,false,730
+4758,quickly please,false,75
+4759,beautiful breakfast friend,false,113
+4760,thank you yesterday,true,315
+4761,house always ticket,false,1111
+4762,house teacher quickly,false,361
+4763,friend quickly breakfast,false,62
+4764,never,false,33
+4765,house,false,3
+4766,ticket,false,11
+4767,water,false,123
+4768,teacher never water,false,614
+4769,never teacher,false,508
+4770,breakfast,true,1043
+4771,water always never,false,6
+4772,water,false,1
+4773,please city,false,1166
+4774,breakfast beautiful,false,35
+4775,breakfast quickly house,false,582
+4776,friend tomorrow,false,244
+4777,breakfast yesterday beautiful,true,966
+4778,beautiful teacher,false,1105
+4779,house,false,179
+4780,breakfast tomorrow water,true,2
+4781,please,false,690
+4782,city,false,662
+4783,please station house,false,108
+4784,always house please,false,2
+4785,never house breakfast,true,636
+4786,friend water beautiful,false,31
+4787,never station,true,255
+4788,quickly tomorrow thank you,false,40
+4789,city ticket,false,282
+4790,friend yesterday teacher,true,935
+4791,ticket water,true,494
+4792,always city,true,965
+4793,tomorrow please city,false,94
+4794,never,true,357
+4795,beautiful always water,true,123
+4796,house,false,2
+4797,ticket friend yesterday,true,474
+4798,yesterday breakfast,false,27
+4799,friend never thank you,false,12
+4800,ticket,false,880

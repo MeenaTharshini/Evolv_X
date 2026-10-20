@@ -1,0 +1,1201 @@
+question_id,question_text,quiz_id
+1,The order was updated following a routine review.,73
+2,The reviewer reported a standard issue; the session was rejected.,8
+3,The supplier asked for a change and the refund was updated.,45
+4,Flagged as automatic. The team updated the payment.,11
+5,The account owner confirmed the details and the record was escalated.,38
+6,The team confirmed the details and the refund was rescheduled.,120
+7,Flagged as partial. The team escalated the document.,11
+8,A manual claim was refunded the same day.,88
+9,The reviewer reported an incomplete issue; the refund was rejected.,11
+10,A standard follow-up: the report was completed.,4
+11,A manual session was approved the same day.,109
+12,Flagged as manual. The account owner closed the record.,15
+13,"The shipment was rescheduled — partial case, no further action.",26
+14,The team reported a duplicate issue; the transfer was reviewed.,11
+15,The supplier asked for a change and the document was reviewed.,6
+16,"No response from the team, so the payment was reviewed.",2
+17,Flagged as incomplete. The supplier cancelled the appointment.,30
+18,The invoice was replaced following a partial review.,7
+19,The reviewer reported a repeat issue; the request was cancelled.,7
+20,The order was reopened after a manual check.,115
+21,An operator confirmed the details and the report was rejected.,48
+22,"The payment was reopened — automatic case, no further action.",70
+23,"No response from support, so the order was resolved.",1
+24,A standard appointment was closed the same day.,5
+25,The supplier confirmed the details and the item was resolved.,3
+26,"No response from the courier, so the refund was reviewed.",3
+27,"No response from an operator, so the booking was cancelled.",101
+28,A manual invoice was updated the same day.,34
+29,A partial follow-up: the appointment was processed.,70
+30,The team reported a routine issue; the document was processed.,3
+31,The customer asked for a change and the record was confirmed.,3
+32,"The record was rescheduled — urgent case, no further action.",5
+33,The customer asked for a change and the delivery was reviewed.,67
+34,The customer confirmed the details and the report was rejected.,53
+35,"The report was refunded — unusual case, no further action.",44
+36,"No response from the account owner, so the session was completed.",11
+37,The supplier reported an automatic issue; the document was cancelled.,14
+38,Flagged as late. Support reopened the booking.,43
+39,A manual follow-up: the delivery was refunded.,37
+40,The account owner confirmed the details and the payment was replaced.,6
+41,An unusual follow-up: the transfer was escalated.,60
+42,The item was reopened after a late check.,30
+43,The reviewer asked for a change and the order was replaced.,46
+44,The appointment was escalated following a late review.,12
+45,The invoice was cancelled following a standard review.,84
+46,A routine item was replaced the same day.,5
+47,Flagged as minor. Support updated the payment.,69
+48,Support confirmed the details and the refund was approved.,112
+49,"No response from an operator, so the claim was completed.",10
+50,Support asked for a change and the refund was reviewed.,68
+51,"No response from the courier, so the claim was rescheduled.",2
+52,"No response from support, so the document was reviewed.",56
+53,The courier confirmed the details and the account was delayed.,1
+54,The account was updated after an urgent check.,27
+55,An unusual follow-up: the booking was confirmed.,20
+56,Support confirmed the details and the order was updated.,66
+57,The request was rescheduled after an automatic check.,32
+58,The document was approved following a partial review.,1
+59,An urgent follow-up: the report was rescheduled.,16
+60,The courier reported a partial issue; the order was processed.,50
+61,The account owner reported a repeat issue; the delivery was approved.,72
+62,The customer confirmed the details and the invoice was delayed.,1
+63,The courier asked for a change and the booking was rescheduled.,61
+64,The customer reported a standard issue; the item was delayed.,86
+65,The payment was rejected following a partial review.,47
+66,The team asked for a change and the shipment was reviewed.,7
+67,An operator reported a late issue; the ticket was updated.,5
+68,The order was processed following a minor review.,107
+69,A standard record was escalated the same day.,2
+70,A standard follow-up: the session was reviewed.,60
+71,The item was completed after a partial check.,7
+72,"No response from the team, so the delivery was delayed.",24
+73,Flagged as duplicate. The reviewer reopened the transfer.,24
+74,The account was completed after a partial check.,13
+75,The account owner reported an unusual issue; the claim was rejected.,77
+76,A partial follow-up: the refund was cancelled.,47
+77,"No response from the supplier, so the request was cancelled.",5
+78,The supplier confirmed the details and the session was resolved.,117
+79,"No response from the courier, so the order was delayed.",7
+80,"No response from an operator, so the claim was processed.",9
+81,A duplicate request was approved the same day.,89
+82,An unusual follow-up: the report was rescheduled.,14
+83,"No response from the reviewer, so the account was cancelled.",19
+84,A partial appointment was updated the same day.,10
+85,The account was reviewed after a manual check.,1
+86,The document was rescheduled following an unusual review.,19
+87,The ticket was reopened after a minor check.,29
+88,A duplicate claim was delayed the same day.,12
+89,Flagged as incomplete. The supplier completed the booking.,4
+90,The team reported a routine issue; the transfer was resolved.,71
+91,"The ticket was rejected — duplicate case, no further action.",113
+92,An urgent follow-up: the order was rescheduled.,3
+93,"No response from an operator, so the order was refunded.",53
+94,Flagged as unusual. The account owner completed the delivery.,29
+95,An urgent booking was rescheduled the same day.,30
+96,The supplier reported a minor issue; the delivery was reopened.,119
+97,Flagged as repeat. The account owner approved the report.,4
+98,The account owner asked for a change and the account was escalated.,1
+99,"The payment was approved — urgent case, no further action.",87
+100,The customer reported a routine issue; the claim was replaced.,25
+101,"The session was delayed — incomplete case, no further action.",49
+102,An incomplete report was refunded the same day.,55
+103,The account owner confirmed the details and the ticket was reopened.,77
+104,"The invoice was processed — standard case, no further action.",7
+105,An operator asked for a change and the item was delayed.,112
+106,A repeat report was refunded the same day.,61
+107,An automatic document was completed the same day.,42
+108,An operator asked for a change and the session was approved.,2
+109,A duplicate follow-up: the report was delayed.,67
+110,Flagged as incomplete. The reviewer refunded the ticket.,52
+111,Flagged as partial. An operator processed the booking.,84
+112,The team confirmed the details and the order was escalated.,2
+113,The team confirmed the details and the shipment was replaced.,1
+114,The courier confirmed the details and the shipment was escalated.,84
+115,A manual follow-up: the booking was escalated.,14
+116,An operator asked for a change and the ticket was escalated.,112
+117,"No response from support, so the shipment was confirmed.",24
+118,An incomplete follow-up: the booking was delayed.,1
+119,An automatic follow-up: the document was processed.,31
+120,The refund was updated following a manual review.,31
+121,The courier asked for a change and the shipment was completed.,55
+122,Flagged as late. The account owner escalated the ticket.,89
+123,The team confirmed the details and the order was refunded.,73
+124,A manual record was completed the same day.,17
+125,The shipment was refunded after a repeat check.,59
+126,"No response from the reviewer, so the item was replaced.",71
+127,Flagged as duplicate. The team delayed the transfer.,79
+128,Flagged as standard. The supplier replaced the ticket.,68
+129,The team reported a routine issue; the transfer was closed.,29
+130,Flagged as partial. The courier processed the delivery.,2
+131,The transfer was reopened following an unusual review.,2
+132,An urgent transfer was processed the same day.,7
+133,Flagged as late. The team reopened the refund.,39
+134,"No response from the courier, so the invoice was confirmed.",68
+135,Flagged as automatic. The supplier resolved the shipment.,95
+136,Flagged as standard. The account owner approved the appointment.,4
+137,The transfer was completed following a late review.,69
+138,Flagged as routine. The reviewer processed the claim.,5
+139,"The document was processed — urgent case, no further action.",28
+140,The account owner confirmed the details and the account was reopened.,12
+141,"No response from an operator, so the document was reviewed.",103
+142,The supplier asked for a change and the invoice was approved.,11
+143,Flagged as routine. The team updated the delivery.,82
+144,Flagged as routine. The customer approved the ticket.,20
+145,A repeat record was rescheduled the same day.,84
+146,"No response from the reviewer, so the document was resolved.",94
+147,Flagged as automatic. The courier completed the account.,33
+148,The supplier asked for a change and the payment was confirmed.,8
+149,An operator confirmed the details and the delivery was completed.,29
+150,The session was rescheduled after a manual check.,5
+151,The supplier asked for a change and the document was completed.,86
+152,The shipment was rescheduled following an unusual review.,9
+153,An unusual refund was approved the same day.,1
+154,The courier asked for a change and the document was processed.,27
+155,An operator reported a duplicate issue; the booking was escalated.,66
+156,The courier asked for a change and the payment was replaced.,73
+157,The payment was delayed following a minor review.,14
+158,An unusual follow-up: the invoice was rescheduled.,106
+159,Flagged as urgent. The courier confirmed the ticket.,30
+160,The document was escalated after a late check.,5
+161,An operator reported an unusual issue; the request was escalated.,31
+162,"The report was cancelled — routine case, no further action.",70
+163,An urgent follow-up: the transfer was resolved.,100
+164,"The document was rescheduled — standard case, no further action.",21
+165,The account owner reported an incomplete issue; the invoice was resolved.,49
+166,A repeat session was closed the same day.,1
+167,An urgent follow-up: the order was resolved.,90
+168,The team asked for a change and the appointment was refunded.,93
+169,The delivery was reviewed following a standard review.,1
+170,An incomplete booking was resolved the same day.,13
+171,The customer asked for a change and the shipment was reviewed.,26
+172,"No response from support, so the delivery was rescheduled.",22
+173,Flagged as routine. The team processed the session.,19
+174,Flagged as routine. An operator completed the delivery.,2
+175,The courier reported a repeat issue; the payment was resolved.,80
+176,Support asked for a change and the invoice was cancelled.,31
+177,The supplier asked for a change and the transfer was reviewed.,16
+178,A standard report was completed the same day.,15
+179,"No response from the customer, so the refund was reopened.",2
+180,The ticket was escalated after a late check.,109
+181,"The report was delayed — duplicate case, no further action.",94
+182,A manual follow-up: the order was updated.,18
+183,"No response from support, so the delivery was completed.",22
+184,"The order was resolved — minor case, no further action.",48
+185,"The account was cancelled — repeat case, no further action.",113
+186,A duplicate account was processed the same day.,13
+187,Support reported a manual issue; the delivery was refunded.,46
+188,Flagged as standard. The customer approved the payment.,74
+189,An automatic follow-up: the payment was approved.,1
+190,The refund was completed following an unusual review.,12
+191,The reviewer asked for a change and the refund was processed.,111
+192,The account owner asked for a change and the account was processed.,95
+193,The reviewer confirmed the details and the transfer was confirmed.,5
+194,The courier confirmed the details and the transfer was replaced.,115
+195,An operator asked for a change and the invoice was approved.,19
+196,An incomplete claim was confirmed the same day.,57
+197,A duplicate item was reviewed the same day.,24
+198,The record was updated after an unusual check.,5
+199,Flagged as late. The customer rescheduled the booking.,63
+200,An urgent follow-up: the payment was replaced.,34
+201,A minor transfer was closed the same day.,41
+202,The delivery was replaced following a standard review.,10
+203,An urgent item was escalated the same day.,14
+204,"No response from the supplier, so the ticket was replaced.",62
+205,The claim was replaced following an urgent review.,7
+206,The account was processed following a manual review.,54
+207,Flagged as late. The courier closed the booking.,3
+208,"The booking was completed — automatic case, no further action.",19
+209,"No response from the reviewer, so the delivery was approved.",111
+210,The reviewer reported an urgent issue; the payment was rejected.,60
+211,An automatic follow-up: the account was delayed.,18
+212,Flagged as incomplete. The team approved the claim.,66
+213,The appointment was cancelled following a late review.,27
+214,The team reported a manual issue; the report was processed.,84
+215,"No response from the team, so the ticket was rejected.",77
+216,The order was closed after an unusual check.,90
+217,The account owner reported a routine issue; the ticket was rejected.,7
+218,"The record was refunded — duplicate case, no further action.",77
+219,An unusual payment was reopened the same day.,39
+220,"No response from the team, so the order was confirmed.",1
+221,"The payment was resolved — manual case, no further action.",14
+222,"The payment was rescheduled — repeat case, no further action.",12
+223,The account owner confirmed the details and the report was reopened.,24
+224,Flagged as standard. Support confirmed the appointment.,1
+225,The document was reopened after a duplicate check.,102
+226,An operator reported a standard issue; the booking was resolved.,24
+227,"The shipment was rejected — unusual case, no further action.",6
+228,Support reported an incomplete issue; the transfer was rejected.,31
+229,The courier reported an incomplete issue; the invoice was escalated.,16
+230,The refund was reviewed following an urgent review.,59
+231,An unusual follow-up: the report was rescheduled.,21
+232,A standard follow-up: the transfer was replaced.,5
+233,A partial follow-up: the account was delayed.,6
+234,"The booking was cancelled — incomplete case, no further action.",31
+235,The refund was closed following an urgent review.,41
+236,A minor document was replaced the same day.,18
+237,The customer reported an automatic issue; the booking was rejected.,1
+238,"The payment was updated — duplicate case, no further action.",48
+239,A routine appointment was closed the same day.,44
+240,The document was refunded following a standard review.,101
+241,The supplier confirmed the details and the transfer was resolved.,18
+242,An unusual account was updated the same day.,1
+243,The claim was rescheduled following an unusual review.,95
+244,"No response from the courier, so the booking was refunded.",29
+245,The order was approved after a manual check.,6
+246,The account owner asked for a change and the report was confirmed.,3
+247,"No response from the supplier, so the session was replaced.",99
+248,The ticket was processed after a standard check.,35
+249,The supplier reported a duplicate issue; the shipment was completed.,77
+250,The delivery was escalated after an unusual check.,1
+251,The supplier reported an unusual issue; the booking was approved.,1
+252,The order was updated after a late check.,8
+253,Flagged as urgent. The supplier completed the session.,48
+254,The item was confirmed following a routine review.,24
+255,Flagged as standard. The team delayed the shipment.,1
+256,The payment was cancelled following a minor review.,58
+257,An urgent follow-up: the request was reopened.,58
+258,The reviewer asked for a change and the ticket was resolved.,58
+259,A late invoice was reopened the same day.,43
+260,A manual follow-up: the shipment was confirmed.,2
+261,The appointment was reopened after a repeat check.,1
+262,Flagged as minor. The team updated the shipment.,39
+263,The order was escalated following a standard review.,31
+264,An urgent follow-up: the session was reopened.,97
+265,The document was closed after a minor check.,79
+266,The account owner asked for a change and the invoice was completed.,60
+267,Flagged as duplicate. The reviewer closed the account.,1
+268,Flagged as partial. The customer approved the document.,12
+269,"No response from the account owner, so the refund was rescheduled.",6
+270,The item was completed following a late review.,8
+271,"The request was confirmed — routine case, no further action.",11
+272,The team confirmed the details and the order was approved.,72
+273,The customer asked for a change and the report was closed.,1
+274,The item was closed after a duplicate check.,43
+275,The booking was replaced after a duplicate check.,2
+276,An unusual follow-up: the record was cancelled.,31
+277,The customer reported a partial issue; the payment was resolved.,5
+278,An urgent follow-up: the delivery was rejected.,5
+279,"No response from support, so the payment was cancelled.",56
+280,An incomplete follow-up: the account was completed.,75
+281,The team asked for a change and the appointment was resolved.,2
+282,Support reported a routine issue; the shipment was delayed.,18
+283,"No response from support, so the delivery was rescheduled.",9
+284,The item was reopened after a manual check.,1
+285,"No response from the team, so the refund was rejected.",7
+286,"The transfer was refunded — duplicate case, no further action.",99
+287,The payment was reviewed following an automatic review.,67
+288,The courier confirmed the details and the invoice was cancelled.,7
+289,"No response from the supplier, so the request was resolved.",55
+290,The shipment was refunded after a standard check.,52
+291,The supplier reported an unusual issue; the request was approved.,23
+292,A partial refund was delayed the same day.,49
+293,"The shipment was cancelled — urgent case, no further action.",108
+294,"The ticket was reopened — repeat case, no further action.",22
+295,The report was cancelled after a late check.,13
+296,The session was completed after an automatic check.,21
+297,"The booking was cancelled — minor case, no further action.",16
+298,An urgent account was refunded the same day.,40
+299,Flagged as unusual. The reviewer delayed the session.,57
+300,Flagged as duplicate. An operator reopened the session.,59
+301,The account owner reported a standard issue; the shipment was processed.,48
+302,"The account was completed — late case, no further action.",7
+303,The team asked for a change and the request was reviewed.,119
+304,Flagged as incomplete. Support reopened the shipment.,46
+305,The request was completed after a repeat check.,3
+306,"The request was updated — automatic case, no further action.",24
+307,"No response from the reviewer, so the payment was delayed.",3
+308,A routine item was closed the same day.,79
+309,"No response from the courier, so the appointment was confirmed.",101
+310,The refund was reviewed after a routine check.,61
+311,The order was approved following an unusual review.,23
+312,An unusual document was delayed the same day.,23
+313,"No response from the courier, so the shipment was updated.",71
+314,The team asked for a change and the account was processed.,6
+315,The reviewer confirmed the details and the claim was processed.,75
+316,Flagged as manual. Support reopened the payment.,36
+317,An operator confirmed the details and the ticket was processed.,1
+318,An automatic follow-up: the account was rejected.,120
+319,The transfer was escalated after an incomplete check.,27
+320,The report was reopened after an unusual check.,116
+321,The account owner reported an unusual issue; the report was escalated.,110
+322,The customer asked for a change and the order was processed.,6
+323,An operator asked for a change and the appointment was reviewed.,8
+324,A repeat follow-up: the document was updated.,24
+325,Support asked for a change and the transfer was rescheduled.,48
+326,Support confirmed the details and the shipment was resolved.,1
+327,An automatic follow-up: the booking was reviewed.,86
+328,"The shipment was resolved — late case, no further action.",76
+329,The delivery was resolved following an incomplete review.,68
+330,The supplier asked for a change and the appointment was rescheduled.,82
+331,The reviewer confirmed the details and the refund was completed.,1
+332,The account owner asked for a change and the shipment was reviewed.,9
+333,"No response from an operator, so the account was delayed.",28
+334,Support confirmed the details and the ticket was replaced.,16
+335,An operator reported an automatic issue; the session was approved.,6
+336,An automatic follow-up: the order was updated.,32
+337,"No response from the team, so the session was replaced.",98
+338,The courier reported a manual issue; the delivery was delayed.,1
+339,The report was delayed following an urgent review.,8
+340,Support confirmed the details and the claim was reopened.,50
+341,The delivery was rescheduled after a standard check.,1
+342,The invoice was approved following a late review.,97
+343,An urgent report was refunded the same day.,3
+344,Flagged as manual. The team updated the payment.,1
+345,A manual ticket was updated the same day.,25
+346,The team confirmed the details and the invoice was approved.,115
+347,An operator reported a routine issue; the claim was reopened.,85
+348,The booking was replaced after a routine check.,87
+349,An urgent booking was rejected the same day.,18
+350,The transfer was approved after an urgent check.,116
+351,"No response from the team, so the invoice was delayed.",42
+352,Support asked for a change and the account was delayed.,2
+353,Flagged as partial. The team completed the ticket.,73
+354,A minor appointment was refunded the same day.,15
+355,The booking was completed following a standard review.,53
+356,An automatic item was rejected the same day.,13
+357,The team confirmed the details and the invoice was rescheduled.,10
+358,"The record was escalated — incomplete case, no further action.",105
+359,An automatic record was cancelled the same day.,36
+360,An automatic report was delayed the same day.,107
+361,The customer confirmed the details and the document was resolved.,82
+362,Support asked for a change and the order was completed.,62
+363,The courier asked for a change and the transfer was confirmed.,51
+364,A minor follow-up: the report was delayed.,77
+365,An unusual follow-up: the claim was escalated.,55
+366,The supplier reported a partial issue; the document was confirmed.,62
+367,The report was rejected after a duplicate check.,1
+368,The team confirmed the details and the booking was confirmed.,3
+369,The account owner reported a minor issue; the delivery was updated.,43
+370,An operator confirmed the details and the invoice was rejected.,8
+371,The order was reopened after a late check.,5
+372,The payment was replaced after a routine check.,17
+373,A routine account was resolved the same day.,17
+374,The account was rejected following a duplicate review.,16
+375,A late follow-up: the account was resolved.,2
+376,An operator asked for a change and the document was rejected.,85
+377,Support asked for a change and the document was completed.,89
+378,The refund was resolved following a minor review.,19
+379,"The item was completed — standard case, no further action.",89
+380,The item was processed after a routine check.,20
+381,The document was closed following a repeat review.,12
+382,"The document was reviewed — late case, no further action.",47
+383,Flagged as repeat. The supplier cancelled the session.,98
+384,"The document was resolved — urgent case, no further action.",103
+385,Flagged as unusual. The account owner reopened the report.,90
+386,Support reported a late issue; the ticket was updated.,49
+387,A standard follow-up: the claim was refunded.,86
+388,The account was rescheduled after an unusual check.,2
+389,"The invoice was confirmed — standard case, no further action.",88
+390,The transfer was confirmed following a late review.,25
+391,A standard follow-up: the ticket was refunded.,16
+392,"The appointment was rejected — incomplete case, no further action.",2
+393,The payment was closed following a repeat review.,65
+394,The shipment was refunded following a standard review.,67
+395,"No response from the account owner, so the appointment was resolved.",60
+396,The team reported a standard issue; the order was reviewed.,14
+397,Support reported a repeat issue; the account was resolved.,6
+398,"The item was closed — late case, no further action.",8
+399,A repeat follow-up: the record was reopened.,23
+400,The account was completed after an incomplete check.,1
+401,The account owner confirmed the details and the delivery was delayed.,20
+402,A duplicate follow-up: the ticket was resolved.,1
+403,The order was cancelled after a repeat check.,106
+404,The supplier reported a partial issue; the appointment was completed.,14
+405,The item was approved following a partial review.,3
+406,"The transfer was escalated — automatic case, no further action.",112
+407,The transfer was reopened following an unusual review.,73
+408,The reviewer reported a late issue; the refund was reopened.,54
+409,A minor follow-up: the document was cancelled.,4
+410,A minor follow-up: the refund was refunded.,120
+411,The request was cancelled following a standard review.,105
+412,"No response from the team, so the report was confirmed.",32
+413,A routine follow-up: the order was refunded.,28
+414,"The document was escalated — late case, no further action.",12
+415,An incomplete follow-up: the appointment was reviewed.,36
+416,"The report was refunded — routine case, no further action.",78
+417,The team reported a minor issue; the item was closed.,119
+418,The session was processed after a minor check.,1
+419,A late transfer was reopened the same day.,10
+420,A standard transfer was rescheduled the same day.,36
+421,The delivery was rejected after a duplicate check.,21
+422,The record was approved following a repeat review.,110
+423,The team reported an unusual issue; the request was confirmed.,44
+424,The reviewer asked for a change and the report was closed.,117
+425,The courier reported a routine issue; the transfer was updated.,58
+426,The customer reported a partial issue; the report was completed.,48
+427,An unusual follow-up: the payment was reopened.,37
+428,An urgent record was reviewed the same day.,18
+429,An operator confirmed the details and the order was resolved.,3
+430,The payment was resolved after a manual check.,10
+431,An automatic follow-up: the appointment was updated.,101
+432,"No response from the customer, so the order was updated.",97
+433,The supplier reported a routine issue; the refund was rescheduled.,35
+434,"The document was delayed — standard case, no further action.",2
+435,A standard record was cancelled the same day.,73
+436,The delivery was closed after an automatic check.,18
+437,An urgent follow-up: the ticket was rescheduled.,1
+438,An operator asked for a change and the transfer was processed.,69
+439,"The order was confirmed — urgent case, no further action.",4
+440,A routine follow-up: the invoice was refunded.,63
+441,The report was replaced after a minor check.,120
+442,Flagged as minor. The reviewer updated the invoice.,63
+443,The team asked for a change and the claim was cancelled.,1
+444,"The session was reviewed — late case, no further action.",46
+445,A standard follow-up: the claim was reopened.,109
+446,The report was rejected following a minor review.,2
+447,An unusual follow-up: the session was replaced.,3
+448,The order was rescheduled following an automatic review.,110
+449,The customer asked for a change and the account was rejected.,37
+450,The reviewer reported a standard issue; the appointment was approved.,1
+451,The transfer was processed following an automatic review.,1
+452,An automatic follow-up: the session was approved.,7
+453,"The order was processed — urgent case, no further action.",44
+454,Flagged as standard. The reviewer rejected the shipment.,40
+455,Flagged as automatic. The account owner reopened the ticket.,105
+456,The claim was confirmed after a manual check.,45
+457,An incomplete follow-up: the order was approved.,70
+458,"No response from the supplier, so the account was rejected.",87
+459,An unusual item was closed the same day.,74
+460,The delivery was refunded following an unusual review.,3
+461,Flagged as incomplete. The supplier refunded the transfer.,61
+462,The request was completed following an incomplete review.,75
+463,The reviewer confirmed the details and the refund was escalated.,70
+464,The reviewer reported a routine issue; the report was rejected.,3
+465,An incomplete appointment was completed the same day.,43
+466,Flagged as repeat. The account owner resolved the account.,46
+467,Flagged as urgent. The account owner cancelled the booking.,8
+468,An incomplete follow-up: the delivery was processed.,2
+469,"No response from an operator, so the record was approved.",45
+470,An urgent item was replaced the same day.,46
+471,The customer reported a partial issue; the refund was resolved.,44
+472,A duplicate refund was cancelled the same day.,105
+473,A routine order was reviewed the same day.,15
+474,The reviewer confirmed the details and the order was escalated.,112
+475,An automatic report was reviewed the same day.,93
+476,An automatic refund was cancelled the same day.,36
+477,"The claim was escalated — standard case, no further action.",50
+478,"No response from an operator, so the payment was closed.",40
+479,"The payment was processed — duplicate case, no further action.",17
+480,The request was replaced after a routine check.,115
+481,"No response from the team, so the transfer was delayed.",60
+482,The courier asked for a change and the record was resolved.,67
+483,A late follow-up: the shipment was rejected.,117
+484,"The account was closed — urgent case, no further action.",13
+485,The account owner asked for a change and the request was escalated.,5
+486,Flagged as duplicate. The courier reviewed the item.,11
+487,The claim was rescheduled following an incomplete review.,24
+488,Flagged as repeat. Support escalated the account.,22
+489,The claim was cancelled following an urgent review.,1
+490,The session was closed after a duplicate check.,2
+491,The document was processed after a partial check.,108
+492,Flagged as minor. The reviewer cancelled the payment.,38
+493,The courier reported a routine issue; the delivery was resolved.,5
+494,The transfer was rescheduled after a late check.,82
+495,The reviewer confirmed the details and the claim was resolved.,73
+496,The appointment was closed following a partial review.,115
+497,The team confirmed the details and the booking was updated.,10
+498,An operator confirmed the details and the ticket was processed.,1
+499,The supplier confirmed the details and the claim was completed.,69
+500,Support reported an incomplete issue; the refund was replaced.,68
+501,The reviewer asked for a change and the record was rescheduled.,99
+502,The account owner confirmed the details and the order was completed.,1
+503,The order was reopened after a minor check.,94
+504,The item was processed after a minor check.,54
+505,A repeat follow-up: the invoice was escalated.,11
+506,The transfer was rescheduled following a minor review.,46
+507,The customer reported a standard issue; the order was delayed.,88
+508,The customer asked for a change and the order was reopened.,80
+509,The courier asked for a change and the delivery was reviewed.,6
+510,The item was refunded following a manual review.,55
+511,"The delivery was closed — repeat case, no further action.",46
+512,"The ticket was delayed — minor case, no further action.",94
+513,"No response from the account owner, so the document was cancelled.",16
+514,Flagged as repeat. The reviewer confirmed the claim.,105
+515,The customer asked for a change and the ticket was delayed.,23
+516,The reviewer confirmed the details and the refund was delayed.,23
+517,Flagged as incomplete. The supplier cancelled the claim.,1
+518,The record was reviewed after a minor check.,1
+519,A minor record was reviewed the same day.,3
+520,The supplier reported an automatic issue; the account was rescheduled.,54
+521,"The request was escalated — duplicate case, no further action.",67
+522,A duplicate follow-up: the payment was cancelled.,1
+523,The customer confirmed the details and the item was delayed.,1
+524,The customer reported a repeat issue; the account was reviewed.,3
+525,The refund was confirmed following a repeat review.,15
+526,The supplier asked for a change and the delivery was processed.,28
+527,The booking was closed after a late check.,14
+528,The payment was processed after a manual check.,55
+529,The delivery was reviewed following a routine review.,89
+530,Flagged as incomplete. An operator reviewed the document.,3
+531,An urgent appointment was reopened the same day.,96
+532,The customer asked for a change and the payment was cancelled.,52
+533,Support asked for a change and the document was delayed.,2
+534,The account owner confirmed the details and the payment was rescheduled.,1
+535,The invoice was confirmed following an urgent review.,68
+536,"No response from the reviewer, so the session was closed.",75
+537,An operator reported an automatic issue; the request was cancelled.,80
+538,The ticket was confirmed following a minor review.,2
+539,The ticket was closed following a duplicate review.,10
+540,Flagged as minor. The reviewer reviewed the appointment.,64
+541,An operator asked for a change and the document was reopened.,114
+542,Flagged as standard. The courier completed the ticket.,13
+543,A partial document was processed the same day.,83
+544,A late ticket was processed the same day.,89
+545,The supplier reported a partial issue; the item was refunded.,14
+546,An operator confirmed the details and the ticket was replaced.,44
+547,The reviewer confirmed the details and the document was delayed.,57
+548,The claim was reopened after an incomplete check.,51
+549,The session was processed following a manual review.,96
+550,An urgent order was replaced the same day.,14
+551,The reviewer confirmed the details and the request was completed.,41
+552,The courier asked for a change and the delivery was completed.,11
+553,The ticket was reviewed following a late review.,7
+554,The supplier asked for a change and the record was processed.,37
+555,The courier confirmed the details and the ticket was reviewed.,57
+556,"The record was approved — repeat case, no further action.",88
+557,"No response from the team, so the refund was cancelled.",1
+558,The courier reported a repeat issue; the request was refunded.,14
+559,"The delivery was approved — urgent case, no further action.",88
+560,"No response from the account owner, so the shipment was refunded.",16
+561,"No response from an operator, so the refund was confirmed.",22
+562,The ticket was reopened following a partial review.,74
+563,A manual refund was reviewed the same day.,93
+564,Support asked for a change and the claim was reopened.,22
+565,Support reported an urgent issue; the account was cancelled.,79
+566,A repeat booking was refunded the same day.,43
+567,"The session was confirmed — duplicate case, no further action.",42
+568,"The ticket was refunded — minor case, no further action.",9
+569,"The refund was confirmed — urgent case, no further action.",12
+570,A late follow-up: the session was delayed.,103
+571,The team reported a manual issue; the item was rejected.,102
+572,An urgent account was resolved the same day.,24
+573,The request was updated after an urgent check.,30
+574,Flagged as manual. The supplier delayed the booking.,39
+575,The customer reported an automatic issue; the record was closed.,2
+576,The courier asked for a change and the session was replaced.,27
+577,The booking was processed following an urgent review.,97
+578,The ticket was refunded after a standard check.,75
+579,A minor report was cancelled the same day.,16
+580,The supplier reported an automatic issue; the refund was confirmed.,5
+581,Support asked for a change and the refund was cancelled.,42
+582,The courier reported a minor issue; the ticket was reopened.,4
+583,The team asked for a change and the request was approved.,5
+584,A duplicate record was closed the same day.,64
+585,"The payment was closed — repeat case, no further action.",45
+586,The team asked for a change and the account was reopened.,45
+587,Flagged as manual. The supplier reviewed the delivery.,9
+588,The item was processed following a repeat review.,9
+589,The account owner asked for a change and the delivery was rejected.,110
+590,The supplier asked for a change and the claim was delayed.,44
+591,The record was reviewed after a duplicate check.,45
+592,Flagged as duplicate. The customer processed the session.,88
+593,The customer asked for a change and the account was updated.,1
+594,The account owner reported an incomplete issue; the payment was replaced.,13
+595,The team asked for a change and the order was refunded.,1
+596,The reviewer confirmed the details and the order was replaced.,1
+597,A minor follow-up: the shipment was reviewed.,57
+598,The order was reopened after an automatic check.,3
+599,"No response from the supplier, so the shipment was escalated.",101
+600,Flagged as routine. An operator rejected the claim.,109
+601,"The delivery was confirmed — manual case, no further action.",17
+602,The invoice was reviewed after an unusual check.,49
+603,The appointment was cancelled after an urgent check.,90
+604,The invoice was escalated after an incomplete check.,94
+605,Flagged as incomplete. An operator approved the claim.,1
+606,The appointment was updated after a late check.,11
+607,The team reported an incomplete issue; the account was replaced.,9
+608,The record was processed following a manual review.,52
+609,An unusual follow-up: the transfer was refunded.,14
+610,Flagged as automatic. An operator reviewed the report.,78
+611,A standard report was approved the same day.,110
+612,The booking was resolved following an automatic review.,34
+613,"No response from the courier, so the booking was cancelled.",78
+614,An incomplete follow-up: the transfer was rescheduled.,40
+615,Flagged as urgent. Support completed the order.,98
+616,The appointment was rescheduled following a duplicate review.,37
+617,"No response from the team, so the appointment was replaced.",10
+618,The order was reviewed after a manual check.,52
+619,A minor follow-up: the booking was resolved.,87
+620,A minor follow-up: the payment was confirmed.,1
+621,A repeat transfer was cancelled the same day.,73
+622,The customer asked for a change and the transfer was rescheduled.,114
+623,A late order was cancelled the same day.,8
+624,"No response from the reviewer, so the appointment was reviewed.",96
+625,An incomplete follow-up: the request was closed.,26
+626,Support confirmed the details and the session was closed.,81
+627,"No response from the team, so the appointment was rescheduled.",34
+628,The appointment was escalated after a partial check.,11
+629,Flagged as standard. The account owner approved the session.,59
+630,The item was updated after a minor check.,88
+631,The supplier confirmed the details and the report was processed.,1
+632,The transfer was closed after a late check.,14
+633,A standard follow-up: the ticket was approved.,77
+634,The appointment was delayed following an urgent review.,43
+635,The item was confirmed following a repeat review.,63
+636,"The refund was reopened — minor case, no further action.",13
+637,"No response from the courier, so the invoice was updated.",33
+638,A repeat follow-up: the delivery was rejected.,23
+639,"The refund was approved — duplicate case, no further action.",4
+640,An incomplete booking was rejected the same day.,38
+641,The courier asked for a change and the claim was resolved.,3
+642,A partial follow-up: the payment was escalated.,31
+643,A partial item was delayed the same day.,118
+644,"The session was replaced — routine case, no further action.",8
+645,The customer confirmed the details and the claim was completed.,4
+646,The team reported an urgent issue; the record was closed.,105
+647,Flagged as repeat. The customer replaced the booking.,1
+648,An automatic follow-up: the appointment was reopened.,28
+649,"The document was resolved — manual case, no further action.",9
+650,The delivery was delayed after a manual check.,60
+651,The account owner confirmed the details and the ticket was confirmed.,110
+652,The customer confirmed the details and the booking was cancelled.,64
+653,The team reported an urgent issue; the refund was closed.,98
+654,"No response from the supplier, so the invoice was completed.",89
+655,"The ticket was closed — incomplete case, no further action.",3
+656,"No response from the team, so the document was processed.",73
+657,The supplier asked for a change and the session was escalated.,14
+658,"No response from the supplier, so the document was rescheduled.",5
+659,A minor booking was completed the same day.,72
+660,The session was escalated after a late check.,71
+661,The account owner confirmed the details and the request was rejected.,1
+662,A manual booking was reopened the same day.,67
+663,Flagged as repeat. The team processed the session.,67
+664,The refund was completed following a standard review.,69
+665,An unusual follow-up: the request was approved.,20
+666,The claim was reviewed following a repeat review.,19
+667,The booking was refunded following a partial review.,110
+668,"The record was cancelled — unusual case, no further action.",40
+669,A partial booking was replaced the same day.,82
+670,The ticket was approved following an unusual review.,4
+671,"No response from the supplier, so the item was processed.",68
+672,"The shipment was resolved — urgent case, no further action.",106
+673,The order was cancelled following a repeat review.,70
+674,An unusual follow-up: the item was updated.,43
+675,The report was delayed after an automatic check.,101
+676,"The document was confirmed — routine case, no further action.",73
+677,Flagged as unusual. The account owner rescheduled the invoice.,56
+678,The item was confirmed after a late check.,1
+679,The team confirmed the details and the claim was escalated.,95
+680,The claim was resolved following an automatic review.,79
+681,An urgent follow-up: the payment was completed.,11
+682,Flagged as automatic. An operator closed the booking.,17
+683,"No response from the reviewer, so the refund was updated.",2
+684,A duplicate follow-up: the request was updated.,4
+685,"No response from the courier, so the booking was completed.",45
+686,Flagged as incomplete. The courier resolved the delivery.,113
+687,"The item was rejected — standard case, no further action.",1
+688,A duplicate document was reopened the same day.,29
+689,"The booking was updated — unusual case, no further action.",89
+690,The claim was delayed following an unusual review.,57
+691,An incomplete report was confirmed the same day.,91
+692,The transfer was delayed following a partial review.,57
+693,A partial request was reopened the same day.,44
+694,The appointment was replaced following a standard review.,58
+695,The item was delayed following a manual review.,21
+696,The team asked for a change and the refund was reviewed.,89
+697,"No response from the supplier, so the item was processed.",9
+698,A partial delivery was escalated the same day.,26
+699,The request was resolved after an unusual check.,2
+700,The team confirmed the details and the shipment was rescheduled.,10
+701,A partial follow-up: the report was resolved.,79
+702,The courier reported a repeat issue; the item was delayed.,2
+703,"The invoice was completed — standard case, no further action.",63
+704,An unusual follow-up: the session was refunded.,1
+705,"The appointment was closed — late case, no further action.",7
+706,The item was replaced after a repeat check.,11
+707,The team confirmed the details and the booking was reopened.,5
+708,The ticket was confirmed after an unusual check.,60
+709,Flagged as automatic. The account owner delayed the item.,56
+710,Flagged as unusual. The courier cancelled the ticket.,59
+711,The team confirmed the details and the ticket was refunded.,65
+712,An incomplete item was confirmed the same day.,2
+713,Flagged as standard. The courier delayed the payment.,3
+714,"No response from the account owner, so the record was processed.",6
+715,An incomplete account was refunded the same day.,117
+716,A partial record was resolved the same day.,1
+717,The reviewer asked for a change and the claim was approved.,109
+718,The supplier confirmed the details and the refund was replaced.,3
+719,"No response from the team, so the appointment was delayed.",63
+720,The claim was reviewed following an unusual review.,85
+721,A routine follow-up: the transfer was completed.,23
+722,The booking was rejected after an incomplete check.,96
+723,The supplier confirmed the details and the invoice was confirmed.,1
+724,An operator confirmed the details and the report was processed.,22
+725,The courier reported an incomplete issue; the record was confirmed.,11
+726,A late transfer was cancelled the same day.,57
+727,The account owner confirmed the details and the claim was refunded.,3
+728,A partial document was rescheduled the same day.,94
+729,"The appointment was refunded — urgent case, no further action.",111
+730,The customer confirmed the details and the transfer was confirmed.,6
+731,The transfer was replaced after a manual check.,1
+732,An automatic ticket was rejected the same day.,4
+733,A standard invoice was confirmed the same day.,65
+734,"The refund was closed — standard case, no further action.",53
+735,Support reported a partial issue; the report was reviewed.,39
+736,Flagged as automatic. The account owner reviewed the request.,112
+737,A duplicate appointment was rejected the same day.,50
+738,The courier asked for a change and the invoice was reviewed.,80
+739,Support reported an unusual issue; the refund was rejected.,79
+740,An incomplete refund was reviewed the same day.,48
+741,"The item was approved — incomplete case, no further action.",111
+742,A routine follow-up: the ticket was reopened.,17
+743,"No response from the reviewer, so the delivery was approved.",101
+744,Support confirmed the details and the document was closed.,63
+745,The team confirmed the details and the ticket was reviewed.,1
+746,The appointment was approved after a manual check.,2
+747,The shipment was reviewed following a routine review.,50
+748,Flagged as minor. The supplier escalated the claim.,114
+749,An automatic follow-up: the claim was reopened.,113
+750,The payment was delayed following a repeat review.,41
+751,The account was reopened following a routine review.,14
+752,The account owner reported an unusual issue; the transfer was refunded.,2
+753,"No response from an operator, so the claim was rejected.",104
+754,A manual follow-up: the record was cancelled.,1
+755,A late follow-up: the refund was confirmed.,16
+756,A routine transfer was completed the same day.,22
+757,"The claim was resolved — duplicate case, no further action.",106
+758,The team asked for a change and the ticket was processed.,94
+759,The supplier asked for a change and the delivery was updated.,1
+760,The supplier reported a late issue; the booking was replaced.,1
+761,The request was completed after an urgent check.,1
+762,The courier confirmed the details and the session was delayed.,31
+763,The order was rejected after a standard check.,8
+764,A standard follow-up: the request was cancelled.,33
+765,The transfer was rescheduled after a manual check.,50
+766,"No response from support, so the booking was cancelled.",58
+767,Flagged as late. The supplier replaced the booking.,38
+768,Flagged as late. Support confirmed the claim.,2
+769,The reviewer reported an urgent issue; the booking was delayed.,113
+770,"No response from an operator, so the record was closed.",1
+771,The account owner confirmed the details and the order was updated.,1
+772,"No response from the reviewer, so the report was reviewed.",25
+773,A repeat follow-up: the booking was processed.,1
+774,The ticket was refunded after an unusual check.,21
+775,An urgent record was rejected the same day.,56
+776,Flagged as repeat. An operator resolved the booking.,71
+777,The customer reported an automatic issue; the account was rescheduled.,10
+778,The session was rejected following a repeat review.,17
+779,Support confirmed the details and the session was rejected.,14
+780,The reviewer reported an urgent issue; the document was resolved.,15
+781,Flagged as repeat. The customer resolved the transfer.,53
+782,The team confirmed the details and the shipment was refunded.,19
+783,Flagged as unusual. The customer cancelled the session.,8
+784,Flagged as partial. The reviewer completed the ticket.,119
+785,A duplicate follow-up: the record was approved.,119
+786,The team confirmed the details and the payment was rescheduled.,47
+787,Support asked for a change and the invoice was confirmed.,29
+788,Flagged as late. The supplier rejected the delivery.,35
+789,Flagged as repeat. The supplier processed the appointment.,38
+790,Flagged as automatic. An operator confirmed the shipment.,44
+791,The order was refunded after a late check.,35
+792,Flagged as automatic. The customer approved the transfer.,82
+793,The team confirmed the details and the report was reviewed.,117
+794,Flagged as manual. The customer resolved the payment.,20
+795,"The document was replaced — minor case, no further action.",33
+796,The report was reopened following a duplicate review.,56
+797,A standard follow-up: the request was closed.,101
+798,"The invoice was updated — partial case, no further action.",1
+799,Flagged as unusual. Support completed the account.,47
+800,Flagged as unusual. The account owner confirmed the payment.,5
+801,An operator asked for a change and the session was approved.,1
+802,A standard record was refunded the same day.,87
+803,A standard claim was rescheduled the same day.,21
+804,The document was cancelled following a minor review.,3
+805,A manual refund was replaced the same day.,47
+806,Flagged as automatic. Support cancelled the document.,1
+807,The team asked for a change and the invoice was delayed.,90
+808,The account was refunded after a manual check.,60
+809,The reviewer reported a repeat issue; the document was escalated.,12
+810,"The shipment was delayed — incomplete case, no further action.",65
+811,The supplier asked for a change and the invoice was closed.,92
+812,Flagged as unusual. An operator approved the payment.,111
+813,An operator reported a late issue; the document was approved.,31
+814,The claim was cancelled after a minor check.,21
+815,A minor follow-up: the invoice was reviewed.,108
+816,The courier asked for a change and the ticket was rejected.,105
+817,The reviewer reported an incomplete issue; the booking was reviewed.,51
+818,"No response from support, so the report was confirmed.",1
+819,"The delivery was updated — standard case, no further action.",23
+820,An operator asked for a change and the ticket was closed.,119
+821,The team asked for a change and the refund was cancelled.,21
+822,The customer confirmed the details and the appointment was rescheduled.,75
+823,A repeat follow-up: the appointment was refunded.,5
+824,A routine document was resolved the same day.,43
+825,An operator reported an automatic issue; the booking was completed.,104
+826,The account owner confirmed the details and the session was resolved.,51
+827,Flagged as incomplete. The reviewer reviewed the request.,28
+828,The claim was approved after a partial check.,42
+829,An incomplete ticket was closed the same day.,2
+830,The supplier asked for a change and the order was approved.,49
+831,Flagged as unusual. The customer reviewed the request.,57
+832,"The account was resolved — incomplete case, no further action.",4
+833,"The payment was cancelled — routine case, no further action.",107
+834,The courier reported a manual issue; the session was cancelled.,64
+835,The courier asked for a change and the invoice was refunded.,57
+836,"The claim was replaced — incomplete case, no further action.",56
+837,An operator reported a minor issue; the shipment was escalated.,75
+838,The supplier confirmed the details and the booking was reviewed.,20
+839,Flagged as unusual. The team closed the shipment.,116
+840,Flagged as duplicate. The account owner processed the ticket.,28
+841,A duplicate follow-up: the refund was confirmed.,58
+842,A standard follow-up: the order was completed.,98
+843,The courier reported an urgent issue; the invoice was rescheduled.,39
+844,Flagged as routine. The supplier closed the transfer.,19
+845,"The booking was replaced — routine case, no further action.",12
+846,The order was closed following a minor review.,24
+847,A standard claim was cancelled the same day.,26
+848,The payment was replaced after an urgent check.,24
+849,The customer confirmed the details and the delivery was refunded.,66
+850,An urgent follow-up: the document was processed.,18
+851,The transfer was closed following an urgent review.,5
+852,The reviewer confirmed the details and the item was reviewed.,97
+853,"No response from support, so the booking was closed.",1
+854,An urgent follow-up: the document was escalated.,21
+855,The customer asked for a change and the session was rescheduled.,3
+856,The claim was completed after a standard check.,54
+857,"The account was cancelled — minor case, no further action.",21
+858,"No response from the reviewer, so the delivery was reopened.",1
+859,Flagged as unusual. The customer cancelled the refund.,120
+860,"No response from the customer, so the refund was rejected.",88
+861,The account owner reported a repeat issue; the claim was processed.,106
+862,Flagged as duplicate. The customer cancelled the delivery.,57
+863,Support confirmed the details and the booking was completed.,7
+864,The account owner confirmed the details and the booking was updated.,66
+865,The delivery was rejected after a minor check.,26
+866,The account owner reported a manual issue; the invoice was escalated.,67
+867,A partial follow-up: the claim was approved.,5
+868,Flagged as repeat. Support refunded the request.,39
+869,The refund was confirmed after an unusual check.,5
+870,Support asked for a change and the ticket was escalated.,4
+871,The record was approved after an incomplete check.,20
+872,A standard item was rescheduled the same day.,45
+873,An urgent delivery was cancelled the same day.,1
+874,An unusual appointment was updated the same day.,2
+875,The team reported a repeat issue; the record was reopened.,56
+876,Support reported an automatic issue; the refund was resolved.,62
+877,The invoice was closed after a minor check.,77
+878,The report was approved after a standard check.,26
+879,Flagged as incomplete. An operator resolved the report.,75
+880,The customer confirmed the details and the appointment was cancelled.,47
+881,The courier confirmed the details and the invoice was reopened.,45
+882,The shipment was approved following a manual review.,19
+883,"No response from the account owner, so the appointment was reviewed.",25
+884,An automatic transfer was reviewed the same day.,18
+885,The team confirmed the details and the order was refunded.,117
+886,A routine follow-up: the appointment was resolved.,115
+887,A repeat follow-up: the report was confirmed.,69
+888,Flagged as late. The supplier rescheduled the ticket.,72
+889,Flagged as automatic. The customer reviewed the claim.,38
+890,Flagged as incomplete. The account owner approved the ticket.,1
+891,An operator reported an unusual issue; the ticket was rescheduled.,9
+892,A late follow-up: the session was completed.,1
+893,The reviewer asked for a change and the record was replaced.,100
+894,Flagged as late. The courier replaced the item.,1
+895,The courier asked for a change and the account was reopened.,4
+896,An incomplete payment was resolved the same day.,48
+897,An operator asked for a change and the account was reviewed.,107
+898,"The account was delayed — partial case, no further action.",112
+899,The request was approved following a late review.,18
+900,The courier reported a duplicate issue; the request was escalated.,1
+901,An unusual document was closed the same day.,48
+902,An incomplete follow-up: the report was escalated.,59
+903,The reviewer reported a partial issue; the session was updated.,42
+904,Flagged as urgent. The customer approved the order.,72
+905,Flagged as routine. An operator refunded the transfer.,1
+906,The booking was rejected following a late review.,26
+907,The reviewer confirmed the details and the document was approved.,2
+908,The account owner confirmed the details and the session was reopened.,21
+909,A repeat booking was resolved the same day.,3
+910,The order was replaced after a repeat check.,3
+911,An incomplete claim was processed the same day.,13
+912,Support reported an automatic issue; the record was escalated.,96
+913,The delivery was closed after a repeat check.,31
+914,A late invoice was reopened the same day.,50
+915,An unusual ticket was rejected the same day.,29
+916,The session was refunded after a standard check.,12
+917,The team confirmed the details and the request was resolved.,41
+918,Support confirmed the details and the shipment was escalated.,32
+919,The payment was delayed after a duplicate check.,1
+920,The supplier confirmed the details and the invoice was replaced.,1
+921,Flagged as repeat. The team cancelled the shipment.,16
+922,"The record was processed — repeat case, no further action.",42
+923,The supplier reported a partial issue; the refund was escalated.,39
+924,An operator asked for a change and the request was reviewed.,3
+925,The document was delayed following a manual review.,2
+926,The reviewer reported an automatic issue; the claim was reopened.,110
+927,The courier reported a late issue; the item was approved.,50
+928,The record was refunded following an incomplete review.,9
+929,A duplicate appointment was approved the same day.,2
+930,The request was rescheduled after a manual check.,113
+931,Flagged as late. The customer updated the account.,51
+932,The customer confirmed the details and the invoice was completed.,18
+933,An automatic refund was delayed the same day.,28
+934,The courier reported a manual issue; the appointment was closed.,3
+935,Support reported a duplicate issue; the session was approved.,35
+936,"The order was rejected — minor case, no further action.",47
+937,The supplier reported a minor issue; the transfer was replaced.,2
+938,The session was reviewed after a partial check.,7
+939,The reviewer confirmed the details and the request was rejected.,6
+940,The delivery was reopened following a standard review.,1
+941,"The payment was cancelled — duplicate case, no further action.",96
+942,The customer reported an automatic issue; the invoice was escalated.,68
+943,An incomplete follow-up: the item was rescheduled.,118
+944,"The item was reopened — routine case, no further action.",31
+945,The delivery was reviewed after an automatic check.,74
+946,Flagged as late. The account owner escalated the delivery.,20
+947,"No response from the courier, so the request was rejected.",2
+948,"No response from the courier, so the booking was confirmed.",33
+949,The team asked for a change and the item was resolved.,39
+950,Support confirmed the details and the order was rescheduled.,2
+951,The supplier reported a duplicate issue; the ticket was escalated.,19
+952,The delivery was reviewed following an automatic review.,1
+953,The team confirmed the details and the request was refunded.,64
+954,The reviewer reported a minor issue; the delivery was rescheduled.,88
+955,The transfer was closed after an unusual check.,96
+956,An incomplete follow-up: the transfer was reopened.,38
+957,The customer reported a late issue; the document was delayed.,118
+958,The courier asked for a change and the session was reopened.,115
+959,The order was closed following a manual review.,1
+960,The courier reported a routine issue; the refund was delayed.,26
+961,The customer asked for a change and the request was escalated.,61
+962,The reviewer confirmed the details and the delivery was closed.,43
+963,A duplicate account was refunded the same day.,2
+964,The report was delayed after an automatic check.,42
+965,"No response from the team, so the shipment was refunded.",23
+966,Flagged as standard. The reviewer completed the transfer.,16
+967,Support reported an automatic issue; the request was completed.,49
+968,The courier confirmed the details and the item was refunded.,71
+969,The supplier reported a partial issue; the transfer was processed.,46
+970,A partial follow-up: the request was reviewed.,13
+971,The invoice was confirmed after a manual check.,75
+972,"The booking was reviewed — manual case, no further action.",46
+973,"No response from the customer, so the order was cancelled.",79
+974,An operator reported an unusual issue; the item was closed.,1
+975,The shipment was reopened after an unusual check.,2
+976,The supplier confirmed the details and the payment was refunded.,21
+977,"The booking was rejected — urgent case, no further action.",74
+978,"The appointment was replaced — routine case, no further action.",1
+979,Support asked for a change and the invoice was processed.,24
+980,"The item was completed — partial case, no further action.",16
+981,A routine invoice was rescheduled the same day.,84
+982,The claim was rescheduled after an incomplete check.,32
+983,Flagged as late. The team cancelled the item.,77
+984,The customer reported an urgent issue; the order was resolved.,62
+985,Flagged as partial. The reviewer reviewed the record.,51
+986,A routine document was replaced the same day.,1
+987,An unusual follow-up: the refund was reviewed.,24
+988,The account owner reported a repeat issue; the appointment was processed.,31
+989,The supplier asked for a change and the account was confirmed.,4
+990,The team asked for a change and the report was escalated.,16
+991,"No response from the supplier, so the appointment was approved.",29
+992,"No response from support, so the record was approved.",69
+993,An unusual request was confirmed the same day.,13
+994,The customer asked for a change and the item was escalated.,19
+995,"The session was cancelled — repeat case, no further action.",115
+996,The team reported a minor issue; the shipment was rejected.,99
+997,The account owner reported a late issue; the account was cancelled.,17
+998,A minor record was reopened the same day.,28
+999,The account was reviewed after a manual check.,11
+1000,"No response from the account owner, so the item was cancelled.",75
+1001,Flagged as repeat. The customer reopened the account.,1
+1002,The delivery was escalated following an urgent review.,1
+1003,A partial follow-up: the delivery was rejected.,25
+1004,The appointment was confirmed after a minor check.,34
+1005,The courier reported a late issue; the account was refunded.,41
+1006,The team asked for a change and the report was completed.,60
+1007,The document was delayed after a partial check.,6
+1008,The account owner reported an incomplete issue; the order was reviewed.,31
+1009,Flagged as minor. The customer delayed the document.,6
+1010,An operator asked for a change and the ticket was cancelled.,2
+1011,The customer confirmed the details and the account was resolved.,4
+1012,The customer confirmed the details and the item was updated.,23
+1013,"The shipment was processed — partial case, no further action.",11
+1014,The team asked for a change and the invoice was refunded.,5
+1015,A standard follow-up: the booking was delayed.,72
+1016,Flagged as late. Support rescheduled the claim.,107
+1017,A repeat payment was updated the same day.,12
+1018,An operator asked for a change and the delivery was processed.,1
+1019,The item was processed following an unusual review.,97
+1020,Support reported an automatic issue; the booking was approved.,44
+1021,An incomplete refund was refunded the same day.,39
+1022,The reviewer reported a repeat issue; the request was reviewed.,67
+1023,Support asked for a change and the account was cancelled.,103
+1024,Flagged as manual. The courier rescheduled the appointment.,43
+1025,An unusual follow-up: the account was completed.,2
+1026,The item was approved after a minor check.,44
+1027,Flagged as minor. The reviewer confirmed the refund.,72
+1028,"No response from the reviewer, so the item was resolved.",120
+1029,Flagged as urgent. An operator replaced the document.,114
+1030,The claim was replaced after a routine check.,5
+1031,A routine follow-up: the request was approved.,2
+1032,The supplier asked for a change and the claim was completed.,24
+1033,A repeat refund was rejected the same day.,77
+1034,The customer reported a late issue; the transfer was rescheduled.,18
+1035,"No response from an operator, so the claim was completed.",10
+1036,"The refund was confirmed — incomplete case, no further action.",2
+1037,"The ticket was reviewed — automatic case, no further action.",7
+1038,An operator asked for a change and the record was replaced.,38
+1039,The supplier reported a partial issue; the account was completed.,97
+1040,The item was replaced after an incomplete check.,27
+1041,The request was approved after an incomplete check.,81
+1042,Flagged as standard. The account owner delayed the payment.,45
+1043,An operator asked for a change and the ticket was reviewed.,18
+1044,Flagged as automatic. The account owner processed the item.,2
+1045,An operator asked for a change and the invoice was refunded.,34
+1046,The delivery was approved following a repeat review.,1
+1047,The supplier reported a routine issue; the document was replaced.,50
+1048,The courier asked for a change and the request was completed.,47
+1049,The supplier reported a duplicate issue; the shipment was rescheduled.,66
+1050,The session was resolved following an urgent review.,8
+1051,"No response from the reviewer, so the report was rescheduled.",3
+1052,Support confirmed the details and the shipment was rejected.,8
+1053,The session was delayed after a standard check.,56
+1054,The account owner confirmed the details and the delivery was cancelled.,10
+1055,"The invoice was approved — manual case, no further action.",6
+1056,Support confirmed the details and the booking was confirmed.,45
+1057,"The appointment was processed — urgent case, no further action.",14
+1058,An incomplete follow-up: the ticket was rescheduled.,24
+1059,The report was confirmed following an unusual review.,42
+1060,The item was reopened after a repeat check.,19
+1061,Flagged as incomplete. The customer processed the request.,55
+1062,A partial shipment was resolved the same day.,98
+1063,The ticket was reviewed following an automatic review.,91
+1064,The delivery was processed following a late review.,3
+1065,"The account was reopened — routine case, no further action.",88
+1066,The customer confirmed the details and the request was refunded.,30
+1067,Flagged as duplicate. The supplier approved the order.,9
+1068,The reviewer confirmed the details and the order was resolved.,70
+1069,Flagged as standard. The supplier completed the report.,3
+1070,The record was rejected after a repeat check.,6
+1071,"The transfer was rescheduled — automatic case, no further action.",36
+1072,"No response from the account owner, so the order was delayed.",6
+1073,"The record was reviewed — repeat case, no further action.",79
+1074,The account owner asked for a change and the document was refunded.,7
+1075,An urgent follow-up: the session was confirmed.,74
+1076,An operator asked for a change and the document was reviewed.,24
+1077,A partial transfer was approved the same day.,91
+1078,The customer confirmed the details and the report was approved.,21
+1079,The account owner confirmed the details and the shipment was delayed.,1
+1080,"The payment was resolved — late case, no further action.",1
+1081,"The report was reviewed — manual case, no further action.",2
+1082,Support asked for a change and the booking was delayed.,78
+1083,A repeat refund was approved the same day.,99
+1084,The supplier confirmed the details and the appointment was approved.,120
+1085,The refund was refunded after a minor check.,30
+1086,A partial follow-up: the account was updated.,14
+1087,The courier confirmed the details and the transfer was cancelled.,8
+1088,The payment was resolved after a manual check.,5
+1089,The document was reviewed following a minor review.,4
+1090,The invoice was cancelled after a manual check.,72
+1091,"The payment was delayed — routine case, no further action.",87
+1092,An operator asked for a change and the appointment was reviewed.,1
+1093,A duplicate report was escalated the same day.,4
+1094,The team asked for a change and the request was approved.,22
+1095,The booking was processed following a repeat review.,27
+1096,The reviewer asked for a change and the booking was updated.,72
+1097,Support confirmed the details and the transfer was delayed.,31
+1098,Support asked for a change and the invoice was updated.,4
+1099,The session was refunded following a duplicate review.,68
+1100,The supplier reported a late issue; the booking was reopened.,4
+1101,The team reported a duplicate issue; the appointment was escalated.,1
+1102,"The request was reopened — manual case, no further action.",58
+1103,The session was closed following a partial review.,87
+1104,"No response from the courier, so the report was resolved.",95
+1105,A late follow-up: the item was refunded.,2
+1106,The customer confirmed the details and the claim was closed.,96
+1107,"The shipment was closed — late case, no further action.",91
+1108,Support confirmed the details and the order was reopened.,45
+1109,A late follow-up: the invoice was escalated.,42
+1110,The shipment was cancelled following a duplicate review.,111
+1111,An operator reported a manual issue; the shipment was approved.,12
+1112,Flagged as partial. The supplier reopened the transfer.,4
+1113,The shipment was cancelled following a standard review.,104
+1114,"No response from the account owner, so the report was resolved.",59
+1115,An unusual follow-up: the shipment was updated.,67
+1116,The request was confirmed following a late review.,22
+1117,A manual invoice was confirmed the same day.,90
+1118,The courier confirmed the details and the request was rescheduled.,97
+1119,The booking was cancelled following a minor review.,37
+1120,An automatic follow-up: the request was updated.,70
+1121,The invoice was delayed following a partial review.,24
+1122,The team asked for a change and the refund was approved.,42
+1123,Flagged as automatic. The team resolved the transfer.,80
+1124,Support reported a routine issue; the shipment was confirmed.,55
+1125,The order was processed following a late review.,106
+1126,Flagged as partial. The courier reopened the transfer.,70
+1127,"No response from the team, so the payment was rescheduled.",20
+1128,"The request was reviewed — duplicate case, no further action.",53
+1129,"The payment was delayed — urgent case, no further action.",7
+1130,The reviewer asked for a change and the refund was processed.,24
+1131,Flagged as manual. An operator delayed the ticket.,5
+1132,The reviewer asked for a change and the record was refunded.,109
+1133,"No response from the reviewer, so the session was delayed.",11
+1134,The payment was delayed after a duplicate check.,50
+1135,A standard request was cancelled the same day.,22
+1136,"No response from the supplier, so the shipment was completed.",2
+1137,The supplier confirmed the details and the payment was updated.,20
+1138,The customer confirmed the details and the claim was delayed.,2
+1139,The supplier confirmed the details and the delivery was rescheduled.,1
+1140,An incomplete follow-up: the ticket was approved.,115
+1141,An incomplete follow-up: the ticket was completed.,114
+1142,"The refund was delayed — incomplete case, no further action.",2
+1143,Flagged as duplicate. The courier confirmed the record.,21
+1144,The supplier reported an automatic issue; the transfer was escalated.,76
+1145,The appointment was approved following a repeat review.,44
+1146,"No response from the supplier, so the refund was replaced.",48
+1147,An operator reported a minor issue; the delivery was confirmed.,2
+1148,Flagged as manual. The team completed the item.,10
+1149,An operator confirmed the details and the request was closed.,31
+1150,An incomplete refund was closed the same day.,13
+1151,The order was refunded after a minor check.,5
+1152,"The session was approved — unusual case, no further action.",72
+1153,The transfer was reviewed after a manual check.,102
+1154,Flagged as standard. The supplier updated the account.,81
+1155,The supplier asked for a change and the shipment was updated.,67
+1156,Support reported a late issue; the invoice was reopened.,17
+1157,"The record was processed — unusual case, no further action.",31
+1158,A repeat item was rescheduled the same day.,1
+1159,A partial report was approved the same day.,49
+1160,"The item was delayed — unusual case, no further action.",86
+1161,The ticket was escalated after an automatic check.,78
+1162,The record was resolved following a partial review.,12
+1163,The team confirmed the details and the order was reopened.,30
+1164,Flagged as routine. An operator reviewed the account.,82
+1165,"The delivery was reopened — partial case, no further action.",57
+1166,An unusual follow-up: the delivery was processed.,30
+1167,An operator reported an automatic issue; the delivery was replaced.,6
+1168,Support asked for a change and the order was processed.,14
+1169,The customer reported a late issue; the ticket was reviewed.,61
+1170,Flagged as repeat. The account owner reviewed the invoice.,1
+1171,"No response from the courier, so the account was cancelled.",42
+1172,The courier asked for a change and the invoice was rescheduled.,14
+1173,The record was replaced following a standard review.,4
+1174,"The shipment was escalated — urgent case, no further action.",24
+1175,The supplier reported a repeat issue; the booking was replaced.,29
+1176,The team asked for a change and the payment was approved.,2
+1177,A partial report was refunded the same day.,33
+1178,An incomplete follow-up: the shipment was processed.,71
+1179,The order was rescheduled following a repeat review.,9
+1180,"The item was escalated — manual case, no further action.",80
+1181,The courier asked for a change and the report was refunded.,12
+1182,An automatic session was processed the same day.,102
+1183,A minor request was completed the same day.,57
+1184,A duplicate report was reviewed the same day.,5
+1185,A late follow-up: the record was updated.,109
+1186,An urgent delivery was reviewed the same day.,30
+1187,The ticket was reopened following a repeat review.,1
+1188,"No response from the courier, so the order was reopened.",15
+1189,The shipment was resolved following a partial review.,32
+1190,A repeat claim was escalated the same day.,96
+1191,The document was reviewed after an urgent check.,17
+1192,Support reported a duplicate issue; the account was rejected.,53
+1193,An incomplete follow-up: the account was confirmed.,10
+1194,"No response from the reviewer, so the transfer was completed.",2
+1195,"No response from support, so the ticket was escalated.",14
+1196,A duplicate booking was resolved the same day.,62
+1197,Flagged as manual. The reviewer cancelled the session.,115
+1198,"The request was rejected — unusual case, no further action.",88
+1199,A manual document was approved the same day.,1
+1200,"The booking was completed — manual case, no further action.",76

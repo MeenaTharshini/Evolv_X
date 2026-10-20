@@ -1,148 +1,207 @@
 
+import { useState } from "react";
 import {
   BookOpen,
   LayoutDashboard,
+  Map,
+  ChartNoAxesColumnIncreasing,
+  LogOut,
   Menu,
   X,
-  LogOut,
+  UserRound,
+  ChevronRight,
 } from "lucide-react";
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import "../styles/navbar.css";
+
+const navigationItems = [
+  {
+    label: "Home",
+    path: "/dashboard",
+    icon: LayoutDashboard,
+  },
+  {
+    label: "Study Map",
+    path: "/study/python",
+    icon: Map,
+  },
+  {
+    label: "My Progress",
+    path: "/dashboard#progress",
+    icon: ChartNoAxesColumnIncreasing,
+  },
+];
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const location = useLocation();
   const navigate = useNavigate();
 
-  const closeMenu = () => {
-    setMenuOpen(false);
+  let savedUser = {};
+
+  try {
+    savedUser = JSON.parse(
+      localStorage.getItem("evolv_user") ||
+        sessionStorage.getItem("evolv_user") ||
+        "{}"
+    );
+  } catch {
+    savedUser = {};
+  }
+
+  const displayName =
+    savedUser.name ||
+    savedUser.fullName ||
+    savedUser.username ||
+    "Learner";
+
+  const initial = displayName.trim().charAt(0).toUpperCase() || "L";
+
+  const isActive = (path) => {
+    if (path === "/dashboard#progress") {
+      return (
+        location.pathname === "/dashboard" &&
+        location.hash === "#progress"
+      );
+    }
+
+    return (
+      location.pathname === path ||
+      (path === "/study/python" &&
+        location.pathname.startsWith("/study/python/"))
+    );
   };
+
+  const closeMenu = () => setMenuOpen(false);
 
   const handleLogout = () => {
     closeMenu();
 
-    // Clear authentication and saved user data
-    localStorage.removeItem("evolv_token");
-    sessionStorage.removeItem("evolv_token");
-    localStorage.removeItem("evolv_user");
-    sessionStorage.removeItem("evolv_user");
+    [
+      "evolv_token",
+      "evolv_user",
+    ].forEach((key) => {
+      localStorage.removeItem(key);
+      sessionStorage.removeItem(key);
+    });
 
-    // Navigate to the login route
     navigate("/login", { replace: true });
   };
 
-  const scrollToSection = (sectionId) => {
-    closeMenu();
-
-    // These links navigate to sections on the dashboard
-    const section = document.getElementById(sectionId);
-
-    if (section) {
-      section.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }
-  };
-
   return (
-    <header className="navbar">
-      {/* Brand */}
-      <button
-        type="button"
-        className="brand"
-        onClick={() => scrollToSection("home")}
-        aria-label="EVOLV home"
-      >
-        <span className="brand-icon">
-          <BookOpen size={21} strokeWidth={2.4} />
-        </span>
-
-        <span className="brand-name">
-          EVOLV<span className="brand-dot">.</span>
-        </span>
-      </button>
-
-      {/* Mobile menu toggle */}
-      <button
-        type="button"
-        className="mobile-menu"
-        aria-label={menuOpen ? "Close navigation" : "Open navigation"}
-        aria-expanded={menuOpen}
-        aria-controls="evolv-navigation"
-        onClick={() => setMenuOpen((open) => !open)}
-      >
-        {menuOpen ? <X size={22} /> : <Menu size={22} />}
-      </button>
-
-      {/* Navigation links */}
-      <nav
-        id="evolv-navigation"
-        className={`nav-links ${menuOpen ? "nav-open" : ""}`}
-        aria-label="Main navigation"
-      >
-        <button
-          type="button"
-          className="nav-link nav-active"
-          onClick={() => scrollToSection("home")}
-        >
-          <LayoutDashboard size={17} />
-          <span>Home</span>
-        </button>
-
-        <button
-          type="button"
-          className="nav-link"
-          onClick={() => scrollToSection("python-course")}
-        >
-          <BookOpen size={17} />
-          <span>Learn</span>
-        </button>
-
-        <button
-          type="button"
-          className="nav-link"
-          onClick={() => scrollToSection("progress")}
-        >
-          <span>My progress</span>
-        </button>
-      </nav>
-
-      {/* Profile and logout actions */}
-      <div className="nav-actions">
-        <button
-          type="button"
-          className="nav-profile"
-          onClick={() => scrollToSection("progress")}
-          aria-label="View your learning progress"
-        >
-          <span className="profile-avatar" aria-hidden="true">
-            L
-          </span>
-
-          <span className="profile-label">My learning</span>
-        </button>
-
-        <button
-          type="button"
-          className="nav-logout"
-          onClick={handleLogout}
-          aria-label="Log out of EVOLV"
-        >
-          <LogOut size={17} />
-          <span>Logout</span>
-        </button>
-      </div>
-
-      {/* Mobile menu backdrop */}
+    <>
       {menuOpen && (
         <button
           type="button"
-          className="nav-overlay"
-          aria-label="Close navigation menu"
+          className="ev-nav-backdrop"
+          aria-label="Close navigation"
           onClick={closeMenu}
         />
       )}
-    </header>
+
+      <aside
+        className={`ev-navbar ${menuOpen ? "ev-navbar-open" : ""}`}
+        aria-label="EVOLV sidebar"
+      >
+        <div className="ev-nav-brand-row">
+          <Link
+            to="/dashboard"
+            className="ev-nav-brand"
+            onClick={closeMenu}
+            aria-label="EVOLV Home"
+          >
+            <span className="ev-nav-brand-icon">
+              <BookOpen size={24} strokeWidth={2.5} />
+            </span>
+
+            <span className="ev-nav-brand-text">
+              EVOLV<span>.</span>
+            </span>
+          </Link>
+
+          <button
+            type="button"
+            className="ev-nav-close"
+            onClick={closeMenu}
+            aria-label="Close sidebar"
+          >
+            <X size={21} />
+          </button>
+        </div>
+
+        <div className="ev-nav-profile">
+          <span className="ev-nav-avatar">{initial}</span>
+
+          <span className="ev-nav-profile-copy">
+            <strong>{displayName}</strong>
+            <small>Your learning journey</small>
+          </span>
+        </div>
+
+        <div className="ev-nav-section-label">WORKSPACE</div>
+
+        <nav className="ev-nav-links" aria-label="Main navigation">
+          {navigationItems.map((item) => {
+            const Icon = item.icon;
+            const active = isActive(item.path);
+
+            return (
+              <Link
+                key={item.label}
+                to={item.path}
+                onClick={closeMenu}
+                className={`ev-nav-link ${
+                  active ? "ev-nav-link-active" : ""
+                }`}
+                aria-current={active ? "page" : undefined}
+              >
+                <Icon size={19} strokeWidth={2} />
+
+                <span>{item.label}</span>
+
+                {active && (
+                  <ChevronRight
+                    className="ev-nav-link-arrow"
+                    size={16}
+                  />
+                )}
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="ev-nav-bottom">
+          <div className="ev-nav-encouragement">
+            <span className="ev-nav-encouragement-icon">✦</span>
+            <strong>Keep growing!</strong>
+            <p>Small steps lead to big achievements.</p>
+          </div>
+
+          <button
+            type="button"
+            className="ev-nav-logout"
+            onClick={handleLogout}
+          >
+            <LogOut size={18} />
+            <span>Log out</span>
+          </button>
+
+          <div className="ev-nav-footer">
+            <span>EVOLV</span>
+            <span>Learn. Practice. Grow.</span>
+          </div>
+        </div>
+      </aside>
+
+      <button
+        type="button"
+        className="ev-nav-mobile-toggle"
+        onClick={() => setMenuOpen((open) => !open)}
+        aria-label={menuOpen ? "Close navigation" : "Open navigation"}
+        aria-expanded={menuOpen}
+      >
+        {menuOpen ? <X size={22} /> : <Menu size={22} />}
+      </button>
+    </>
   );
 }

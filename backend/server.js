@@ -6,6 +6,7 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import authRoutes from "./auth.js";
 import "./db.js";
+import streakRoutes from "./streak.js";
 
 const app = express();
 const PORT = Number(process.env.PORT) || 5000;
@@ -34,7 +35,7 @@ app.use(
   }),
   authRoutes
 );
-
+app.use("/api/streak", streakRoutes);
 app.listen(PORT, () => {
   console.log(`EVOLV API running at http://localhost:${PORT}`);
 });

@@ -1,0 +1,506 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Meet Python</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+Tamil:wght@500;700&display=swap">
+<style>
+/* Layout: one 16:9 video stage holding six animated scenes, a scene-by-scene control bar, then a caption line and a transcript. */
+:root{
+  --bg:#F2F4F9; --fg:#0F1729; --dim:#56617B; --line:#D5DBE8; --panel:#FFFFFF; --accent:#2B5EA7;
+  --yellow:#FFD84D; --ink:#0B1322;
+  --display:'Bricolage Grotesque',system-ui,sans-serif;
+  --body:'Figtree',system-ui,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+  --tamil:'Noto Sans Tamil','Figtree',system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){--bg:#090E1B; --fg:#E8EEFA; --dim:#93A0BC; --line:#232F4A; --panel:#111A2E; --accent:#7FB2EE; color-scheme:dark}
+}
+:root[data-theme="dark"]{--bg:#090E1B; --fg:#E8EEFA; --dim:#93A0BC; --line:#232F4A; --panel:#111A2E; --accent:#7FB2EE; color-scheme:dark}
+
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.5;
+  padding-block:24px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1040px;margin:0 auto;display:grid;gap:14px}
+.eyebrow{margin:0;font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+h1{margin:2px 0 0;font-family:var(--display);font-weight:700;font-size:clamp(28px,5vw,40px);line-height:1.1;text-wrap:balance}
+
+/* ---------- player chrome ---------- */
+.controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;padding:10px 14px;background:var(--panel);border:1px solid var(--line);border-radius:12px}
+.ib{width:40px;height:40px;flex:none;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--fg);display:grid;place-items:center;cursor:pointer}
+.ib svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ib.main{background:var(--yellow);color:#0B1322;border-color:transparent}
+.ib.main svg{fill:currentColor;stroke:none}
+.ib:focus-visible,.seg:focus-visible,.bigplay:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.segs{flex:1 1 260px;display:flex;gap:6px;min-width:0}
+.seg{flex:1;height:30px;position:relative;border:0;background:transparent;cursor:pointer;padding:0;min-width:0}
+.seg::before{content:"";position:absolute;left:0;right:0;top:12px;height:6px;border-radius:3px;background:var(--line)}
+.seg i{position:absolute;left:0;top:12px;height:6px;border-radius:3px;background:var(--accent);width:0}
+.seg[aria-current="true"]::before{background:color-mix(in srgb,var(--accent) 28%,var(--line))}
+.time{font-family:var(--mono);font-size:13px;color:var(--dim);font-variant-numeric:tabular-nums;white-space:nowrap}
+@media (max-width:560px){.segs{order:5;flex-basis:100%}.time{margin-left:auto}}
+
+.caption{margin:0 auto;max-width:64ch;min-height:3.4em;text-align:center;font-size:1.06rem;line-height:1.55;padding:2px 8px;text-wrap:pretty}
+.caption.swap{animation:capin .45s ease both}
+@keyframes capin{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+details{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 16px}
+summary{cursor:pointer;font-weight:600}
+details ol{margin:12px 0 0;padding:0;list-style:none;display:grid;gap:14px}
+details h3{margin:0 0 2px;font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);font-weight:600}
+details p{margin:0;max-width:70ch}
+
+/* ---------- stage ---------- */
+.stage{
+  --s-bg:#0B1322; --s-panel:#141F38; --s-line:#2B3B61; --s-text:#EAF0FA; --s-dim:#8FA1C4;
+  --blue:#6AA7E0; --yellow:#FFD84D; --green:#7EE2AA;
+  position:relative;aspect-ratio:16/9;container-type:inline-size;overflow:hidden;border-radius:14px;
+  background:var(--s-bg);color:var(--s-text);font-family:var(--body);
+  border:1px solid var(--line);
+}
+.stage *{box-sizing:border-box}
+.grid{position:absolute;inset:0;background-image:radial-gradient(circle at 1px 1px,rgba(143,161,196,.2) 1px,transparent 0);background-size:22px 22px;mask-image:radial-gradient(ellipse at 50% 50%,#000 30%,transparent 85%);-webkit-mask-image:radial-gradient(ellipse at 50% 50%,#000 30%,transparent 85%)}
+.glow{position:absolute;width:60cqw;height:60cqw;left:20cqw;top:-18cqw;border-radius:50%;background:radial-gradient(circle,rgba(106,167,224,.22),transparent 65%);pointer-events:none}
+.stage.paused *{animation-play-state:paused!important}
+
+.scene{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity .5s ease,visibility .5s}
+.scene.on{opacity:1;visibility:visible}
+.tag{position:absolute;right:3cqw;top:2.4cqw;font-family:var(--mono);font-size:1.25cqw;letter-spacing:.1em;color:var(--s-dim);text-transform:uppercase;z-index:3}
+.hd{position:absolute;left:5cqw;top:3.6cqw;margin:0;font-family:var(--display);font-weight:600;font-size:3cqw;line-height:1.1;display:flex;align-items:center;gap:1.2cqw}
+.hd::before{content:"";width:2.4cqw;height:.45cqw;border-radius:1cqw;background:var(--yellow)}
+
+/* generic entrance */
+.a{--d:0s}
+.on .a{animation:pop .7s cubic-bezier(.2,.8,.2,1) var(--d) both}
+@keyframes pop{from{opacity:0;transform:translateY(1.6cqw) scale(.96)}to{opacity:1;transform:none}}
+@keyframes fade{to{opacity:0;transform:scale(.92)}}
+@keyframes float{50%{transform:translateY(-1cqw)}}
+@keyframes blink{50%{border-right-color:transparent}}
+@keyframes typing{from{width:0}to{width:calc(var(--ch)*1ch)}}
+@keyframes dash{to{stroke-dashoffset:-16}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes sweep{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+
+/* typed code text: final state is the default, animation reveals it */
+.type{display:inline-block;overflow:hidden;white-space:nowrap;vertical-align:bottom;width:calc(var(--ch)*1ch);border-right:.12em solid transparent}
+.on .type{animation:typing var(--tt,1.6s) steps(var(--ch)) var(--d) both,blink .9s steps(1) infinite;border-right-color:var(--yellow)}
+
+/* code palette */
+.code{font-family:var(--mono)}
+.fn{color:var(--yellow)}.st{color:var(--green)}.nm{color:var(--blue)}.cm{color:var(--s-dim)}.op{color:var(--s-dim)}
+
+/* editor window */
+.ed{position:absolute;background:var(--s-panel);border:1px solid var(--s-line);border-radius:1.2cqw;overflow:hidden;box-shadow:0 1.5cqw 4cqw rgba(0,0,0,.35)}
+.ed-bar{display:flex;align-items:center;gap:.7cqw;padding:.9cqw 1.4cqw;border-bottom:1px solid var(--s-line);font-family:var(--mono);font-size:1.4cqw;color:var(--s-dim)}
+.ed-bar b{width:1cqw;height:1cqw;border-radius:50%;background:var(--s-line);display:block}
+.ed-bar span{margin-left:.8cqw}
+.ed-body{padding:1.4cqw 1.8cqw;font-family:var(--mono);font-size:1.85cqw;line-height:1.85}
+.ln{display:block;white-space:nowrap}
+.out{margin-top:1cqw;padding-top:1cqw;border-top:1px dashed var(--s-line);font-family:var(--mono);font-size:1.85cqw}
+.out small{display:block;font-size:1.2cqw;letter-spacing:.12em;color:var(--s-dim);margin-bottom:.2cqw}
+.out strong{color:var(--green);font-weight:600}
+
+.chip{display:inline-flex;align-items:center;gap:.9cqw;background:var(--s-panel);border:1px solid var(--s-line);border-radius:10cqw;padding:.9cqw 1.8cqw;font-size:2cqw;font-weight:500}
+.chip svg{width:2.2cqw;height:2.2cqw;fill:none;stroke:var(--green);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- scene 1: intro ---------- */
+.tile{position:absolute;top:17cqw;width:18cqw;--d:.6s}
+.on .tile{animation:pop .7s cubic-bezier(.2,.8,.2,1) var(--d) both,fade .9s ease-in 7s forwards}
+.tile .in{background:var(--s-panel);border:1px solid var(--s-line);border-radius:1.6cqw;padding:2cqw 1.5cqw 1.4cqw;text-align:center}
+.on .tile .in{animation:float 4s ease-in-out infinite}
+.tile svg{width:10cqw;height:7.5cqw;fill:none;stroke:var(--blue);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.tile p{margin:.9cqw 0 0;font-family:var(--mono);font-size:1.6cqw;letter-spacing:.1em;text-transform:uppercase;color:var(--s-dim)}
+.stack{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:1cqw}
+.braces{font-family:var(--mono);font-weight:600;font-size:14cqw;line-height:1;color:var(--yellow);text-shadow:0 0 5cqw rgba(255,216,77,.45)}
+.on .braces{animation:pop .7s cubic-bezier(.2,.8,.2,1) 7.4s both,fade .6s ease-in 11s forwards}
+.braces-l{font-family:var(--mono);font-size:2cqw;letter-spacing:.2em;text-transform:uppercase;color:var(--s-dim)}
+.on .braces-l{animation:pop .7s ease 8.3s both,fade .6s ease-in 11s forwards}
+.prompt{font-family:var(--mono);font-size:2.2cqw;color:var(--s-dim)}
+.prompt b{color:var(--yellow);font-weight:600}
+.mp{margin:0;font-family:var(--display);font-weight:800;font-size:10cqw;line-height:1;letter-spacing:-.02em}
+.mp span{color:var(--yellow)}
+.under{width:22cqw;height:.7cqw;border-radius:1cqw;background:linear-gradient(90deg,var(--blue),var(--yellow));transform-origin:left}
+.on .under{animation:sweep .8s ease 13.3s both}
+
+/* ---------- scene 2: talking to computers ---------- */
+.person{position:absolute;left:8cqw;top:24cqw;width:11cqw}
+.person svg,.pc svg{width:100%;height:auto;fill:none;stroke:var(--blue);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.pc{position:absolute;left:75cqw;top:21cqw;width:17cqw}
+.pc svg{stroke:var(--yellow)}
+.lbl{position:absolute;font-family:var(--mono);font-size:1.4cqw;letter-spacing:.1em;text-transform:uppercase;color:var(--s-dim);text-align:center}
+.arrow{position:absolute;left:23cqw;top:29cqw;width:49cqw}
+.arrow svg{display:block;width:100%;height:2cqw;overflow:visible}
+.arrow line{stroke:var(--s-dim);stroke-width:2;stroke-dasharray:8 8}
+.on .arrow line{animation:dash 1s linear infinite}
+.arrow path{fill:none;stroke:var(--s-dim);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.bub{position:absolute;background:var(--s-panel);border:1px solid var(--s-line);border-radius:1.4cqw;padding:1.1cqw 1.8cqw;text-align:center}
+.bub::after{content:"";position:absolute;left:2.4cqw;bottom:-.9cqw;width:1.6cqw;height:1.6cqw;background:var(--s-panel);border-right:1px solid var(--s-line);border-bottom:1px solid var(--s-line);transform:rotate(45deg)}
+.bub b{display:block;font-size:2.8cqw;font-weight:600;line-height:1.25}
+.bub small{display:block;font-family:var(--mono);font-size:1.25cqw;letter-spacing:.1em;text-transform:uppercase;color:var(--s-dim)}
+.bub.ta b{font-family:var(--tamil)}
+.bub.cd b{font-family:var(--mono);font-size:2.3cqw;font-weight:600}
+.bub.cd::after{left:auto;right:3cqw}
+.screen{position:absolute;left:78.5cqw;top:25cqw;font-family:var(--mono);font-size:1.8cqw;color:var(--green)}
+.center-chip{position:absolute;left:0;right:0;top:44cqw;display:flex;justify-content:center}
+
+/* ---------- scene 3: uses ---------- */
+.cards{position:absolute;left:4cqw;right:4cqw;top:14cqw;display:flex;justify-content:center;gap:1.6cqw}
+.card{width:16.5cqw;height:24cqw;background:var(--s-panel);border:1px solid var(--s-line);border-radius:1.6cqw;padding:2cqw 1.4cqw;display:flex;flex-direction:column;align-items:center;text-align:center;gap:1cqw}
+.card svg{width:8cqw;height:8cqw;fill:none;stroke:var(--c);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;margin-bottom:.8cqw}
+.card h3{margin:0;font-family:var(--display);font-weight:600;font-size:2cqw;line-height:1.15;text-wrap:balance}
+.card p{margin:0;font-size:1.4cqw;line-height:1.4;color:var(--s-dim)}
+.on .cog{animation:spin 9s linear infinite;transform-origin:24px 24px}
+.card svg .fillc{fill:var(--c);stroke:none}
+
+/* ---------- scene 4: beginners ---------- */
+.s4-ed{left:5cqw;top:13cqw;width:48cqw}
+.chips{position:absolute;left:57cqw;top:15cqw;display:flex;flex-direction:column;align-items:flex-start;gap:1.6cqw}
+
+/* ---------- scene 5: in action ---------- */
+.prods{position:absolute;left:5cqw;top:12cqw;width:37cqw;display:flex;flex-direction:column;gap:1.4cqw}
+.prod{display:flex;align-items:center;gap:1.6cqw;height:9.4cqw;padding:0 1.8cqw;background:var(--s-panel);border:1px solid var(--s-line);border-radius:1.4cqw}
+.prod svg{width:5.4cqw;height:5.4cqw;flex:none;fill:none;stroke:var(--blue);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.prod span{flex:1;font-size:2.2cqw;font-weight:500}
+.prod b{font-family:var(--mono);font-size:2.4cqw;font-weight:600;color:var(--yellow)}
+.sum{position:absolute;left:5cqw;top:44.6cqw;width:37cqw;height:7.4cqw;display:flex;align-items:center;justify-content:space-between;gap:1cqw;padding:0 1.8cqw;border-top:1px dashed var(--s-line)}
+.sum .eq{font-family:var(--mono);font-size:1.75cqw;color:var(--s-dim);--d:17s}
+.sum .tot{font-family:var(--mono);font-weight:600;font-size:3.6cqw;color:var(--green);text-shadow:0 0 3cqw rgba(126,226,170,.4);--d:21.5s}
+.s5-ed{left:46cqw;top:12cqw;width:49cqw}
+.s5-tag{position:absolute;left:46cqw;top:43.5cqw;width:49cqw;font-family:var(--display);font-weight:600;font-size:2.3cqw;line-height:1.25;--d:24.5s}
+.s5-tag span{color:var(--yellow)}
+.s5-note{position:absolute;left:46cqw;top:50cqw;width:49cqw;font-size:1.5cqw;color:var(--s-dim);--d:29.5s}
+
+/* ---------- scene 6: start ---------- */
+.stairs{position:absolute;left:5cqw;bottom:4cqw;width:38cqw;height:36cqw}
+.step{position:absolute;bottom:0;width:8.6cqw;border-radius:.8cqw .8cqw 0 0;transform-origin:bottom;background:linear-gradient(180deg,var(--blue),#35598a);--d:1s}
+.on .step{animation:grow .7s cubic-bezier(.2,.8,.2,1) var(--d) both}
+.s1{left:1cqw;height:7cqw}.s2{left:10cqw;height:14cqw;--d:3.8s}.s3{left:19cqw;height:21cqw;--d:6.6s}.s4{left:28cqw;height:28cqw;--d:9.4s}
+.s1{--d:1.2s}
+.dot{position:absolute;width:3.2cqw;height:3.2cqw;border-radius:50%;background:var(--yellow);box-shadow:0 0 2cqw rgba(255,216,77,.55);left:3.8cqw;bottom:7cqw}
+.on .dot{animation:hop 13s linear 1.5s both}
+@keyframes hop{
+  0%{opacity:0;left:3.7cqw;bottom:7cqw}
+  1.5%,17%{opacity:1;left:3.7cqw;bottom:7cqw}
+  24%,40%{opacity:1;left:12.7cqw;bottom:14cqw}
+  46%,61%{opacity:1;left:21.7cqw;bottom:21cqw}
+  67%,100%{opacity:1;left:30.7cqw;bottom:28cqw}
+}
+.flag{position:absolute;left:35.8cqw;bottom:28cqw;width:4cqw;height:7cqw;--d:12s}
+.flag svg{width:100%;height:100%;fill:none;stroke:var(--yellow);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.flag .fl{fill:var(--yellow)}
+.right6{position:absolute;left:50cqw;right:5cqw;top:12cqw;display:flex;flex-direction:column;gap:2.4cqw}
+.flow{display:flex;align-items:center;gap:1.4cqw;font-family:var(--mono);font-size:1.9cqw;color:var(--s-dim)}
+.flow span{background:var(--s-panel);border:1px solid var(--s-line);border-radius:10cqw;padding:.7cqw 1.6cqw;color:var(--s-text)}
+.flow span+span{color:var(--yellow)}
+.s6-small{font-family:var(--display);font-weight:600;font-size:3cqw;line-height:1.2}
+.s6-big{font-family:var(--display);font-weight:800;font-size:5.2cqw;line-height:1.05;letter-spacing:-.01em;text-wrap:balance}
+.s6-big span{color:var(--yellow)}
+.s6-term{font-family:var(--mono);font-size:3cqw;color:var(--s-text);margin-top:1cqw}
+.s6-term b{color:var(--yellow);font-weight:600}
+
+/* ---------- poster ---------- */
+.poster{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.6cqw;text-align:center;background:linear-gradient(180deg,rgba(11,19,34,.55),rgba(11,19,34,.9));padding:0 6cqw}
+.poster .prompt{font-size:2cqw}
+.poster h2{margin:0;font-family:var(--display);font-weight:800;font-size:9cqw;line-height:1;letter-spacing:-.02em}
+.poster h2 span{color:var(--yellow)}
+.poster p{margin:0;font-size:2cqw;color:var(--s-dim)}
+.bigplay{margin-top:1cqw;width:9cqw;height:9cqw;border-radius:50%;border:0;background:var(--yellow);color:#0B1322;display:grid;place-items:center;cursor:pointer;box-shadow:0 0 0 1.2cqw rgba(255,216,77,.2)}
+.bigplay svg{width:3.6cqw;height:3.6cqw;fill:currentColor;margin-left:.5cqw}
+
+@media (prefers-reduced-motion:reduce){
+  .on .tile .in,.on .cog,.on .arrow line{animation:none}
+}
+</style>
+
+<div class="wrap">
+  
+
+  <div class="stage" id="stage">
+    <div class="grid"></div><div class="glow"></div>
+    <div class="tag" id="tag"></div>
+
+    <!-- SCENE 1 -->
+    <section class="scene" id="sc0">
+      <div class="tile" style="left:15cqw;--d:.6s"><div class="in" style="animation-delay:0s">
+        <svg viewBox="0 0 64 48"><rect x="21" y="2" width="22" height="44" rx="5"/><path d="M28 40h8"/><rect x="26" y="10" width="12" height="8" rx="2"/><path d="M26 25h12M26 31h8"/></svg><p>Apps</p></div></div>
+      <div class="tile" style="left:41cqw;--d:1.6s"><div class="in" style="animation-delay:-1.3s">
+        <svg viewBox="0 0 64 48"><path d="M18 10h28a12 12 0 0 1 12 12l2 12a6 6 0 0 1-10.5 4L44 32H20l-5.5 6A6 6 0 0 1 4 34l2-12A12 12 0 0 1 18 10z"/><path d="M18 17v10M13 22h10"/><circle cx="42" cy="19" r="2"/><circle cx="48" cy="25" r="2"/></svg><p>Games</p></div></div>
+      <div class="tile" style="left:67cqw;--d:2.6s"><div class="in" style="animation-delay:-2.6s">
+        <svg viewBox="0 0 64 48"><rect x="3" y="3" width="58" height="42" rx="6"/><path d="M3 14h58"/><circle cx="9" cy="8.5" r="1.4"/><circle cx="15" cy="8.5" r="1.4"/><rect x="10" y="21" width="20" height="17" rx="2"/><path d="M37 23h18M37 30h14M37 37h9"/></svg><p>Websites</p></div></div>
+
+      <div class="stack"><div class="braces">{ }</div><div class="braces-l">programming</div></div>
+
+      <div class="stack" style="gap:1.4cqw">
+        <div class="prompt a" style="--d:11.4s"><b>&gt;&gt;&gt;</b> meet_python()</div>
+        <h2 class="mp a" style="--d:12.1s">Meet <span>Python</span></h2>
+        <div class="under"></div>
+      </div>
+    </section>
+
+    <!-- SCENE 2 -->
+    <section class="scene" id="sc1">
+      <h2 class="hd a" style="--d:.3s">A way to talk to computers</h2>
+
+      <div class="person a" style="--d:.9s">
+        <svg viewBox="0 0 48 56"><circle cx="24" cy="14" r="9"/><path d="M6 52c0-12 8-20 18-20s18 8 18 20"/></svg>
+      </div>
+      <div class="lbl a" style="left:7cqw;top:45cqw;width:13cqw;--d:.9s">You</div>
+
+      <div class="arrow a" style="--d:3s"><svg viewBox="0 0 490 20" preserveAspectRatio="none"><line x1="0" y1="10" x2="480" y2="10"/><path d="M470 2l12 8-12 8"/></svg></div>
+      <div class="lbl a" style="left:36cqw;top:32cqw;width:24cqw;--d:3.4s">instructions</div>
+
+      <div class="pc a" style="--d:1.4s">
+        <svg viewBox="0 0 64 56"><rect x="4" y="3" width="56" height="37" rx="5"/><path d="M24 50h16M32 40v10"/></svg>
+      </div>
+      <div class="lbl a" style="left:75cqw;top:45cqw;width:17cqw;--d:1.4s">Computer</div>
+
+      <div class="bub a" style="left:6cqw;top:12cqw;--d:9.6s"><b>Hello!</b><small>English</small></div>
+      <div class="bub ta a" style="left:21cqw;top:12cqw;--d:12.2s"><b>வணக்கம்!</b><small>தமிழ்</small></div>
+
+      <div class="bub cd a" style="left:68cqw;top:11cqw;--d:15s"><b class="code"><span class="fn">print</span>(<span class="st">"Hello!"</span>)</b><small>Python</small></div>
+      <div class="screen a" style="--d:16.6s">Hello!</div>
+
+      <div class="center-chip"><div class="chip a" style="--d:18.2s"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg>Readable and approachable</div></div>
+    </section>
+
+    <!-- SCENE 3 -->
+    <section class="scene" id="sc2">
+      <h2 class="hd a" style="--d:.3s">Where Python is used</h2>
+      <div class="cards">
+        <div class="card a" style="--d:3.6s;--c:var(--blue)">
+          <svg viewBox="0 0 48 48"><rect x="4" y="7" width="40" height="34" rx="5"/><path d="M4 16h40"/><circle cx="10" cy="11.5" r="1.3" class="fillc"/><circle cx="15" cy="11.5" r="1.3" class="fillc"/><path d="M11 24h12v11H11zM29 25h9M29 31h6"/></svg>
+          <h3>Websites &amp; apps</h3><p>Build what people use every day</p></div>
+        <div class="card a" style="--d:6.6s;--c:var(--yellow)">
+          <svg viewBox="0 0 48 48"><circle cx="10" cy="12" r="3.5"/><circle cx="10" cy="36" r="3.5"/><circle cx="24" cy="24" r="4"/><circle cx="38" cy="12" r="3.5"/><circle cx="38" cy="36" r="3.5"/><path d="M13 13l8 8M13 35l8-8M27 21l8-8M27 27l8 8"/></svg>
+          <h3>Artificial intelligence</h3><p>Teach machines to learn</p></div>
+        <div class="card a" style="--d:9s;--c:var(--green)">
+          <svg viewBox="0 0 48 48"><path d="M6 42h38M10 42V28M20 42V16M30 42V24M40 42V8"/><circle cx="10" cy="24" r="2" class="fillc"/><circle cx="20" cy="12" r="2" class="fillc"/><circle cx="30" cy="20" r="2" class="fillc"/><circle cx="40" cy="4.5" r="2" class="fillc"/></svg>
+          <h3>Data analysis</h3><p>Find patterns hidden in numbers</p></div>
+        <div class="card a" style="--d:11.2s;--c:var(--blue)">
+          <svg viewBox="0 0 48 48"><g class="cog"><circle cx="24" cy="24" r="8"/><path d="M24 7v6M24 35v6M7 24h6M35 24h6M12 12l4 4M32 32l4 4M12 36l4-4M32 16l4-4"/></g></svg>
+          <h3>Automation</h3><p>Let the computer repeat the boring tasks</p></div>
+        <div class="card a" style="--d:13.2s;--c:var(--yellow)">
+          <svg viewBox="0 0 48 48"><rect x="8" y="14" width="32" height="24" rx="6"/><path d="M24 14V6"/><circle cx="24" cy="5" r="2" class="fillc"/><circle cx="17" cy="26" r="3" class="fillc"/><circle cx="31" cy="26" r="3" class="fillc"/><path d="M18 33h12M3 24v6M45 24v6"/></svg>
+          <h3>Robotics</h3><p>Bring machines to life</p></div>
+      </div>
+      <div class="center-chip" style="top:44cqw"><div class="chip a" style="--d:15.6s"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg>Many creative possibilities</div></div>
+    </section>
+
+    <!-- SCENE 4 -->
+    <section class="scene" id="sc3">
+      <h2 class="hd a" style="--d:.3s">Why beginners love Python</h2>
+      <div class="ed a s4-ed" style="--d:3.4s">
+        <div class="ed-bar"><b></b><b></b><b></b><span>hello.py</span></div>
+        <div class="ed-body code">
+          <span class="ln cm a" style="--d:5s"># Show a message on the screen</span>
+          <span class="ln"><span class="type" style="--ch:22;--tt:1.8s;--d:8s"><span class="fn">print</span><span class="op">(</span><span class="st">"Hello, World!"</span><span class="op">)</span></span></span>
+          <div class="out a" style="--d:10.4s"><small>OUTPUT</small><strong>Hello, World!</strong></div>
+        </div>
+      </div>
+      <div class="chips">
+        <div class="chip a" style="--d:12.6s"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg>Reads like everyday English</div>
+        <div class="chip a" style="--d:15.6s"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg>A large learning community</div>
+        <div class="chip a" style="--d:18.6s"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg>Ideas first, less syntax</div>
+      </div>
+    </section>
+
+    <!-- SCENE 5 -->
+    <section class="scene" id="sc4">
+      <h2 class="hd a" style="--d:.3s">Python in action: a shopping cart</h2>
+      <div class="prods">
+        <div class="prod a" style="--d:4.4s"><svg viewBox="0 0 48 48"><path d="M8 28v-6a16 16 0 0 1 32 0v6"/><rect x="5" y="26" width="8" height="13" rx="3"/><rect x="35" y="26" width="8" height="13" rx="3"/></svg><span>Headphones</span><b>₹500</b></div>
+        <div class="prod a" style="--d:7.8s"><svg viewBox="0 0 48 48"><rect x="10" y="5" width="28" height="38" rx="3"/><path d="M16 5v38M22 16h10M22 23h10"/></svg><span>Notebook</span><b>₹100</b></div>
+        <div class="prod a" style="--d:10s"><svg viewBox="0 0 48 48"><path d="M20 5h8v7l4 6v22a3 3 0 0 1-3 3H19a3 3 0 0 1-3-3V18l4-6z"/><path d="M16 27h16"/></svg><span>Water bottle</span><b>₹150</b></div>
+      </div>
+      <div class="sum"><div class="eq a">₹500 + ₹100 + ₹150 =</div><div class="tot a">₹750</div></div>
+
+      <div class="ed a s5-ed" style="--d:3.8s">
+        <div class="ed-bar"><b></b><b></b><b></b><span>shopping.py</span></div>
+        <div class="ed-body code">
+          <span class="ln a" style="--d:4.8s">headphones <span class="op">=</span> <span class="nm">500</span></span>
+          <span class="ln a" style="--d:8.2s">notebook <span class="op">=</span> <span class="nm">100</span></span>
+          <span class="ln a" style="--d:10.4s">bottle <span class="op">=</span> <span class="nm">150</span></span>
+          <span class="ln a" style="--d:13.2s">total <span class="op">=</span> headphones <span class="op">+</span> notebook <span class="op">+</span> bottle</span>
+          <span class="ln a" style="--d:15.4s"><span class="fn">print</span><span class="op">(</span>total<span class="op">)</span></span>
+          <div class="out a" style="--d:21.8s"><small>OUTPUT</small><strong>750</strong></div>
+        </div>
+      </div>
+      <div class="s5-tag a">That is programming: <span>giving instructions to solve a real problem.</span></div>
+      <div class="s5-note a">Real shopping apps may use different technologies, but the idea is the same.</div>
+    </section>
+
+    <!-- SCENE 6 -->
+    <section class="scene" id="sc5">
+      <div class="stairs">
+        <div class="step s1"></div><div class="step s2"></div><div class="step s3"></div><div class="step s4"></div>
+        <div class="dot"></div>
+        <div class="flag a"><svg viewBox="0 0 24 40"><path d="M5 38V4"/><path class="fl" d="M5 5h16l-4 6 4 6H5z"/></svg></div>
+      </div>
+      <div class="right6">
+        <div class="flow a" style="--d:.8s"><span>an idea</span>→<span>reality</span></div>
+        <div class="s6-small a" style="--d:8.6s">Start with one small step. Keep experimenting.</div>
+        <div class="s6-big a" style="--d:13.4s">Your Python journey <span>starts now.</span></div>
+        <div class="s6-term code"><span class="type" style="--ch:15;--tt:1.4s;--d:16.4s"><b>&gt;&gt;&gt;</b> let's code!</span></div>
+      </div>
+    </section>
+
+    <!-- POSTER -->
+    <div class="poster" id="poster">
+      <div class="prompt"><b>&gt;&gt;&gt;</b> meet_python()</div>
+      <h2>Meet <span>Python</span></h2>
+      <p>A short, narrated introduction for beginners</p>
+      <button class="bigplay" id="bigplay" aria-label="Play video"><svg viewBox="0 0 24 24"><path d="M7 4v16l14-8z"/></svg></button>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="ib main" id="pp" aria-label="Play"></button>
+    <button class="ib" id="rp" aria-label="Restart from the beginning"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 3-6.2"/><path d="M4 4v5h5"/></svg></button>
+    <div class="segs" id="segs"></div>
+    <div class="time" id="time">0:00 / 0:00</div>
+    <button class="ib" id="snd" aria-label="Mute narration"></button>
+  </div>
+
+  <p class="caption" id="caption">Press play to start the video. Narration is read aloud, and the words appear here.</p>
+
+  <details>
+    <summary>Read the full narration</summary>
+    <ol id="transcript"></ol>
+  </details>
+</div>
+
+<script>
+(function(){
+  var SC=[
+    {name:'Intro',dur:16,text:"Have you ever wondered how your favourite apps, games, and websites work? Behind many amazing digital experiences is programming. Today, let us meet Python, one of the most popular programming languages in the world."},
+    {name:'What is Python',dur:22,text:"Python is a programming language. Think of it as a way to communicate instructions to a computer. Just as we use English or Tamil to talk to people, we use programming languages to tell computers what to do. Python makes those instructions readable and approachable."},
+    {name:'Where it is used',dur:20,text:"Python is used in many exciting fields. It helps people build websites and applications, work with artificial intelligence, analyse data, automate repetitive tasks, and explore robotics. Learning Python can open the door to many creative possibilities."},
+    {name:'For beginners',dur:23,text:"What makes Python special for beginners? Its code often looks close to everyday English. One simple line can make a computer display a message. Python is readable, has a large learning community, and helps beginners focus on programming ideas rather than complicated syntax."},
+    {name:'In action',dur:34,text:"Let us see Python in action. Imagine shopping online. You buy headphones for five hundred rupees, a notebook for one hundred, and a water bottle for one hundred and fifty. A shopping application can add those prices together. Five hundred plus one hundred plus one hundred and fifty equals seven hundred and fifty rupees. That is programming: giving instructions to solve a real problem. Real shopping apps may use different technologies, but the idea is easy to understand."},
+    {name:'Start now',dur:19,text:"And that is Python: a language that helps turn ideas into reality. You do not need to know everything today. Start with one small step, keep experimenting, and build something amazing. Your Python journey starts now. Let us code!"}
+  ];
+  var $=function(id){return document.getElementById(id)};
+  var stage=$('stage'),poster=$('poster'),caption=$('caption'),tag=$('tag'),timeEl=$('time'),segsEl=$('segs'),pp=$('pp'),snd=$('snd');
+  var scenes=SC.map(function(_,i){return $('sc'+i)});
+  var total=0;
+  SC.forEach(function(s){
+    s.start=total; total+=s.dur;
+    var parts=s.text.match(/[^.?!]+[.?!]+/g).map(function(x){return x.trim()});
+    var len=parts.reduce(function(a,p){return a+p.length},0),acc=0;
+    s.sents=parts.map(function(p){acc+=p.length;return {txt:p,end:acc/len*s.dur}});
+  });
+
+  var ICON={
+    play:'<svg viewBox="0 0 24 24"><path d="M7 4v16l14-8z"/></svg>',
+    pause:'<svg viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>',
+    replay:'<svg viewBox="0 0 24 24" style="fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><path d="M4 12a8 8 0 1 0 3-6.2"/><path d="M4 4v5h5"/></svg>',
+    on:'<svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>',
+    off:'<svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>'
+  };
+
+  var segs=SC.map(function(s,i){
+    var b=document.createElement('button');
+    b.className='seg';b.title='Scene '+(i+1)+': '+s.name;b.setAttribute('aria-label','Go to scene '+(i+1)+': '+s.name);
+    b.style.flexGrow=s.dur;
+    b.innerHTML='<i></i>';
+    b.addEventListener('click',function(){hidePoster();enter(i);play()});
+    segsEl.appendChild(b);return b;
+  });
+  var tr=$('transcript');
+  SC.forEach(function(s,i){var li=document.createElement('li');li.innerHTML='<h3>Scene '+(i+1)+' · '+s.name+'</h3><p></p>';li.querySelector('p').textContent=s.text;tr.appendChild(li)});
+
+  var idx=-1,t=0,playing=false,ended=false,last=0,muted=false,speaking=false,sentIdx=-1,raf=0;
+
+  function fmt(s){s=Math.max(0,Math.round(s));return Math.floor(s/60)+':'+('0'+(s%60)).slice(-2)}
+  function hidePoster(){poster.hidden=true}
+
+  function speak(text){
+    if(muted||!('speechSynthesis' in window)){speaking=false;return}
+    try{
+      speechSynthesis.cancel();
+      var u=new SpeechSynthesisUtterance(text);
+      u.rate=.95;u.lang='en-IN';
+      var v=speechSynthesis.getVoices();
+      var pick=v.find(function(x){return /en[-_]IN/i.test(x.lang)})||v.find(function(x){return /^en/i.test(x.lang)});
+      if(pick)u.voice=pick;
+      u.onend=u.onerror=function(){speaking=false};
+      speaking=true;speechSynthesis.speak(u);
+    }catch(e){speaking=false}
+  }
+  function stopSpeech(){speaking=false;try{if('speechSynthesis' in window)speechSynthesis.cancel()}catch(e){}}
+
+  function enter(i){
+    idx=i;t=0;ended=false;sentIdx=-1;
+    scenes.forEach(function(el,k){
+      if(k===i){el.classList.remove('on');void el.offsetWidth;el.classList.add('on')}
+      else el.classList.remove('on');
+    });
+    stage.classList.remove('paused');
+    tag.textContent='Scene '+(i+1)+' / '+SC.length+' · '+SC[i].name;
+    speak(SC[i].text);
+    render();
+  }
+
+  function render(){
+    if(idx<0)return;
+    var s=SC[idx],k=0;
+    while(k<s.sents.length-1&&t>=s.sents[k].end)k++;
+    if(k!==sentIdx){
+      sentIdx=k;caption.textContent=s.sents[k].txt;
+      caption.classList.remove('swap');void caption.offsetWidth;caption.classList.add('swap');
+    }
+    segs.forEach(function(b,j){
+      var f=j<idx?1:(j===idx?Math.min(1,t/s.dur):0);
+      b.firstChild.style.width=(f*100)+'%';
+      if(j===idx)b.setAttribute('aria-current','true');else b.removeAttribute('aria-current');
+    });
+    timeEl.textContent=fmt(s.start+Math.min(t,s.dur))+' / '+fmt(total);
+  }
+
+  function setBtn(){
+    pp.innerHTML=ended?ICON.replay:(playing?ICON.pause:ICON.play);
+    pp.setAttribute('aria-label',ended?'Replay':(playing?'Pause':'Play'));
+  }
+
+  function tick(ts){
+    if(!playing)return;
+    var dt=Math.min(.1,(ts-last)/1000);last=ts;t+=dt;
+    var s=SC[idx];
+    if(t>=s.dur&&(!speaking||t>=s.dur+8)){
+      if(idx<SC.length-1){enter(idx+1)}
+      else{t=s.dur;playing=false;ended=true;stopSpeech();render();setBtn();return}
+    }
+    render();
+    raf=requestAnimationFrame(tick);
+  }
+
+  function play(){
+    hidePoster();
+    if(idx<0||ended)enter(0);
+    playing=true;ended=false;stage.classList.remove('paused');
+    try{if('speechSynthesis' in window&&speechSynthesis.paused)speechSynthesis.resume()}catch(e){}
+    last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(tick);setBtn();
+  }
+  function pause(){
+    playing=false;stage.classList.add('paused');
+    try{if('speechSynthesis' in window)speechSynthesis.pause()}catch(e){}
+    setBtn();
+  }
+
+  pp.addEventListener('click',function(){playing?pause():play()});
+  $('bigplay').addEventListener('click',play);
+  $('rp').addEventListener('click',function(){hidePoster();ended=false;enter(0);play()});
+  snd.addEventListener('click',function(){
+    muted=!muted;snd.innerHTML=muted?ICON.off:ICON.on;
+    snd.setAttribute('aria-label',muted?'Unmute narration':'Mute narration');
+    if(muted)stopSpeech();
+  });
+
+  snd.innerHTML=ICON.on;setBtn();
+  timeEl.textContent='0:00 / '+fmt(total);
+  if('speechSynthesis' in window){try{speechSynthesis.getVoices()}catch(e){}}
+})();
+</script>
+
+</body></html>
