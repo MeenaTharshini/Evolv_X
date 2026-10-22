@@ -1,4 +1,3 @@
-
 import { useEffect, useMemo, useState } from "react";
 import {
   ArrowLeft,
@@ -9,6 +8,7 @@ import {
   Clock3,
   Code2,
   Heart,
+  House,
   Lightbulb,
   PlayCircle,
   RotateCcw,
@@ -17,9 +17,9 @@ import {
   Volume2,
   Zap,
 } from "lucide-react";
+import { recordLearningActivity } from "../services/api";
 import {
   Link,
-  useNavigate,
   useParams,
   useSearchParams,
 } from "react-router-dom";
@@ -223,7 +223,6 @@ function isValidQuizQuestion(question) {
 export default function LessonPage() {
   const { courseId = DEFAULT_COURSE, lessonId } = useParams();
 
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   const requestedStage = searchParams.get("stage");
@@ -343,6 +342,45 @@ export default function LessonPage() {
 
   const savedQuiz = quizScores[lessonKey];
 
+  function getContinueInfo(progress = stageProgress) {
+    if (!lesson) {
+      return {
+        to: `/study/${courseId}`,
+        label: "Back to Study Map",
+      };
+    }
+
+    const nextStageForThisTopic = STAGES.find(
+      (stage) => !isStageComplete(progress, lesson.id, stage)
+    );
+
+    if (nextStageForThisTopic) {
+      return {
+        to: `/study/${courseId}/lesson/${lesson.id}?stage=${nextStageForThisTopic}`,
+        label: `Continue to ${STAGE_LABELS[nextStageForThisTopic]}`,
+      };
+    }
+
+    if (nextLesson) {
+      const nextLessonStage =
+        STAGES.find(
+          (stage) => !isStageComplete(progress, nextLesson.id, stage)
+        ) || "video";
+
+      return {
+        to: `/study/${courseId}/lesson/${nextLesson.id}?stage=${nextLessonStage}`,
+        label: "Continue to next topic",
+      };
+    }
+
+    return {
+      to: `/study/${courseId}`,
+      label: "Back to Study Map",
+    };
+  }
+
+  const continueInfo = getContinueInfo();
+
   /*
    * Refresh when progress changes elsewhere in EVOLV,
    * such as when the learner returns to the Study Map.
@@ -399,6 +437,27 @@ export default function LessonPage() {
     setQuizSubmitted(false);
     setCurrentScore(null);
   }, [courseId, lessonId, lesson, requestedStage]);
+
+  // Keep Home and Study Map in sync with the exact lesson stage being viewed.
+  useEffect(() => {
+    if (!lesson || !STAGES.includes(type)) return;
+
+    const destination =
+      `/study/${courseId}/lesson/${lesson.id}?stage=${type}`;
+
+    try {
+      localStorage.setItem(
+        `evolv_${courseId}_last_viewed`,
+        JSON.stringify({
+          lessonId: Number(lesson.id),
+          stage: type,
+          destination,
+        })
+      );
+    } catch (error) {
+      console.error("Could not save last-viewed stage:", error);
+    }
+  }, [courseId, lesson, type]);
 
   function notifyProgressUpdated() {
     window.dispatchEvent(
@@ -590,6 +649,31 @@ export default function LessonPage() {
 
       setStageProgress(updatedProgress);
 
+      // Record learning activity on the authenticated backend so the
+      // learner's streak is maintained across refreshes and devices.
+      recordLearningActivity({
+        activityType: "lesson",
+        activityRef: `${courseId}-${lesson.id}-${type}`,
+      })
+        .then((streakData) => {
+          const currentStreak = Number(streakData?.currentStreak) || 0;
+
+          localStorage.setItem(
+            `evolv_${courseId}_streak`,
+            String(currentStreak)
+          );
+
+          notifyProgressUpdated();
+        })
+        .catch((activityError) => {
+          // Stage progress is already saved locally; a streak API failure
+          // should not prevent the learner from continuing the lesson.
+          console.error(
+            "Could not record learning streak:",
+            activityError
+          );
+        });
+
       const nowTopicCompleted = isTopicComplete(
         updatedProgress,
         lesson.id
@@ -631,15 +715,8 @@ export default function LessonPage() {
         notifyProgressUpdated();
       }
 
-      navigate(`/study/${courseId}`, {
-        replace: true,
-        state: {
-          completedLessonId: lesson.id,
-          completedLessonTitle: lesson.title,
-          completedStage: type,
-          showCompletion: nowTopicCompleted,
-        },
-      });
+      // Stay here so the learner can see the completion message.
+      // The footer changes to a clear Continue action after progress updates.
     } catch (error) {
       console.error(
         "Could not save stage progress:",
@@ -685,13 +762,22 @@ export default function LessonPage() {
       className={`lesson-page course-${course.color || "green"}`}
     >
       <header className="lesson-topbar">
-        <Link
-          to={`/study/${courseId}`}
-          className="lesson-back"
-        >
-          <ArrowLeft size={19} />
-          <span>Study map</span>
-        </Link>
+        <nav className="lesson-topbar-nav" aria-label="Learning navigation">
+          <Link to="/dashboard" className="lesson-home-link">
+            <House size={16} />
+            <span>Home</span>
+          </Link>
+
+          <span className="lesson-nav-divider" aria-hidden="true">/</span>
+
+          <Link
+            to={`/study/${courseId}`}
+            className="lesson-back"
+          >
+            <ArrowLeft size={17} />
+            <span>Study Map</span>
+          </Link>
+        </nav>
 
         <div className="lesson-topbar-center">
           <span className="lesson-topbar-icon">
@@ -1341,31 +1427,33 @@ export default function LessonPage() {
 
             {/* STAGE COMPLETION */}
             <footer className="lesson-actions">
-              <button
-                type="button"
+              <Link
+                to={`/study/${courseId}`}
                 className="lesson-secondary-button"
-                onClick={() => navigate(`/study/${courseId}`)}
               >
                 <ArrowLeft size={17} />
                 Return to Study Map
-              </button>
+              </Link>
 
-              <button
-                type="button"
-                className="lesson-primary-button"
-                onClick={completeStage}
-                disabled={!completionReady}
-              >
-                {currentStageCompleted
-                  ? "Stage completed"
-                  : "Complete this stage"}
-
-                {currentStageCompleted ? (
-                  <CheckCircle2 size={18} />
-                ) : (
+              {currentStageCompleted ? (
+                <Link
+                  to={continueInfo.to}
+                  className="lesson-primary-button"
+                >
+                  {continueInfo.label}
                   <ArrowRight size={18} />
-                )}
-              </button>
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  className="lesson-primary-button"
+                  onClick={completeStage}
+                  disabled={!completionReady}
+                >
+                  Complete this stage
+                  <CheckCircle2 size={18} />
+                </button>
+              )}
             </footer>
 
             {!currentStageCompleted && !completionReady && (

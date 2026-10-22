@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 
+import { getStreak } from "../services/api";
 import Navbar from "../components/Navbar";
 import Rightbar from "../components/Rightbar";
 import { pythonLessons } from "../data/pythonLessons";
@@ -53,7 +54,8 @@ const WORLDS = [
   {
     icon: "🌱",
     title: "Python Meadow",
-    description: "Discover Python, variables, and your first lines of code.",
+    description:
+      "Discover Python, variables, and your first lines of code.",
     color: "meadow",
   },
   {
@@ -144,13 +146,14 @@ function readLastViewed(courseId) {
     return null;
   }
 
-  const stage =
-    STAGES.includes(value.stage) ? value.stage : "video";
+  const stage = STAGES.includes(value.stage) ? value.stage : "video";
 
   return {
     lessonId: Number(value.lessonId),
     stage,
-    destination: `/study/${courseId}/lesson/${Number(value.lessonId)}?stage=${stage}`,
+    destination: `/study/${courseId}/lesson/${Number(
+      value.lessonId
+    )}?stage=${stage}`,
   };
 }
 
@@ -169,9 +172,7 @@ function areaFor(lesson, index) {
     lesson.area ||
     lesson.chapter ||
     lesson.category ||
-    WORLDS[
-      Math.min(Math.floor(index / 10), WORLDS.length - 1)
-    ].title
+    WORLDS[Math.min(Math.floor(index / 10), WORLDS.length - 1)].title
   );
 }
 
@@ -205,8 +206,7 @@ function formatMinutes(lessons) {
 }
 
 function quizResultFor(scores, lessonId) {
-  const value = scores[String(lessonId)] ??
-    scores[`python_${lessonId}`];
+  const value = scores[String(lessonId)] ?? scores[`python_${lessonId}`];
 
   if (typeof value === "number" && Number.isFinite(value)) {
     return { attempts: 1, latestScore: value };
@@ -235,7 +235,9 @@ function quizResultFor(scores, lessonId) {
 }
 
 function stageDestination(courseId, lessonId, stage) {
-  return `/study/${courseId}/lesson/${lessonId}?stage=${encodeURIComponent(stage)}`;
+  return `/study/${courseId}/lesson/${lessonId}?stage=${encodeURIComponent(
+    stage
+  )}`;
 }
 
 function getNextStage(progress, lessonId) {
@@ -243,8 +245,32 @@ function getNextStage(progress, lessonId) {
 }
 
 function getTopicStageDestination(courseId, lesson, progress) {
-  const stage = getNextStage(progress, lesson.id);
+  // Completed topics are opened in review mode.
+  // Incomplete topics resume at their next incomplete stage.
+  const stage = isTopicComplete(progress, lesson.id)
+    ? "video"
+    : getNextStage(progress, lesson.id);
+
   return stageDestination(courseId, lesson.id, stage);
+}
+
+function isLessonAvailable(groups, progress, worldIndex, lesson) {
+  // A completed topic is always available for review, even if older
+  // progress data is inconsistent with the current unlock sequence.
+  if (isTopicComplete(progress, lesson.id)) return true;
+
+  if (worldIndex === 0 && lesson._index === 0) return true;
+
+  const allLessons = groups.flatMap((group) => group.lessons);
+
+  const previousLesson =
+    lesson._index > 0
+      ? allLessons.find((item) => item._index === lesson._index - 1)
+      : null;
+
+  if (!previousLesson) return worldIndex === 0;
+
+  return isTopicComplete(progress, previousLesson.id);
 }
 
 function getInitialSelection(groups, progress, lastViewed) {
@@ -270,6 +296,7 @@ function getInitialSelection(groups, progress, lastViewed) {
     }
   }
 
+  // Find the next incomplete, unlocked topic first.
   for (let worldIndex = 0; worldIndex < groups.length; worldIndex += 1) {
     const group = groups[worldIndex];
 
@@ -286,26 +313,13 @@ function getInitialSelection(groups, progress, lastViewed) {
     }
   }
 
+  // If everything is completed, select the first topic for review.
   return {
     worldIndex: groups.length ? 0 : null,
     lessonId: groups[0]?.lessons[0]
       ? Number(groups[0].lessons[0].id)
       : null,
   };
-}
-
-function isLessonAvailable(groups, progress, worldIndex, lesson) {
-  if (worldIndex === 0 && lesson._index === 0) return true;
-
-  const previousLesson = lesson._index > 0
-    ? groups.flatMap((group) => group.lessons).find(
-        (item) => item._index === lesson._index - 1
-      )
-    : null;
-
-  if (!previousLesson) return worldIndex === 0;
-
-  return isTopicComplete(progress, previousLesson.id);
 }
 
 export default function StudyMap() {
@@ -328,16 +342,16 @@ export default function StudyMap() {
     () => readObject(`evolv_${courseId}_quiz_scores`)
   );
 
-  const [xp, setXp] = useState(
-    () => readNumber(`evolv_${courseId}_xp`)
+  const [xp, setXp] = useState(() =>
+    readNumber(`evolv_${courseId}_xp`)
   );
 
-  const [streak, setStreak] = useState(
-    () => readNumber(`evolv_${courseId}_streak`)
+  const [streak, setStreak] = useState(() =>
+    readNumber(`evolv_${courseId}_streak`)
   );
 
-  const [lastViewed, setLastViewed] = useState(
-    () => readLastViewed(courseId)
+  const [lastViewed, setLastViewed] = useState(() =>
+    readLastViewed(courseId)
   );
 
   const initial = getInitialSelection(groups, stageProgress, lastViewed);
@@ -356,10 +370,8 @@ export default function StudyMap() {
   }, [courseId]);
 
   useEffect(() => {
-    // Rebuild the legacy completed-topics list from the four-stage
-    // records. This prevents an old one-stage completion from unlocking
-    // a topic or world.
     const latest = getStageProgress(courseId);
+
     syncCompletedTopics(courseId, lessons, latest, false);
     refreshProgress();
 
@@ -393,6 +405,48 @@ export default function StudyMap() {
       );
     };
   }, [courseId, lessons, refreshProgress]);
+
+  // Fetch the actual streak from the backend.
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadStreak() {
+      try {
+        const data = await getStreak();
+
+        if (cancelled) return;
+
+        const currentStreak = Math.max(
+          0,
+          Number(data?.currentStreak) || 0
+        );
+
+        setStreak(currentStreak);
+
+        try {
+          localStorage.setItem(
+            `evolv_${courseId}_streak`,
+            String(currentStreak)
+          );
+        } catch (storageError) {
+          console.error(
+            "Could not cache learning streak:",
+            storageError
+          );
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.error("Could not load learning streak:", error);
+        }
+      }
+    }
+
+    loadStreak();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [courseId]);
 
   useEffect(() => {
     const selection = getInitialSelection(
@@ -432,6 +486,8 @@ export default function StudyMap() {
       (lesson) => !isTopicComplete(stageProgress, lesson.id)
     ) || null;
 
+  // XP is read from saved progress; this component does not award XP.
+  // The completed-topic calculation is only a fallback for older data.
   const earnedXp = lessons.reduce(
     (total, lesson) =>
       total +
@@ -450,24 +506,40 @@ export default function StudyMap() {
   function isWorldUnlocked(worldIndex) {
     if (worldIndex === 0) return true;
 
+    const group = groups[worldIndex];
+
+    if (!group) return false;
+
+    // Keep worlds containing completed lessons accessible for review.
+    const hasCompletedTopic = group.lessons.some((lesson) =>
+      isTopicComplete(stageProgress, lesson.id)
+    );
+
+    if (hasCompletedTopic) return true;
+
     return groups
       .slice(0, worldIndex)
-      .every((group) =>
-        group.lessons.every((lesson) =>
+      .every((previousGroup) =>
+        previousGroup.lessons.every((lesson) =>
           isTopicComplete(stageProgress, lesson.id)
         )
       );
   }
 
   function isLessonUnlocked(lesson) {
+    // Completed lessons remain openable even when revisiting old topics.
+    if (isTopicComplete(stageProgress, lesson.id)) return true;
+
+    const worldIndex = groups.findIndex((group) =>
+      group.lessons.some(
+        (item) => Number(item.id) === Number(lesson.id)
+      )
+    );
+
     return isLessonAvailable(
       groups,
       stageProgress,
-      groups.findIndex((group) =>
-        group.lessons.some(
-          (item) => Number(item.id) === Number(lesson.id)
-        )
-      ),
+      worldIndex,
       lesson
     );
   }
@@ -476,6 +548,7 @@ export default function StudyMap() {
     if (!lesson) return;
 
     const match = String(destination || "").match(/[?&]stage=([^&]+)/);
+
     const stage = match
       ? decodeURIComponent(match[1])
       : getNextStage(stageProgress, lesson.id);
@@ -486,7 +559,11 @@ export default function StudyMap() {
       worldIndex,
       lessonId: Number(lesson.id),
       stage: safeStage,
-      destination: stageDestination(courseId, lesson.id, safeStage),
+      destination: stageDestination(
+        courseId,
+        lesson.id,
+        safeStage
+      ),
     };
 
     try {
@@ -515,6 +592,7 @@ export default function StudyMap() {
     if (!isLessonUnlocked(lesson)) return;
 
     setExpandedWorld(worldIndex);
+
     setSelectedTopic((previous) =>
       Number(previous) === Number(lesson.id)
         ? null
@@ -543,12 +621,17 @@ export default function StudyMap() {
   const resumeLesson = savedLesson || nextLesson;
 
   const resumeDestination = resumeLesson
-    ? getTopicStageDestination(courseId, resumeLesson, stageProgress)
+    ? savedLesson &&
+      Number(lastViewed?.lessonId) === Number(resumeLesson.id) &&
+      STAGES.includes(lastViewed?.stage) &&
+      !isStageComplete(stageProgress, resumeLesson.id, lastViewed.stage)
+      ? stageDestination(courseId, resumeLesson.id, lastViewed.stage)
+      : getTopicStageDestination(courseId, resumeLesson, stageProgress)
     : "/dashboard";
 
   const resumeLabel = !resumeLesson
     ? "Back to dashboard"
-    : selectedCompleted
+    : isTopicComplete(stageProgress, resumeLesson.id)
       ? "Review learning"
       : savedLesson
         ? "Resume learning"
@@ -580,7 +663,7 @@ export default function StudyMap() {
       <main className="sm-main">
         <header className="sm-topbar">
           <div className="sm-breadcrumb">
-            <Link to="/dashboard">Workspace</Link>
+            <Link to="/dashboard">Home</Link>
             <span>/</span>
             <strong>Study Map</strong>
           </div>
@@ -720,7 +803,10 @@ export default function StudyMap() {
             </div>
           </section>
 
-          <section className="sm-stat-grid" aria-label="Learning statistics">
+          <section
+            className="sm-stat-grid"
+            aria-label="Learning statistics"
+          >
             <article className="sm-stat-card sm-stat-xp">
               <span className="sm-stat-icon">
                 <Zap size={19} />
@@ -776,6 +862,7 @@ export default function StudyMap() {
                 <p>
                   Open a world to reveal its winding path. Complete all
                   four stages in each topic to unlock the next stop.
+                  Completed topics stay available for review.
                 </p>
               </div>
 
@@ -915,7 +1002,8 @@ export default function StudyMap() {
                               <strong>Your {group.title} journey</strong>
                               <p>
                                 Complete Video, Concept, Hands-on, and
-                                Quiz to unlock the next topic.
+                                Quiz to unlock the next topic. You can
+                                revisit completed topics anytime.
                               </p>
                             </div>
                           </div>
@@ -939,10 +1027,7 @@ export default function StudyMap() {
                                 const index = lesson._index;
                                 const lessonId = Number(lesson.id);
 
-                                const completed = isTopicComplete(
-                                  stageProgress,
-                                  lesson.id
-                                );
+                                const completed = completedSet.has(lessonId);
 
                                 const completedStages = getCompletedStages(
                                   stageProgress,
@@ -1006,9 +1091,11 @@ export default function StudyMap() {
                                         aria-pressed={selected}
                                         aria-label={`Topic ${index + 1}: ${lesson.title}`}
                                         title={
-                                          unlocked
-                                            ? lesson.title
-                                            : "Complete all four stages of the previous topic to unlock"
+                                          completed
+                                            ? "Completed — click to review"
+                                            : unlocked
+                                              ? lesson.title
+                                              : "Complete the previous topic to unlock"
                                         }
                                       >
                                         <span className="sm-path-node-inner">
@@ -1056,7 +1143,7 @@ export default function StudyMap() {
 
                                         <span className="sm-path-topic-status">
                                           {completed
-                                            ? "✓ Completed"
+                                            ? "✓ Completed · Review anytime"
                                             : !unlocked
                                               ? "🔒 Locked"
                                               : `${stageCount}/4 stages · ${xpFor(lesson)} XP`}
@@ -1127,7 +1214,11 @@ export default function StudyMap() {
 
                                           <div className="sm-stage-panel">
                                             <div className="sm-stage-panel-heading">
-                                              <strong>Topic levels</strong>
+                                              <strong>
+                                                {selectedCompleted
+                                                  ? "Review topic levels"
+                                                  : "Topic levels"}
+                                              </strong>
                                               <span>
                                                 {completedStages.length}/4
                                                 complete
@@ -1135,72 +1226,74 @@ export default function StudyMap() {
                                             </div>
 
                                             <div className="sm-stage-grid">
-                                              {STAGES.map((stage, stageIndex) => {
-                                                const done = isStageComplete(
-                                                  stageProgress,
-                                                  selectedLesson.id,
-                                                  stage
-                                                );
-
-                                                const Icon =
-                                                  STAGE_ICONS[stage];
-
-                                                const destination =
-                                                  stageDestination(
-                                                    courseId,
+                                              {STAGES.map(
+                                                (stage, stageIndex) => {
+                                                  const done = isStageComplete(
+                                                    stageProgress,
                                                     selectedLesson.id,
                                                     stage
                                                   );
 
-                                                return (
-                                                  <Link
-                                                    key={stage}
-                                                    to={destination}
-                                                    className={[
-                                                      "sm-stage-link",
-                                                      done
-                                                        ? "is-stage-done"
-                                                        : "",
-                                                    ]
-                                                      .filter(Boolean)
-                                                      .join(" ")}
-                                                    onClick={() =>
-                                                      recordLastViewed(
-                                                        selectedLesson,
-                                                        groupIndex,
-                                                        destination
-                                                      )
-                                                    }
-                                                  >
-                                                    <span className="sm-stage-link-icon">
-                                                      {done ? (
-                                                        <CheckCircle2
-                                                          size={17}
-                                                        />
-                                                      ) : (
-                                                        <Icon size={17} />
-                                                      )}
-                                                    </span>
+                                                  const Icon =
+                                                    STAGE_ICONS[stage];
 
-                                                    <span className="sm-stage-link-name">
-                                                      {STAGE_LABELS[stage]}
-                                                    </span>
+                                                  const destination =
+                                                    stageDestination(
+                                                      courseId,
+                                                      selectedLesson.id,
+                                                      stage
+                                                    );
 
-                                                    <span className="sm-stage-link-number">
-                                                      {done
-                                                        ? "Done"
-                                                        : `Level ${stageIndex + 1}`}
-                                                    </span>
-                                                  </Link>
-                                                );
-                                              })}
+                                                  return (
+                                                    <Link
+                                                      key={stage}
+                                                      to={destination}
+                                                      className={[
+                                                        "sm-stage-link",
+                                                        done
+                                                          ? "is-stage-done"
+                                                          : "",
+                                                      ]
+                                                        .filter(Boolean)
+                                                        .join(" ")}
+                                                      onClick={() =>
+                                                        recordLastViewed(
+                                                          selectedLesson,
+                                                          groupIndex,
+                                                          destination
+                                                        )
+                                                      }
+                                                    >
+                                                      <span className="sm-stage-link-icon">
+                                                        {done ? (
+                                                          <CheckCircle2
+                                                            size={17}
+                                                          />
+                                                        ) : (
+                                                          <Icon size={17} />
+                                                        )}
+                                                      </span>
+
+                                                      <span className="sm-stage-link-name">
+                                                        {STAGE_LABELS[stage]}
+                                                      </span>
+
+                                                      <span className="sm-stage-link-number">
+                                                        {done
+                                                          ? "Review"
+                                                          : `Level ${stageIndex + 1}`}
+                                                      </span>
+                                                    </Link>
+                                                  );
+                                                }
+                                              )}
                                             </div>
                                           </div>
 
                                           <div className="sm-cute-card-footer">
                                             <span className="sm-cute-card-hint">
                                               {selectedCompleted
-                                                ? "✨ Revisit this quest anytime."
+                                                ? "✨ Review this quest anytime. Reviewing does not grant extra XP."
                                                 : `${stageCount}/4 stages completed · Finish all four to unlock the next topic.`}
                                             </span>
 
@@ -1254,10 +1347,10 @@ export default function StudyMap() {
                           {!selectedLesson && (
                             <div className="sm-select-topic-prompt">
                               <Map size={23} />
-                              <strong>Select an unlocked circle</strong>
+                              <strong>Select a topic circle</strong>
                               <p>
-                                Tap a topic on the path to start or resume
-                                learning.
+                                Select an unlocked topic to start, resume,
+                                or review learning.
                               </p>
                             </div>
                           )}
