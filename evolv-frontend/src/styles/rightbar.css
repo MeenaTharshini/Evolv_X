@@ -14,6 +14,7 @@
   width: 300px;
   height: 100dvh;
   padding: 28px 21px 24px;
+  overflow-x: hidden;
   overflow-y: auto;
   background: #fff;
   border-left: 1px solid #e8eee9;
@@ -55,6 +56,8 @@
   border-radius: 13px;
 }
 
+/* Streak card */
+
 .ev-rightbar-streak {
   padding: 18px;
   background: linear-gradient(145deg, #fff9e9, #fffdf7);
@@ -82,6 +85,7 @@
 
 .ev-rightbar-streak-label {
   display: flex;
+  flex: 1;
   min-width: 0;
   flex-direction: column;
   gap: 5px;
@@ -97,6 +101,30 @@
   color: #a08d72;
   font-size: 10px;
   line-height: 1.4;
+}
+
+.ev-rightbar-refresh {
+  display: grid;
+  flex: 0 0 29px;
+  width: 29px;
+  height: 29px;
+  padding: 0;
+  place-items: center;
+  color: #9d6d2c;
+  background: #fff6e4;
+  border: 1px solid #f3e5c8;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: background 160ms ease;
+}
+
+.ev-rightbar-refresh:hover:not(:disabled) {
+  background: #ffedc9;
+}
+
+.ev-rightbar-refresh:disabled {
+  cursor: wait;
+  opacity: 0.6;
 }
 
 .ev-rightbar-streak-value {
@@ -136,12 +164,108 @@
   transition: width 250ms ease;
 }
 
+.ev-rightbar-streak-best {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  color: #9b772d;
+  font-size: 11px;
+  font-weight: 750;
+}
+
 .ev-rightbar-streak > p {
   margin: 11px 0 0;
   color: #8f7b60;
   font-size: 10px;
   line-height: 1.65;
 }
+
+/* Weekly calendar */
+
+.ev-rightbar-week {
+  padding-top: 15px;
+  margin-top: 15px;
+  border-top: 1px solid #f1e7d4;
+}
+
+.ev-rightbar-week-heading {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 12px;
+  color: #9b772d;
+  font-size: 12px;
+}
+
+.ev-rightbar-week-heading strong {
+  font-weight: 800;
+}
+
+.ev-rightbar-week-days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.ev-rightbar-week-day {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: #9a907d;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.ev-rightbar-week-day.is-today {
+  color: #9d5b1b;
+}
+
+.ev-rightbar-week-day.is-future {
+  opacity: 0.65;
+}
+
+.ev-rightbar-week-dot {
+  display: grid;
+  width: 27px;
+  height: 27px;
+  place-items: center;
+  color: #c8bda9;
+  background: #f8f3e9;
+  border: 1px solid #eee4d2;
+  border-radius: 50%;
+}
+
+.ev-rightbar-week-day.is-completed .ev-rightbar-week-dot {
+  color: #15803d;
+  background: #dcfce7;
+  border-color: #bbf7d0;
+}
+
+.ev-rightbar-week-day.is-today .ev-rightbar-week-dot {
+  outline: 2px solid #e9b35c;
+  outline-offset: 2px;
+}
+
+.ev-rightbar-week-empty {
+  display: block;
+  width: 6px;
+  height: 6px;
+  background: currentColor;
+  border-radius: 50%;
+  opacity: 0.4;
+}
+
+.ev-rightbar-week-empty-message {
+  margin: 0;
+  color: #8f7b60;
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+/* Section headings */
 
 .ev-rightbar-section {
   display: flex;
@@ -162,6 +286,8 @@
   font-size: 13px;
   font-weight: 800;
 }
+
+/* XP card */
 
 .ev-rightbar-xp-card {
   display: flex;
@@ -191,6 +317,7 @@
 .ev-rightbar-metric-copy {
   display: flex;
   flex: 1;
+  min-width: 0;
   flex-direction: column;
   gap: 5px;
 }
@@ -216,6 +343,8 @@
   font-size: 9px;
   font-weight: 850;
 }
+
+/* Lesson progress */
 
 .ev-rightbar-progress-card {
   padding: 15px;
@@ -272,6 +401,8 @@
   font-weight: 750;
 }
 
+/* Goal card */
+
 .ev-rightbar-goal {
   display: flex;
   align-items: flex-start;
@@ -312,6 +443,8 @@
   line-height: 1.7;
 }
 
+/* Continue learning */
+
 .ev-rightbar-next {
   display: flex;
   flex-direction: column;
@@ -349,6 +482,14 @@
   transform: translateY(-1px);
 }
 
+.ev-rightbar-continue:focus-visible,
+.ev-rightbar-refresh:focus-visible {
+  outline: 2px solid #218b64;
+  outline-offset: 3px;
+}
+
+/* Footer quote */
+
 .ev-rightbar-quote {
   display: flex;
   align-items: flex-start;
@@ -371,6 +512,20 @@
   line-height: 1.7;
 }
 
+/* Loading animation */
+
+.ev-spin {
+  animation: ev-rightbar-spin 1s linear infinite;
+}
+
+@keyframes ev-rightbar-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive layout */
+
 @media (max-width: 1200px) {
   .ev-rightbar {
     width: 270px;
@@ -388,7 +543,12 @@
 @media (prefers-reduced-motion: reduce) {
   .ev-rightbar-streak-track span,
   .ev-rightbar-progress-track span,
-  .ev-rightbar-continue {
+  .ev-rightbar-continue,
+  .ev-rightbar-refresh {
     transition: none;
+  }
+
+  .ev-spin {
+    animation: none;
   }
 }

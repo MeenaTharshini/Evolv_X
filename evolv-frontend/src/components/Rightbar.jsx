@@ -9,22 +9,42 @@ import {
   Sparkles,
   ArrowRight,
   CheckCircle2,
+  CalendarDays,
+  RefreshCw,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { pythonLessons } from "../data/pythonLessons";
 import "../styles/rightbar.css";
+
+const API_BASE_URL = "http://localhost:5000/api";
+
+const initialStreak = {
+  currentStreak: 0,
+  longestStreak: 0,
+  activeToday: false,
+  today: "",
+  week: [],
+};
 
 const readNumber = (key, fallback = 0) => {
   const value = Number(localStorage.getItem(key));
   return Number.isFinite(value) && value >= 0 ? value : fallback;
 };
 
+function getAuthToken() {
+  // Change "token" if your login uses another localStorage key.
+  return localStorage.getItem("token");
+}
+
 export default function Rightbar() {
   const [progress, setProgress] = useState({
     xp: 0,
-    streak: 0,
     completed: [],
   });
+
+  const [streakData, setStreakData] = useState(initialStreak);
+  const [streakLoading, setStreakLoading] = useState(true);
+  const [streakError, setStreakError] = useState("");
 
   const refreshProgress = useCallback(() => {
     try {
@@ -34,46 +54,131 @@ export default function Rightbar() {
 
       setProgress({
         xp: readNumber("evolv_python_xp"),
-        streak: readNumber("evolv_python_streak"),
-        completed: Array.isArray(savedCompleted) ? savedCompleted : [],
+        completed: Array.isArray(savedCompleted)
+          ? savedCompleted
+          : [],
       });
     } catch {
       setProgress({
         xp: readNumber("evolv_python_xp"),
-        streak: readNumber("evolv_python_streak"),
         completed: [],
       });
     }
   }, []);
 
+  const refreshStreak = useCallback(async () => {
+    const token = getAuthToken();
+
+    if (!token) {
+      setStreakError("Please log in to view your learning streak.");
+      setStreakLoading(false);
+      return;
+    }
+
+    setStreakLoading(true);
+    setStreakError("");
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/streak`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.error || "Unable to load your learning streak."
+        );
+      }
+
+      setStreakData({
+        currentStreak: Number(data.currentStreak) || 0,
+        longestStreak: Number(data.longestStreak) || 0,
+        activeToday: Boolean(data.activeToday),
+        today: data.today || "",
+        week: Array.isArray(data.week) ? data.week : [],
+      });
+    } catch (error) {
+      console.error("Streak fetch error:", error);
+      setStreakError(
+        error.message || "Could not connect to the streak service."
+      );
+    } finally {
+      setStreakLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     refreshProgress();
+    refreshStreak();
 
-    window.addEventListener("focus", refreshProgress);
-    window.addEventListener("storage", refreshProgress);
-    window.addEventListener("evolv-progress-updated", refreshProgress);
+    const handleProgressUpdate = () => {
+      refreshProgress();
+      refreshStreak();
+    };
+
+    const handleFocus = () => {
+      refreshProgress();
+      refreshStreak();
+    };
+
+    const handleStorage = () => {
+      refreshProgress();
+      refreshStreak();
+    };
+
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        refreshProgress();
+        refreshStreak();
+      }
+    };
+
+    window.addEventListener("focus", handleFocus);
+    window.addEventListener("storage", handleStorage);
+    window.addEventListener(
+      "evolv-progress-updated",
+      handleProgressUpdate
+    );
+    document.addEventListener(
+      "visibilitychange",
+      handleVisibility
+    );
 
     return () => {
-      window.removeEventListener("focus", refreshProgress);
-      window.removeEventListener("storage", refreshProgress);
+      window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("storage", handleStorage);
       window.removeEventListener(
         "evolv-progress-updated",
-        refreshProgress
+        handleProgressUpdate
+      );
+      document.removeEventListener(
+        "visibilitychange",
+        handleVisibility
       );
     };
-  }, [refreshProgress]);
+  }, [refreshProgress, refreshStreak]);
 
   const totalLessons = pythonLessons.length;
   const completedCount = progress.completed.length;
+
   const completionPercent =
     totalLessons > 0
-      ? Math.min(100, Math.round((completedCount / totalLessons) * 100))
+      ? Math.min(
+          100,
+          Math.round((completedCount / totalLessons) * 100)
+        )
       : 0;
 
   const remainingLessons = Math.max(
     0,
     totalLessons - completedCount
   );
+
+  const streak = streakData.currentStreak;
 
   return (
     <aside className="ev-rightbar" aria-label="Learning overview">
@@ -88,6 +193,7 @@ export default function Rightbar() {
         </span>
       </div>
 
+      {/* Backend-powered learning streak */}
       <section className="ev-rightbar-streak">
         <div className="ev-rightbar-streak-top">
           <span className="ev-rightbar-streak-icon">
@@ -96,30 +202,121 @@ export default function Rightbar() {
 
           <span className="ev-rightbar-streak-label">
             <strong>Learning streak</strong>
-            <small>Keep your momentum going</small>
+            <small>
+              {streakLoading
+                ? "Checking your progress..."
+                : streakData.activeToday
+                  ? "You've learned today!"
+                  : "Keep your momentum going"}
+            </small>
           </span>
+
+          <button
+            type="button"
+            className="ev-rightbar-refresh"
+            onClick={refreshStreak}
+            disabled={streakLoading}
+            aria-label="Refresh learning streak"
+            title="Refresh streak"
+          >
+            <RefreshCw
+              size={15}
+              className={streakLoading ? "ev-spin" : ""}
+            />
+          </button>
         </div>
 
         <div className="ev-rightbar-streak-value">
-          <strong>{progress.streak}</strong>
-          <span>{progress.streak === 1 ? "day" : "days"}</span>
+          <strong>{streakLoading ? "…" : streak}</strong>
+          <span>{streak === 1 ? "day" : "days"}</span>
         </div>
 
-        <div className="ev-rightbar-streak-track">
+        <div
+          className="ev-rightbar-streak-track"
+          role="progressbar"
+          aria-label="Streak progress toward five days"
+          aria-valuemin={0}
+          aria-valuemax={5}
+          aria-valuenow={Math.min(streak, 5)}
+        >
           <span
             style={{
-              width: `${Math.min(100, progress.streak * 20)}%`,
+              width: `${Math.min(100, streak * 20)}%`,
             }}
           />
         </div>
 
-        <p>
-          {progress.streak > 0
-            ? "Great work! Keep showing up to build your habit."
-            : "Start learning today and build your streak."}
+        <div className="ev-rightbar-streak-best">
+          <Trophy size={14} />
+          <span>
+            Best streak: {streakData.longestStreak}{" "}
+            {streakData.longestStreak === 1 ? "day" : "days"}
+          </span>
+        </div>
+
+        <p aria-live="polite">
+          {streakLoading
+            ? "Loading your learning streak..."
+            : streakError
+              ? streakError
+              : streakData.activeToday
+                ? "Great work! Your learning activity is recorded for today."
+                : streak > 0
+                  ? "Your streak is active. Complete a lesson today to keep it going."
+                  : "Complete your first lesson today to start your streak."}
         </p>
+
+        {/* Weekly activity */}
+        <div className="ev-rightbar-week">
+          <div className="ev-rightbar-week-heading">
+            <CalendarDays size={15} />
+            <strong>This week</strong>
+          </div>
+
+          {streakData.week.length > 0 ? (
+            <div className="ev-rightbar-week-days">
+              {streakData.week.map((day) => (
+                <div
+                  key={day.date}
+                  className={[
+                    "ev-rightbar-week-day",
+                    day.completed ? "is-completed" : "",
+                    day.isToday ? "is-today" : "",
+                    day.isFuture ? "is-future" : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
+                  title={`${day.date}: ${
+                    day.completed
+                      ? "Activity completed"
+                      : "No activity recorded"
+                  }`}
+                >
+                  <span>{day.day}</span>
+
+                  <span className="ev-rightbar-week-dot">
+                    {day.completed ? (
+                      <CheckCircle2 size={16} />
+                    ) : (
+                      <span className="ev-rightbar-week-empty" />
+                    )}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="ev-rightbar-week-empty-message">
+              {streakLoading
+                ? "Loading weekly activity..."
+                : streakError
+                  ? "Weekly activity is unavailable."
+                  : "Your weekly activity will appear here."}
+            </p>
+          )}
+        </div>
       </section>
 
+      {/* Existing XP and lesson progress */}
       <section className="ev-rightbar-section">
         <div className="ev-rightbar-section-title">
           <Target size={17} />
@@ -172,7 +369,9 @@ export default function Rightbar() {
 
         <div className="ev-rightbar-goal-copy">
           <strong>One step at a time</strong>
-          <p>Finish a lesson today to move closer to your goal.</p>
+          <p>
+            Finish a lesson today to move closer to your goal.
+          </p>
         </div>
       </section>
 
@@ -186,7 +385,10 @@ export default function Rightbar() {
           Continue your Python journey and unlock the next lesson.
         </p>
 
-        <Link to="/study/python" className="ev-rightbar-continue">
+        <Link
+          to="/study/python"
+          className="ev-rightbar-continue"
+        >
           Open Study Map
           <ArrowRight size={16} />
         </Link>

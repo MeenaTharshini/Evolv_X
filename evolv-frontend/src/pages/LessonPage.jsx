@@ -1,12 +1,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
-  Link,
-  useNavigate,
-  useParams,
-  useSearchParams,
-} from "react-router-dom";
-import {
   ArrowLeft,
   ArrowRight,
   BookOpen,
@@ -23,9 +17,27 @@ import {
   Volume2,
   Zap,
 } from "lucide-react";
+import {
+  Link,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 
 import { coursePaths } from "../data/coursePaths";
-import { pythonLessons, getPythonLesson } from "../data/pythonLessons";
+import {
+  pythonLessons,
+  getPythonLesson,
+} from "../data/pythonLessons";
+import {
+  STAGES,
+  getStageProgress,
+  getCompletedStages,
+  isStageComplete,
+  isTopicComplete,
+  saveStageCompletion,
+} from "../utils/lessonProgress";
+
 import "../styles/lesson.css";
 
 const DEFAULT_COURSE = "python";
@@ -33,16 +45,26 @@ const STARTING_HEARTS = 3;
 const VIDEO_XP = 10;
 const DEFAULT_COMPLETION_XP = 20;
 
-const progressKey = (id) => `evolv_${id}_completed`;
 const xpKey = (id) => `evolv_${id}_xp`;
 const heartsKey = (id) => `evolv_${id}_hearts`;
 const rewardKey = (id) => `evolv_${id}_lesson_rewards`;
 const quizScoreKey = (id) => `evolv_${id}_quiz_scores`;
 
+const STAGE_LABELS = {
+  video: "Video",
+  concept: "Concept",
+  "hands-on": "Hands-on",
+  quiz: "Quiz",
+};
+
 function readJSON(key, fallback) {
   try {
     const value = localStorage.getItem(key);
-    if (value === null) return fallback;
+
+    if (value === null) {
+      return fallback;
+    }
+
     return JSON.parse(value) ?? fallback;
   } catch {
     return fallback;
@@ -52,9 +74,13 @@ function readJSON(key, fallback) {
 function readNumber(key, fallback = 0) {
   try {
     const value = localStorage.getItem(key);
-    if (value === null || value.trim() === "") return fallback;
+
+    if (value === null || value.trim() === "") {
+      return fallback;
+    }
 
     const number = Number(value);
+
     return Number.isFinite(number) && number >= 0
       ? number
       : fallback;
@@ -63,22 +89,12 @@ function readNumber(key, fallback = 0) {
   }
 }
 
-function readProgress(courseId) {
-  const value = readJSON(progressKey(courseId), []);
-  if (!Array.isArray(value)) return [];
-
-  return [
-    ...new Set(
-      value
-        .map(Number)
-        .filter((id) => Number.isFinite(id) && id > 0)
-    ),
-  ];
-}
-
 function readObject(key) {
   const value = readJSON(key, {});
-  return value && typeof value === "object" && !Array.isArray(value)
+
+  return value &&
+    typeof value === "object" &&
+    !Array.isArray(value)
     ? value
     : {};
 }
@@ -86,37 +102,56 @@ function readObject(key) {
 function normalizeType(type) {
   const value = String(type || "concept").toLowerCase();
 
-  if (["hands-on", "hands_on", "coding", "practice"].includes(value)) {
+  if (
+    ["hands-on", "hands_on", "coding", "practice"].includes(value)
+  ) {
     return "hands-on";
   }
 
-  return ["video", "quiz"].includes(value) ? value : "concept";
+  return ["video", "concept", "quiz"].includes(value)
+    ? value
+    : "concept";
 }
 
 function getPractice(lesson) {
   return {
-    title: lesson.practice?.title || `Practice: ${lesson.title}`,
+    title:
+      lesson.practice?.title ||
+      `Practice: ${lesson.title}`,
+
     prompt:
       lesson.practice?.prompt ||
       lesson.instructions ||
       lesson.description ||
       "Complete the coding task.",
+
     starterCode:
       lesson.practice?.starterCode ??
       lesson.starterCode ??
       lesson.example ??
       'print("Hello, EVOLV!")',
-    hint: lesson.practice?.hint || lesson.hint || "",
+
+    hint:
+      lesson.practice?.hint ||
+      lesson.hint ||
+      "",
   };
 }
 
-// Preview simple print() statements only; this is not a Python interpreter.
+/*
+ * This is only a simple print() preview.
+ * It does not execute Python and must not be treated
+ * as a real Python interpreter or code validator.
+ */
 function previewSimplePrint(code) {
   const output = [];
 
   for (const rawLine of String(code).split(/\r?\n/)) {
     const line = rawLine.trim();
-    if (!line || line.startsWith("#")) continue;
+
+    if (!line || line.startsWith("#")) {
+      continue;
+    }
 
     const match = line.match(
       /^print\s*\(\s*(?:"([^"]*)"|'([^']*)'|(-?\d+(?:\.\d+)?))\s*\)\s*(?:#.*)?$/
@@ -135,7 +170,8 @@ function previewSimplePrint(code) {
 
   return {
     output: output.join("\n"),
-    message: "Simple print() preview only — not a full Python interpreter.",
+    message:
+      "Preview only. Your code has not been executed by a Python interpreter.",
   };
 }
 
@@ -147,7 +183,11 @@ function getQuestions(lesson) {
     return lesson.quizQuestions.slice(0, 5);
   }
 
-  if (lesson.question && Array.isArray(lesson.options)) {
+  if (
+    lesson.question &&
+    Array.isArray(lesson.options) &&
+    lesson.options.length > 0
+  ) {
     return [
       {
         question: lesson.question,
@@ -162,32 +202,50 @@ function getQuestions(lesson) {
 }
 
 function isValidQuizQuestion(question) {
+  if (
+    !question ||
+    typeof question.question !== "string" ||
+    !Array.isArray(question.options) ||
+    question.options.length === 0
+  ) {
+    return false;
+  }
+
+  const answer = Number(question.answer);
+
   return (
-    typeof question.question === "string" &&
-    Array.isArray(question.options) &&
-    question.options.length > 0 &&
-    Number.isInteger(Number(question.answer)) &&
-    Number(question.answer) >= 0 &&
-    Number(question.answer) < question.options.length
+    Number.isInteger(answer) &&
+    answer >= 0 &&
+    answer < question.options.length
   );
 }
 
 export default function LessonPage() {
   const { courseId = DEFAULT_COURSE, lessonId } = useParams();
+
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   const requestedStage = searchParams.get("stage");
-  const validStages = ["video", "concept", "hands-on", "quiz"];
-  const course = coursePaths[courseId];
 
-  const lessons = useMemo(
-    () =>
-      courseId === DEFAULT_COURSE
-        ? pythonLessons
-        : course?.lessons ?? [],
-    [courseId, course]
-  );
+  const course =
+    coursePaths?.[courseId] ??
+    (courseId === DEFAULT_COURSE
+      ? {
+          title: "Python journey",
+          language: "Python",
+          icon: "🐍",
+          color: "green",
+        }
+      : null);
+
+  const lessons = useMemo(() => {
+    if (courseId === DEFAULT_COURSE) {
+      return pythonLessons;
+    }
+
+    return course?.lessons ?? [];
+  }, [courseId, course]);
 
   const lesson = useMemo(() => {
     if (courseId === DEFAULT_COURSE) {
@@ -195,45 +253,56 @@ export default function LessonPage() {
     }
 
     return (
-      lessons.find((item) => Number(item.id) === Number(lessonId)) ?? null
+      lessons.find(
+        (item) => Number(item.id) === Number(lessonId)
+      ) ?? null
     );
   }, [courseId, lessonId, lessons]);
 
-  const [completedLessons, setCompletedLessons] = useState(
-    () => readProgress(courseId)
+  /*
+   * The URL stage takes priority.
+   * lesson.type is only the default when no valid stage is supplied.
+   */
+  const type = STAGES.includes(requestedStage)
+    ? requestedStage
+    : normalizeType(lesson?.type);
+
+  const lessonKey = `${courseId}_${lessonId}`;
+
+  const [stageProgress, setStageProgress] = useState(() =>
+    getStageProgress(courseId)
   );
-  const [xp, setXp] = useState(() => readNumber(xpKey(courseId)));
-  const [hearts, setHearts] = useState(
-    () => readNumber(heartsKey(courseId), STARTING_HEARTS)
+
+  const [xp, setXp] = useState(() =>
+    readNumber(xpKey(courseId))
   );
-  const [rewards, setRewards] = useState(
-    () => readObject(rewardKey(courseId))
+
+  const [hearts, setHearts] = useState(() =>
+    readNumber(heartsKey(courseId), STARTING_HEARTS)
   );
-  const [quizScores, setQuizScores] = useState(
-    () => readObject(quizScoreKey(courseId))
+
+  const [rewards, setRewards] = useState(() =>
+    readObject(rewardKey(courseId))
+  );
+
+  const [quizScores, setQuizScores] = useState(() =>
+    readObject(quizScoreKey(courseId))
   );
 
   const [videoFinished, setVideoFinished] = useState(false);
+
   const [practiceCode, setPracticeCode] = useState("");
   const [practiceOutput, setPracticeOutput] = useState(null);
   const [practiceMessage, setPracticeMessage] = useState("");
   const [taskChecked, setTaskChecked] = useState(false);
+
   const [showHint, setShowHint] = useState(false);
+
   const [answers, setAnswers] = useState({});
   const [quizSubmitted, setQuizSubmitted] = useState(false);
   const [currentScore, setCurrentScore] = useState(null);
 
-  const lessonKey = `${courseId}_${lessonId}`;
   const lessonReward = rewards[lessonKey] || {};
-
-  // The URL stage takes priority; otherwise use the lesson's configured type.
-  const type =
-    validStages.includes(requestedStage)
-      ? requestedStage
-      : normalizeType(lesson?.type);
-
-  const isCompleted =
-    Boolean(lesson) && completedLessons.includes(Number(lesson.id));
 
   const practice = lesson ? getPractice(lesson) : null;
   const questions = lesson ? getQuestions(lesson) : [];
@@ -243,10 +312,24 @@ export default function LessonPage() {
   );
 
   const nextLesson =
-    lessonIndex >= 0 ? lessons[lessonIndex + 1] ?? null : null;
+    lessonIndex >= 0
+      ? lessons[lessonIndex + 1] ?? null
+      : null;
 
-  const completedCount = completedLessons.filter((id) =>
-    lessons.some((item) => Number(item.id) === Number(id))
+  const completedStages = lesson
+    ? getCompletedStages(stageProgress, lesson.id)
+    : [];
+
+  const currentStageCompleted = lesson
+    ? isStageComplete(stageProgress, lesson.id, type)
+    : false;
+
+  const topicCompleted = lesson
+    ? isTopicComplete(stageProgress, lesson.id)
+    : false;
+
+  const completedCount = lessons.filter((item) =>
+    isTopicComplete(stageProgress, item.id)
   ).length;
 
   const courseProgress = lessons.length
@@ -260,29 +343,54 @@ export default function LessonPage() {
 
   const savedQuiz = quizScores[lessonKey];
 
+  /*
+   * Refresh when progress changes elsewhere in EVOLV,
+   * such as when the learner returns to the Study Map.
+   */
   useEffect(() => {
-    const refreshProgress = () => {
-      setCompletedLessons(readProgress(courseId));
+    function refreshProgress() {
+      setStageProgress(getStageProgress(courseId));
       setXp(readNumber(xpKey(courseId)));
-      setHearts(readNumber(heartsKey(courseId), STARTING_HEARTS));
+      setHearts(
+        readNumber(heartsKey(courseId), STARTING_HEARTS)
+      );
       setRewards(readObject(rewardKey(courseId)));
       setQuizScores(readObject(quizScoreKey(courseId)));
-    };
+    }
 
     refreshProgress();
-    window.addEventListener("evolv-progress-updated", refreshProgress);
+
+    window.addEventListener(
+      "evolv-progress-updated",
+      refreshProgress
+    );
+
     window.addEventListener("storage", refreshProgress);
 
     return () => {
-      window.removeEventListener("evolv-progress-updated", refreshProgress);
-      window.removeEventListener("storage", refreshProgress);
+      window.removeEventListener(
+        "evolv-progress-updated",
+        refreshProgress
+      );
+
+      window.removeEventListener(
+        "storage",
+        refreshProgress
+      );
     };
   }, [courseId]);
 
-  // Reset temporary activity state when the lesson or stage changes.
+  /*
+   * Reset temporary activity state when the learner
+   * opens another topic or changes stages.
+   */
   useEffect(() => {
     setVideoFinished(false);
-    setPracticeCode(lesson ? getPractice(lesson).starterCode : "");
+
+    setPracticeCode(
+      lesson ? getPractice(lesson).starterCode : ""
+    );
+
     setPracticeOutput(null);
     setPracticeMessage("");
     setTaskChecked(false);
@@ -293,7 +401,9 @@ export default function LessonPage() {
   }, [courseId, lessonId, lesson, requestedStage]);
 
   function notifyProgressUpdated() {
-    window.dispatchEvent(new Event("evolv-progress-updated"));
+    window.dispatchEvent(
+      new Event("evolv-progress-updated")
+    );
   }
 
   function saveRewards(nextRewards, nextXP = xp) {
@@ -301,35 +411,68 @@ export default function LessonPage() {
     setXp(nextXP);
 
     try {
-      localStorage.setItem(rewardKey(courseId), JSON.stringify(nextRewards));
-      localStorage.setItem(xpKey(courseId), String(nextXP));
-      localStorage.setItem(heartsKey(courseId), String(hearts));
+      localStorage.setItem(
+        rewardKey(courseId),
+        JSON.stringify(nextRewards)
+      );
+
+      localStorage.setItem(
+        xpKey(courseId),
+        String(nextXP)
+      );
+
+      localStorage.setItem(
+        heartsKey(courseId),
+        String(hearts)
+      );
     } catch (error) {
-      console.error("Could not save EVOLV rewards:", error);
+      console.error(
+        "Could not save EVOLV rewards:",
+        error
+      );
     }
 
     notifyProgressUpdated();
   }
 
   function finishVideo() {
-    if (videoFinished) return;
     setVideoFinished(true);
 
-    if (isCompleted || lessonReward.video) return;
+    /*
+     * Check storage as well as React state to reduce
+     * the risk of awarding the same video XP twice.
+     */
+    const latestRewards = readObject(rewardKey(courseId));
+    const latestLessonReward =
+      latestRewards[lessonKey] || {};
+
+    if (latestLessonReward.video || lessonReward.video) {
+      return;
+    }
 
     const nextRewards = {
-      ...rewards,
+      ...latestRewards,
       [lessonKey]: {
-        ...lessonReward,
+        ...latestLessonReward,
         video: true,
       },
     };
 
-    saveRewards(nextRewards, xp + VIDEO_XP);
+    const nextXP =
+      readNumber(xpKey(courseId)) + VIDEO_XP;
+
+    saveRewards(nextRewards, nextXP);
   }
 
   function runPractice() {
+    if (!practiceCode.trim()) {
+      setPracticeOutput("");
+      setPracticeMessage("Enter some code first.");
+      return;
+    }
+
     const result = previewSimplePrint(practiceCode);
+
     setPracticeOutput(result.output);
     setPracticeMessage(result.message);
   }
@@ -345,10 +488,26 @@ export default function LessonPage() {
       return;
     }
 
+    const allAnswered = questions.every(
+      (_, index) =>
+        answers[index] !== undefined &&
+        answers[index] !== null &&
+        answers[index] !== ""
+    );
+
+    if (!allAnswered) {
+      return;
+    }
+
     const score = questions.reduce(
       (total, question, index) =>
         total +
-        (Number(answers[index]) === Number(question.answer) ? 1 : 0),
+        (
+          Number(answers[index]) ===
+          Number(question.answer)
+            ? 1
+            : 0
+        ),
       0
     );
 
@@ -358,8 +517,10 @@ export default function LessonPage() {
       submittedAt: new Date().toISOString(),
     };
 
+    const latestScores = readObject(quizScoreKey(courseId));
+
     const updatedScores = {
-      ...quizScores,
+      ...latestScores,
       [lessonKey]: result,
     };
 
@@ -368,66 +529,123 @@ export default function LessonPage() {
     setQuizSubmitted(true);
 
     try {
-      localStorage.setItem(quizScoreKey(courseId), JSON.stringify(updatedScores));
+      localStorage.setItem(
+        quizScoreKey(courseId),
+        JSON.stringify(updatedScores)
+      );
     } catch (error) {
-      console.error("Could not save quiz score:", error);
+      console.error(
+        "Could not save quiz score:",
+        error
+      );
     }
 
     notifyProgressUpdated();
   }
 
-  function canComplete() {
-    if (!lesson || isCompleted) return false;
-    if (type === "video") return videoFinished;
-    if (type === "quiz") return questions.length > 0 && quizSubmitted;
-    if (type === "hands-on") return taskChecked;
-    return true;
-  }
-
-  function completeLesson() {
-    if (!lesson || isCompleted || !canComplete()) return;
-
-    const updatedCompleted = [
-      ...new Set([...completedLessons, Number(lesson.id)]),
-    ];
-
-    const alreadyRewarded = Boolean(lessonReward.completion);
-    const rawXP = Number(lesson.xp ?? DEFAULT_COMPLETION_XP);
-    const completionXP =
-      Number.isFinite(rawXP) && rawXP >= 0
-        ? rawXP
-        : DEFAULT_COMPLETION_XP;
-
-    const nextXP = alreadyRewarded ? xp : xp + completionXP;
-
-    const nextRewards = {
-      ...rewards,
-      [lessonKey]: {
-        ...lessonReward,
-        completion: true,
-      },
-    };
-
-    try {
-      localStorage.setItem(
-        progressKey(courseId),
-        JSON.stringify(updatedCompleted)
-      );
-    } catch (error) {
-      console.error("Could not save lesson completion:", error);
+  function canCompleteStage() {
+    if (!lesson || currentStageCompleted) {
+      return false;
     }
 
-    setCompletedLessons(updatedCompleted);
-    saveRewards(nextRewards, nextXP);
+    if (type === "video") {
+      return videoFinished;
+    }
 
-    navigate(`/study/${courseId}`, {
-      replace: true,
-      state: {
-        completedLessonId: lesson.id,
-        completedLessonTitle: lesson.title,
-        showCompletion: true,
-      },
-    });
+    if (type === "concept") {
+      return true;
+    }
+
+    if (type === "hands-on") {
+      return taskChecked;
+    }
+
+    if (type === "quiz") {
+      return (
+        questions.length > 0 &&
+        questions.every(isValidQuizQuestion) &&
+        quizSubmitted
+      );
+    }
+
+    return false;
+  }
+
+  function completeStage() {
+    if (!lesson || !canCompleteStage()) {
+      return;
+    }
+
+    try {
+      /*
+       * Save only this stage.
+       * The topic becomes complete only when all four
+       * stages have been saved by lessonProgress.js.
+       */
+      const updatedProgress = saveStageCompletion(
+        courseId,
+        lesson.id,
+        type
+      );
+
+      setStageProgress(updatedProgress);
+
+      const nowTopicCompleted = isTopicComplete(
+        updatedProgress,
+        lesson.id
+      );
+
+      /*
+       * Award topic XP only once, after all four stages.
+       */
+      const latestRewards = readObject(rewardKey(courseId));
+      const latestLessonReward =
+        latestRewards[lessonKey] || {};
+
+      if (
+        nowTopicCompleted &&
+        !latestLessonReward.completion
+      ) {
+        const rawXP = Number(
+          lesson.xp ?? DEFAULT_COMPLETION_XP
+        );
+
+        const completionXP =
+          Number.isFinite(rawXP) && rawXP >= 0
+            ? rawXP
+            : DEFAULT_COMPLETION_XP;
+
+        const nextRewards = {
+          ...latestRewards,
+          [lessonKey]: {
+            ...latestLessonReward,
+            completion: true,
+          },
+        };
+
+        const nextXP =
+          readNumber(xpKey(courseId)) + completionXP;
+
+        saveRewards(nextRewards, nextXP);
+      } else {
+        notifyProgressUpdated();
+      }
+
+      navigate(`/study/${courseId}`, {
+        replace: true,
+        state: {
+          completedLessonId: lesson.id,
+          completedLessonTitle: lesson.title,
+          completedStage: type,
+          showCompletion: nowTopicCompleted,
+        },
+      });
+    } catch (error) {
+      console.error(
+        "Could not save stage progress:",
+        error
+      );
+    }
   }
 
   if (!course || !lesson || lessonIndex < 0) {
@@ -435,10 +653,19 @@ export default function LessonPage() {
       <main className="lesson-page lesson-not-found">
         <section className="lesson-card lesson-error-card">
           <span className="lesson-error-icon">🌱</span>
+
           <h1>Quest not found</h1>
-          <p>This lesson may have moved, or the course does not exist.</p>
-          <Link to="/dashboard" className="lesson-primary-button">
-            Return to dashboard <ArrowRight size={17} />
+
+          <p>
+            This lesson may have moved, or the course does not exist.
+          </p>
+
+          <Link
+            to="/dashboard"
+            className="lesson-primary-button"
+          >
+            Return to dashboard
+            <ArrowRight size={17} />
           </Link>
         </section>
       </main>
@@ -448,29 +675,41 @@ export default function LessonPage() {
   const videoUrl = lesson.videoUrl || lesson.video || "";
   const audioUrl = lesson.audioUrl || "";
   const videoPoster = lesson.videoPoster || "";
-  const completionReady = canComplete();
 
-  // HTML lesson pages use an iframe; actual video files use a video element.
+  const completionReady = canCompleteStage();
+
   const isHTMLLesson = /\.html?($|[?#])/i.test(videoUrl);
 
   return (
-    <main className={`lesson-page course-${course.color || "green"}`}>
+    <main
+      className={`lesson-page course-${course.color || "green"}`}
+    >
       <header className="lesson-topbar">
-        <Link to={`/study/${courseId}`} className="lesson-back">
+        <Link
+          to={`/study/${courseId}`}
+          className="lesson-back"
+        >
           <ArrowLeft size={19} />
           <span>Study map</span>
         </Link>
 
         <div className="lesson-topbar-center">
-          <span className="lesson-topbar-icon">{course.icon || "🐍"}</span>
+          <span className="lesson-topbar-icon">
+            {course.icon || "🐍"}
+          </span>
+
           <span>{course.title || "Python journey"}</span>
         </div>
 
         <div className="lesson-topbar-status">
-          <span className="lesson-heart-count" title="Remaining hearts">
+          <span
+            className="lesson-heart-count"
+            title="Remaining hearts"
+          >
             <Heart size={18} fill="currentColor" />
             {hearts}
           </span>
+
           <span className="lesson-topbar-xp">
             <Zap size={18} fill="currentColor" />
             {xp} XP
@@ -483,6 +722,7 @@ export default function LessonPage() {
           <div className="lesson-progress-panel">
             <div className="lesson-progress-heading">
               <span>YOUR LEARNING JOURNEY</span>
+
               <span>
                 Lesson {lessonIndex + 1} of {lessons.length}
               </span>
@@ -491,14 +731,14 @@ export default function LessonPage() {
             <div
               className="lesson-progress-track"
               role="progressbar"
-              aria-label="Lesson position"
+              aria-label="Course topic completion"
               aria-valuemin={0}
               aria-valuemax={100}
-              aria-valuenow={lessonProgress}
+              aria-valuenow={courseProgress}
             >
               <div
                 className="lesson-progress-fill"
-                style={{ width: `${lessonProgress}%` }}
+                style={{ width: `${courseProgress}%` }}
               />
             </div>
           </div>
@@ -506,7 +746,7 @@ export default function LessonPage() {
           <article className="lesson-card">
             <div className="lesson-heading">
               <div className="lesson-heading-icon">
-                {isCompleted ? (
+                {topicCompleted ? (
                   <CheckCircle2 size={30} />
                 ) : (
                   <BookOpen size={30} />
@@ -519,7 +759,9 @@ export default function LessonPage() {
                   <span>•</span>
                   {lesson.area || "Learning quest"}
                 </div>
+
                 <h1>{lesson.title}</h1>
+
                 <p>{lesson.description}</p>
               </div>
             </div>
@@ -529,30 +771,82 @@ export default function LessonPage() {
                 <Clock3 size={17} />
                 {lesson.duration || "5 min"}
               </span>
+
               <span>
                 <Zap size={17} />
-                +{lesson.xp ?? DEFAULT_COMPLETION_XP} completion XP
+                +{lesson.xp ?? DEFAULT_COMPLETION_XP} topic XP
               </span>
+
               <span className="lesson-difficulty">
                 {lesson.difficulty || "Beginner"}
               </span>
+
               <span className={`lesson-type-badge type-${type}`}>
-                {type === "hands-on" ? "Hands-on" : type}
+                {STAGE_LABELS[type]}
               </span>
             </div>
 
+            {/* Four-stage topic progress */}
+            <section className="lesson-stage-progress">
+              <div className="lesson-stage-progress-heading">
+                <strong>Topic stages</strong>
+
+                <span>{completedStages.length}/4 completed</span>
+              </div>
+
+              <div className="lesson-stage-list">
+                {STAGES.map((stage, index) => {
+                  const done = isStageComplete(
+                    stageProgress,
+                    lesson.id,
+                    stage
+                  );
+
+                  const current = stage === type;
+
+                  return (
+                    <div
+                      key={stage}
+                      className={[
+                        "lesson-stage-item",
+                        done ? "is-stage-complete" : "",
+                        current ? "is-current-stage" : "",
+                      ]
+                        .filter(Boolean)
+                        .join(" ")}
+                    >
+                      <span className="lesson-stage-number">
+                        {done ? (
+                          <Check size={15} />
+                        ) : (
+                          index + 1
+                        )}
+                      </span>
+
+                      <span>{STAGE_LABELS[stage]}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+
             <div className="lesson-divider" />
 
+            {/* VIDEO STAGE */}
             {type === "video" && (
               <section className="lesson-content-section">
                 <div className="lesson-section-heading">
                   <span className="lesson-section-icon video-icon">
                     <PlayCircle size={20} />
                   </span>
+
                   <div>
-                    <h2>{lesson.videoTitle || "Watch the lesson"}</h2>
+                    <h2>
+                      {lesson.videoTitle || "Watch the lesson"}
+                    </h2>
+
                     <p>
-                      Explore the lesson below, then mark this stage complete.
+                      Watch the lesson, then mark this stage complete.
                     </p>
                   </div>
                 </div>
@@ -579,6 +873,7 @@ export default function LessonPage() {
                         onEnded={finishVideo}
                       >
                         <source src={videoUrl} />
+
                         Your browser does not support HTML video.
                       </video>
                     )}
@@ -586,16 +881,23 @@ export default function LessonPage() {
                 ) : (
                   <div className="lesson-video-placeholder">
                     <PlayCircle size={38} />
-                    <h3>Your lesson content goes here</h3>
-                    <p>Add a videoUrl in your lesson data.</p>
+
+                    <h3>No video added yet</h3>
+
+                    <p>
+                      You can still complete this stage after reviewing
+                      the available lesson material.
+                    </p>
                   </div>
                 )}
 
                 {lesson.videoDescription && (
-                  <p className="lesson-muted-copy">{lesson.videoDescription}</p>
+                  <p className="lesson-muted-copy">
+                    {lesson.videoDescription}
+                  </p>
                 )}
 
-                {!videoFinished && !isCompleted && (
+                {!videoFinished && !currentStageCompleted && (
                   <button
                     type="button"
                     className="lesson-secondary-button"
@@ -609,24 +911,33 @@ export default function LessonPage() {
                 {videoFinished && (
                   <p className="lesson-inline-success">
                     <CheckCircle2 size={17} />
-                    Stage marked complete.
-                    {lessonReward.video
-                      ? " Video XP already claimed."
-                      : ` +${VIDEO_XP} video XP earned.`}
+                    Video stage ready to complete.
+                  </p>
+                )}
+
+                {currentStageCompleted && (
+                  <p className="lesson-inline-success">
+                    <CheckCircle2 size={17} />
+                    This video stage is already saved.
                   </p>
                 )}
               </section>
             )}
 
+            {/* CONCEPT STAGE */}
             {type === "concept" && (
               <section className="lesson-content-section">
                 <div className="lesson-section-heading">
                   <span className="lesson-section-icon">
                     <Lightbulb size={20} />
                   </span>
+
                   <div>
                     <h2>Understand the concept</h2>
-                    <p>Read the explanation and listen to the narration.</p>
+
+                    <p>
+                      Read the explanation and study the example.
+                    </p>
                   </div>
                 </div>
 
@@ -637,10 +948,13 @@ export default function LessonPage() {
                 {audioUrl && (
                   <div className="lesson-audio-card">
                     <Volume2 size={19} />
+
                     <div>
                       <strong>Listen to the explanation</strong>
+
                       <audio controls preload="metadata">
                         <source src={audioUrl} />
+
                         Your browser does not support audio playback.
                       </audio>
                     </div>
@@ -651,7 +965,6 @@ export default function LessonPage() {
                   <div className="lesson-audio-text">
                     <Volume2 size={17} />
                     <span>{lesson.audioText}</span>
-                    <small>Add audioUrl to enable audio playback.</small>
                   </div>
                 )}
 
@@ -662,6 +975,7 @@ export default function LessonPage() {
                         <Code2 size={17} />
                         Example code
                       </span>
+
                       <span className="lesson-code-language">
                         {course.language || "Python"}
                       </span>
@@ -677,6 +991,7 @@ export default function LessonPage() {
                           <CheckCircle2 size={16} />
                           Expected output
                         </div>
+
                         <pre>
                           <code>{lesson.expectedOutput}</code>
                         </pre>
@@ -687,25 +1002,37 @@ export default function LessonPage() {
               </section>
             )}
 
+            {/* HANDS-ON STAGE */}
             {type === "hands-on" && (
               <section className="lesson-content-section">
                 <div className="lesson-section-heading">
                   <span className="lesson-section-icon practice-icon">
                     <Terminal size={20} />
                   </span>
+
                   <div>
                     <h2>Hands-on coding challenge</h2>
-                    <p>Follow the task, edit the code, and check your work.</p>
+
+                    <p>
+                      Read the task, try the code, and check your work.
+                    </p>
                   </div>
                 </div>
 
                 <div className="lesson-challenge-card">
-                  <span className="lesson-challenge-label">YOUR TASK</span>
+                  <span className="lesson-challenge-label">
+                    YOUR TASK
+                  </span>
+
                   <h3>{practice.title}</h3>
+
                   <p>{practice.prompt}</p>
                 </div>
 
-                <label className="lesson-editor-label" htmlFor="practice-code">
+                <label
+                  className="lesson-editor-label"
+                  htmlFor="practice-code"
+                >
                   Your code
                 </label>
 
@@ -722,6 +1049,7 @@ export default function LessonPage() {
                   spellCheck={false}
                   autoCapitalize="off"
                   autoCorrect="off"
+                  disabled={currentStageCompleted}
                 />
 
                 <div className="lesson-editor-actions">
@@ -729,6 +1057,10 @@ export default function LessonPage() {
                     type="button"
                     className="lesson-run-button"
                     onClick={runPractice}
+                    disabled={
+                      !practiceCode.trim() ||
+                      currentStageCompleted
+                    }
                   >
                     <Terminal size={17} />
                     Preview output
@@ -743,6 +1075,7 @@ export default function LessonPage() {
                       setPracticeMessage("");
                       setTaskChecked(false);
                     }}
+                    disabled={currentStageCompleted}
                   >
                     <RotateCcw size={15} />
                     Reset code
@@ -751,8 +1084,12 @@ export default function LessonPage() {
 
                 <div className="lesson-runner-notice">
                   <Lightbulb size={16} />
-                  This preview supports simple print() statements only. It is
-                  not a full Python runtime.
+
+                  <span>
+                    This is a limited print() preview, not a full Python
+                    interpreter. The task completion button is a
+                    self-check, not automatic code validation.
+                  </span>
                 </div>
 
                 {practiceOutput !== null && (
@@ -761,10 +1098,16 @@ export default function LessonPage() {
                       <Terminal size={16} />
                       Preview output
                     </div>
+
                     <pre>
-                      <code>{practiceOutput || "(No output)"}</code>
+                      <code>
+                        {practiceOutput || "(No output)"}
+                      </code>
                     </pre>
-                    <p className="lesson-preview-message">{practiceMessage}</p>
+
+                    <p className="lesson-preview-message">
+                      {practiceMessage}
+                    </p>
                   </div>
                 )}
 
@@ -773,18 +1116,24 @@ export default function LessonPage() {
                     <button
                       type="button"
                       className="lesson-hint-toggle"
-                      onClick={() => setShowHint((value) => !value)}
+                      onClick={() =>
+                        setShowHint((value) => !value)
+                      }
                       aria-expanded={showHint}
                     >
                       <Lightbulb size={18} />
+
                       <span>Need a hint?</span>
+
                       <span className="lesson-hint-symbol">
                         {showHint ? "−" : "+"}
                       </span>
                     </button>
 
                     {showHint && (
-                      <p className="lesson-hint-content">{practice.hint}</p>
+                      <p className="lesson-hint-content">
+                        {practice.hint}
+                      </p>
                     )}
                   </div>
                 )}
@@ -792,42 +1141,53 @@ export default function LessonPage() {
                 <button
                   type="button"
                   className="lesson-primary-button lesson-check-task"
-                  disabled={!practiceCode.trim() || isCompleted}
+                  disabled={
+                    !practiceCode.trim() ||
+                    currentStageCompleted
+                  }
                   onClick={() => setTaskChecked(true)}
                 >
                   <CheckCircle2 size={17} />
+
                   {taskChecked
-                    ? "Task marked as checked"
+                    ? "Task checked"
                     : "I have completed the task"}
                 </button>
 
                 {taskChecked && (
                   <p className="lesson-inline-success">
                     <CheckCircle2 size={17} />
-                    Task marked complete. Arbitrary Python code is not
-                    automatically validated.
+                    Self-check complete. Review your code before saving
+                    this stage.
                   </p>
                 )}
               </section>
             )}
 
+            {/* QUIZ STAGE */}
             {type === "quiz" && (
               <section className="lesson-content-section">
                 <div className="lesson-section-heading">
                   <span className="lesson-section-icon quiz-icon">
                     <Trophy size={20} />
                   </span>
+
                   <div>
                     <h2>Knowledge check</h2>
+
                     <p>
-                      {questions.length} questions · one mark per correct answer.
+                      {questions.length} questions · one mark per
+                      correct answer.
                     </p>
                   </div>
                 </div>
 
                 {questions.length > 0 &&
                 questions.every(isValidQuizQuestion) ? (
-                  <form className="lesson-quiz-form" onSubmit={submitQuiz}>
+                  <form
+                    className="lesson-quiz-form"
+                    onSubmit={submitQuiz}
+                  >
                     {questions.map((item, index) => (
                       <fieldset
                         className="lesson-question"
@@ -840,51 +1200,60 @@ export default function LessonPage() {
                         </legend>
 
                         <div className="lesson-options">
-                          {item.options.map((option, optionIndex) => {
-                            const selected =
-                              Number(answers[index]) === optionIndex;
-                            const correct =
-                              Number(item.answer) === optionIndex;
+                          {item.options.map(
+                            (option, optionIndex) => {
+                              const selected =
+                                Number(answers[index]) ===
+                                optionIndex;
 
-                            const resultClass = quizSubmitted
-                              ? correct
-                                ? "option-correct"
-                                : selected
-                                  ? "option-wrong"
-                                  : ""
-                              : "";
+                              const correct =
+                                Number(item.answer) ===
+                                optionIndex;
 
-                            return (
-                              <label
-                                className={[
-                                  "lesson-option",
-                                  selected ? "option-selected" : "",
-                                  resultClass,
-                                ]
-                                  .filter(Boolean)
-                                  .join(" ")}
-                                key={`${index}-${optionIndex}`}
-                              >
-                                <input
-                                  type="radio"
-                                  name={`question-${index}`}
-                                  value={optionIndex}
-                                  checked={selected}
-                                  disabled={quizSubmitted}
-                                  onChange={() =>
-                                    setAnswers((previous) => ({
-                                      ...previous,
-                                      [index]: optionIndex,
-                                    }))
-                                  }
-                                />
-                                <span>{option}</span>
-                                {quizSubmitted && correct && (
-                                  <CheckCircle2 size={17} />
-                                )}
-                              </label>
-                            );
-                          })}
+                              const resultClass = quizSubmitted
+                                ? correct
+                                  ? "option-correct"
+                                  : selected
+                                    ? "option-wrong"
+                                    : ""
+                                : "";
+
+                              return (
+                                <label
+                                  className={[
+                                    "lesson-option",
+                                    selected
+                                      ? "option-selected"
+                                      : "",
+                                    resultClass,
+                                  ]
+                                    .filter(Boolean)
+                                    .join(" ")}
+                                  key={`${index}-${optionIndex}`}
+                                >
+                                  <input
+                                    type="radio"
+                                    name={`question-${index}`}
+                                    value={optionIndex}
+                                    checked={selected}
+                                    disabled={quizSubmitted}
+                                    onChange={() =>
+                                      setAnswers((previous) => ({
+                                        ...previous,
+                                        [index]: optionIndex,
+                                      }))
+                                    }
+                                  />
+
+                                  <span>{option}</span>
+
+                                  {quizSubmitted && correct && (
+                                    <CheckCircle2 size={17} />
+                                  )}
+                                </label>
+                              );
+                            }
+                          )}
                         </div>
 
                         {quizSubmitted && item.explanation && (
@@ -900,25 +1269,36 @@ export default function LessonPage() {
                         type="submit"
                         className="lesson-primary-button"
                         disabled={
-                          Object.keys(answers).length !== questions.length
+                          !questions.every(
+                            (_, index) =>
+                              answers[index] !== undefined &&
+                              answers[index] !== null &&
+                              answers[index] !== ""
+                          )
                         }
                       >
                         Submit answers
                         <ArrowRight size={17} />
                       </button>
                     ) : (
-                      <div className="lesson-score-card" role="status">
+                      <div
+                        className="lesson-score-card"
+                        role="status"
+                      >
                         <Trophy size={25} />
+
                         <div>
                           <strong>
                             Your score: {currentScore?.score}/
                             {currentScore?.maxScore}
                           </strong>
+
                           <p>
-                            Your quiz score is saved separately from completion
-                            XP.
+                            Your quiz score is saved separately from
+                            topic-completion XP.
                           </p>
                         </div>
+
                         <button
                           type="button"
                           className="lesson-secondary-button"
@@ -940,9 +1320,10 @@ export default function LessonPage() {
                         ? "Quiz questions need correction"
                         : "No quiz questions added yet"}
                     </h3>
+
                     <p>
-                      Add a quizQuestions array with a question, options array,
-                      and zero-based answer index.
+                      Add a quizQuestions array with a question,
+                      an options array, and a zero-based answer index.
                     </p>
                   </div>
                 )}
@@ -958,6 +1339,7 @@ export default function LessonPage() {
               </section>
             )}
 
+            {/* STAGE COMPLETION */}
             <footer className="lesson-actions">
               <button
                 type="button"
@@ -971,11 +1353,14 @@ export default function LessonPage() {
               <button
                 type="button"
                 className="lesson-primary-button"
-                onClick={completeLesson}
-                disabled={isCompleted || !completionReady}
+                onClick={completeStage}
+                disabled={!completionReady}
               >
-                {isCompleted ? "Lesson completed" : "Complete lesson"}
-                {isCompleted ? (
+                {currentStageCompleted
+                  ? "Stage completed"
+                  : "Complete this stage"}
+
+                {currentStageCompleted ? (
                   <CheckCircle2 size={18} />
                 ) : (
                   <ArrowRight size={18} />
@@ -983,71 +1368,85 @@ export default function LessonPage() {
               </button>
             </footer>
 
-            {!isCompleted && !completionReady && (
+            {!currentStageCompleted && !completionReady && (
               <p className="lesson-completion-note">
                 {type === "video" &&
-                  "View the lesson or select “Mark video as watched” to continue."}
+                  'Watch the video or select "Mark video as watched".'}
+
                 {type === "quiz" &&
-                  "Submit your quiz before completing this stage."}
+                  "Answer every question and submit your quiz first."}
+
                 {type === "hands-on" &&
-                  "Mark your coding task as checked before completing this stage."}
+                  "Check your coding task before completing this stage."}
               </p>
             )}
 
-            {isCompleted && (
+            {currentStageCompleted && (
               <div className="lesson-completed-note">
                 <CheckCircle2 size={18} />
-                Lesson completion is saved. Quiz marks are tracked separately.
+
+                {topicCompleted
+                  ? "All four stages are complete. This topic is finished!"
+                  : `${STAGE_LABELS[type]} is saved. Continue with the remaining stages to complete this topic.`}
               </div>
             )}
           </article>
         </section>
 
+        {/* SIDEBAR */}
         <aside className="lesson-sidebar">
           <section className="lesson-companion">
             <div className="lesson-companion-avatar">🦊</div>
-            <span className="lesson-companion-label">YOUR COMPANION</span>
+
+            <span className="lesson-companion-label">
+              YOUR COMPANION
+            </span>
+
             <h2>One step at a time!</h2>
+
             <p>
               {type === "video"
-                ? "Explore the lesson, then mark this stage complete."
+                ? "Watch the lesson, then save your video stage."
                 : type === "concept"
-                  ? "Read the concept and listen to the narration at your own pace."
+                  ? "Read the explanation and understand the key idea."
                   : type === "quiz"
-                    ? "Think carefully. Your quiz score is separate from XP."
-                    : "Experiment with the code and check the task when you're ready."}
+                    ? "Think carefully. Your score is saved separately."
+                    : "Experiment with the code and check the task when ready."}
             </p>
           </section>
 
           <section className="lesson-sidebar-card">
             <div className="lesson-sidebar-heading">
               <Trophy size={19} />
-              <h3>Your progress</h3>
+              <h3>Topic progress</h3>
             </div>
 
             <div className="lesson-progress-numbers">
-              <strong>{completedCount}</strong>
-              <span>of {lessons.length} lessons completed</span>
+              <strong>{completedStages.length}/4</strong>
+
+              <span>stages completed</span>
             </div>
 
             <div
               className="lesson-progress-track"
               role="progressbar"
-              aria-label="Course completion"
+              aria-label="Topic stage completion"
               aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={courseProgress}
+              aria-valuemax={4}
+              aria-valuenow={completedStages.length}
             >
               <div
                 className="lesson-progress-fill"
-                style={{ width: `${courseProgress}%` }}
+                style={{
+                  width: `${(completedStages.length / 4) * 100}%`,
+                }}
               />
             </div>
 
             <p className="lesson-sidebar-muted">
-              {courseProgress === 100
-                ? "Amazing! You completed every lesson."
-                : `${courseProgress}% completed. Keep going!`}
+              {topicCompleted
+                ? "Amazing! All four stages are complete."
+                : "Complete Video, Concept, Hands-on, and Quiz to finish this topic."}
             </p>
           </section>
 
@@ -1062,36 +1461,45 @@ export default function LessonPage() {
                 <span className="lesson-up-next-area">
                   {nextLesson.area || "Next quest"}
                 </span>
+
                 <h4>{nextLesson.title}</h4>
+
                 <p>{nextLesson.description}</p>
+
                 <div className="lesson-next-meta">
                   <span>
                     <Clock3 size={15} />
                     {nextLesson.duration || "5 min"}
                   </span>
+
                   <span>
                     <Zap size={15} />
                     {nextLesson.xp ?? DEFAULT_COMPLETION_XP} XP
                   </span>
                 </div>
+
                 <p className="lesson-sidebar-muted">
-                  Return to the Study Map to choose your next lesson.
+                  Finish all four stages to complete this topic.
                 </p>
               </>
             ) : (
-              <p>You've reached the final lesson in this course!</p>
+              <p>
+                You've reached the final lesson in this course!
+              </p>
             )}
           </section>
 
           <section className="lesson-tip-card">
             <span>🌱</span>
+
             <div>
               <h3>Learning tip</h3>
+
               <p>
                 {type === "quiz"
                   ? "Read each option carefully before submitting."
                   : type === "hands-on"
-                    ? "Change one thing at a time so you understand the result."
+                    ? "Change one thing at a time to understand the result."
                     : "Take your time. Understanding matters more than rushing."}
               </p>
             </div>

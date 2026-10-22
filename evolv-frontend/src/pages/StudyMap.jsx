@@ -1,11 +1,9 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  ArrowLeft,
   ArrowRight,
   Award,
   BookOpen,
-  Brain,
   Check,
   CheckCircle2,
   ChevronDown,
@@ -17,15 +15,25 @@ import {
   Play,
   Sparkles,
   Star,
-  Target,
   Trophy,
-  Wrench,
   Zap,
 } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
+
 import Navbar from "../components/Navbar";
 import Rightbar from "../components/Rightbar";
 import { pythonLessons } from "../data/pythonLessons";
+import {
+  STAGES,
+  getStageProgress,
+  getCompletedStages,
+  getCompletedStageCount,
+  isStageComplete,
+  isTopicComplete,
+  getNextIncompleteStage,
+  syncCompletedTopics,
+} from "../utils/lessonProgress";
+
 import "../styles/study-map.css";
 
 const DEFAULT_COURSE = "python";
@@ -36,118 +44,136 @@ const COURSE_INFO = {
     title: "Python Foundations",
     subtitle: "Code Forest",
     description:
-      "Climb through Python one skill at a time. Understand concepts, practise code, and solve challenges.",
+      "Travel through Python one skill at a time. Learn concepts, practise code, and solve challenges.",
     icon: "🐍",
   },
 };
 
-const WORLD_ICONS = ["🌱", "🌲", "🌊", "💎", "⛰️", "🏰"];
-
-const WORLD_DESCRIPTIONS = [
-  "Start with the basics and meet Python.",
-  "Make decisions with code.",
-  "Repeat actions and build logic.",
-  "Store and organise data.",
-  "Build reusable blocks of code.",
-  "Use your skills to solve challenges.",
-];
-
-const STAGES = [
+const WORLDS = [
   {
-    id: "video",
-    label: "01",
-    title: "Watch",
-    description: "Watch the lesson",
-    icon: Play,
-    color: "video",
+    icon: "🌱",
+    title: "Python Meadow",
+    description: "Discover Python, variables, and your first lines of code.",
+    color: "meadow",
   },
   {
-    id: "understand",
-    label: "02",
-    title: "Understand",
-    description: "Learn the concepts",
-    icon: Brain,
-    color: "understand",
+    icon: "🌲",
+    title: "Logic Forest",
+    description: "Make decisions and teach your code how to think.",
+    color: "forest",
   },
   {
-    id: "apply",
-    label: "03",
-    title: "Apply",
-    description: "Practise with code",
-    icon: Wrench,
-    color: "apply",
+    icon: "🌊",
+    title: "Loop River",
+    description: "Repeat actions and build powerful programming logic.",
+    color: "river",
   },
   {
-    id: "solve",
-    label: "04",
-    title: "Solve",
-    description: "Take the 5-mark quiz",
-    icon: Trophy,
-    color: "solve",
+    icon: "💎",
+    title: "Data Kingdom",
+    description: "Store, organise, and work with different kinds of data.",
+    color: "kingdom",
+  },
+  {
+    icon: "⛰️",
+    title: "Function Mountains",
+    description: "Create reusable blocks and solve bigger problems.",
+    color: "mountains",
+  },
+  {
+    icon: "🏰",
+    title: "EVOLV Citadel",
+    description: "Bring your knowledge together in practical challenges.",
+    color: "citadel",
   },
 ];
 
-const safeRead = (key, fallback) => {
+const STAGE_LABELS = {
+  video: "Video",
+  concept: "Concept",
+  "hands-on": "Hands-on",
+  quiz: "Quiz",
+};
+
+const STAGE_ICONS = {
+  video: Play,
+  concept: BookOpen,
+  "hands-on": Zap,
+  quiz: Trophy,
+};
+
+function readJSON(key, fallback) {
   try {
-    const value = localStorage.getItem(key);
-    return value === null ? fallback : JSON.parse(value);
+    if (typeof window === "undefined") return fallback;
+
+    const raw = localStorage.getItem(key);
+    return raw === null ? fallback : JSON.parse(raw);
   } catch {
     return fallback;
   }
-};
+}
 
-const readCompleted = (courseId) => {
-  const value = safeRead(`evolv_${courseId}_completed`, []);
-
-  return Array.isArray(value)
-    ? [...new Set(value.map(Number).filter(Number.isFinite))]
-    : [];
-};
-
-const readNumber = (key, fallback = 0) => {
+function readNumber(key, fallback = 0) {
   try {
-    const value = localStorage.getItem(key);
+    const raw = localStorage.getItem(key);
 
-    if (value === null || value.trim() === "") return fallback;
+    if (raw === null || raw.trim() === "") return fallback;
 
-    const number = Number(value);
-    return Number.isFinite(number) && number >= 0
-      ? number
-      : fallback;
+    const value = Number(raw);
+
+    return Number.isFinite(value) && value >= 0 ? value : fallback;
   } catch {
     return fallback;
   }
-};
+}
 
-const readQuizScores = (courseId) => {
-  const value = safeRead(`evolv_${courseId}_quiz_scores`, {});
-  return value && typeof value === "object" && !Array.isArray(value)
+function readObject(key) {
+  const value = readJSON(key, {});
+
+  return value &&
+    typeof value === "object" &&
+    !Array.isArray(value)
     ? value
     : {};
-};
+}
 
-const durationFor = (lesson) => lesson.duration || "8 min";
+function readLastViewed(courseId) {
+  const value = readJSON(`evolv_${courseId}_last_viewed`, null);
 
-const xpFor = (lesson) => {
+  if (!value || !Number.isFinite(Number(value.lessonId))) {
+    return null;
+  }
+
+  const stage =
+    STAGES.includes(value.stage) ? value.stage : "video";
+
+  return {
+    lessonId: Number(value.lessonId),
+    stage,
+    destination: `/study/${courseId}/lesson/${Number(value.lessonId)}?stage=${stage}`,
+  };
+}
+
+function durationFor(lesson) {
+  return lesson.duration || "8 min";
+}
+
+function xpFor(lesson) {
   const value = Number(lesson.xp);
-  return Number.isFinite(value) && value > 0 ? value : 10;
-};
 
-const areaFor = (lesson, index) =>
-  lesson.area ||
-  lesson.chapter ||
-  lesson.category ||
-  (index < 10
-    ? "Python Meadow"
-    : index < 20
-      ? "Logic Forest"
-      : index < 30
-        ? "Loop River"
-        : index < 40
-          ? "Data Kingdom"
-          : index < 50
-            ? "Function Mountains"
-            : "EVOLV Citadel");
+  return Number.isFinite(value) && value > 0 ? value : 10;
+}
+
+function areaFor(lesson, index) {
+  return (
+    lesson.area ||
+    lesson.chapter ||
+    lesson.category ||
+    WORLDS[
+      Math.min(Math.floor(index / 10), WORLDS.length - 1)
+    ].title
+  );
+}
 
 function groupLessons(lessons) {
   const groups = [];
@@ -164,7 +190,11 @@ function groupLessons(lessons) {
     group.lessons.push({ ...lesson, _index: index });
   });
 
-  return groups;
+  return groups.map((group, index) => ({
+    ...group,
+    worldIndex: index,
+    theme: WORLDS[index % WORLDS.length],
+  }));
 }
 
 function formatMinutes(lessons) {
@@ -175,65 +205,114 @@ function formatMinutes(lessons) {
 }
 
 function quizResultFor(scores, lessonId) {
-  const value = scores[String(lessonId)];
+  const value = scores[String(lessonId)] ??
+    scores[`python_${lessonId}`];
 
   if (typeof value === "number" && Number.isFinite(value)) {
-    const score = Math.min(QUIZ_TOTAL_MARKS, Math.max(0, value));
-    return { latestScore: score, bestScore: score, attempts: 1 };
+    return { attempts: 1, latestScore: value };
   }
 
   if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return { latestScore: null, bestScore: null, attempts: 0 };
+    return { attempts: 0, latestScore: null };
   }
 
-  const rawLatest =
-    typeof value.latestScore === "number"
-      ? value.latestScore
-      : typeof value.score === "number"
-        ? value.score
-        : null;
-
-  const rawBest =
-    typeof value.bestScore === "number" ? value.bestScore : rawLatest;
-
-  const latest =
-    rawLatest === null || !Number.isFinite(rawLatest)
-      ? null
-      : Math.min(QUIZ_TOTAL_MARKS, Math.max(0, rawLatest));
-
-  const best =
-    rawBest === null || !Number.isFinite(rawBest)
-      ? null
-      : Math.min(QUIZ_TOTAL_MARKS, Math.max(0, rawBest));
-
-  const savedAttempts = Number(value.attempts);
+  const attempts = Number(value.attempts);
 
   return {
-    latestScore: latest,
-    bestScore: best,
     attempts:
-      Number.isFinite(savedAttempts) && savedAttempts > 0
-        ? savedAttempts
+      Number.isFinite(attempts) && attempts > 0
+        ? attempts
         : value.submittedAt
           ? 1
           : 0,
+    latestScore:
+      typeof value.latestScore === "number"
+        ? value.latestScore
+        : typeof value.score === "number"
+          ? value.score
+          : null,
   };
 }
 
-function stageStatus(stageId, completed, lessonUnlocked) {
-  if (!lessonUnlocked) return "locked";
-  if (completed) return "completed";
-  if (stageId === "solve") return "locked";
-  if (stageId === "video") return "current";
-  return "available";
+function stageDestination(courseId, lessonId, stage) {
+  return `/study/${courseId}/lesson/${lessonId}?stage=${encodeURIComponent(stage)}`;
+}
+
+function getNextStage(progress, lessonId) {
+  return getNextIncompleteStage(progress, lessonId) || "video";
+}
+
+function getTopicStageDestination(courseId, lesson, progress) {
+  const stage = getNextStage(progress, lesson.id);
+  return stageDestination(courseId, lesson.id, stage);
+}
+
+function getInitialSelection(groups, progress, lastViewed) {
+  if (lastViewed) {
+    const worldIndex = groups.findIndex((group) =>
+      group.lessons.some(
+        (lesson) => Number(lesson.id) === Number(lastViewed.lessonId)
+      )
+    );
+
+    const lesson = groups[worldIndex]?.lessons.find(
+      (item) => Number(item.id) === Number(lastViewed.lessonId)
+    );
+
+    if (
+      lesson &&
+      isLessonAvailable(groups, progress, worldIndex, lesson)
+    ) {
+      return {
+        worldIndex,
+        lessonId: Number(lesson.id),
+      };
+    }
+  }
+
+  for (let worldIndex = 0; worldIndex < groups.length; worldIndex += 1) {
+    const group = groups[worldIndex];
+
+    for (const lesson of group.lessons) {
+      if (
+        isLessonAvailable(groups, progress, worldIndex, lesson) &&
+        !isTopicComplete(progress, lesson.id)
+      ) {
+        return {
+          worldIndex,
+          lessonId: Number(lesson.id),
+        };
+      }
+    }
+  }
+
+  return {
+    worldIndex: groups.length ? 0 : null,
+    lessonId: groups[0]?.lessons[0]
+      ? Number(groups[0].lessons[0].id)
+      : null,
+  };
+}
+
+function isLessonAvailable(groups, progress, worldIndex, lesson) {
+  if (worldIndex === 0 && lesson._index === 0) return true;
+
+  const previousLesson = lesson._index > 0
+    ? groups.flatMap((group) => group.lessons).find(
+        (item) => item._index === lesson._index - 1
+      )
+    : null;
+
+  if (!previousLesson) return worldIndex === 0;
+
+  return isTopicComplete(progress, previousLesson.id);
 }
 
 export default function StudyMap() {
   const { courseId: routeCourseId } = useParams();
 
-  const requestedCourseId = routeCourseId || DEFAULT_COURSE;
-  const courseId = COURSE_INFO[requestedCourseId]
-    ? requestedCourseId
+  const courseId = COURSE_INFO[routeCourseId]
+    ? routeCourseId
     : DEFAULT_COURSE;
 
   const course = COURSE_INFO[courseId];
@@ -241,54 +320,122 @@ export default function StudyMap() {
 
   const groups = useMemo(() => groupLessons(lessons), [lessons]);
 
-  const [completedIds, setCompletedIds] = useState(
-    () => readCompleted(courseId)
-  );
-  const [quizScores, setQuizScores] = useState(
-    () => readQuizScores(courseId)
-  );
-  const [xp, setXp] = useState(
-    () => readNumber(`evolv_${courseId}_xp`, 0)
-  );
-  const [streak, setStreak] = useState(
-    () => readNumber(`evolv_${courseId}_streak`, 0)
+  const [stageProgress, setStageProgress] = useState(
+    () => getStageProgress(courseId)
   );
 
-  const [expandedWorld, setExpandedWorld] = useState(0);
-  const [selectedTopic, setSelectedTopic] = useState(null);
+  const [quizScores, setQuizScores] = useState(
+    () => readObject(`evolv_${courseId}_quiz_scores`)
+  );
+
+  const [xp, setXp] = useState(
+    () => readNumber(`evolv_${courseId}_xp`)
+  );
+
+  const [streak, setStreak] = useState(
+    () => readNumber(`evolv_${courseId}_streak`)
+  );
+
+  const [lastViewed, setLastViewed] = useState(
+    () => readLastViewed(courseId)
+  );
+
+  const initial = getInitialSelection(groups, stageProgress, lastViewed);
+
+  const [expandedWorld, setExpandedWorld] = useState(initial.worldIndex);
+  const [selectedTopic, setSelectedTopic] = useState(initial.lessonId);
+
+  const refreshProgress = useCallback(() => {
+    const latestProgress = getStageProgress(courseId);
+
+    setStageProgress(latestProgress);
+    setQuizScores(readObject(`evolv_${courseId}_quiz_scores`));
+    setXp(readNumber(`evolv_${courseId}_xp`));
+    setStreak(readNumber(`evolv_${courseId}_streak`));
+    setLastViewed(readLastViewed(courseId));
+  }, [courseId]);
+
+  useEffect(() => {
+    // Rebuild the legacy completed-topics list from the four-stage
+    // records. This prevents an old one-stage completion from unlocking
+    // a topic or world.
+    const latest = getStageProgress(courseId);
+    syncCompletedTopics(courseId, lessons, latest, false);
+    refreshProgress();
+
+    const onStorage = (event) => {
+      if (
+        !event ||
+        event.key === null ||
+        [
+          `evolv_${courseId}_stage_progress`,
+          `evolv_${courseId}_completed`,
+          `evolv_${courseId}_xp`,
+          `evolv_${courseId}_streak`,
+          `evolv_${courseId}_quiz_scores`,
+          `evolv_${courseId}_last_viewed`,
+        ].includes(event.key)
+      ) {
+        refreshProgress();
+      }
+    };
+
+    window.addEventListener("focus", refreshProgress);
+    window.addEventListener("storage", onStorage);
+    window.addEventListener("evolv-progress-updated", refreshProgress);
+
+    return () => {
+      window.removeEventListener("focus", refreshProgress);
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener(
+        "evolv-progress-updated",
+        refreshProgress
+      );
+    };
+  }, [courseId, lessons, refreshProgress]);
+
+  useEffect(() => {
+    const selection = getInitialSelection(
+      groups,
+      stageProgress,
+      lastViewed
+    );
+
+    setExpandedWorld(selection.worldIndex);
+    setSelectedTopic(selection.lessonId);
+  }, [courseId, groups, stageProgress, lastViewed]);
+
+  const completedIds = useMemo(
+    () =>
+      lessons
+        .filter((lesson) => isTopicComplete(stageProgress, lesson.id))
+        .map((lesson) => Number(lesson.id)),
+    [lessons, stageProgress]
+  );
 
   const completedSet = useMemo(
-    () => new Set(completedIds.map(Number)),
+    () => new Set(completedIds),
     [completedIds]
   );
 
-  const completedCount = lessons.filter((lesson) =>
-    completedSet.has(Number(lesson.id))
-  ).length;
+  const completedCount = completedIds.length;
 
   const progress = lessons.length
     ? Math.round((completedCount / lessons.length) * 100)
     : 0;
 
-  const nextLesson =
-    lessons.find((lesson) => !completedSet.has(Number(lesson.id))) || null;
-
-  const activeWorldIndex = nextLesson
-    ? groups.findIndex((group) =>
-        group.lessons.some(
-          (lesson) => Number(lesson.id) === Number(nextLesson.id)
-        )
-      )
-    : Math.max(0, groups.length - 1);
-
   const allComplete =
     lessons.length > 0 && completedCount === lessons.length;
 
+  const nextLesson =
+    lessons.find(
+      (lesson) => !isTopicComplete(stageProgress, lesson.id)
+    ) || null;
+
   const earnedXp = lessons.reduce(
     (total, lesson) =>
-      completedSet.has(Number(lesson.id))
-        ? total + xpFor(lesson)
-        : total,
+      total +
+      (isTopicComplete(stageProgress, lesson.id) ? xpFor(lesson) : 0),
     0
   );
 
@@ -300,102 +447,79 @@ export default function StudyMap() {
     0
   );
 
-  const refreshProgress = useCallback(() => {
-    setCompletedIds(readCompleted(courseId));
-    setQuizScores(readQuizScores(courseId));
-    setXp(readNumber(`evolv_${courseId}_xp`, 0));
-    setStreak(readNumber(`evolv_${courseId}_streak`, 0));
-  }, [courseId]);
-
-  useEffect(() => {
-    refreshProgress();
-
-    const handleStorage = (event) => {
-      if (
-        !event ||
-        event.key === null ||
-        event.key === `evolv_${courseId}_completed` ||
-        event.key === `evolv_${courseId}_xp` ||
-        event.key === `evolv_${courseId}_streak` ||
-        event.key === `evolv_${courseId}_quiz_scores`
-      ) {
-        refreshProgress();
-      }
-    };
-
-    window.addEventListener("focus", refreshProgress);
-    window.addEventListener("storage", handleStorage);
-    window.addEventListener("evolv-progress-updated", refreshProgress);
-
-    return () => {
-      window.removeEventListener("focus", refreshProgress);
-      window.removeEventListener("storage", handleStorage);
-      window.removeEventListener(
-        "evolv-progress-updated",
-        refreshProgress
-      );
-    };
-  }, [courseId, refreshProgress]);
-
-  useEffect(() => {
-    if (activeWorldIndex < 0) {
-      setExpandedWorld(0);
-      setSelectedTopic(null);
-      return;
-    }
-
-    setExpandedWorld(activeWorldIndex);
-
-    const activeLesson = groups[activeWorldIndex]?.lessons.find(
-      (lesson) => Number(lesson.id) === Number(nextLesson?.id)
-    );
-
-    setSelectedTopic(
-      activeLesson ? Number(activeLesson.id) : null
-    );
-  }, [courseId, activeWorldIndex, nextLesson?.id, groups]);
-
-  function isWorldUnlocked(groupIndex) {
-    if (groupIndex === 0) return true;
+  function isWorldUnlocked(worldIndex) {
+    if (worldIndex === 0) return true;
 
     return groups
-      .slice(0, groupIndex)
+      .slice(0, worldIndex)
       .every((group) =>
         group.lessons.every((lesson) =>
-          completedSet.has(Number(lesson.id))
+          isTopicComplete(stageProgress, lesson.id)
         )
       );
   }
 
-  function isLessonUnlocked(index) {
-    if (index === 0) return true;
+  function isLessonUnlocked(lesson) {
+    return isLessonAvailable(
+      groups,
+      stageProgress,
+      groups.findIndex((group) =>
+        group.lessons.some(
+          (item) => Number(item.id) === Number(lesson.id)
+        )
+      ),
+      lesson
+    );
+  }
 
-    return completedSet.has(Number(lessons[index - 1]?.id));
+  function recordLastViewed(lesson, worldIndex, destination) {
+    if (!lesson) return;
+
+    const match = String(destination || "").match(/[?&]stage=([^&]+)/);
+    const stage = match
+      ? decodeURIComponent(match[1])
+      : getNextStage(stageProgress, lesson.id);
+
+    const safeStage = STAGES.includes(stage) ? stage : "video";
+
+    const record = {
+      worldIndex,
+      lessonId: Number(lesson.id),
+      stage: safeStage,
+      destination: stageDestination(courseId, lesson.id, safeStage),
+    };
+
+    try {
+      localStorage.setItem(
+        `evolv_${courseId}_last_viewed`,
+        JSON.stringify(record)
+      );
+    } catch (error) {
+      console.error("Could not save last-viewed topic:", error);
+    }
+
+    setLastViewed(record);
   }
 
   function toggleWorld(index) {
-    const group = groups[index];
-    if (!group || !isWorldUnlocked(index)) return;
+    if (!groups[index] || !isWorldUnlocked(index)) return;
 
-    if (expandedWorld === index) {
-      setExpandedWorld(null);
-      setSelectedTopic(null);
-      return;
-    }
+    setExpandedWorld((previous) =>
+      previous === index ? null : index
+    );
 
-    setExpandedWorld(index);
-
-    const firstAvailable =
-      group.lessons.find((lesson) =>
-        isLessonUnlocked(lesson._index)
-      ) || group.lessons[0];
-
-    setSelectedTopic(firstAvailable ? Number(firstAvailable.id) : null);
+    setSelectedTopic(null);
   }
 
-  function selectTopic(lesson) {
-    if (!isLessonUnlocked(lesson._index)) return;
-    setSelectedTopic(Number(lesson.id));
+  function selectTopic(lesson, worldIndex) {
+    if (!isLessonUnlocked(lesson)) return;
+
+    setExpandedWorld(worldIndex);
+    setSelectedTopic((previous) =>
+      Number(previous) === Number(lesson.id)
+        ? null
+        : Number(lesson.id)
+    );
   }
 
   const selectedGroup =
@@ -406,17 +530,48 @@ export default function StudyMap() {
       (lesson) => Number(lesson.id) === Number(selectedTopic)
     ) || null;
 
-  const selectedLessonCompleted = selectedLesson
-    ? completedSet.has(Number(selectedLesson.id))
+  const selectedCompleted = selectedLesson
+    ? isTopicComplete(stageProgress, selectedLesson.id)
     : false;
 
-  const selectedLessonUnlocked = selectedLesson
-    ? isLessonUnlocked(selectedLesson._index)
-    : false;
-
-  const selectedQuizResult = selectedLesson
-    ? quizResultFor(quizScores, selectedLesson.id)
+  const savedLesson = lastViewed
+    ? lessons.find(
+        (lesson) => Number(lesson.id) === Number(lastViewed.lessonId)
+      )
     : null;
+
+  const resumeLesson = savedLesson || nextLesson;
+
+  const resumeDestination = resumeLesson
+    ? getTopicStageDestination(courseId, resumeLesson, stageProgress)
+    : "/dashboard";
+
+  const resumeLabel = !resumeLesson
+    ? "Back to dashboard"
+    : selectedCompleted
+      ? "Review learning"
+      : savedLesson
+        ? "Resume learning"
+        : completedCount === 0
+          ? "Start learning"
+          : "Continue learning";
+
+  function getTopicAction(lesson) {
+    const completed = isTopicComplete(stageProgress, lesson.id);
+
+    const destination = completed
+      ? stageDestination(courseId, lesson.id, "video")
+      : getTopicStageDestination(courseId, lesson, stageProgress);
+
+    return {
+      label: completed
+        ? "Review learning"
+        : getCompletedStages(stageProgress, lesson.id).length > 0
+          ? "Continue learning"
+          : "Start learning",
+      destination,
+    };
+  }
 
   return (
     <div className="sm-page">
@@ -438,11 +593,6 @@ export default function StudyMap() {
 
         <div className="sm-content">
           <section className="sm-page-heading">
-            <Link to="/dashboard" className="sm-back-link">
-              <ArrowLeft size={15} />
-              Back to Home
-            </Link>
-
             <div className="sm-heading-main">
               <div className="sm-heading-copy">
                 <span className="sm-eyebrow">
@@ -453,8 +603,8 @@ export default function StudyMap() {
                 <h1>Your Study Map</h1>
 
                 <p>
-                  Travel through learning worlds. Choose a topic and
-                  follow its levels to master Python.
+                  Explore each world, follow the winding lesson path,
+                  and unlock new levels as you grow.
                 </p>
               </div>
 
@@ -462,6 +612,61 @@ export default function StudyMap() {
                 <span>{course.icon}</span>
                 <Sparkles className="sm-emblem-spark" size={18} />
               </div>
+            </div>
+
+            <div className="sm-resume-card">
+              <div className="sm-resume-icon">
+                <Play size={22} fill="currentColor" />
+              </div>
+
+              <div className="sm-resume-copy">
+                <span>PICK UP WHERE YOU LEFT OFF</span>
+
+                <strong>
+                  {resumeLesson?.title || "Your Python adventure"}
+                </strong>
+
+                <small>
+                  {resumeLesson
+                    ? `${course.subtitle} · ${
+                        isTopicComplete(stageProgress, resumeLesson.id)
+                          ? "Topic completed — ready to review"
+                          : `Next stage: ${
+                              STAGE_LABELS[
+                                getNextStage(
+                                  stageProgress,
+                                  resumeLesson.id
+                                )
+                              ]
+                            }`
+                      }`
+                    : "Choose a topic to begin learning."}
+                </small>
+              </div>
+
+              <Link
+                to={resumeDestination}
+                className="sm-resume-button"
+                onClick={() => {
+                  if (!resumeLesson) return;
+
+                  const worldIndex = groups.findIndex((group) =>
+                    group.lessons.some(
+                      (lesson) =>
+                        Number(lesson.id) === Number(resumeLesson.id)
+                    )
+                  );
+
+                  recordLastViewed(
+                    resumeLesson,
+                    worldIndex,
+                    resumeDestination
+                  );
+                }}
+              >
+                {resumeLabel}
+                <ArrowRight size={16} />
+              </Link>
             </div>
           </section>
 
@@ -480,12 +685,14 @@ export default function StudyMap() {
                   <BookOpen size={15} />
                   {lessons.length} topics
                 </span>
+
                 <span>
                   <Clock3 size={15} />
                   About {formatMinutes(lessons)} min
                 </span>
+
                 <span>
-                  <Target size={15} />
+                  <Star size={15} />
                   Beginner friendly
                 </span>
               </div>
@@ -496,7 +703,7 @@ export default function StudyMap() {
                 className="sm-progress-ring"
                 style={{ "--progress": `${progress}%` }}
                 role="img"
-                aria-label={`${progress}% of lessons completed`}
+                aria-label={`${progress}% complete`}
               >
                 <div className="sm-progress-ring-inner">
                   <strong>{progress}%</strong>
@@ -508,44 +715,67 @@ export default function StudyMap() {
                 <strong>
                   {completedCount} of {lessons.length}
                 </strong>
-                <span>lessons completed</span>
+                <span>topics completed</span>
               </div>
             </div>
           </section>
 
           <section className="sm-stat-grid" aria-label="Learning statistics">
             <article className="sm-stat-card sm-stat-xp">
-              <span className="sm-stat-icon"><Zap size={19} /></span>
-              <div><span>Total XP</span><strong>{displayedXp}</strong></div>
+              <span className="sm-stat-icon">
+                <Zap size={19} />
+              </span>
+              <div>
+                <span>Total XP</span>
+                <strong>{displayedXp}</strong>
+              </div>
             </article>
 
             <article className="sm-stat-card sm-stat-streak">
-              <span className="sm-stat-icon"><Flame size={19} /></span>
-              <div><span>Learning streak</span><strong>{streak} days</strong></div>
+              <span className="sm-stat-icon">
+                <Flame size={19} />
+              </span>
+              <div>
+                <span>Learning streak</span>
+                <strong>{streak} days</strong>
+              </div>
             </article>
 
             <article className="sm-stat-card sm-stat-completed">
-              <span className="sm-stat-icon"><CheckCircle2 size={19} /></span>
+              <span className="sm-stat-icon">
+                <CheckCircle2 size={19} />
+              </span>
               <div>
-                <span>Lessons completed</span>
-                <strong>{completedCount}/{lessons.length}</strong>
+                <span>Topics completed</span>
+                <strong>
+                  {completedCount}/{lessons.length}
+                </strong>
               </div>
             </article>
 
             <article className="sm-stat-card sm-stat-next">
-              <span className="sm-stat-icon"><Award size={19} /></span>
-              <div><span>Quiz attempts</span><strong>{quizAttemptCount}</strong></div>
+              <span className="sm-stat-icon">
+                <Award size={19} />
+              </span>
+              <div>
+                <span>Quiz attempts</span>
+                <strong>{quizAttemptCount}</strong>
+              </div>
             </article>
           </section>
 
           <section className="sm-path-section">
             <div className="sm-section-heading">
               <div>
-                <span className="sm-eyebrow">EXPLORE · LEARN · LEVEL UP</span>
+                <span className="sm-eyebrow">
+                  EXPLORE · LEARN · LEVEL UP
+                </span>
+
                 <h2>Your learning worlds</h2>
+
                 <p>
-                  Open a world, travel across its topic train, then
-                  explore the levels underneath your chosen topic.
+                  Open a world to reveal its winding path. Complete all
+                  four stages in each topic to unlock the next stop.
                 </p>
               </div>
 
@@ -556,85 +786,111 @@ export default function StudyMap() {
             </div>
 
             <div className="sm-legend">
-              <span><i className="legend-current" /> Current topic</span>
-              <span><i className="legend-completed" /> Completed</span>
-              <span><i className="legend-locked" /> Locked</span>
+              <span>
+                <i className="legend-current" /> Current topic
+              </span>
+              <span>
+                <i className="legend-completed" /> Completed
+              </span>
+              <span>
+                <i className="legend-locked" /> Locked
+              </span>
             </div>
 
             <div className="sm-world-list">
               {groups.map((group, groupIndex) => {
                 const expanded = expandedWorld === groupIndex;
-                const worldLocked = !isWorldUnlocked(groupIndex);
+                const locked = !isWorldUnlocked(groupIndex);
 
-                const worldCompleted = group.lessons.filter((lesson) =>
-                  completedSet.has(Number(lesson.id))
+                const completedInWorld = group.lessons.filter((lesson) =>
+                  isTopicComplete(stageProgress, lesson.id)
                 ).length;
 
                 const worldComplete =
                   group.lessons.length > 0 &&
-                  worldCompleted === group.lessons.length;
+                  completedInWorld === group.lessons.length;
 
-                const worldHasCurrent = group.lessons.some(
+                const hasCurrent = group.lessons.some(
                   (lesson) =>
                     Number(lesson.id) === Number(nextLesson?.id)
                 );
 
+                const theme = group.theme;
+
                 return (
                   <section
+                    key={`${group.title}-${groupIndex}`}
                     className={[
                       "sm-world",
+                      `world-${theme.color}`,
                       expanded ? "is-expanded" : "",
-                      worldHasCurrent ? "is-active-world" : "",
-                      worldLocked ? "is-locked-world" : "",
+                      locked ? "is-locked-world" : "",
                       worldComplete ? "is-complete-world" : "",
-                    ].filter(Boolean).join(" ")}
-                    key={`${group.title}-${groupIndex}`}
+                      hasCurrent ? "is-active-world" : "",
+                    ]
+                      .filter(Boolean)
+                      .join(" ")}
                   >
                     <button
                       type="button"
                       className="sm-world-header"
                       onClick={() => toggleWorld(groupIndex)}
+                      disabled={locked}
                       aria-expanded={expanded}
-                      disabled={worldLocked}
                     >
                       <span className="sm-world-icon">
                         {worldComplete ? (
-                          <Check size={24} strokeWidth={3} />
-                        ) : worldLocked ? (
+                          <Check size={25} strokeWidth={3} />
+                        ) : locked ? (
                           <LockKeyhole size={21} />
                         ) : (
-                          WORLD_ICONS[groupIndex % WORLD_ICONS.length]
+                          theme.icon
                         )}
                       </span>
 
                       <span className="sm-world-heading-copy">
                         <span className="sm-world-kicker">
                           WORLD {String(groupIndex + 1).padStart(2, "0")}
-                          {worldHasCurrent && (
+
+                          {hasCurrent && !worldComplete && (
                             <span className="sm-world-current-label">
-                              CURRENT WORLD
+                              YOUR NEXT WORLD
                             </span>
                           )}
-                          {worldLocked && (
-                            <span className="sm-world-locked-label">LOCKED</span>
+
+                          {locked && (
+                            <span className="sm-world-locked-label">
+                              LOCKED
+                            </span>
+                          )}
+
+                          {worldComplete && (
+                            <span className="sm-world-current-label">
+                              COMPLETED
+                            </span>
                           )}
                         </span>
 
                         <strong>{group.title}</strong>
 
                         <span className="sm-world-description">
-                          {WORLD_DESCRIPTIONS[groupIndex % WORLD_DESCRIPTIONS.length]}
+                          {theme.description}
                         </span>
                       </span>
 
                       <span className="sm-world-progress">
-                        <span>{worldCompleted}/{group.lessons.length}</span>
+                        <span>
+                          {completedInWorld}/{group.lessons.length}
+                        </span>
+
                         <span className="sm-world-progress-track">
                           <span
                             style={{
                               width: `${
                                 group.lessons.length
-                                  ? (worldCompleted / group.lessons.length) * 100
+                                  ? (completedInWorld /
+                                      group.lessons.length) *
+                                    100
                                   : 0
                               }%`,
                             }}
@@ -652,263 +908,359 @@ export default function StudyMap() {
                         <div className="sm-world-content-inner">
                           <div className="sm-climb-intro">
                             <span className="sm-climb-intro-icon">
-                              <Sparkles size={17} />
+                              <Sparkles size={18} />
                             </span>
+
                             <div>
-                              <strong>Choose your next topic</strong>
+                              <strong>Your {group.title} journey</strong>
                               <p>
-                                Follow the train from left to right.
-                                Select a station to reveal its four levels.
+                                Complete Video, Concept, Hands-on, and
+                                Quiz to unlock the next topic.
                               </p>
                             </div>
                           </div>
 
-                          {/* HORIZONTAL TOPIC TRAIN */}
-                          <div
-                            className="sm-topic-train"
-                            aria-label={`${group.title} topics`}
-                          >
-                            <div className="sm-topic-train-track" />
+                          <div className="sm-topic-journey">
+                            <div className="sm-journey-start">
+                              <span className="sm-journey-start-icon">
+                                🚩
+                              </span>
 
-                            {group.lessons.map((lesson) => {
-                              const index = lesson._index;
-                              const lessonId = Number(lesson.id);
-                              const completed = completedSet.has(lessonId);
-                              const unlocked = isLessonUnlocked(index);
-                              const selected = selectedTopic === lessonId;
+                              <span>
+                                <strong>Start your journey</strong>
+                                <small>
+                                  {group.lessons.length} topics in this world
+                                </small>
+                              </span>
+                            </div>
 
-                              return (
-                                <button
-                                  type="button"
-                                  key={lesson.id}
-                                  className={[
-                                    "sm-train-station",
-                                    completed ? "is-completed" : "",
-                                    selected ? "is-selected" : "",
-                                    !unlocked ? "is-locked" : "",
-                                    !completed && unlocked ? "is-current" : "",
-                                  ].filter(Boolean).join(" ")}
-                                  onClick={() => selectTopic(lesson)}
-                                  disabled={!unlocked}
-                                  aria-pressed={selected}
-                                  title={
-                                    unlocked
-                                      ? lesson.title
-                                      : "Complete the previous topic to unlock"
-                                  }
-                                >
-                                  <span className="sm-train-node">
-                                    {completed ? (
-                                      <Check size={17} strokeWidth={3} />
-                                    ) : !unlocked ? (
-                                      <LockKeyhole size={15} />
-                                    ) : (
-                                      <span>{index + 1}</span>
-                                    )}
-                                  </span>
+                            <div className="sm-winding-path">
+                              {group.lessons.map((lesson, localIndex) => {
+                                const index = lesson._index;
+                                const lessonId = Number(lesson.id);
 
-                                  <span className="sm-train-card">
-                                    <span className="sm-train-number">
-                                      TOPIC {String(index + 1).padStart(2, "0")}
-                                    </span>
-                                    <strong>{lesson.title}</strong>
-                                    <span className="sm-train-meta">
-                                      <Clock3 size={12} />
-                                      {durationFor(lesson)}
-                                    </span>
-                                    <span className="sm-train-status">
-                                      {completed
-                                        ? "Completed"
-                                        : !unlocked
-                                          ? "Locked"
-                                          : selected
-                                            ? "Selected"
-                                            : `${xpFor(lesson)} XP`}
-                                    </span>
-                                  </span>
-                                </button>
-                              );
-                            })}
-                          </div>
+                                const completed = isTopicComplete(
+                                  stageProgress,
+                                  lesson.id
+                                );
 
-                          {/* SELECTED TOPIC DETAILS UNDER THE TRAIN */}
-                          {selectedLesson && (
-                            <article className="sm-selected-topic">
-                              <div className="sm-selected-topic-header">
-                                <div className="sm-selected-topic-icon">
-                                  {selectedLessonCompleted ? (
-                                    <CheckCircle2 size={23} />
-                                  ) : (
-                                    <BookOpen size={23} />
-                                  )}
-                                </div>
+                                const completedStages = getCompletedStages(
+                                  stageProgress,
+                                  lesson.id
+                                );
 
-                                <div className="sm-selected-topic-copy">
-                                  <span>
-                                    SELECTED TOPIC · WORLD {groupIndex + 1}
-                                  </span>
-                                  <h3>{selectedLesson.title}</h3>
-                                  <p>
-                                    {selectedLesson.description ||
-                                      "Explore the concept, practise your code, and check your understanding."}
-                                  </p>
-                                </div>
+                                const stageCount = getCompletedStageCount(
+                                  stageProgress,
+                                  lesson.id
+                                );
 
-                                <span className="sm-selected-topic-xp">
-                                  <Zap size={14} />
-                                  {xpFor(selectedLesson)} XP
-                                </span>
-                              </div>
+                                const unlocked = isLessonUnlocked(lesson);
+                                const selected =
+                                  Number(selectedTopic) === lessonId;
 
-                              <div className="sm-level-heading">
-                                <div>
-                                  <span className="sm-eyebrow">YOUR FOUR LEVELS</span>
-                                  <h4>Complete the journey</h4>
-                                </div>
-                                <span className="sm-level-order">01 → 02 → 03 → 04</span>
-                              </div>
+                                const isNext =
+                                  !completed &&
+                                  unlocked &&
+                                  Number(nextLesson?.id) === lessonId;
 
-                              <div className="sm-level-grid">
-                                {STAGES.map((stage) => {
-                                  const Icon = stage.icon;
-                                  const isQuiz = stage.id === "solve";
-                                  const quizUnlocked =
-                                    selectedLessonUnlocked &&
-                                    selectedLessonCompleted;
+                                const position =
+                                  localIndex % 4 === 0
+                                    ? "path-left"
+                                    : localIndex % 4 === 1
+                                      ? "path-center-left"
+                                      : localIndex % 4 === 2
+                                        ? "path-center-right"
+                                        : "path-right";
 
-                                  const status = stageStatus(
-                                    stage.id,
-                                    selectedLessonCompleted,
-                                    selectedLessonUnlocked
-                                  );
+                                const topicAction = getTopicAction(lesson);
 
-                                  const stageLocked =
-                                    status === "locked" ||
-                                    (isQuiz && !quizUnlocked);
-
-                                  const href = isQuiz
-                                    ? `/study/${courseId}/lesson/${selectedLesson.id}/quiz`
-                                    : `/study/${courseId}/lesson/${selectedLesson.id}?stage=${stage.id}`;
-
-                                  const score = selectedQuizResult?.latestScore;
-
-                                  return (
+                                return (
+                                  <div
+                                    className={[
+                                      "sm-path-entry",
+                                      selected ? "has-selected-topic" : "",
+                                    ]
+                                      .filter(Boolean)
+                                      .join(" ")}
+                                    key={lesson.id}
+                                  >
                                     <div
                                       className={[
-                                        "sm-level-card",
-                                        `stage-${stage.color}`,
-                                        `stage-status-${status}`,
-                                        stageLocked ? "is-locked" : "",
-                                      ].filter(Boolean).join(" ")}
-                                      key={stage.id}
+                                        "sm-path-stop",
+                                        position,
+                                        completed ? "is-completed" : "",
+                                        unlocked ? "is-unlocked" : "is-locked",
+                                        selected ? "is-selected" : "",
+                                        isNext ? "is-next-topic" : "",
+                                      ]
+                                        .filter(Boolean)
+                                        .join(" ")}
                                     >
-                                      <span className="sm-level-card-number">
-                                        {stage.label}
-                                      </span>
-
-                                      <span className="sm-level-card-icon">
-                                        {status === "completed" ? (
-                                          <Check size={21} strokeWidth={3} />
-                                        ) : stageLocked ? (
-                                          <LockKeyhole size={19} />
-                                        ) : (
-                                          <Icon size={21} />
-                                        )}
-                                      </span>
-
-                                      <div className="sm-level-card-copy">
-                                        <strong>{stage.title}</strong>
-                                        <span>{stage.description}</span>
-
-                                        {isQuiz && score !== null && score !== undefined && (
-                                          <small>
-                                            Latest {score}/5
-                                            {selectedQuizResult.bestScore !== null &&
-                                              ` · Best ${selectedQuizResult.bestScore}/5`}
-                                          </small>
-                                        )}
-                                      </div>
-
-                                      {stageLocked ? (
-                                        <span
-                                          className="sm-level-action is-disabled"
-                                          title={
-                                            isQuiz
-                                              ? "Complete the lesson to unlock the quiz"
-                                              : "Complete the previous topic to unlock this level"
-                                          }
-                                        >
-                                          <LockKeyhole size={14} />
-                                          Locked
+                                      <button
+                                        type="button"
+                                        className="sm-path-node"
+                                        onClick={() =>
+                                          selectTopic(lesson, groupIndex)
+                                        }
+                                        disabled={!unlocked}
+                                        aria-pressed={selected}
+                                        aria-label={`Topic ${index + 1}: ${lesson.title}`}
+                                        title={
+                                          unlocked
+                                            ? lesson.title
+                                            : "Complete all four stages of the previous topic to unlock"
+                                        }
+                                      >
+                                        <span className="sm-path-node-inner">
+                                          {completed ? (
+                                            <Check
+                                              size={24}
+                                              strokeWidth={3}
+                                            />
+                                          ) : !unlocked ? (
+                                            <LockKeyhole size={20} />
+                                          ) : isNext ? (
+                                            <Play
+                                              size={23}
+                                              fill="currentColor"
+                                            />
+                                          ) : (
+                                            <span>{localIndex + 1}</span>
+                                          )}
                                         </span>
-                                      ) : (
-                                        <Link
-                                          to={href}
-                                          className="sm-level-action"
-                                        >
-                                          {status === "completed"
-                                            ? "Review"
-                                            : isQuiz
-                                              ? "Take quiz"
-                                              : "Open level"}
-                                          <ArrowRight size={14} />
-                                        </Link>
-                                      )}
+
+                                        {selected && (
+                                          <span className="sm-node-pulse" />
+                                        )}
+                                      </button>
+
+                                      <button
+                                        type="button"
+                                        className="sm-path-topic-label"
+                                        onClick={() =>
+                                          selectTopic(lesson, groupIndex)
+                                        }
+                                        disabled={!unlocked}
+                                      >
+                                        <span className="sm-path-topic-number">
+                                          TOPIC{" "}
+                                          {String(index + 1).padStart(2, "0")}
+                                        </span>
+
+                                        <strong>{lesson.title}</strong>
+
+                                        <span className="sm-path-topic-meta">
+                                          <Clock3 size={12} />
+                                          {durationFor(lesson)}
+                                        </span>
+
+                                        <span className="sm-path-topic-status">
+                                          {completed
+                                            ? "✓ Completed"
+                                            : !unlocked
+                                              ? "🔒 Locked"
+                                              : `${stageCount}/4 stages · ${xpFor(lesson)} XP`}
+                                        </span>
+                                      </button>
                                     </div>
-                                  );
-                                })}
-                              </div>
 
-                              <div className="sm-selected-topic-footer">
-                                <div className="sm-topic-status">
-                                  {selectedLessonCompleted ? (
-                                    <>
-                                      <CheckCircle2 size={16} />
-                                      Lesson completed
-                                      {selectedQuizResult?.latestScore !== null &&
-                                        selectedQuizResult?.latestScore !== undefined &&
-                                        ` · Quiz ${selectedQuizResult.latestScore}/5`}
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Sparkles size={16} />
-                                      Start with Watch, then continue through each level.
-                                    </>
-                                  )}
-                                </div>
+                                    {selected && selectedLesson && (
+                                      <div className="sm-selected-topic-anchor">
+                                        <article
+                                          className={[
+                                            "sm-selected-topic",
+                                            "sm-selected-topic-inline",
+                                            "sm-selected-topic-compact",
+                                            "sm-selected-topic-cute",
+                                            `cute-${theme.color}`,
+                                          ].join(" ")}
+                                        >
+                                          <div className="sm-cute-card-decoration">
+                                            <span>✦</span>
+                                            <span>✧</span>
+                                            <span>✦</span>
+                                          </div>
 
-                                <Link
-                                  to={`/study/${courseId}/lesson/${selectedLesson.id}`}
-                                  className="sm-topic-action"
-                                >
-                                  {selectedLessonCompleted ? "Review lesson" : "Start lesson"}
-                                  <ArrowRight size={15} />
-                                </Link>
-                              </div>
-                            </article>
-                          )}
+                                          <div className="sm-cute-card-topline">
+                                            <span className="sm-cute-card-badge">
+                                              <Sparkles size={13} />
+                                              {selectedCompleted
+                                                ? "QUEST COMPLETED"
+                                                : "YOUR LITTLE QUEST"}
+                                            </span>
+
+                                            <span className="sm-cute-card-world">
+                                              {theme.icon} World{" "}
+                                              {groupIndex + 1}
+                                            </span>
+                                          </div>
+
+                                          <div className="sm-cute-card-main">
+                                            <div className="sm-compact-topic-icon">
+                                              {selectedCompleted ? (
+                                                <CheckCircle2 size={25} />
+                                              ) : (
+                                                <BookOpen size={25} />
+                                              )}
+                                            </div>
+
+                                            <div className="sm-compact-topic-copy">
+                                              <span className="sm-compact-topic-kicker">
+                                                {selectedCompleted
+                                                  ? "LOOK HOW FAR YOU'VE COME!"
+                                                  : "YOUR FOUR-STAGE QUEST"}
+                                              </span>
+
+                                              <strong>
+                                                {selectedLesson.title}
+                                              </strong>
+
+                                              <span className="sm-compact-topic-meta">
+                                                <Clock3 size={13} />
+                                                {durationFor(selectedLesson)}
+                                                <span>·</span>
+                                                <Zap size={13} />
+                                                {xpFor(selectedLesson)} XP
+                                              </span>
+                                            </div>
+                                          </div>
+
+                                          <div className="sm-stage-panel">
+                                            <div className="sm-stage-panel-heading">
+                                              <strong>Topic levels</strong>
+                                              <span>
+                                                {completedStages.length}/4
+                                                complete
+                                              </span>
+                                            </div>
+
+                                            <div className="sm-stage-grid">
+                                              {STAGES.map((stage, stageIndex) => {
+                                                const done = isStageComplete(
+                                                  stageProgress,
+                                                  selectedLesson.id,
+                                                  stage
+                                                );
+
+                                                const Icon =
+                                                  STAGE_ICONS[stage];
+
+                                                const destination =
+                                                  stageDestination(
+                                                    courseId,
+                                                    selectedLesson.id,
+                                                    stage
+                                                  );
+
+                                                return (
+                                                  <Link
+                                                    key={stage}
+                                                    to={destination}
+                                                    className={[
+                                                      "sm-stage-link",
+                                                      done
+                                                        ? "is-stage-done"
+                                                        : "",
+                                                    ]
+                                                      .filter(Boolean)
+                                                      .join(" ")}
+                                                    onClick={() =>
+                                                      recordLastViewed(
+                                                        selectedLesson,
+                                                        groupIndex,
+                                                        destination
+                                                      )
+                                                    }
+                                                  >
+                                                    <span className="sm-stage-link-icon">
+                                                      {done ? (
+                                                        <CheckCircle2
+                                                          size={17}
+                                                        />
+                                                      ) : (
+                                                        <Icon size={17} />
+                                                      )}
+                                                    </span>
+
+                                                    <span className="sm-stage-link-name">
+                                                      {STAGE_LABELS[stage]}
+                                                    </span>
+
+                                                    <span className="sm-stage-link-number">
+                                                      {done
+                                                        ? "Done"
+                                                        : `Level ${stageIndex + 1}`}
+                                                    </span>
+                                                  </Link>
+                                                );
+                                              })}
+                                            </div>
+                                          </div>
+
+                                          <div className="sm-cute-card-footer">
+                                            <span className="sm-cute-card-hint">
+                                              {selectedCompleted
+                                                ? "✨ Revisit this quest anytime."
+                                                : `${stageCount}/4 stages completed · Finish all four to unlock the next topic.`}
+                                            </span>
+
+                                            <Link
+                                              to={topicAction.destination}
+                                              className="sm-compact-topic-button"
+                                              onClick={() =>
+                                                recordLastViewed(
+                                                  selectedLesson,
+                                                  groupIndex,
+                                                  topicAction.destination
+                                                )
+                                              }
+                                            >
+                                              {topicAction.label}
+                                              <ArrowRight size={16} />
+                                            </Link>
+                                          </div>
+                                        </article>
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+
+                            <div className="sm-journey-finish">
+                              <span className="sm-journey-finish-icon">
+                                {worldComplete ? (
+                                  <Trophy size={23} />
+                                ) : (
+                                  <Flag size={21} />
+                                )}
+                              </span>
+
+                              <span>
+                                <strong>
+                                  {worldComplete
+                                    ? "World conquered!"
+                                    : "World milestone"}
+                                </strong>
+
+                                <small>
+                                  {completedInWorld} of {group.lessons.length}{" "}
+                                  topics completed
+                                </small>
+                              </span>
+                            </div>
+                          </div>
 
                           {!selectedLesson && (
                             <div className="sm-select-topic-prompt">
-                              <Map size={22} />
-                              <strong>Choose a station on the topic train</strong>
-                              <p>Select an unlocked topic to see its four learning levels here.</p>
+                              <Map size={23} />
+                              <strong>Select an unlocked circle</strong>
+                              <p>
+                                Tap a topic on the path to start or resume
+                                learning.
+                              </p>
                             </div>
                           )}
-
-                          <div className="sm-world-end">
-                            <span className="sm-world-end-icon">
-                              {worldComplete ? <Trophy size={19} /> : <Flag size={18} />}
-                            </span>
-                            <span>
-                              <strong>
-                                {worldComplete ? "World conquered!" : "World milestone"}
-                              </strong>
-                              <small>
-                                {worldCompleted} of {group.lessons.length} topics completed
-                              </small>
-                            </span>
-                          </div>
                         </div>
                       </div>
                     )}
@@ -920,11 +1272,16 @@ export default function StudyMap() {
 
           <section className="sm-path-finish">
             <div className="sm-finish-icon">
-              {allComplete ? <Trophy size={26} /> : <Star size={25} />}
+              {allComplete ? (
+                <Trophy size={27} />
+              ) : (
+                <Star size={25} />
+              )}
             </div>
 
             <div className="sm-finish-copy">
               <span>YOUR NEXT MILESTONE</span>
+
               <h3>
                 {allComplete
                   ? "You conquered every lesson!"
@@ -932,17 +1289,40 @@ export default function StudyMap() {
                     ? `Continue with ${nextLesson.title}`
                     : "Your adventure awaits"}
               </h3>
+
               <p>
                 {allComplete
-                  ? "Amazing work. Revisit any lesson and quiz whenever you want to practise."
-                  : "Choose the next station on your train and continue your learning journey."}
+                  ? "Amazing work. Revisit lessons and quizzes to keep practising."
+                  : "Complete all four stages of the next topic to keep moving along your learning path."}
               </p>
             </div>
 
             {nextLesson && (
               <Link
-                to={`/study/${courseId}/lesson/${nextLesson.id}`}
+                to={getTopicStageDestination(
+                  courseId,
+                  nextLesson,
+                  stageProgress
+                )}
                 className="sm-finish-button"
+                onClick={() => {
+                  const worldIndex = groups.findIndex((group) =>
+                    group.lessons.some(
+                      (lesson) =>
+                        Number(lesson.id) === Number(nextLesson.id)
+                    )
+                  );
+
+                  recordLastViewed(
+                    nextLesson,
+                    worldIndex,
+                    getTopicStageDestination(
+                      courseId,
+                      nextLesson,
+                      stageProgress
+                    )
+                  );
+                }}
               >
                 Continue <ArrowRight size={15} />
               </Link>
@@ -953,10 +1333,12 @@ export default function StudyMap() {
             <div className="sm-bottom-banner-icon">
               <Sparkles size={23} />
             </div>
+
             <div>
               <h3>Small steps make big progress.</h3>
               <p>Watch. Understand. Apply. Solve. Keep evolving.</p>
             </div>
+
             <Link to="/dashboard" className="sm-bottom-link">
               Home <ArrowRight size={15} />
             </Link>
@@ -966,6 +1348,7 @@ export default function StudyMap() {
             <Link to="/dashboard" className="sm-footer-brand">
               <span>✦</span> EVOLV<span className="sm-footer-dot">.</span>
             </Link>
+
             <span>Learn. Practise. Keep evolving.</span>
           </footer>
         </div>
