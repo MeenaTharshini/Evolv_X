@@ -1207,7 +1207,8 @@ lesson(
     ["or", "and", "not", "in"],
     1,
     "Both conditions must be true.",
-    {
+    { videoUrl: "/videos/LogicalForest%20Checkpoint.html",
+      videoTitle: "Decision Practise",
       type: "quiz",
       instructions:
         "Test values 9, 10, 11, and 12. Explain why each value follows its branch.",

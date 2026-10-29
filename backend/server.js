@@ -39,3 +39,9 @@ app.use("/api/streak", streakRoutes);
 app.listen(PORT, () => {
   console.log(`EVOLV API running at http://localhost:${PORT}`);
 });
+app.get("/", (req, res) => {
+  res.json({
+    success: true,
+    message: "EVOLV API is running!",
+  });
+});

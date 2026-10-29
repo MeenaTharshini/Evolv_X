@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Logic Forest Checkpoint — EVOLV</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#070b17;--card:#0b1226;--c2:#10192f;--line:#1e2d52;--cy:#4fd1ff;--am:#ffb84a;--gr:#4ade80;--rd:#ff6b81;--tx:#eef2ff;--mu:#8493b8;--mono:"JetBrains Mono",ui-monospace,Menlo,monospace;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;background:radial-gradient(1100px 560px at 50% -8%,#10204a,transparent 60%),var(--bg);color:var(--tx);font-family:Outfit,"Noto Sans Tamil",system-ui,sans-serif}
+body.paused *{animation-play-state:paused!important}
+.app{max-width:900px;margin:0 auto;padding:14px}
+.stage{position:relative;overflow:hidden;background:linear-gradient(180deg,#0c1329,#080d1d);border:1px solid var(--line);border-radius:22px;padding:20px 18px 18px}
+.stage::before{content:"";position:absolute;inset:0;background:linear-gradient(#ffffff08 1px,transparent 1px) 0 0/34px 34px,linear-gradient(90deg,#ffffff08 1px,transparent 1px) 0 0/34px 34px;pointer-events:none}
+.stage>*{position:relative}
+.ff{position:absolute!important;width:5px;height:5px;border-radius:50%;background:var(--am);box-shadow:0 0 10px 3px #ffb84a88;animation:ff 7s ease-in-out infinite;pointer-events:none}
+@keyframes ff{0%,100%{transform:translate(0,0);opacity:.15}50%{transform:translate(24px,-30px);opacity:1}}
+.logo{display:flex;justify-content:center;align-items:center;gap:12px;font-weight:800;letter-spacing:.28em;font-size:19px}
+.path{margin:8px 0 4px}.path svg{width:100%;height:auto;display:block;overflow:visible}
+#pBase{fill:none;stroke:#1b2a50;stroke-width:7;stroke-linecap:round;stroke-dasharray:2 12}
+#pLit{fill:none;stroke:var(--gr);stroke-width:7;stroke-linecap:round;transition:stroke-dashoffset 1.2s ease;filter:drop-shadow(0 0 7px #4ade80)}
+.nd circle{fill:#0f1830;stroke:#2b3d6b;stroke-width:3;transition:.5s}.nd text{fill:var(--mu);font:700 22px Outfit;text-anchor:middle;dominant-baseline:central}
+.nd.done circle{fill:#0e3a2a;stroke:var(--gr);filter:drop-shadow(0 0 8px #4ade80)}.nd.done text{fill:var(--gr)}
+.nd.cur circle{stroke:var(--am);animation:pl 1.4s ease-in-out infinite}.nd.cur text{fill:var(--am)}
+@keyframes pl{50%{stroke-width:7;filter:drop-shadow(0 0 10px #ffb84a)}}
+.view{padding-top:6px}.view.in{animation:rise .5s ease}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}}
+.tags{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px}
+.pill{font:600 12px var(--mono);border:1px solid #2d6a55;color:var(--gr);background:#0d2a24;border-radius:99px;padding:5px 12px}
+.pill.lv{border-color:#6b5320;color:var(--am);background:#2a2110}.cnt{margin-left:auto;color:var(--mu);font-size:13px}
+h1{font-size:clamp(26px,5.5vw,42px);line-height:1.15;text-align:center;margin:14px 0}h1 em{font-style:normal;color:var(--am)}
+h2.qt{font-size:clamp(20px,4vw,27px);margin:4px 0 12px}
+.win{max-width:580px;margin:0 auto 14px;background:#0f1830;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 10px 30px #0008}
+.wh{display:flex;align-items:center;gap:7px;padding:9px 14px;border-bottom:1px solid var(--line);background:#0c1429;font:12px var(--mono);color:#7d8fc0}
+.wh i{width:11px;height:11px;border-radius:50%}.wh span:last-child{margin-left:auto;font-size:11px}
+.ln{display:flex;gap:14px;padding:4px 14px;font:15px/1.5 var(--mono);white-space:pre;transition:.5s;border-left:3px solid transparent;overflow-x:auto}
+.ln .n{color:#4a5a86;min-width:14px}.ln.on{background:#4ade8018;border-left-color:var(--gr)}.ln.off{opacity:.35}
+i.k{color:#a78bfa;font-style:normal;font-weight:600}i.s{color:var(--am);font-style:normal}i.n{color:#6ee7a0;font-style:normal}i.b{color:var(--cy);font-style:normal;font-weight:600}i.f{color:#7dd3fc;font-style:normal}
+.blank{display:inline-block;min-width:80px;text-align:center;border-bottom:2px dashed var(--am);color:var(--am);animation:pl2 1.4s infinite}.blank.fill{border-bottom-color:var(--gr);background:#4ade8022;animation:none;padding:0 6px}
+@keyframes pl2{50%{background:#ffb84a22}}
+.ask{color:#c9d4f5;margin:6px 0 10px;font-size:17px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{display:flex;gap:10px;align-items:center;text-align:left;background:var(--c2);color:var(--tx);border:1px solid var(--line);border-radius:12px;padding:12px;font:600 14px var(--mono);cursor:pointer;transition:.2s}
+.opt:hover:not(:disabled){border-color:var(--cy);transform:translateY(-2px)}.opt b{display:grid;place-items:center;min-width:26px;height:26px;border-radius:8px;background:#1a2748;color:var(--cy);font:700 13px Outfit}
+.opt.bad{border-color:var(--rd);background:#2a1220;opacity:.6;animation:sh .4s}.opt.good{border-color:var(--gr);background:#0e3a2a;box-shadow:0 0 18px #4ade8066}
+.opt:disabled{cursor:default}@keyframes sh{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.hint{margin-top:10px;border:1px solid #6b5320;background:#2a2110;color:#ffd998;border-radius:12px;padding:10px 14px;animation:rise .4s}
+.conds{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.cd{display:flex;align-items:center;gap:10px;border-radius:10px;padding:7px 12px;border:1px solid;animation:pop .35s;font-size:13px}
+.cd code{font-family:var(--mono)}.cd b{font-size:11px;letter-spacing:.1em;padding:2px 8px;border-radius:99px;color:#04130b}
+.cd.t{border-color:#2d6a55;background:#0d2a24}.cd.t b{background:var(--gr)}.cd.f{border-color:#7a2d44;background:#2a1220}.cd.f b{background:var(--rd)}
+@keyframes pop{from{transform:scale(.6);opacity:0}}
+.out{margin-top:12px;background:#050912;border:1px solid var(--line);border-radius:12px;padding:10px 14px;font:600 16px var(--mono);color:var(--gr)}
+.out small{display:block;color:var(--mu);font-size:11px;letter-spacing:.14em;margin-bottom:4px}
+.why{margin-top:12px;border:1px solid #1d5a73;background:#0b2233;border-radius:12px;padding:12px 14px;line-height:1.5;animation:rise .4s}
+.why strong{color:var(--cy)}
+.btn{display:block;margin:14px auto 0;background:var(--am);color:#2a1a00;border:0;border-radius:99px;padding:12px 28px;font:800 16px Outfit;cursor:pointer;transition:.2s;animation:pop .4s}.btn:hover{transform:scale(1.05)}
+.btn:disabled{background:var(--gr);cursor:default;transform:none}
+.nar{display:flex;gap:12px;align-items:center;margin-top:16px}
+.evo{flex:none;width:58px;height:58px;filter:drop-shadow(0 0 10px #4fd1ff88);animation:fl 3s ease-in-out infinite}@keyframes fl{50%{transform:translateY(-5px)}}
+.eye{animation:bl 4s infinite;transform-origin:center;transform-box:fill-box}@keyframes bl{94%,100%{transform:scaleY(1)}97%{transform:scaleY(.1)}}
+.sub{flex:1;background:#0a1020;border:1px solid var(--line);border-radius:12px;padding:12px 16px;text-align:center;font-size:16px;line-height:1.45;min-height:50px}
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:10px;margin:14px 0}
+.chip{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13px;font-weight:600;color:#cfd8f5}
+.chip .bar{height:4px;border-radius:9px;background:#26345c;margin-bottom:8px;overflow:hidden}.chip .bar i{display:block;height:100%;width:0;background:var(--cy);transition:width .6s}
+.chip.cur{border-color:var(--cy)}.chip.done .bar i{background:var(--gr)}.chip span{color:var(--mu);margin-right:5px}
+.ctl{display:flex;flex-wrap:wrap;gap:10px}
+.ctl button,.ctl select{background:var(--c2);color:var(--tx);border:1px solid var(--line);border-radius:99px;padding:12px 20px;font:600 15px Outfit;cursor:pointer}
+.ctl button.am{background:var(--am);color:#2a1a00;border-color:var(--am)}.ctl button.on{border-color:var(--cy);color:var(--cy)}
+.topics{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0}.topics span{border:1px solid var(--line);background:var(--c2);border-radius:99px;padding:6px 12px;font-size:13px;color:#c9d4f5}
+.trophy{font-size:70px;text-align:center;animation:pop .7s,fl 3s 1s infinite}
+.score{font-size:60px;font-weight:800;text-align:center;color:var(--gr);line-height:1}.score small{font-size:24px;color:var(--mu)}
+.dots{display:flex;justify-content:center;gap:7px;margin:12px 0}.dots i{width:16px;height:16px;border-radius:50%;background:var(--am);animation:pop .4s backwards}.dots i.g{background:var(--gr);box-shadow:0 0 10px #4ade80}
+.xp{max-width:420px;margin:10px auto;text-align:center}.xp .tr{height:12px;background:#1a2748;border-radius:9px;overflow:hidden;margin-top:6px}.xp .tr i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cy),var(--gr));transition:width 1.8s ease}
+.cf{position:absolute!important;top:-12px;width:9px;height:14px;border-radius:2px;animation:fall linear forwards;pointer-events:none}@keyframes fall{to{transform:translateY(900px) rotate(720deg);opacity:.6}}
+.ban{text-align:center;font:800 13px Outfit;letter-spacing:.3em;color:var(--am)}
+@media(max-width:560px){.opts{grid-template-columns:1fr}.ctl button,.ctl select{padding:10px 15px;font-size:14px}.sub{font-size:14px}.evo{width:46px;height:46px}}
+</style></head><body>
+<div class="app">
+<section class="stage" id="stage">
+ <div class="logo"><svg width="34" height="34" viewBox="0 0 34 34"><rect x="2" y="18" width="8" height="14" rx="3" fill="#ffb84a"/><rect x="13" y="8" width="8" height="24" rx="3" fill="#4fd1ff"/><rect x="24" y="2" width="8" height="30" rx="3" fill="#ff6b9a"/></svg>EVOLV</div>
+ <div class="path"><svg viewBox="0 0 1000 120"><path id="pBase"/><path id="pLit"/><g id="nodes"></g></svg></div>
+ <div class="view" id="view"></div>
+ <div class="nar"><svg class="evo" viewBox="0 0 60 60"><line x1="30" y1="4" x2="30" y2="12" stroke="#ffb84a" stroke-width="3"/><circle cx="30" cy="4" r="3.5" fill="#ffb84a"/><circle cx="30" cy="34" r="22" fill="#4fd1ff"/><rect x="14" y="24" width="32" height="20" rx="10" fill="#07102a"/><ellipse class="eye" cx="23" cy="34" rx="3.5" ry="4.5" fill="#4ade80"/><ellipse class="eye" cx="37" cy="34" rx="3.5" ry="4.5" fill="#4ade80"/></svg><div class="sub" id="sub"></div></div>
+</section>
+<div class="chips" id="chips"></div>
+<div class="ctl"><button class="am" id="bP">Pause</button><button id="bR">Restart</button><button id="bV">Voice</button><button id="bM">Music</button>
+<select id="sel" aria-label="Subtitles"><option value="en">Subtitles: English</option><option value="ta">Subtitles: தமிழ் · Tamil</option><option value="off">Subtitles: Off</option></select></div>
+</div>
+<script>
+const $=s=>document.querySelector(s),esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+let s=0,res=[],run=0,paused=false,voiceOn=false,sub="en",blankVal="",tries=0,locked=false,nar=["",""];
+const hi=l=>esc(l).replace(/("[^"]*")|\b(if|elif|else|and|or|not|in)\b|\b(True|False)\b|\b(\d+)\b|(BLANK)|\bprint\b/g,(m,a,k,b,n,bl)=>a?`<i class=s>${m}</i>`:k?`<i class=k>${m}</i>`:b?`<i class=b>${m}</i>`:n?`<i class=n>${m}</i>`:bl?`<b class="blank${blankVal?" fill":""}" id="blank">${blankVal?hi(blankVal):"_____"}</b>`:`<i class=f>${m}</i>`);
+const win=(c,f)=>`<div class="win"><div class="wh"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span>${f}</span><span>Python 3</span></div>${c.split("\n").map((l,k)=>`<div class="ln"><span class="n">${k+1}</span><code>${hi(l)}</code></div>`).join("")}</div>`;
+const GT='age = 16\nhas_ticket = True\nif age >= 18 and has_ticket:\n    print("Enter")\nelif BLANK:\n    print("Ask a parent")\nelse:\n    print("Denied")';
+const Q=[
+{tag:"if",lv:"Easy",t:"Choose the Correct Path",code:'age = 20\nif age >= 18:\n    print("Adult")',q:"Predict the output before you run it:",o:["Minor","Adult","Nothing is printed","SyntaxError"],a:1,on:[0,1,2],c:[["age >= 18",1]],out:"Adult",h:"Check the condition: is 20 greater than or equal to 18?",w:"20 >= 18 is TRUE, so the indented line runs and prints Adult.",en:"Challenge 1 — the first fork! Predict the output."},
+{tag:"if / else",lv:"Easy",t:"Two Possible Paths",code:'mark = 35\nif mark >= 50:\n    print("Pass")\nelse:\n    print("Fail")',q:"Which path does Python take?",o:["Pass","Nothing is printed","Fail","PassFail"],a:2,on:[0,1,3,4],c:[["mark >= 50",0]],out:"Fail",h:"Is 35 >= 50? When the if-condition is false, Python jumps to else.",w:"35 >= 50 is FALSE, so Python skips the if block and runs else, printing Fail.",en:"Challenge 2 — two paths, only one is taken."},
+{tag:"elif",lv:"Medium",t:"Multiple Decisions",code:'mark = 80\nif mark >= 90:\n    print("A")\nelif mark >= 75:\n    print("B")\nelse:\n    print("C")',q:"What is printed?",o:["C","A","A and B","B"],a:3,on:[0,1,3,4],c:[["mark >= 90",0],["mark >= 75",1]],out:"B",h:"Python checks from the top and stops at the first TRUE condition.",w:"80 >= 90 is FALSE, then 80 >= 75 is TRUE. B prints and the rest is skipped.",en:"Challenge 3 — many forks! Python stops at the first TRUE."},
+{tag:"and / or / not",lv:"Medium",t:"Logical Thinking",code:'age = 20\nhas_id = True\nprint(age >= 18 and has_id)',q:"What does this print?",o:["20","True","False","None"],a:1,on:[0,1,2],c:[["age >= 18",1],["has_id",1],["age >= 18 and has_id",1]],out:"True",h:"and gives True only when both sides are True.",w:"Both sides are True, so True and True is True. print shows the value True.",en:"Challenge 4 — logic gates glow when both sides are TRUE."},
+{tag:"Nested conditions",lv:"Medium",t:"Nested Decisions",code:'ticket = True\nif ticket:\n    if True:\n        print("Entry allowed")',q:"What happens when this runs?",o:["Entry allowed","Nothing is printed","True","Error"],a:0,on:[0,1,2,3],c:[["ticket",1],["True",1]],out:"Entry allowed",h:"Both if lines must pass before Python reaches the print.",w:"ticket is True, so we enter the outer if. The inner condition is True too, so Entry allowed prints.",en:"Challenge 5 — a decision inside a decision."},
+{tag:"in / not in",lv:"Tricky",t:"Membership Check",code:'fruits = ["apple", "mango"]\nprint("mango" in fruits)',q:"What is the output?",o:["False","True","mango","Error"],a:1,on:[0,1],c:[['"mango" in fruits',1]],out:"True",h:"The word in asks: is this value inside the list?",w:"“mango” is one of the items in the list, so the check is True.",en:"Challenge 6 — is the item hiding in the list?"},
+{tag:"Conditional expressions",lv:"Tricky",t:"One-Line Decision",code:'age = 16\nstatus = "Adult" if age >= 18 else "Minor"\nprint(status)',q:"What does status hold?",o:["16","Adult","True","Minor"],a:3,on:[0,1,2],c:[["age >= 18",0]],out:"Minor",h:"Read it as: value_if_true if condition else value_if_false.",w:"age >= 18 is FALSE for 16, so the value after else, “Minor”, is chosen.",en:"Challenge 7 — a whole decision squeezed into one line."},
+{tag:"Truthiness",lv:"Tricky",t:"Truthiness",code:'items = []\nif items:\n    print("Available")\nelse:\n    print("Empty")',q:"Which message appears?",o:["Available","[]","Empty","Nothing is printed"],a:2,on:[0,1,3,4],c:[["items  (empty list)",0]],out:"Empty",h:"In an if, an empty list counts as False.",w:"An empty list is falsy, so the if is skipped and else prints Empty.",en:"Challenge 8 — can an empty list be TRUE or FALSE?"},
+{tag:"Decision practice",lv:"Boss",t:"Final Challenge · Part 1: Build the Gatekeeper",code:GT,q:"Teens (age 16) with a ticket should hear “Ask a parent”. Which condition fills the blank?",o:["not has_ticket","has_ticket","age >= 18","age < 18 and not has_ticket"],a:1,on:[0,1,2,4,5],c:[["age >= 18 and has_ticket",0],["elif has_ticket",1]],out:"Ask a parent",h:"The elif should catch people who failed the first check but still have a ticket.",w:"elif has_ticket only runs when the first condition failed. A teen with a ticket reaches it and gets Ask a parent.",en:"Final boss! Fix the gatekeeper’s code to open the forest gate.",ta:"இறுதி சவால்! எல்லா decision concepts-ம் சேர்ந்து வருது. Code-ஐ சரி செய்!"},
+{tag:"Decision practice",lv:"Boss",t:"Final Challenge · Part 2: Run the Gatekeeper",code:GT.replace("age = 16","age = 20").replace("has_ticket = True","has_ticket = False"),q:"Now age is 20 and has_ticket is False. What does the gatekeeper print?",o:["Enter","Ask a parent","Nothing is printed","Denied"],a:3,on:[0,1,2,4,6,7],c:[["age >= 18",1],["has_ticket",0],["age >= 18 and has_ticket",0],["elif has_ticket",0]],out:"Denied",h:"and needs BOTH sides True. Then check the elif as well.",w:"age >= 18 is True but has_ticket is False, so the and fails. The elif has_ticket also fails, so else prints Denied.",en:"One last run — trace every check, in order!",ta:"கடைசி முறை! ஒவ்வொரு condition-ஐயும் வரிசையாகப் பார்!"}];
+const TA={ask:"Output என்னவாகும் என்று முதலில் யோசித்துச் சொல்லு!",ok:"சூப்பர்! சரியான பதில். பாதை ஒளிர்கிறது!",no:"பரவாயில்லை! Hint-ஐப் பார்த்து மீண்டும் முயற்சி செய்!"};
+const CH=["Intro","if","if / else","elif","and / or / not","Nested","in / not in","One-line","Truthiness","Final code","Reward"];
+const sleep=async ms=>{await new Promise(r=>setTimeout(r,ms));while(paused)await new Promise(r=>setTimeout(r,120))};
+function say(en,ta){nar=[en,ta];showSub();if(voiceOn&&window.speechSynthesis){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(en);u.lang=sub==="ta"?"ta-IN":"en-GB";speechSynthesis.speak(u)}}
+function showSub(){const e=$("#sub");e.style.visibility=sub==="off"?"hidden":"visible";e.textContent=sub==="ta"?nar[1]:nar[0]}
+function go(n,first){s=n;run++;locked=false;const v=$("#view");v.className="view";void v.offsetWidth;v.className="view in";n===0?intro():n===11?result():ques(n-1);chips();path();if(!first)$("#stage").scrollIntoView({behavior:"smooth",block:"start"})}
+function intro(){$("#view").innerHTML=`<div class="tags" style="justify-content:center"><span class="pill">9 topics · 10 challenges</span></div><h1>Logic Forest Checkpoint:<br><em>Test Your Decision-Making Skills!</em></h1>${win('if path_is_clear:\n    print("Walk on!")',"forest.py")}<div class="topics">${["if","if / else","elif","and · or · not","Nested","in · not in","One-line if","Truthiness","Practice"].map(t=>`<span>${t}</span>`).join("")}</div><button class="btn" onclick="go(1)">Enter the Forest →</button>`;
+ say("Hi, I’m EVO, your guide through Logic Forest! Every correct answer lights up the path. Ready to unlock the next world?","வணக்கம்! நான் EVO. Logic Forest-ல் உன் வழிகாட்டி. ஒவ்வொரு சரியான பதிலும் பாதையை ஒளிரச் செய்யும்!")}
+function ques(n){const q=Q[n];tries=0;if(n===9&&!blankVal)blankVal=Q[8].o[Q[8].a];
+ $("#view").innerHTML=`<div class="tags"><span class="pill lv">${q.lv}</span><span class="pill">${q.tag}</span><span class="cnt">Challenge ${n+1} of 10</span></div><h2 class="qt">${q.t}</h2>${win(q.code,n>7?"gatekeeper.py":"forest.py")}<div class="ask">${q.q}</div><div class="opts">${q.o.map((o,k)=>`<button class="opt" onclick="pick(${k})"><b>${"ABCD"[k]}</b><span>${esc(o)}</span></button>`).join("")}</div><div class="hint" id="hint" hidden></div><div class="conds" id="conds"></div><div class="out" id="out" hidden><small>▶ OUTPUT</small><span id="ot"></span></div><div class="why" id="why" hidden></div><div id="nx"></div>`;
+ say(q.en,q.ta||TA.ask)}
+async function pick(k){if(locked||paused)return;const q=Q[s-1],n=s-1,bs=document.querySelectorAll(".opt");
+ if(k!==q.a){tries++;bs[k].classList.add("bad");bs[k].disabled=true;const h=$("#hint");h.hidden=false;h.innerHTML="💡 <strong>Hint:</strong> "+q.h;say("Not quite — read the hint and try again!",TA.no);return}
+ locked=true;res[n]=tries?2:1;bs.forEach(b=>b.disabled=true);bs[k].classList.add("good");$("#hint").hidden=true;path();chips();
+ say(tries?"You got it! The path glows brighter with every try.":"Correct! The forest path lights up!",TA.ok);
+ if(n===8){blankVal=q.o[q.a];const b=$("#blank");b.className="blank fill";b.innerHTML=hi(blankVal)}
+ const id=run;document.querySelectorAll(".ln").forEach((l,i)=>l.classList.add(q.on.includes(i)?"on":"off"));await sleep(500);if(id!==run)return;
+ for(const[t,v]of q.c){$("#conds").insertAdjacentHTML("beforeend",`<span class="cd ${v?"t":"f"}"><code>${esc(t)}</code><b>${v?"TRUE":"FALSE"}</b></span>`);await sleep(600);if(id!==run)return}
+ $("#out").hidden=false;for(const ch of q.out){$("#ot").textContent+=ch;await sleep(55);if(id!==run)return}
+ await sleep(300);const w=$("#why");w.hidden=false;w.innerHTML="<strong>Why?</strong> "+q.w;
+ $("#nx").innerHTML=`<button class="btn" onclick="go(${s+1})">${n===9?"Finish Checkpoint 🏁":"Next challenge →"}</button>`}
+function result(){const f=res.filter(x=>x===1).length,r=10-f,xp=50+f*20+r*8,miss=[...new Set(res.map((x,i)=>x===2?Q[i].tag:null).filter(Boolean))];
+ const msg=f>=9?"Outstanding! You’re a true Logic Forest Guardian.":f>=7?"Great work! Your decision-making is sharp.":f>=4?"Nice job finishing! A little more practice and you’ll master it.":"You made it through — and that’s what counts. Every great coder learns by retrying!";
+ $("#view").innerHTML=`<div class="ban">✦ CHECKPOINT COMPLETED ✦</div><div class="trophy">🏆</div><h1 style="margin:6px 0">Logic Forest <em>Conquered!</em></h1><div class="score"><span id="sc">0</span><small> / 10 first-try</small></div><div class="dots">${res.map((x,i)=>`<i class="${x===1?"g":""}" style="animation-delay:${i*.1}s"></i>`).join("")}</div><div class="xp"><b style="color:var(--am);font-size:22px">+<span id="xp">0</span> XP</b><div class="tr"><i id="xb"></i></div></div><p style="text-align:center;font-size:18px;margin:10px 0 4px">${msg}</p>${miss.length?`<p style="text-align:center;color:var(--mu);margin:0">Worth a quick revisit: ${miss.join(" · ")}</p>`:""}<button class="btn" id="gate" onclick="this.textContent='🔓 Next world unlocked!';this.disabled=true;path(true)">Unlock the Next World</button><button class="btn" style="background:var(--c2);color:var(--tx);border:1px solid var(--line)" onclick="restart()">Retake checkpoint</button>`;
+ say("Congratulations! You finished the Logic Forest checkpoint. Great decisions!","வாழ்த்துகள்! Logic Forest Checkpoint முடிந்தது. சிறப்பான முடிவுகள்!");
+ const st=$("#stage");for(let i=0;i<40;i++){const c=document.createElement("i");c.className="cf";c.style.cssText=`left:${Math.random()*100}%;background:${["#4fd1ff","#ffb84a","#4ade80","#ff6b9a"][i%4]};animation-duration:${2.5+Math.random()*2.5}s;animation-delay:${Math.random()}s`;st.appendChild(c);setTimeout(()=>c.remove(),6500)}
+ let t=0;const iv=setInterval(()=>{t++;const a=$("#sc");if(!a)return clearInterval(iv);a.textContent=Math.min(f,t);$("#xp").textContent=Math.round(xp*Math.min(1,t/12));$("#xb").style.width=Math.min(100,xp/2.6)+"%";if(t>=12)clearInterval(iv)},140)}
+function chips(){const cs=s===0?0:s<9?s:s<11?9:10,dn=i=>i===0?s>0:i<9?!!res[i-1]:i===9?!!(res[8]&&res[9]):s===11;
+ $("#chips").innerHTML=CH.map((c,i)=>`<div class="chip ${dn(i)?"done":i===cs?"cur":""}"><div class="bar"><i style="width:${dn(i)?100:i===cs?(i===9&&res[8]?75:35):0}%"></i></div><span>${i+1}</span>${c}</div>`).join("")}
+const P=$("#pLit"),B=$("#pBase"),D="M30,62 C140,8 250,112 370,58 S600,8 720,60 S900,104 970,48";let L=0;
+function path(flash){const k=s===11?10:res.length-1,cur=s===11?-1:Math.min(res.length,10);P.style.strokeDashoffset=k<0?L:L-L*k/10;P.style.opacity=k<0?0:1;
+ document.querySelectorAll(".nd").forEach((g,i)=>{g.setAttribute("class","nd"+(i<=k?" done":i===cur?" cur":"")+(flash&&i===10?" done":""))})}
+function init(){B.setAttribute("d",D);P.setAttribute("d",D);L=P.getTotalLength();P.style.strokeDasharray=L;P.style.strokeDashoffset=L;
+ $("#nodes").innerHTML=Array.from({length:11},(_,i)=>{const p=P.getPointAtLength(L*i/10);return`<g class="nd"><circle cx="${p.x}" cy="${p.y}" r="22"/><text x="${p.x}" y="${p.y}">${i<10?i+1:"★"}</text></g>`}).join("");
+ const st=$("#stage");for(let i=0;i<12;i++){const f=document.createElement("i");f.className="ff";f.style.cssText=`left:${Math.random()*96}%;top:${Math.random()*92}%;animation-delay:${Math.random()*6}s;animation-duration:${5+Math.random()*5}s`;st.appendChild(f)}
+ go(0,true)}
+function restart(){res=[];blankVal="";if(window.speechSynthesis)speechSynthesis.cancel();go(0)}
+$("#bR").onclick=restart;
+$("#bP").onclick=e=>{paused=!paused;document.body.classList.toggle("paused",paused);e.target.textContent=paused?"Resume":"Pause";if(window.speechSynthesis)paused?speechSynthesis.pause():speechSynthesis.resume()};
+$("#bV").onclick=e=>{voiceOn=!voiceOn;e.target.classList.toggle("on",voiceOn);if(voiceOn)say(...nar);else if(window.speechSynthesis)speechSynthesis.cancel()};
+$("#sel").onchange=e=>{sub=e.target.value;showSub()};
+let ac,mOn=false;
+$("#bM").onclick=e=>{mOn=!mOn;e.target.classList.toggle("on",mOn);try{if(!ac){ac=new(window.AudioContext||window.webkitAudioContext)();const m=ac.createGain();m.gain.value=.05;m.connect(ac.destination);[196,247,294,392].forEach((f,k)=>{const o=ac.createOscillator(),g=ac.createGain(),l=ac.createOscillator(),lg=ac.createGain();o.frequency.value=f;g.gain.value=.25;l.frequency.value=.1+k*.07;lg.gain.value=.2;l.connect(lg);lg.connect(g.gain);o.connect(g);g.connect(m);o.start();l.start()})}mOn?ac.resume():ac.suspend()}catch(x){}};
+init();
+</script></body></html>
