@@ -3,7 +3,9 @@ import { useEffect, useState } from "react";
 import "./auth.css";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = (
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api"
+).replace(/\/+$/, "");
 
 const interestsList = [
   "Web Development",
