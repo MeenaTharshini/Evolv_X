@@ -1,0 +1,799 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Python Conditional Expressions: Decisions in One Line</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap">
+<style>
+/* Layout: one rounded stage (logo, swappable view, subtitle bar), chapter tabs below, control pills under that. */
+:root{
+  --bg:#070c1a; --stage:#0b1326; --panel:#101a33; --panel2:#0d1630; --line:#1f2d52;
+  --fg:#e8ecfa; --mute:#8794b8; --dim:#4a5678;
+  --cyan:#4cc9f0; --amber:#ffb547; --green:#4ade80; --coral:#ff6b81; --violet:#a78bfa;
+  --display:"Plus Jakarta Sans","Segoe UI",system-ui,-apple-system,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{
+  margin:0; background:var(--bg); color:var(--fg); font-family:var(--display); font-size:15px; line-height:1.5;
+  padding-block:20px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+.wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+button,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+
+/* stage */
+.stage{
+  position:relative; border:1px solid var(--line); border-radius:22px; padding:20px 22px 18px;
+  background:
+    linear-gradient(rgba(76,201,240,.035) 1px,transparent 1px) 0 0/34px 34px,
+    linear-gradient(90deg,rgba(76,201,240,.035) 1px,transparent 1px) 0 0/34px 34px,
+    radial-gradient(900px 380px at 50% 0%,rgba(76,201,240,.08),transparent 70%),
+    var(--stage);
+  display:flex; flex-direction:column; gap:14px; overflow:hidden;
+}
+.brand{display:flex;align-items:center;justify-content:center;gap:12px}
+.brand svg{width:34px;height:34px}
+.brand b{letter-spacing:.32em;font-weight:800;font-size:16px}
+.views{display:grid}
+.view{grid-area:1/1;opacity:0;visibility:hidden;transition:opacity .45s;min-width:0}
+.stage[data-view="intro"] .v-intro,
+.stage[data-view="bench"] .v-bench,
+.stage[data-view="wrap"] .v-wrap{opacity:1;visibility:visible}
+
+/* intro */
+.v-intro{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.park{width:100%;max-width:760px;height:auto}
+.pill{display:inline-block;border:1px solid rgba(74,222,128,.45);color:var(--green);background:rgba(74,222,128,.08);
+  font-family:var(--mono);font-size:12px;font-weight:500;padding:5px 14px;border-radius:99px}
+h1{margin:0;font-size:clamp(26px,4.6vw,46px);line-height:1.12;font-weight:800;text-wrap:balance;letter-spacing:-.01em}
+h1 em{font-style:normal;color:var(--amber)}
+
+/* park scene */
+.park .ground{stroke:var(--line);stroke-width:2}
+.park .track{stroke:var(--cyan);stroke-width:4;fill:none;stroke-linecap:round}
+.park .sup{stroke:rgba(76,201,240,.35);stroke-width:2}
+#student{transform:translate(30px,0);transition:transform 3.2s cubic-bezier(.4,.1,.3,1)}
+.park.s1 #student{transform:translate(215px,0)}
+.park.s3 #student{transform:translate(330px,0)}
+.pop{opacity:0;transform:translateY(6px);transition:opacity .5s,transform .5s}
+.park.s2 .tick,.park.s3 .tick{opacity:1;transform:none}
+.park.s3 .hgt{opacity:1;transform:none}
+.park.s4 .q{opacity:1;transform:none;animation:bob 1.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-4px)}}
+
+/* workbench */
+.v-bench{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:16px;align-items:start}
+.v-bench>*{min-width:0}
+.left{display:flex;flex-direction:column;gap:12px}
+.chap{display:flex;align-items:center;gap:10px;flex-wrap:wrap;grid-column:1/-1}
+.chap .pill{border-color:rgba(76,201,240,.45);color:var(--cyan);background:rgba(76,201,240,.08)}
+.chap span.t{font-weight:700;font-size:17px}
+.win{border:1px solid var(--line);border-radius:14px;background:var(--panel2);overflow:hidden}
+.win .bar{display:flex;align-items:center;gap:7px;padding:9px 14px;border-bottom:1px solid var(--line);background:var(--panel)}
+.win .bar i{width:11px;height:11px;border-radius:50%;display:block}
+.win .bar i:nth-child(1){background:#ff5f57}.win .bar i:nth-child(2){background:#febc2e}.win .bar i:nth-child(3){background:#28c840}
+.win .bar .fn{font-family:var(--mono);font-size:11.5px;color:var(--mute);margin-left:8px}
+.win .bar .ver{margin-left:auto;font-family:var(--mono);font-size:10.5px;color:var(--dim)}
+.code{padding:8px 0;overflow-x:auto}
+.ln{display:flex;align-items:center;gap:14px;padding:1px 14px;font-family:var(--mono);font-size:clamp(12.5px,1.55vw,15.5px);line-height:1.85;
+  border-left:3px solid transparent;transition:opacity .4s,background .4s,border-color .4s}
+.ln .n{width:1.4em;text-align:right;color:var(--dim);flex:none;user-select:none}
+.ln .src{white-space:pre;flex:1;min-width:0}
+.ln .bdg{flex:none;font-size:10.5px;font-weight:700;padding:1px 8px;border-radius:99px;opacity:0;transform:scale(.8);transition:.3s}
+.ln .bdg.show{opacity:1;transform:none}
+.ln .bdg.t{background:rgba(74,222,128,.15);color:var(--green);border:1px solid rgba(74,222,128,.5)}
+.ln .bdg.f{background:rgba(255,107,129,.13);color:var(--coral);border:1px solid rgba(255,107,129,.5)}
+.ln.dim{opacity:.28}
+.ln.c{background:rgba(76,201,240,.12);border-left-color:var(--cyan)}
+.ln.a{background:rgba(255,181,71,.12);border-left-color:var(--amber)}
+.ln.g{background:rgba(74,222,128,.13);border-left-color:var(--green)}
+.ln.x{background:rgba(255,107,129,.14);border-left-color:var(--coral)}
+.win.depth .ln[data-d="1"] .src{box-shadow:inset 2px 0 0 rgba(76,201,240,.55)}
+.win.depth .ln[data-d="2"] .src{box-shadow:inset 2px 0 0 rgba(76,201,240,.55),inset 34px 0 0 -32px rgba(255,181,71,.8)}
+.k{color:#a78bfa}.s{color:#86efac}.num{color:#7ee0a0}.v{color:#e8ecfa}.f{color:#4cc9f0}.o{color:#ffb547}
+
+.out{border:1px solid var(--line);border-radius:14px;background:#060b18;padding:10px 14px;min-height:88px}
+.out .h{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);margin-bottom:4px}
+.out pre{margin:0;font-family:var(--mono);font-size:14px;color:var(--green);white-space:pre-wrap;min-height:1.6em;line-height:1.6}
+.out pre.err{color:var(--coral);font-size:12.5px}
+.out pre.caret::after{content:"▍";animation:blink 1s steps(2) infinite;color:var(--cyan)}
+@keyframes blink{50%{opacity:0}}
+
+/* quiz */
+.quiz{border:1px solid rgba(255,181,71,.5);border-radius:14px;background:rgba(255,181,71,.06);padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.quiz .h{font-weight:800;color:var(--amber)}
+.opts{display:grid;gap:8px}
+.opt{display:flex;align-items:center;gap:10px;text-align:left;border:1px solid var(--line);background:var(--panel);border-radius:11px;padding:9px 12px;cursor:pointer;font-family:var(--mono);font-size:13.5px}
+.opt b{font-family:var(--display);color:var(--mute);width:1.2em}
+.opt:hover{border-color:var(--cyan)}
+.opt.pick{border-color:var(--cyan);background:rgba(76,201,240,.1)}
+.opt.right{border-color:var(--green);background:rgba(74,222,128,.14)}
+.opt.wrong{border-color:var(--coral);background:rgba(255,107,129,.12)}
+.timer{height:6px;border-radius:9px;background:var(--line);overflow:hidden}
+.timer i{display:block;height:100%;width:100%;background:var(--amber);transform-origin:left}
+.qrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--mute)}
+.qrow button{margin-left:auto}
+.fb{font-weight:700;font-size:13.5px}
+
+/* tree + scopes */
+.right{display:flex;flex-direction:column;gap:8px}
+.tree{width:100%;height:auto;display:block}
+.tree .edge{stroke:var(--dim);stroke-width:2;fill:none;stroke-dasharray:5 5;transition:.4s}
+.tree .edge.lt{stroke:var(--green);stroke-dasharray:none;filter:drop-shadow(0 0 4px rgba(74,222,128,.7))}
+.tree .edge.lf{stroke:var(--coral);stroke-dasharray:none;filter:drop-shadow(0 0 4px rgba(255,107,129,.6))}
+.tree .edge.off{opacity:.25}
+.tree .nd rect{fill:var(--panel);stroke:var(--line);stroke-width:1.5;transition:.4s}
+.tree .nd text{fill:var(--fg);font-family:var(--mono);font-size:12.5px;text-anchor:middle}
+.tree .nd.cond rect{stroke:rgba(76,201,240,.5)}
+.tree .nd.on rect{stroke:var(--cyan);fill:rgba(76,201,240,.16);filter:drop-shadow(0 0 8px rgba(76,201,240,.55))}
+.tree .nd.win rect{stroke:var(--green);fill:rgba(74,222,128,.17);filter:drop-shadow(0 0 9px rgba(74,222,128,.6))}
+.tree .nd.win text{fill:var(--green);font-weight:700}
+.tree .nd.off{opacity:.25}
+.tree .nd.out text{font-size:10.5px}
+.tree .lab{opacity:0;transition:.3s}
+.tree .lab.show{opacity:1}
+.tree .lab rect{rx:9}
+.tree .lab.t rect{fill:#0f3a27;stroke:var(--green)}.tree .lab.t text{fill:var(--green)}
+.tree .lab.f rect{fill:#3d1620;stroke:var(--coral)}.tree .lab.f text{fill:var(--coral)}
+.tree .lab text{font-family:var(--mono);font-size:10px;font-weight:700;text-anchor:middle}
+#walker{transition:transform .9s cubic-bezier(.4,.1,.3,1),opacity .4s;opacity:0}
+#walker.show{opacity:1}
+.cap{font-size:12.5px;color:var(--mute);text-align:center}
+.scopes{display:flex;flex-direction:column;gap:10px;padding:4px 0}
+.sc{border:2px solid var(--cyan);border-radius:14px;padding:10px 12px 12px;background:rgba(76,201,240,.06);display:flex;flex-direction:column;gap:8px}
+.sc .tag{font-family:var(--mono);font-size:13px;font-weight:700}
+.sc.outer .tag{color:var(--cyan)}
+.sc.inner{border-color:var(--amber);background:rgba(255,181,71,.07)}
+.sc.inner .tag{color:var(--amber)}
+.sc.leaf{border-color:var(--green);background:rgba(74,222,128,.08);padding:8px 12px;font-family:var(--mono);font-size:13px;color:var(--green)}
+.sc.bad{border-style:dashed;border-color:var(--coral);background:rgba(255,107,129,.06)}
+.sc.bad .tag,.sc.bad .empty{color:var(--coral)}
+.sc .empty{font-size:12.5px;font-style:italic}
+.sc.shake{animation:shake .5s 2}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.ok{color:var(--green);font-weight:700;font-size:13.5px}
+
+/* wrap-up */
+.v-wrap{display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;width:100%;max-width:860px}
+.card{border:1px solid var(--line);border-radius:16px;background:var(--panel);padding:18px 16px;text-align:left;opacity:.25;transform:translateY(10px);transition:.6s}
+.card.show{opacity:1;transform:none;border-color:rgba(74,222,128,.5)}
+.card b{display:block;color:var(--green);font-family:var(--mono);font-size:12px;margin-bottom:6px}
+.card p{margin:0;font-size:15px}
+.card code{font-family:var(--mono);color:var(--amber);font-size:13.5px}
+
+/* subtitle bar */
+.sub{border:1px solid var(--line);border-radius:12px;background:rgba(6,11,24,.75);padding:10px 18px;min-height:64px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:clamp(15px,2vw,19px);font-weight:600;text-wrap:balance}
+.sub.off{visibility:hidden}
+.startov{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(7,12,26,.55);backdrop-filter:blur(2px);z-index:5;transition:opacity .3s}
+.startov.gone{opacity:0;pointer-events:none}
+.startov button{background:var(--amber);color:#1a1200;border:0;border-radius:99px;padding:14px 30px;font-weight:800;font-size:17px;cursor:pointer;box-shadow:0 8px 30px rgba(255,181,71,.35)}
+
+/* tabs and controls */
+.tabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:10px;padding:0;margin:0;list-style:none}
+.tab{width:100%;text-align:left;cursor:pointer;border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:9px 12px 10px;display:flex;flex-direction:column;gap:6px}
+.tab .tb{height:4px;border-radius:9px;background:var(--line);overflow:hidden}
+.tab .tb i{display:block;height:100%;width:0;background:var(--cyan);transition:width .5s}
+.tab .tl{font-weight:700;font-size:14px}
+.tab .tl s{text-decoration:none;color:var(--dim);margin-right:6px;font-weight:500}
+.tab.act{border-color:var(--cyan);background:rgba(76,201,240,.08)}
+.tab.done .tb i{background:var(--green)}
+.ctrls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn,.sel{border:1px solid var(--line);background:var(--panel);border-radius:99px;padding:10px 18px;cursor:pointer;font-weight:700;font-size:14.5px}
+.btn:hover,.sel:hover{border-color:var(--cyan)}
+.btn.main{background:var(--amber);color:#1a1200;border-color:var(--amber);min-width:104px}
+.btn[aria-pressed="true"]{border-color:var(--green);color:var(--green)}
+.btn.sm{padding:6px 14px;font-size:13px}
+.sel{appearance:none;padding-right:34px;background-image:linear-gradient(45deg,transparent 50%,var(--mute) 50%),linear-gradient(135deg,var(--mute) 50%,transparent 50%);background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px;background-repeat:no-repeat;max-width:100%}
+.sel option{background:var(--panel);color:var(--fg)}
+#voiceSel{flex:1 1 200px;min-width:0;border-color:rgba(76,201,240,.55)}
+
+@media (max-width:780px){
+  .v-bench{grid-template-columns:1fr}
+  .stage{padding:16px 14px 14px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition-duration:.01s!important}
+}
+
+/* ===== lesson 2 additions ===== */
+.view.v-syntax,.view.v-compare{display:flex;flex-direction:column;gap:14px;align-items:stretch}
+.stage[data-view="syntax"] .v-syntax,
+.stage[data-view="compare"] .v-compare{opacity:1;visibility:visible}
+.v-syntax .chap,.v-compare .chap{grid-column:auto}
+
+/* intro scene, cumulative steps s1..s3 */
+.v-intro .paper,.v-intro .markv,.v-intro .bub,.v-intro .stamp,.v-intro .introcode{opacity:0;transform:translateY(8px);transition:opacity .6s,transform .6s}
+.v-intro.s1 .paper,.v-intro.s2 .markv,.v-intro.s2 .bub,.v-intro.s3 .stamp,.v-intro.s3 .introcode{opacity:1;transform:none}
+.v-intro.s3 .bub{opacity:.0}
+.introcode{font-family:var(--mono);font-size:clamp(12px,1.9vw,16px);padding:6px 16px;border-radius:12px;border:1px solid rgba(255,181,71,.5);background:rgba(255,181,71,.07);color:var(--fg);max-width:100%;overflow-x:auto;white-space:pre}
+.stamp{transform-origin:center}
+.v-intro.s3 .stamp{animation:stampin .5s cubic-bezier(.3,1.6,.5,1)}
+@keyframes stampin{from{transform:scale(2.2) rotate(-12deg);opacity:0}}
+
+/* syntax formula */
+.syn{display:flex;flex-wrap:wrap;gap:10px 12px;justify-content:center;align-items:flex-start;padding:6px 0}
+.syn .col{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;position:relative;padding-top:20px}
+.tok{font-family:var(--mono);font-weight:700;font-size:clamp(14px,2.3vw,21px);padding:9px 16px;border-radius:12px;border:2px solid var(--line);transition:.4s;background:var(--panel2);max-width:100%;overflow-wrap:anywhere}
+.tok.tv{border-color:var(--green);color:var(--green)}
+.tok.tc{border-color:var(--cyan);color:var(--cyan)}
+.tok.fv{border-color:var(--amber);color:var(--amber)}
+.tok.k{border-color:transparent;background:none;color:var(--violet);padding-inline:2px}
+.tok.hot{box-shadow:0 0 0 3px rgba(255,255,255,.07),0 0 20px currentColor;transform:translateY(-2px)}
+.tok.dimt{opacity:.28}
+.cp{font-size:12.5px;color:var(--mute);opacity:0;transition:.5s;text-align:center}
+.cp.show{opacity:1}
+.ord{position:absolute;top:0;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#07102a;opacity:0;transform:scale(.4);transition:.4s}
+.ord.show{opacity:1;transform:none}
+.ord.o1{background:var(--cyan)}.ord.o2{background:var(--green)}.ord.o3{background:var(--amber)}
+.forkbox{max-width:560px;margin:0 auto;width:100%}
+.forkbox svg{width:100%;height:auto;display:block}
+
+/* fork diagram nodes */
+.tree .nd.vt rect{stroke:rgba(74,222,128,.55)}.tree .nd.vt text{fill:var(--green)}
+.tree .nd.vf rect{stroke:rgba(255,181,71,.55)}.tree .nd.vf text{fill:var(--amber)}
+.tree .nd.res rect{stroke:rgba(255,255,255,.18)}
+.tree .nd.vt.win rect{stroke:var(--green);fill:rgba(74,222,128,.2);filter:drop-shadow(0 0 9px rgba(74,222,128,.6))}
+.tree .nd.vf.win rect{stroke:var(--amber);fill:rgba(255,181,71,.18);filter:drop-shadow(0 0 9px rgba(255,181,71,.6))}
+.tree .nd.res.win rect{stroke:var(--green);fill:rgba(74,222,128,.12);filter:none}
+.tree .nd.res.win text{fill:var(--fg)}
+.tree .nd text{font-size:14px}
+.tree .edge.lc{stroke:var(--cyan);stroke-dasharray:none}
+.ball{transition:transform .9s cubic-bezier(.4,.1,.3,1),opacity .4s;opacity:0}
+.ball.show{opacity:1}
+
+/* memory cells */
+.mem{display:flex;gap:12px;flex-wrap:wrap}
+.cell{flex:1 1 120px;border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:8px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.cell span{font-family:var(--mono);font-size:11.5px;color:var(--mute)}
+.cell b{font-family:var(--mono);font-size:20px;color:var(--amber);overflow-wrap:anywhere}
+.cell b.flash{animation:flash .8s}
+@keyframes flash{0%{color:#fff;transform:scale(1.25)}100%{transform:none}}
+
+/* code parts */
+.part{border-radius:5px;padding:1px 3px;margin:0 -3px;transition:.35s}
+.part.c{background:rgba(76,201,240,.22);box-shadow:0 0 0 1px var(--cyan)}
+.part.g{background:rgba(74,222,128,.22);box-shadow:0 0 0 1px var(--green)}
+.part.a{background:rgba(255,181,71,.22);box-shadow:0 0 0 1px var(--amber)}
+.part.dim{opacity:.3}
+
+/* compare */
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+.cmp>div{min-width:0;display:flex;flex-direction:column;gap:10px}
+.cmp .lb{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);font-weight:700}
+.win.dimw{opacity:.3;transition:opacity .4s}
+.win{transition:opacity .4s}
+.same{align-self:center;font-weight:800;color:var(--green);border:1px solid rgba(74,222,128,.5);background:rgba(74,222,128,.1);border-radius:99px;padding:6px 18px;opacity:0;transition:.5s}
+.same.show{opacity:1}
+.uses{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.use{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:12px 14px;opacity:.2;transform:translateY(8px);transition:.6s;text-align:left}
+.use.show{opacity:1;transform:none}
+.use.y.show{border-color:rgba(74,222,128,.55)}
+.use.n.show{border-color:rgba(255,181,71,.55)}
+.use b{display:block;font-size:12px;font-family:var(--mono);margin-bottom:4px}
+.use.y b{color:var(--green)}.use.n b{color:var(--amber)}
+.use p{margin:0;font-size:14.5px}
+@media (max-width:780px){ .cmp{grid-template-columns:1fr} }
+</style>
+<main class="wrap">
+<div class="stage" id="stage" data-view="intro">
+  <div class="brand" aria-label="EVOLV">
+    <svg viewBox="0 0 34 34" aria-hidden="true"><rect x="2" y="20" width="8" height="12" rx="3" fill="#ffb547"/><rect x="13" y="10" width="8" height="22" rx="3" fill="#4cc9f0"/><rect x="24" y="2" width="8" height="30" rx="3" fill="#ff6b81"/></svg>
+    <b>EVOLV</b>
+  </div>
+
+  <div class="views">
+    <!-- INTRO -->
+    <section class="view v-intro s3" id="introV">
+      <svg class="park" viewBox="0 0 760 250" role="img" aria-label="A student looks at her exam result: mark 75, pass mark 50">
+        <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a1330"/><stop offset="1" stop-color="#101d40"/></linearGradient></defs>
+        <rect x="0" y="0" width="760" height="250" rx="14" fill="url(#sky)"/>
+        <g fill="#cfe9ff" opacity=".7"><circle cx="60" cy="30" r="1.5"/><circle cx="410" cy="22" r="1.2"/><circle cx="690" cy="40" r="1.6"/><circle cx="720" cy="120" r="1.2"/></g>
+        <g transform="translate(40,0)">
+          <!-- student at desk -->
+          <rect x="100" y="178" width="210" height="10" rx="4" fill="#1f2d52"/><rect x="112" y="188" width="8" height="42" fill="#1f2d52"/><rect x="290" y="188" width="8" height="42" fill="#1f2d52"/>
+          <rect x="152" y="138" width="36" height="44" rx="12" fill="#ffb547"/>
+          <line x1="184" y1="152" x2="236" y2="177" stroke="#ffb547" stroke-width="9" stroke-linecap="round"/>
+          <circle cx="170" cy="120" r="16" fill="#ffd9b0"/><path d="M154 118 Q156 100 170 100 Q185 100 186 118 Q176 108 154 118Z" fill="#2b1b3d"/>
+          <g class="bub"><rect x="205" y="30" width="160" height="42" rx="14" fill="#101a33" stroke="#ffb547" stroke-width="1.5"/><path d="M214 72 L190 98 L236 72Z" fill="#101a33" stroke="#ffb547" stroke-width="1.5"/><rect x="208" y="66" width="30" height="8" fill="#101a33"/>
+            <text x="285" y="57" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif" font-weight="800" font-size="16" fill="#ffb547">Did I pass?</text></g>
+          <!-- exam paper -->
+          <g class="paper"><rect x="420" y="22" width="200" height="196" rx="12" fill="#0d1630" stroke="#4cc9f0" stroke-width="2"/>
+            <text x="520" y="52" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" letter-spacing="2" fill="#8794b8">EXAM RESULT</text>
+            <line x1="440" y1="64" x2="600" y2="64" stroke="#1f2d52"/>
+            <text x="440" y="88" font-family="JetBrains Mono,monospace" font-size="12" fill="#8794b8">mark</text>
+            <text x="440" y="176" font-family="JetBrains Mono,monospace" font-size="12" fill="#8794b8">pass mark = 50</text>
+            <rect x="440" y="188" width="160" height="8" rx="4" fill="#1f2d52"/>
+            <line x1="520" y1="182" x2="520" y2="202" stroke="#4ade80" stroke-width="2" stroke-dasharray="3 2"/>
+            <g class="markv"><text x="440" y="146" font-family="Plus Jakarta Sans,sans-serif" font-weight="800" font-size="56" fill="#ffb547">75</text><text x="508" y="146" font-family="JetBrains Mono,monospace" font-size="14" fill="#8794b8">/ 100</text>
+              <rect x="440" y="188" width="120" height="8" rx="4" fill="#4cc9f0"/></g></g>
+          <g class="stamp"><g transform="translate(590,70) rotate(-12)"><rect x="-58" y="-24" width="116" height="48" rx="8" fill="#07102a" stroke="#4ade80" stroke-width="3.5"/><text x="0" y="9" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif" font-weight="800" font-size="28" letter-spacing="2" fill="#4ade80">PASS</text></g></g>
+        </g>
+      </svg>
+      <code class="introcode">result = "Pass" if mark >= 50 else "Fail"</code>
+      <span class="pill">4 lines → 1 line</span>
+      <h1>Python Conditional Expressions —<br><em>Decisions in One Line!</em></h1>
+    </section>
+
+    <!-- SYNTAX -->
+    <section class="view v-syntax">
+      <div class="chap"><span class="pill">The syntax</span><span class="t">One value out of two</span></div>
+      <div class="syn" id="syn">
+        <div class="col"><span class="ord o2" id="ordT">2</span><span class="tok tv" id="stv">value_if_true</span><span class="cp" id="cpT">returned when True</span></div>
+        <div class="col"><span class="tok k">if</span></div>
+        <div class="col"><span class="ord o1" id="ordC">1</span><span class="tok tc" id="stc">condition</span><span class="cp" id="cpC">checked first</span></div>
+        <div class="col"><span class="tok k">else</span></div>
+        <div class="col"><span class="ord o3" id="ordF">2</span><span class="tok fv" id="sfv">value_if_false</span><span class="cp" id="cpF">returned when False</span></div>
+      </div>
+      <div class="forkbox" id="forkSy"></div>
+    </section>
+
+    <!-- WORKBENCH -->
+    <section class="view v-bench">
+      <div class="chap"><span class="pill" id="chapPill">Example</span><span class="t" id="chapTitle"></span></div>
+      <div class="left">
+        <div class="win" id="win">
+          <div class="bar"><i></i><i></i><i></i><span class="fn" id="fn">exam.py</span><span class="ver">Python 3</span></div>
+          <div class="code" id="code"></div>
+        </div>
+        <div class="out" id="outBox"><div class="h">Output</div><pre id="outPre"></pre></div>
+        <div class="quiz" id="quiz" hidden>
+          <div class="h">Your turn: what will Python print?</div>
+          <div class="opts" id="opts"></div>
+          <div class="timer"><i id="timerBar"></i></div>
+          <div class="qrow"><span id="qTxt">Pick an answer…</span><button class="btn sm" id="revealBtn" type="button">Show answer</button></div>
+          <div class="fb" id="fb"></div>
+        </div>
+      </div>
+      <div class="right">
+        <div class="mem">
+          <div class="cell"><span id="memAn">mark</span><b id="memAv">75</b></div>
+          <div class="cell"><span id="memBn">result</span><b id="memBv">—</b></div>
+        </div>
+        <div id="forkBn"></div>
+        <div class="cap" id="treeCap">Python checks the condition, then returns one of the two values.</div>
+      </div>
+    </section>
+
+    <!-- COMPARE -->
+    <section class="view v-compare">
+      <div class="chap"><span class="pill">Compare</span><span class="t">Same result, fewer lines</span><span class="pill" style="border-color:rgba(255,181,71,.5);color:var(--amber);background:rgba(255,181,71,.08)">mark = 75</span></div>
+      <div class="cmp" id="cmp">
+        <div>
+          <span class="lb">Regular if-else · 4 lines</span>
+          <div class="win" id="w2"><div class="bar"><i></i><i></i><i></i><span class="fn">if_else.py</span><span class="ver">Python 3</span></div><div class="code" id="codeLong"></div></div>
+          <div class="out"><div class="h">Output</div><pre id="o2pre"></pre></div>
+        </div>
+        <div>
+          <span class="lb">Conditional expression · 1 line</span>
+          <div class="win" id="w1"><div class="bar"><i></i><i></i><i></i><span class="fn">one_line.py</span><span class="ver">Python 3</span></div><div class="code" id="codeOne"></div></div>
+          <div class="out"><div class="h">Output</div><pre id="o1pre"></pre></div>
+        </div>
+      </div>
+      <div class="same" id="same">Same result: Pass</div>
+      <div class="uses">
+        <div class="use y" id="u1"><b>GOOD FOR</b><p>A simple decision that picks one of two values.</p></div>
+        <div class="use n" id="u2"><b>USE if-else INSTEAD</b><p>When each choice needs several lines of code.</p></div>
+      </div>
+    </section>
+
+    <!-- WRAP-UP -->
+    <section class="view v-wrap">
+      <h1>One line, <em>one decision!</em></h1>
+      <div class="cards">
+        <div class="card" id="w1c"><b>1 · SYNTAX</b><p><code>value_if_true if condition else value_if_false</code></p></div>
+        <div class="card" id="w2c"><b>2 · ORDER</b><p>Python checks the condition first, then returns just one of the two values.</p></div>
+        <div class="card" id="w3c"><b>3 · WHEN</b><p>Use it for simple two-value choices. Use <code>if-else</code> for bigger blocks.</p></div>
+      </div>
+      <button class="btn main" type="button" id="replayBtn">Replay lesson</button>
+    </section>
+  </div>
+
+  <div class="sub" id="sub" aria-live="polite"></div>
+  <div class="startov" id="startov"><button type="button" id="startBtn">Start the lesson</button></div>
+</div>
+
+<ol class="tabs" id="tabs"></ol>
+
+<div class="ctrls">
+  <button class="btn main" id="playBtn" type="button">Play</button>
+  <button class="btn" id="restartBtn" type="button">Restart</button>
+  <button class="btn" id="chapBtn" type="button">Replay chapter</button>
+  <button class="btn" id="voiceBtn" type="button" aria-pressed="true">Voice</button>
+  <button class="btn" id="musicBtn" type="button" aria-pressed="false">Music</button>
+  <select class="sel" id="subSel" aria-label="Subtitles"><option value="on">Subtitles: English</option><option value="off">Subtitles: Off</option></select>
+  <select class="sel" id="voiceSel" aria-label="Narrator voice"><option value="">Default voice</option></select>
+</div>
+</main>
+<script>
+(function(){
+"use strict";
+const $=id=>document.getElementById(id);
+const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+
+/* ---------- tiny Python highlighter ---------- */
+function hl(raw){
+  const re=/("[^"]*")|\b(if|else|True|False)\b|\b(print)\b|\b(\d+)\b|(>=|==|=)/g;
+  let out="",last=0,m;
+  while((m=re.exec(raw))){
+    out+=esc(raw.slice(last,m.index));
+    const t=esc(m[0]);
+    out+= m[1]?`<span class="s">${t}</span>`: m[2]?`<span class="k">${t}</span>`: m[3]?`<span class="f">${t}</span>`: m[4]?`<span class="num">${t}</span>`:`<span class="o">${t}</span>`;
+    last=re.lastIndex;
+  }
+  return out+esc(raw.slice(last));
+}
+const P=(p,t)=>`<span class="part" data-p="${p}">${hl(t)}</span>`;
+
+/* lines are html strings; prefix keeps ids unique per code window */
+function renderCode(prefix,id,lines){
+  $(id).innerHTML=lines.map((h,i)=>`<div class="ln" id="${prefix}ln${i+1}"><span class="n">${i+1}</span><span class="src">${h}</span><span class="bdg"></span></div>`).join("");
+}
+function setLineHTML(prefix,n,h){ $(prefix+"ln"+n).querySelector(".src").innerHTML=h }
+function mark(prefix,m){
+  document.querySelectorAll(`[id^="${prefix}ln"]`).forEach(e=>e.classList.remove("c","a","g","x","dim"));
+  if(m) for(const k in m) m[k].forEach(n=>{const e=$(prefix+"ln"+n); if(e) e.classList.add(k)});
+}
+function badge(prefix,n,val){
+  const b=$(prefix+"ln"+n).querySelector(".bdg");
+  if(val===null){b.className="bdg";b.textContent="";return}
+  b.className="bdg show "+(val?"t":"f"); b.textContent=val?"TRUE":"FALSE";
+}
+function clearBadges(prefix){ document.querySelectorAll(`[id^="${prefix}ln"] .bdg`).forEach(b=>{b.className="bdg";b.textContent=""}) }
+/* highlight parts of a line: map like {tc:"c",tv:"g",fv:"dim"} inside root element */
+function parts(rootId,map){
+  const root=$(rootId);
+  root.querySelectorAll(".part").forEach(e=>e.classList.remove("c","g","a","dim"));
+  for(const p in (map||{})) root.querySelectorAll(`.part[data-p="${p}"]`).forEach(e=>e.classList.add(map[p]));
+}
+
+/* ---------- "choose one of two values" diagram ---------- */
+function forkSVG(p){
+  return `<svg class="tree" viewBox="0 0 520 330" role="img" aria-label="Condition picks one of two values">
+  <path class="edge" id="${p}eT" d="M205 68 L130 150"/><path class="edge" id="${p}eF" d="M315 68 L390 150"/>
+  <path class="edge" id="${p}eTR" d="M120 198 L200 262"/><path class="edge" id="${p}eFR" d="M400 198 L320 262"/>
+  <g class="lab t" id="${p}lT"><rect x="132" y="97" width="46" height="18" rx="9"/><text x="155" y="110">TRUE</text></g>
+  <g class="lab f" id="${p}lF"><rect x="342" y="97" width="46" height="18" rx="9"/><text x="365" y="110">FALSE</text></g>
+  <g class="nd cond" id="${p}nC"><rect x="150" y="20" width="220" height="48" rx="24"/><text id="${p}tC" x="260" y="50"></text></g>
+  <g class="nd vt" id="${p}nT"><rect x="35" y="150" width="170" height="48" rx="12"/><text id="${p}tT" x="120" y="180"></text></g>
+  <g class="nd vf" id="${p}nF"><rect x="315" y="150" width="170" height="48" rx="12"/><text id="${p}tF" x="400" y="180"></text></g>
+  <g class="nd res" id="${p}nR"><rect x="130" y="262" width="260" height="48" rx="12"/><text id="${p}tR" x="260" y="292"></text></g>
+  <g class="ball" id="${p}ball" style="transform:translate(260px,20px)"><circle r="9" fill="#ffb547" stroke="#1a1200" stroke-width="2"/><circle cx="-2.5" cy="-2" r="1.4" fill="#1a1200"/><circle cx="2.5" cy="-2" r="1.4" fill="#1a1200"/></g>
+  </svg>`;
+}
+const FP={cond:[260,20],T:[120,150],F:[400,150],res:[260,262]};
+function ball(p,k,show){ const [x,y]=FP[k]; const b=$(p+"ball"); b.style.transform=`translate(${x}px,${y}px)`; b.classList.toggle("show",show!==false) }
+function forkSet(p,o){
+  $(p+"tC").dataset.c=o.cond; $(p+"tR").dataset.r=o.res;
+  $(p+"tT").textContent=o.t; $(p+"tF").textContent=o.f;
+  $(p+"tC").textContent=o.cond+" ?"; $(p+"tR").textContent=o.res+" = ?";
+}
+function forkReset(p){
+  ["nC","nT","nF","nR"].forEach(n=>$(p+n).classList.remove("on","win","off"));
+  ["eT","eF","eTR","eFR"].forEach(e=>$(p+e).setAttribute("class","edge"));
+  ["lT","lF"].forEach(l=>$(p+l).classList.remove("show"));
+  $(p+"tC").textContent=$(p+"tC").dataset.c+" ?"; $(p+"tR").textContent=$(p+"tR").dataset.r+" = ?";
+  ball(p,"cond",false);
+}
+function forkEval(p,txt){ $(p+"nC").classList.add("on"); if(txt) $(p+"tC").textContent=txt+" ?"; ball(p,"cond") }
+function forkPick(p,val){
+  const w=val?"T":"F", l=val?"F":"T";
+  $(p+"e"+w).setAttribute("class","edge "+(val?"lt":"lf")); $(p+"l"+w).classList.add("show");
+  $(p+"e"+l).classList.add("off");
+  $(p+"n"+w).classList.add("win"); $(p+"n"+l).classList.add("off");
+  ball(p,w);
+}
+function forkAssign(p,text,val){
+  $(p+"e"+(val?"TR":"FR")).setAttribute("class","edge lc");
+  $(p+"nR").classList.add("win");
+  $(p+"tR").textContent=$(p+"tR").dataset.r+" = "+text;
+  ball(p,"res");
+}
+function mem(id,val){ const el=$(id); el.textContent=val; el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash") }
+
+/* ---------- output console ---------- */
+let typeId=0;
+function outClear(id){ typeId++; const p=$(id||"outPre"); p.textContent=""; p.className=""; }
+async function outType(text,id){
+  const my=++typeId, pre=$(id||"outPre"); pre.className="caret"; pre.textContent="";
+  for(let i=1;i<=text.length;i++){
+    await new Promise(r=>setTimeout(r,55));
+    if(my!==typeId) return;
+    pre.textContent=text.slice(0,i);
+  }
+  pre.className="";
+}
+function outNow(text,id){ typeId++; const p=$(id); p.className=""; p.textContent=text }
+
+/* ---------- playback engine ---------- */
+const CANCEL={};
+let token=0,paused=true,started=false,finished=false,cur=0;
+const synth=("speechSynthesis" in window)?window.speechSynthesis:null;
+let voiceOn=!!synth, musicOn=false, voices=[];
+
+function sleep(ms,my){
+  return new Promise((res,rej)=>{
+    let el=0;
+    const iv=setInterval(()=>{
+      if(my!==token){clearInterval(iv);rej(CANCEL);return}
+      if(!paused){el+=60; if(el>=ms){clearInterval(iv);res()}}
+    },60);
+  });
+}
+function speak(text,cb){
+  if(!synth){cb();return}
+  synth.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  const v=voices.find(x=>x.voiceURI===$("voiceSel").value);
+  if(v){u.voice=v;u.lang=v.lang}else u.lang="en-US";
+  u.rate=.95; u.onend=cb; u.onerror=cb;
+  synth.speak(u);
+}
+async function narrate(text,min,my){
+  let done=!voiceOn;
+  if(voiceOn) speak(text,()=>{done=true});
+  const est=Math.max(min,text.length*50+700);
+  let el=0;
+  for(;;){
+    await sleep(60,my); el+=60;
+    if((el>=est&&done)||el>est+7000) break;
+  }
+}
+function showSub(t){ $("sub").textContent=t }
+
+/* ---------- tabs ---------- */
+function buildTabs(){
+  $("tabs").innerHTML=CH.map((c,i)=>`<li><button class="tab" type="button" data-i="${i}"><span class="tb"><i></i></span><span class="tl"><s>${i+1}</s>${c.tab}</span></button></li>`).join("");
+  $("tabs").addEventListener("click",e=>{const b=e.target.closest(".tab"); if(b) run(+b.dataset.i)});
+}
+function setProg(c,s,n){
+  document.querySelectorAll(".tab").forEach((t,i)=>{
+    t.classList.toggle("act",i===c);
+    const f=i<c?1:(i===c?s/n:0);
+    t.classList.toggle("done",i<c||(i===c&&s>=n));
+    t.querySelector("i").style.width=(f*100)+"%";
+  });
+}
+
+/* ---------- views ---------- */
+function view(v){ $("stage").dataset.view=v }
+function introStep(n){ $("introV").className="view v-intro"+Array.from({length:n},(_,i)=>" s"+(i+1)).join("") }
+
+const MARK={a:"mark",r:"result",tv:'"Pass"',cond:"mark >= 50",fv:'"Fail"',file:"exam.py"};
+const AGE={a:"age",r:"status",tv:'"Adult"',cond:"age >= 18",fv:'"Minor"',file:"age_check.py"};
+function benchLines(c,av){
+  return [hl(`${c.a} = ${av}`),"",hl(`${c.r} = `)+P("tv",c.tv)+hl(" if ")+P("tc",c.cond)+hl(" else ")+P("fv",c.fv),"",hl(`print(${c.r})`)];
+}
+function setupBench(c,av,pill,title){
+  view("bench");
+  $("chapPill").textContent=pill; $("chapTitle").textContent=title; $("fn").textContent=c.file;
+  renderCode("b","code",benchLines(c,av));
+  forkSet("bn",{cond:c.cond,t:c.tv,f:c.fv,res:c.r}); forkReset("bn");
+  $("memAn").textContent=c.a; $("memBn").textContent=c.r; $("memAv").textContent=av; $("memBv").textContent="—";
+  outClear(); $("quiz").hidden=true;
+}
+
+/* ---------- quiz ---------- */
+let qPicked=null,qNow=false,qRight="B";
+function showQuiz(opts,right){
+  qPicked=null;qNow=false;qRight=right;
+  $("fb").textContent=""; $("qTxt").textContent="Pick an answer…"; $("timerBar").style.transform="scaleX(1)";
+  $("opts").innerHTML=opts.map((o,i)=>{const k="ABC"[i];return `<button class="opt" type="button" data-k="${k}"><b>${k}</b>${esc(o)}</button>`}).join("");
+  $("quiz").hidden=false;
+}
+async function countdown(my,secs){
+  const total=secs*1000; let el=0;
+  while(el<total&&!qNow){
+    await sleep(100,my); el+=100;
+    $("timerBar").style.transform=`scaleX(${Math.max(0,1-el/total)})`;
+    $("qTxt").textContent=`Thinking time: ${Math.max(0,Math.ceil((total-el)/1000))}s`;
+  }
+  $("qTxt").textContent="Time's up. Let's trace the code together."; $("timerBar").style.transform="scaleX(0)";
+}
+function revealQuiz(){
+  document.querySelectorAll("#opts .opt").forEach(b=>{
+    b.classList.remove("pick");
+    if(b.dataset.k===qRight) b.classList.add("right"); else if(b.dataset.k===qPicked) b.classList.add("wrong");
+  });
+  const ok=qPicked===qRight;
+  $("fb").style.color=ok?"var(--green)":"var(--amber)";
+  $("fb").textContent=ok?"You predicted it. Great reading!":(qPicked?`Close! Now you know the path. The answer is ${qRight}.`:`The answer is ${qRight}.`);
+}
+
+/* ---------- compare view helpers ---------- */
+function setupCompare(){
+  view("compare");
+  renderCode("cl","codeLong",[hl("if ")+P("tc","mark >= 50")+":", "    "+hl("result = ")+P("tv",'"Pass"'), hl("else:"), "    "+hl("result = ")+P("fv",'"Fail"')]);
+  renderCode("co","codeOne",[hl("result = ")+P("tv",'"Pass"')+hl(" if ")+P("tc","mark >= 50")+hl(" else ")+P("fv",'"Fail"')]);
+  ["w1","w2"].forEach(i=>$(i).classList.remove("dimw"));
+  outClear("o1pre"); outClear("o2pre");
+  $("same").classList.remove("show"); ["u1","u2"].forEach(i=>$(i).classList.remove("show"));
+  parts("cmp",{});
+}
+
+/* ---------- syntax view helpers ---------- */
+function syn(o){
+  ["stv","stc","sfv"].forEach(i=>$(i).classList.remove("hot","dimt"));
+  ["ordT","ordC","ordF"].forEach(i=>$(i).classList.remove("show"));
+  ["cpT","cpC","cpF"].forEach(i=>$(i).classList.remove("show"));
+  (o.hot||[]).forEach(i=>$(i).classList.add("hot"));
+  (o.dim||[]).forEach(i=>$(i).classList.add("dimt"));
+  (o.ord||[]).forEach(i=>$(i).classList.add("show"));
+  (o.cp||[]).forEach(i=>$(i).classList.add("show"));
+}
+function setupSyntax(){
+  view("syntax"); syn({});
+  forkSet("sy",{cond:"condition",t:"value_if_true",f:"value_if_false",res:"result"}); forkReset("sy");
+}
+
+/* ---------- chapters ---------- */
+const CH=[
+{tab:"Intro",enter(){view("intro");introStep(0)},steps:[
+ {say:"Welcome to EVOLV! Today we learn Python conditional expressions: decisions in one line."},
+ {say:"Mia has just finished an exam, and she wants to know her result.",do(){introStep(1)}},
+ {say:"Her mark is 75. The pass mark is 50. Did she pass?",do(){introStep(2)}},
+ {say:"What if Python could choose between two values and give us the answer in just one line? That's what a conditional expression allows us to do!",min:3500,do(){introStep(3)}}]},
+
+{tab:"Syntax",enter(){setupSyntax()},steps:[
+ {say:"Here is the syntax of a conditional expression.",do(){syn({})}},
+ {say:"It has three parts: a value for True, a condition, and a value for False.",do(){syn({cp:["cpT","cpC","cpF"]})}},
+ {say:"Python evaluates the condition first.",do(){syn({hot:["stc"],ord:["ordC"],cp:["cpC"],dim:["stv","sfv"]});forkEval("sy")}},
+ {say:"If the condition is True, Python returns the first value, the one before the if.",do(){syn({hot:["stv"],ord:["ordC","ordT"],cp:["cpT"],dim:["sfv"]});forkPick("sy",true);forkAssign("sy","value_if_true",true)}},
+ {say:"If the condition is False, Python returns the value after else.",do(){forkReset("sy");forkEval("sy");syn({hot:["sfv"],ord:["ordC","ordF"],cp:["cpF"],dim:["stv"]});forkPick("sy",false);forkAssign("sy","value_if_false",false)}},
+ {say:"Either way, you get just one value back, all in one line.",do(){syn({cp:["cpT","cpC","cpF"]})}}]},
+
+{tab:"Example",enter(){setupBench(MARK,75,"Example","Pass or Fail?")},steps:[
+ {say:"Let's try an example. The variable mark stores 75.",do(){mark("b",{a:[1]});mem("memAv",75)}},
+ {say:"Python reads line 3. It starts with the condition: is 75 greater than or equal to 50?",do(){mark("b",{c:[3]});parts("code",{tc:"c"});forkEval("bn","75 >= 50");badge("b",3,true)}},
+ {say:"The condition is True, so Python picks the first value: Pass.",do(){parts("code",{tc:"c",tv:"g",fv:"dim"});forkPick("bn",true)}},
+ {say:"Then Python assigns Pass to the variable result.",do(){mark("b",{g:[3]});mem("memBv",'"Pass"');forkAssign("bn",'"Pass"',true)}},
+ {say:"Finally, print shows the value of result. The output is Pass.",do(){mark("b",{g:[5]});outType("Pass")}}]},
+
+{tab:"Change it",enter(){
+   setupBench(MARK,75,"Change it","What if mark is 35?");
+   parts("code",{tc:"c",tv:"g",fv:"dim"}); badge("b",3,true); mem("memBv",'"Pass"');
+   forkEval("bn","75 >= 50"); forkPick("bn",true); forkAssign("bn",'"Pass"',true); outNow("Pass","outPre");
+ },steps:[
+ {say:"Now let's change mark to 35.",do(){
+   setLineHTML("b",1,hl("mark = 35")); mark("b",{a:[1]}); mem("memAv",35); mem("memBv","—");
+   parts("code",{}); clearBadges("b"); forkReset("bn"); outClear()}},
+ {say:"Is 35 greater than or equal to 50? No. The condition is False.",do(){mark("b",{c:[3]});parts("code",{tc:"c"});forkEval("bn","35 >= 50");badge("b",3,false)}},
+ {say:"So Python skips the first value and picks the value after else: Fail.",do(){parts("code",{tc:"c",fv:"a",tv:"dim"});forkPick("bn",false)}},
+ {say:"Fail is assigned to result, and print shows Fail.",do(){mark("b",{g:[3,5]});mem("memBv",'"Fail"');forkAssign("bn",'"Fail"',false);outType("Fail")}},
+ {say:"Same code, new input, different output. The condition decided.",min:1500}]},
+
+{tab:"Compare",enter(){setupCompare()},steps:[
+ {say:"Here is the decision written the long way, with a regular if-else. It takes four lines.",do(){$("w1").classList.add("dimw")}},
+ {say:"And here is the conditional expression. It does the same job in one line.",do(){$("w1").classList.remove("dimw");$("w2").classList.add("dimw")}},
+ {say:"Look at the matching parts. The condition is the same in both.",do(){$("w2").classList.remove("dimw");parts("cmp",{tc:"c"})}},
+ {say:"The value for True is the same.",do(){parts("cmp",{tc:"dim",tv:"g",fv:"dim"})}},
+ {say:"And the value for False is the same.",do(){parts("cmp",{tc:"dim",tv:"dim",fv:"a"})}},
+ {say:"Run both with mark equal to 75, and the result is the same: Pass.",do(){parts("cmp",{});outNow("Pass","o2pre");outNow("Pass","o1pre");$("same").classList.add("show")}},
+ {say:"A conditional expression is useful for simple decisions that select one of two values.",do(){$("u1").classList.add("show")}},
+ {say:"If each choice needs several lines of code, use a regular if-else instead.",do(){$("u2").classList.add("show")}}]},
+
+{tab:"Challenge",enter(){setupBench(AGE,16,"Challenge","Predict the output")},steps:[
+ {say:"Prediction time! Read this code carefully. The variable age is 16.",do(){mark("b",{a:[1]})}},
+ {say:"What will Python print? Pick an answer. Take a moment to think about the condition.",do(){showQuiz(["Adult","Minor","16"],"B")},async after(my){await countdown(my,10)}},
+ {say:"Let's check. Python evaluates the condition first: is 16 greater than or equal to 18? No. It is False.",do(){mark("b",{c:[3]});parts("code",{tc:"c"});forkEval("bn","16 >= 18");badge("b",3,false)}},
+ {say:"Because it is False, Python skips the value before the if, and returns the value after else: Minor.",do(){parts("code",{tc:"c",fv:"a",tv:"dim"});forkPick("bn",false)}},
+ {say:"Minor is stored in status, and print shows it. The output is Minor.",do(){mark("b",{g:[3,5]});mem("memBv",'"Minor"');forkAssign("bn",'"Minor"',false);outType("Minor");revealQuiz()}},
+ {say:"Remember: the condition decides which of the two values you get.",min:1500}]},
+
+{tab:"Wrap-up",enter(){view("wrap");["w1c","w2c","w3c"].forEach(i=>$(i).classList.remove("show"))},steps:[
+ {say:"The syntax is: value if true, if, condition, else, value if false.",do(){$("w1c").classList.add("show")}},
+ {say:"Python checks the condition first, then returns just one of the two values.",do(){$("w2c").classList.add("show")}},
+ {say:"Use it for simple choices between two values. Use a regular if-else for bigger blocks of code.",do(){$("w3c").classList.add("show")}},
+ {say:"Great work! Keep practicing with EVOLV.",min:2000}]}
+];
+
+async function run(from){
+  const my=++token;
+  if(synth) synth.cancel();
+  started=true; finished=false; paused=false; $("startov").classList.add("gone"); setPlayLabel();
+  try{
+    for(let c=from;c<CH.length;c++){
+      cur=c; CH[c].enter();
+      const st=CH[c].steps;
+      for(let s=0;s<st.length;s++){
+        setProg(c,s,st.length);
+        const step=st[s];
+        showSub(step.say);
+        if(step.do) step.do();
+        await narrate(step.say,step.min||0,my);
+        if(step.after) await step.after(my);
+      }
+      setProg(c,st.length,st.length);
+    }
+    finished=true; paused=true; setPlayLabel();
+  }catch(e){ if(e!==CANCEL) throw e }
+}
+function setPlayLabel(){ $("playBtn").textContent=finished?"Replay":(!started?"Play":(paused?"Resume":"Pause")) }
+function togglePlay(){
+  if(!started||finished){run(finished?0:cur);return}
+  paused=!paused;
+  if(synth){ paused?synth.pause():synth.resume() }
+  setPlayLabel();
+}
+
+/* ---------- music (soft generated plucks, no audio files) ---------- */
+let ac=null,mg=null,mt=null,mi=0;
+const SCALE=[261.63,329.63,392,523.25,392,329.63,293.66,392,261.63,349.23,440,523.25,440,349.23,329.63,392];
+function pluck(f,dur,vol){
+  const o=ac.createOscillator(),g=ac.createGain();
+  o.type="triangle"; o.frequency.value=f;
+  g.gain.setValueAtTime(0.0001,ac.currentTime);
+  g.gain.exponentialRampToValueAtTime(vol,ac.currentTime+.03);
+  g.gain.exponentialRampToValueAtTime(0.0001,ac.currentTime+dur);
+  o.connect(g);g.connect(mg);o.start();o.stop(ac.currentTime+dur+.05);
+}
+function startMusic(){
+  try{
+    ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+    ac.resume(); mg=ac.createGain(); mg.gain.value=.07; mg.connect(ac.destination);
+    mt=setInterval(()=>{
+      if(paused&&started&&!finished) return;
+      pluck(SCALE[mi%SCALE.length],1.1,.5);
+      if(mi%8===0) pluck(SCALE[mi%SCALE.length]/2,1.8,.7);
+      mi++;
+    },430);
+  }catch(e){ musicOn=false; $("musicBtn").setAttribute("aria-pressed","false") }
+}
+function stopMusic(){ clearInterval(mt); mt=null; if(mg){mg.disconnect();mg=null} }
+
+/* ---------- voices ---------- */
+function loadVoices(){
+  if(!synth) return;
+  voices=synth.getVoices().filter(v=>/^en/i.test(v.lang));
+  const sel=$("voiceSel"), keep=sel.value;
+  sel.innerHTML=voices.length?voices.map(v=>`<option value="${esc(v.voiceURI)}">${esc(v.name)} (${esc(v.lang)})</option>`).join(""):'<option value="">Default voice</option>';
+  if(keep&&voices.some(v=>v.voiceURI===keep)) sel.value=keep;
+  else{
+    const pref=voices.find(v=>/female|aria|jenny|samantha|zira|neerja|heera/i.test(v.name))||voices.find(v=>/en-(GB|IN)/i.test(v.lang))||voices[0];
+    if(pref) sel.value=pref.voiceURI;
+  }
+}
+
+/* ---------- controls ---------- */
+$("playBtn").addEventListener("click",togglePlay);
+$("startBtn").addEventListener("click",()=>run(0));
+$("restartBtn").addEventListener("click",()=>run(0));
+$("replayBtn").addEventListener("click",()=>run(0));
+$("chapBtn").addEventListener("click",()=>run(cur));
+$("voiceBtn").addEventListener("click",()=>{
+  if(!synth) return;
+  voiceOn=!voiceOn; $("voiceBtn").setAttribute("aria-pressed",String(voiceOn));
+  if(!voiceOn) synth.cancel();
+});
+$("musicBtn").addEventListener("click",()=>{
+  musicOn=!musicOn; $("musicBtn").setAttribute("aria-pressed",String(musicOn));
+  musicOn?startMusic():stopMusic();
+});
+$("subSel").addEventListener("change",e=>$("sub").classList.toggle("off",e.target.value==="off"));
+$("opts").addEventListener("click",e=>{
+  const b=e.target.closest(".opt"); if(!b||$("fb").textContent) return;
+  qPicked=b.dataset.k;
+  document.querySelectorAll("#opts .opt").forEach(x=>x.classList.toggle("pick",x===b));
+});
+$("revealBtn").addEventListener("click",()=>{qNow=true});
+
+if(!synth){ $("voiceBtn").disabled=true; $("voiceBtn").setAttribute("aria-pressed","false"); $("voiceSel").disabled=true; }
+else{ loadVoices(); synth.addEventListener&&synth.addEventListener("voiceschanged",loadVoices); }
+
+/* ---------- initial state: intro scene at rest, waiting for Start ---------- */
+$("forkSy").innerHTML=forkSVG("sy"); $("forkBn").innerHTML=forkSVG("bn");
+buildTabs();
+CH[0].enter();
+introStep(3);
+showSub("What if Python could choose between two values and give us the answer in just one line? That's what a conditional expression allows us to do!");
+setProg(0,0,1);
+setPlayLabel();
+})();
+</script>
+
+</body></html>

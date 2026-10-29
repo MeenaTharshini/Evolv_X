@@ -27,7 +27,7 @@ const navigationItems = [
   },
   {
     label: "My Progress",
-    path: "/dashboard#progress",
+    path: "/progress",
     icon: ChartNoAxesColumnIncreasing,
   },
 ];
@@ -58,19 +58,12 @@ export default function Navbar() {
   const initial = displayName.trim().charAt(0).toUpperCase() || "L";
 
   const isActive = (path) => {
-    if (path === "/dashboard#progress") {
-      return (
-        location.pathname === "/dashboard" &&
-        location.hash === "#progress"
-      );
-    }
+  if (path === "/study/python") {
+    return location.pathname.startsWith("/study/python");
+  }
 
-    return (
-      location.pathname === path ||
-      (path === "/study/python" &&
-        location.pathname.startsWith("/study/python/"))
-    );
-  };
+  return location.pathname === path;
+};
 
   const closeMenu = () => setMenuOpen(false);
 

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>EVOLV · Python Truthiness</title>
+<style>
+:root{--bg:#070b17;--panel:#0d1427;--line:#1c2845;--txt:#eef2ff;--dim:#7d8bb0;--cy:#4cc9f0;--am:#ffb347;--gr:#4ade80;--pk:#ff5c8a;--pu:#a78bfa;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--txt);font-family:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif}
+body{padding:14px;max-width:1080px;margin:auto}
+#stage{position:relative;border:1px solid var(--line);border-radius:28px;padding:22px 18px 20px;min-height:600px;display:flex;flex-direction:column;align-items:center;
+background:radial-gradient(circle at 20% 90%,#1a1030 0,transparent 40%),linear-gradient(#0a1020,#070b17);overflow:hidden}
+.logo{display:flex;align-items:center;gap:12px;font-weight:800;letter-spacing:.3em;font-size:17px}
+.bars{display:flex;align-items:flex-end;gap:4px;height:34px}.bars i{width:9px;border-radius:3px;display:block}
+.bars i:nth-child(1){height:15px;background:var(--am)}.bars i:nth-child(2){height:25px;background:var(--cy)}.bars i:nth-child(3){height:34px;background:var(--pk)}
+#center{width:100%;min-height:330px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;margin:10px 0}
+.view{display:none;width:100%;flex-direction:column;align-items:center;gap:14px}.view.on{display:flex}
+.win{width:min(640px,100%);background:#0f1730;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 10px 40px #0008}
+.wh{display:flex;align-items:center;gap:7px;padding:10px 14px;border-bottom:1px solid var(--line);font:12px ui-monospace,Consolas,monospace;color:var(--dim);background:#0c1329}
+.wh b{width:11px;height:11px;border-radius:50%}.wh span{margin-left:8px}.wh em{margin-left:auto;font-style:normal;font-size:11px}
+#code{padding:12px 0;font:clamp(15px,3.6vw,22px)/1.65 ui-monospace,Consolas,monospace;min-height:60px}
+.ln{display:flex;padding:0 18px;border-left:3px solid transparent;white-space:pre;transition:background .3s}
+.ln s{width:34px;color:#46557d;text-decoration:none;flex:none}
+.ln.hl{background:#4cc9f022;border-left-color:var(--cy)}
+.ind{flex:none;display:block;box-sizing:border-box}.ind.g{border-left:2px solid #4cc9f066;margin-left:2px}.tx{white-space:pre}
+.k{color:var(--pu)}.st{color:var(--gr)}.n{color:#7ee6a8}.f{color:var(--cy)}.c{color:var(--am)}
+#outp{border-top:1px solid var(--line);padding:10px 18px;font:15px ui-monospace,Consolas,monospace;color:var(--dim);display:flex;gap:10px;min-height:42px;align-items:center;background:#0a1124}
+#outp .o{color:var(--gr);font-weight:700;opacity:0;transform:translateY(6px);transition:.4s}#outp .o.on{opacity:1;transform:none}
+#outp .none{font-style:italic;color:#56648c}
+#ev{display:flex;align-items:center;gap:10px;min-height:64px;font-family:ui-monospace,Consolas,monospace}
+.chip{min-width:84px;text-align:center;padding:10px 16px;border-radius:12px;background:#15213f;border:2px solid var(--cy);color:var(--cy);font-weight:700;font-size:20px;opacity:0;transform:translateX(-60px);transition:.7s}
+.chip.in{opacity:1;transform:none}
+.arr{color:#46557d;font-size:22px}
+#dia{width:54px;height:54px;transform:rotate(45deg);border:2px solid var(--am);border-radius:10px;display:grid;place-items:center;background:#2a1f0a}
+#dia span{transform:rotate(-45deg);color:var(--am);font-weight:800}
+#dia.go{animation:pulse .8s}
+@keyframes pulse{50%{box-shadow:0 0 28px var(--am);transform:rotate(45deg) scale(1.15)}}
+.badge{min-width:96px;text-align:center;padding:10px 16px;border-radius:12px;font-weight:800;letter-spacing:.08em;opacity:0;transform:scale(.4);transition:.45s cubic-bezier(.3,1.6,.5,1)}
+.badge.show{opacity:1;transform:none}.badge.t{background:#0e3a22;color:var(--gr);border:2px solid var(--gr)}.badge.f{background:#3b1020;color:var(--pk);border:2px solid var(--pk)}
+.row{display:flex;gap:22px;align-items:flex-end;justify-content:center;flex-wrap:wrap}
+.card{display:flex;flex-direction:column;align-items:center;gap:10px;opacity:0;transform:translateY(20px);transition:.6s}.card.on{opacity:1;transform:none}
+.bx{width:130px;height:110px;border:3px dashed #46557d;border-radius:14px;display:grid;place-items:center;font-size:38px;background:#0f1730}
+.bx.full{border:3px solid var(--am);background:#2a1f0a}
+.stu{font-size:64px}
+.chips{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;max-width:640px}
+.fc{padding:10px 16px;border-radius:12px;background:#3b1020;border:2px solid var(--pk);color:#ffd0dc;font:700 20px ui-monospace,Consolas,monospace;display:flex;flex-direction:column;align-items:center;gap:2px;opacity:0;transform:scale(.5);animation:pop .5s forwards}
+.fc small{font-size:10px;letter-spacing:.1em;color:var(--pk)}
+@keyframes pop{to{opacity:1;transform:none}}
+.sum{display:flex;flex-direction:column;gap:12px;width:min(640px,100%)}
+.sum div{background:#0f1730;border:1px solid var(--line);border-left:4px solid var(--cy);border-radius:12px;padding:12px 16px;font-size:clamp(14px,3.4vw,18px);opacity:0;transform:translateX(-30px);animation:pop .6s forwards}
+.sum b{color:var(--am)}
+#pill{margin-top:6px;padding:6px 16px;border:1px solid #1f6b4a;background:#0c2a22;color:var(--gr);border-radius:20px;font:600 13px ui-monospace,Consolas,monospace}
+h1{margin:14px 0 12px;text-align:center;font-size:clamp(26px,6vw,46px);line-height:1.15;font-weight:800;max-width:800px}
+h1 em{font-style:normal;color:var(--am)}
+#sub{width:min(880px,100%);min-height:62px;border:1px solid var(--line);border-radius:14px;background:#0a0f1f;padding:12px 20px;text-align:center;font-size:clamp(15px,3.6vw,22px);font-weight:600;display:grid;place-items:center}
+#sub.off{visibility:hidden}
+#start{position:absolute;inset:0;background:#070b17cc;display:grid;place-items:center;z-index:5;cursor:pointer;backdrop-filter:blur(3px)}
+#start button{font:800 20px inherit;font-family:inherit;padding:16px 34px;border-radius:40px;border:0;background:var(--am);color:#1a1200;cursor:pointer}
+#chap{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:10px;margin:14px 0}
+#chap button{background:var(--panel);border:1px solid var(--line);color:var(--txt);border-radius:14px;padding:10px 12px 12px;text-align:left;font:600 14px inherit;font-family:inherit;cursor:pointer}
+#chap button.cur{border-color:var(--cy);box-shadow:0 0 0 1px #4cc9f044}
+#chap i{display:block;height:4px;border-radius:3px;background:#243257;margin-bottom:8px;overflow:hidden}#chap i u{display:block;height:100%;width:0;background:var(--cy)}
+#chap span{color:var(--dim);margin-right:6px}
+#ctl{display:flex;flex-wrap:wrap;gap:10px}
+#ctl button,#ctl select{background:var(--panel);border:1px solid var(--line);color:var(--txt);border-radius:24px;padding:12px 22px;font:600 15px inherit;font-family:inherit;cursor:pointer}
+#ctl select{padding:12px 16px;flex:1 1 200px;min-width:0}
+#ctl button.pri{background:var(--am);color:#1a1200;border-color:var(--am);font-weight:800}
+#ctl button.act{border-color:var(--cy);color:var(--cy)}
+</style>
+</head>
+<body>
+<div id="stage">
+ <div class="logo"><div class="bars"><i></i><i></i><i></i></div>EVOLV</div>
+ <div id="center">
+  <div class="view" id="v-box"><div class="row"><div class="card" id="c0"><div class="stu">🧑‍🎓</div><div style="color:var(--dim)">“Anything inside?”</div></div>
+   <div class="card" id="c1"><div class="bx"></div><div class="badge f show">FALSE</div></div>
+   <div class="card" id="c2"><div class="bx full">🍎⭐📘</div><div class="badge t show">TRUE</div></div></div></div>
+  <div class="view" id="v-code">
+   <div class="win"><div class="wh"><b style="background:#ff5f56"></b><b style="background:#ffbd2e"></b><b style="background:#27c93f"></b><span id="ttl">truthy.py</span><em>Python 3</em></div>
+    <div id="code"></div><div id="outp"><span>▸ Output</span><span id="o"></span></div></div>
+   <div id="ev"><div class="chip" id="chip"></div><div class="arr">➜</div><div id="dia"><span>if</span></div><div class="arr">➜</div><div class="badge" id="badge"></div></div>
+  </div>
+  <div class="view" id="v-chips"><div class="chips" id="chips"></div></div>
+  <div class="view" id="v-sum"><div class="sum" id="sum"></div></div>
+ </div>
+ <div id="pill"></div>
+ <h1 id="h"></h1>
+ <div id="sub"></div>
+ <div id="start"><button>▶ Start lesson</button></div>
+</div>
+<div id="chap"></div>
+<div id="ctl">
+ <button class="pri" id="bp">Pause</button><button id="br">Restart</button><button id="bv" class="act">Voice</button><button id="bm">Music</button>
+ <select id="ss"><option value="on">Subtitles: English</option><option value="off">Subtitles: Off</option></select>
+ <select id="sv"></select>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const S=[],B=[];let T=[];
+const sc=(n,tag,h)=>S.push({n,tag,h,s:B.length,c:0});
+const b=(say,fn,min)=>{B.push({sc:S.length-1,say,fn,min:min||Math.max(2600,say.split(' ').length*380+700)});S[S.length-1].c++};
+const at=(ms,f)=>T.push({ms,f});
+
+/* ---------- stage helpers ---------- */
+function view(v){document.querySelectorAll('.view').forEach(e=>e.classList.toggle('on',e.id==='v-'+v))}
+function hi(t){return t.replace(/("[^"]*")|\b(if|else|print)\b|\b(\d+(?:\.\d+)?)\b|\b(None|True|False)\b/g,(m,s,k,n,c)=>s?`<span class=st>${m}</span>`:k?`<span class="${k=='print'?'f':'k'}">${m}</span>`:n?`<span class=n>${m}</span>`:`<span class=c>${m}</span>`)}
+function code(title,lines){view('code');$('ttl').textContent=title;$('code').innerHTML=lines.map((l,i)=>{const m=l.match(/^ */)[0].length;return `<div class=ln><s>${i+1}</s><span class="ind${m?' g':''}" style="width:${m}ch"></span><span class=tx>${hi(l.slice(m))}</span></div>`}).join('');reset()}
+function hl(...i){document.querySelectorAll('.ln').forEach((e,x)=>e.classList.toggle('hl',i.includes(x)))}
+function out(t){const o=$('o');if(t==null){o.innerHTML='';return}o.innerHTML=t===''?'<span class=none>(nothing printed)</span>':`<span class=o>${t}</span>`;setTimeout(()=>{const e=o.querySelector('.o');e&&e.classList.add('on')},30)}
+function reset(){$('chip').className='chip';$('badge').className='badge';hl();out(null)}
+function enter(v){reset();const c=$('chip');c.textContent=v;at(200,()=>c.classList.add('in'))}
+function res(t,lines,o,d){d=d||0;at(d+100,()=>{$('dia').classList.remove('go');void $('dia').offsetWidth;$('dia').classList.add('go')});at(d+600,()=>{const g=$('badge');g.textContent=t?'TRUE':'FALSE';g.className='badge show '+(t?'t':'f')});at(d+1200,()=>{hl(...lines);out(o)})}
+function go(v,t,lines,o){enter(v);res(t,lines,o,500)}
+function hold(v,t){const c=$('chip');c.textContent=v;c.classList.add('in');const g=$('badge');g.textContent=t?'TRUE':'FALSE';g.className='badge show '+(t?'t':'f')}
+function card(n){$('c'+n).classList.add('on')}
+function chips(l,clr){view('chips');if(clr)$('chips').innerHTML='';l.forEach((v,i)=>at(i*700+200,()=>{const d=document.createElement('div');d.className='fc';d.innerHTML=v+'<small>FALSY</small>';$('chips').appendChild(d)}))}
+
+/* ---------- lesson script ---------- */
+sc('Intro','Real life','Python Truthiness — <em>True or False?</em>');
+b('Can an empty box and a full box help us understand True and False?',()=>{view('box');['c0','c1','c2'].forEach(i=>$(i).classList.remove('on'));card(0);at(900,()=>card(1))});
+b('Python can evaluate values as truthy or falsy, without requiring an explicit Boolean!',()=>{card(2)});
+
+sc('Truthiness','Big idea','Some values act like <em>True</em>');
+b('Python treats a few special values as falsy. Most other values are truthy.',()=>{code('truthy.py',['if "Hello":','    print("This is truthy!")'])});
+b('Look at the text Hello. It goes into the condition. It is not empty, so Python says: truthy!',()=>go('"Hello"',true,[0],null));
+b('Because the condition is true, the indented line runs. Notice the four spaces of indentation: they tell Python this line belongs to the if. Now we see the output.',()=>{hold('"Hello"',true);hl(0,1);out('This is truthy!')});
+
+sc('Falsy','Falsy values','Empty and zero are <em>falsy</em>');
+b('Let us test an empty string. It goes into the condition, and Python checks it.',()=>{code('falsy.py',['if "":','    print("Runs")']);enter('""')});
+b('An empty string is falsy. So the condition is false, and nothing is printed.',()=>{res(false,[],'')});
+b('Now zero. Zero goes into the condition too.',()=>{code('falsy.py',['if 0:','    print("Runs")']);enter('0')});
+b('Zero is falsy as well, so again, nothing is printed.',()=>{res(false,[],'')});
+
+b('Other common falsy values are False, None, and zero point zero.',()=>chips(['False','None','0.0'],true),4200);
+b('Empty collections are falsy too: an empty list, an empty dictionary, and an empty tuple.',()=>chips(['[]','{}','()'],false),4800);
+
+sc('Truthy','Truthy values','Most values are <em>truthy</em>');
+b('Now the text Python. It is not empty, so it is truthy.',()=>{code('truthy.py',['if "Python":','    print("Runs!")']);go('"Python"',true,[0,1],'Runs!')});
+b('The number ten is not zero, so it is truthy too. Both statements execute.',()=>{code('truthy.py',['if 10:','    print("Runs!")']);go('10',true,[0,1],'Runs!')});
+
+sc('Real code','In a program','Check a <em>real</em> variable');
+b('Let us use truthiness in a real program. We check if a name was entered.',()=>{code('name.py',['name = "Alex"','','if name:','    print("Name entered!")','else:','    print("Name is empty!")']);hl(0)});
+b('Python looks at the value of name. Alex is not empty, so the first branch runs.',()=>go('"Alex"',true,[2,3],'Name entered!'));
+b('Now we change the name to an empty string.',()=>{code('name.py',['name = ""','','if name:','    print("Name entered!")','else:','    print("Name is empty!")']);hl(0)});
+b('An empty string is falsy, so Python skips the first branch and runs the else branch.',()=>go('""',false,[4,5],'Name is empty!'));
+b('Remember: Python checks if the value is truthy or falsy. The variable does not need to hold True or False.',()=>{hold('""',false);hl(2)},5200);
+
+sc('Challenge','Your turn','Can you <em>predict</em> it?');
+b('Here is a challenge. Look at this code.',()=>{code('items.py',['items = []','','if items:','    print("Items available")','else:','    print("No items")'])});
+b('What will it print? Think about it. The answer comes in a few seconds.',()=>{reset();let n=5;$('o').innerHTML='<span class=none>Your prediction? 5</span>';[1,2,3,4,5].forEach(i=>at(i*1000,()=>{$('o').innerHTML=`<span class=none>Your prediction? ${5-i}</span>`}))},6500);
+b('Let us check it. The empty list goes into the condition.',()=>enter('[]'));
+b('An empty list is falsy, so Python runs the else branch. The output is: No items.',()=>res(false,[4,5],'No items'));
+b('Now we change the list to one and two.',()=>{code('items.py',['items = [1, 2]','','if items:','    print("Items available")','else:','    print("No items")']);enter('[1, 2]')});
+b('The list has items inside, so it is truthy. The if branch runs, and the output changes.',()=>{res(true,[2,3],'Items available')});
+
+sc('Wrap-up','Summary','You now speak <em>truthiness</em>!');
+b('Great job! Let us recap what you learned.',()=>{view('sum');$('sum').innerHTML=[
+ 'Python checks if a value is <b>truthy</b> or <b>falsy</b> inside a condition.',
+ 'Falsy: <b>False, None, 0, 0.0, "", [], {}, ()</b>',
+ 'Almost everything else is <b>truthy</b>: "Python", 10, [1, 2]'].map((t,i)=>`<div style="animation-delay:${i*1.2}s">${t}</div>`).join('')},6000);
+b('Empty or zero means falsy. Anything else means truthy. Keep practising, and see you in the next EVOLV lesson!',()=>{},5200);
+
+/* ---------- player ---------- */
+let cur=0,el=0,paused=false,started=false,done=false,voiceOn=true,spoken=false,voices=[],mus=null;
+const chap=$('chap');
+S.forEach((s,i)=>{const e=document.createElement('button');e.innerHTML=`<i><u></u></i><span>${i+1}</span>${s.n}`;e.onclick=()=>{if(started)play(s.s)};chap.appendChild(e)});
+
+let tok=0,sEnd=0,sStart=0;
+function say(t){const my=++tok;spoken=!voiceOn;sEnd=0;sStart=0;try{speechSynthesis.cancel()}catch(e){}if(!voiceOn)return;
+ const u=new SpeechSynthesisUtterance(t);const v=voices.find(x=>x.name===$('sv').value);if(v){u.voice=v;u.lang=v.lang}else u.lang='en-GB';u.rate=.92;u.pitch=1;
+ const fin=()=>{if(my===tok){spoken=true;sEnd=el}};u.onstart=()=>{if(my===tok)sStart=1};u.onend=fin;u.onerror=fin;
+ setTimeout(()=>{if(my!==tok)return;try{speechSynthesis.speak(u);if(paused)speechSynthesis.pause()}catch(e){fin()}},150)}
+
+function play(i){T=[];cur=i;el=0;done=false;const be=B[i],s=S[be.sc];
+ $('bp').textContent=paused?'Play':'Pause';
+ $('h').innerHTML=s.h;$('pill').textContent=s.tag;$('sub').textContent=be.say;
+ [...chap.children].forEach((c,x)=>{c.classList.toggle('cur',x===be.sc)});
+ be.fn();say(be.say)}
+
+setInterval(()=>{
+ if(!started||paused||done)return;el+=100;const be=B[cur],s=S[be.sc];
+ const due=T.filter(x=>x.ms<=el);T=T.filter(x=>x.ms>el);due.forEach(x=>x.f());
+ if(voiceOn&&!sStart&&!spoken&&el>3500){spoken=true;sEnd=el}
+ const idx=cur-s.s;[...chap.children].forEach((c,x)=>{const u=c.querySelector('u');
+  u.style.width=(x<be.sc?100:x>be.sc?0:Math.min(100,(idx+Math.min(1,el/be.min))/s.c*100))+'%'});
+ if(el>=be.min&&((spoken&&el>=sEnd+500)||el>be.min+14000)){
+  if(cur+1<B.length)play(cur+1);else{done=true;$('bp').textContent='Replay'}}
+},100);
+
+$('start').onclick=()=>{$('start').style.display='none';started=true;paused=false;play(0)};
+$('bp').onclick=()=>{if(!started)return;if(done){paused=false;play(0);return}
+ paused=!paused;$('bp').textContent=paused?'Play':'Pause';
+ try{paused?speechSynthesis.pause():speechSynthesis.resume()}catch(e){}};
+$('br').onclick=()=>{if(!started){$('start').onclick();return}paused=false;play(0)};
+$('bv').onclick=()=>{voiceOn=!voiceOn;$('bv').classList.toggle('act',voiceOn);if(!voiceOn){speechSynthesis.cancel();spoken=true}};
+$('ss').onchange=e=>$('sub').classList.toggle('off',e.target.value==='off');
+
+function loadVoices(){voices=speechSynthesis.getVoices().filter(v=>v.lang.startsWith('en'));
+ $('sv').innerHTML=voices.map(v=>`<option>${v.name}</option>`).join('')||'<option>Default voice</option>';
+ const p=voices.find(v=>/Google UK English Female/.test(v.name))||voices.find(v=>/Natural|Aria|Jenny|Libby|Sonia/.test(v.name))||voices.find(v=>/Female|Samantha|Zira/.test(v.name));if(p)$('sv').value=p.name}
+if('speechSynthesis' in window){loadVoices();speechSynthesis.onvoiceschanged=loadVoices}else voiceOn=false;
+$('sv').onchange=()=>{if(started&&!done)play(cur)};
+
+$('bm').onclick=()=>{
+ if(mus){clearInterval(mus.t);mus.c.close();mus=null;$('bm').classList.remove('act');return}
+ const c=new (window.AudioContext||window.webkitAudioContext)(),g=c.createGain();g.gain.value=.05;g.connect(c.destination);
+ const N=[261.6,293.7,329.6,392,440,523.3];
+ const t=setInterval(()=>{if(paused)return;const o=c.createOscillator(),e=c.createGain();o.type='triangle';o.frequency.value=N[Math.floor(Math.random()*N.length)];
+  e.gain.setValueAtTime(0,c.currentTime);e.gain.linearRampToValueAtTime(1,c.currentTime+.1);e.gain.exponentialRampToValueAtTime(.001,c.currentTime+1.4);
+  o.connect(e);e.connect(g);o.start();o.stop(c.currentTime+1.5)},650);
+ mus={c,t};$('bm').classList.add('act')};
+</script>
+</body>
+</html>

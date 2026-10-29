@@ -1,0 +1,783 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Evolv List Comprehension</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Noto+Sans+Tamil:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Sans+Malayalam:wght@400;500;600;700&family=Noto+Sans+Telugu:wght@400;500;600;700&family=Noto+Sans+Kannada:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: a 16:9 video stage scaled to fit, with chapter strip and player controls underneath.
+   Single deliberate look: night-blue editor world; amber = expression, cyan = for loop, pink = condition. */
+:root{
+  --ink:#0A0F1E; --panel:#111A30; --panel2:#17233F; --line:#273563;
+  --fg:#E9EDF9; --mut:#93A0C6; --dim:#55648F;
+  --expr:#FFB547; --loop:#4FD1FF; --cond:#FF6B9A; --ok:#5BE3A0; --hl:#8FA3FF;
+  --disp:'Unbounded','Trebuchet MS',sans-serif;
+  --body:'Figtree','Noto Sans Tamil','Noto Sans Devanagari','Noto Sans Malayalam','Noto Sans Telugu','Noto Sans Kannada','Noto Sans Bengali',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--ink);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.5;
+  padding-block:20px 32px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+button,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--loop);outline-offset:2px}
+
+/* ---------- frame ---------- */
+.frame{position:relative;aspect-ratio:16/9;width:100%;overflow:hidden;border-radius:14px;border:1px solid var(--line);background:var(--ink);container-type:inline-size}
+.stage{position:absolute;left:0;top:0;width:1280px;height:720px;transform-origin:0 0;overflow:hidden;
+  background:
+   radial-gradient(900px 500px at 85% -10%,rgba(79,209,255,.10),transparent 60%),
+   radial-gradient(800px 500px at 0% 110%,rgba(255,107,154,.09),transparent 60%),
+   linear-gradient(rgba(143,163,255,.045) 1px,transparent 1px) 0 0/48px 48px,
+   linear-gradient(90deg,rgba(143,163,255,.045) 1px,transparent 1px) 0 0/48px 48px,var(--ink);
+  animation:pan 60s linear infinite}
+@keyframes pan{to{background-position:0 0,0 0,48px 96px,48px 96px,0 0}}
+.stage.paused *{animation-play-state:paused!important}
+.scene{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity .6s,visibility .6s}
+.scene.active{opacity:1;visibility:visible}
+.abs{position:absolute}
+
+#hdr{position:absolute;left:0;right:0;top:0;height:64px;padding:0 56px;display:flex;align-items:center;justify-content:space-between;opacity:0;transition:opacity .5s;z-index:3}
+#hdr.on{opacity:1}
+.mini{display:flex;align-items:center;gap:12px;font:700 20px var(--disp);letter-spacing:.14em}
+.mini svg{width:30px;height:30px}
+#hdrLbl{font:600 17px var(--body);color:var(--mut);letter-spacing:.06em;text-transform:uppercase}
+
+#cap{position:absolute;left:50%;bottom:34px;transform:translateX(-50%);max-width:1040px;width:max-content;text-align:center;
+  font:500 29px/1.35 var(--body);background:rgba(6,10,22,.78);border:1px solid rgba(143,163,255,.2);padding:10px 24px;border-radius:12px;z-index:4;transition:opacity .3s}
+#cap.off{opacity:0}
+#cap.ta{font-size:24px;max-width:1120px}
+.row{display:flex;gap:1.4cqw;flex-wrap:wrap;justify-content:center}
+.go.alt{background:transparent;color:var(--fg);border:1px solid var(--line);box-shadow:none}
+.note.warn{color:var(--expr)}
+.start .sel{flex:none;width:auto;max-width:70cqw;font-size:clamp(12px,1.8cqw,18px);padding:.55em 1em}
+.start .lab{color:var(--mut);font-size:clamp(11px,1.6cqw,16px)}
+
+/* ---------- start overlay ---------- */
+.start{position:absolute;inset:0;z-index:10;display:grid;place-items:center;text-align:center;padding:4cqw;
+  background:radial-gradient(60% 60% at 50% 40%,rgba(17,26,48,.88),rgba(10,15,30,.97))}
+.start[hidden]{display:none}
+.start .in{display:flex;flex-direction:column;align-items:center;gap:2.2cqw;max-width:80cqw}
+.start svg.mk{width:7cqw;height:7cqw}
+.start h2{margin:0;font:700 clamp(15px,3.6cqw,42px)/1.2 var(--disp);text-wrap:balance}
+.start p{margin:0;color:var(--mut);font-size:clamp(12px,1.9cqw,21px);max-width:52ch;text-wrap:balance}
+.go{display:inline-flex;align-items:center;gap:.8em;border:0;cursor:pointer;background:var(--expr);color:#1a1200;font:700 clamp(13px,2cqw,22px) var(--body);
+  padding:.8em 1.6em;border-radius:999px;box-shadow:0 0 0 .5cqw rgba(255,181,71,.2)}
+.go:hover{filter:brightness(1.08)}
+.go svg{width:1em;height:1em}
+
+/* ---------- controls ---------- */
+.chaps{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:8px}
+.chap{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px 9px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:7px;min-width:0}
+.chap:hover{border-color:var(--hl)}
+.chap .f{height:4px;border-radius:4px;background:var(--line);overflow:hidden}
+.chap .f i{display:block;height:100%;width:0;background:var(--loop);transition:width .5s}
+.chap.cur{border-color:var(--loop)}
+.chap span{font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chap em{font-style:normal;color:var(--dim);font-family:var(--mono);margin-right:.5em}
+.ctrl{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.b{background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:8px 16px;cursor:pointer;font-weight:600;font-size:14px}
+.b:hover{border-color:var(--hl)}
+.b.primary{background:var(--expr);border-color:var(--expr);color:#1a1200}
+.b[aria-pressed=false]{color:var(--mut);text-decoration:line-through;text-decoration-color:var(--dim)}
+.sel{background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:8px 12px;font-size:14px;max-width:100%;min-width:0;flex:1 1 180px}
+.note{margin:0;color:var(--mut);font-size:13.5px;max-width:80ch}
+
+/* ---------- brand ---------- */
+.mark rect{transform-box:fill-box;transform-origin:50% 100%}
+.mark.grow rect{animation:rise .7s cubic-bezier(.2,.9,.3,1.2) both}
+.mark.grow .b2{animation-delay:.15s}.mark.grow .b3{animation-delay:.3s}
+@keyframes rise{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+.wm{font:700 22px var(--disp);letter-spacing:.2em}
+
+/* ---------- editor ---------- */
+.ed{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.35)}
+.tb{height:46px;display:flex;align-items:center;gap:9px;padding:0 16px;background:#0E1730;border-bottom:1px solid var(--line)}
+.tb b{width:13px;height:13px;border-radius:50%;background:#33406e}
+.tb b:nth-child(1){background:#ff6b6b}.tb b:nth-child(2){background:#ffcf5c}.tb b:nth-child(3){background:#4fd88f}
+.tb em{font:500 15px var(--mono);color:var(--mut);margin-left:12px;font-style:normal}
+.tb u{margin-left:auto;text-decoration:none;font:500 13px var(--mono);color:var(--dim)}
+.cd{padding:14px 0;font:500 24px/38px var(--mono)}
+.ln{display:flex;height:38px;overflow:hidden;border-left:3px solid transparent;transition:height .55s ease,opacity .45s,background .3s}
+.ln i{width:56px;text-align:right;padding-right:20px;color:var(--dim);font-style:normal;flex:none;user-select:none}
+.ln span{white-space:pre}
+.ln span:empty::after{content:"\200b"}
+.ln.on{background:rgba(143,163,255,.12);border-left-color:var(--hl)}
+.ln.gone{height:0;opacity:0}
+.ln.swap span{animation:swapin .7s}
+@keyframes swapin{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:none}}
+.k{color:#B79CFF}.f{color:#8CB8FF}.n{color:#8EE6B4}.o{color:#C9D3F5}
+.blank{color:var(--expr);border-bottom:2px dashed var(--expr);animation:blink 1.1s infinite}
+@keyframes blink{50%{opacity:.45}}
+.part{border-radius:5px;transition:background .4s,box-shadow .4s}
+.cd[data-hl=expr] .expr{background:rgba(255,181,71,.24);box-shadow:0 0 0 3px rgba(255,181,71,.6)}
+.cd[data-hl=loop] .loop{background:rgba(79,209,255,.22);box-shadow:0 0 0 3px rgba(79,209,255,.6)}
+.cd[data-hl=cond] .cond{background:rgba(255,107,154,.22);box-shadow:0 0 0 3px rgba(255,107,154,.6)}
+.cd[data-hl=all] .all{background:rgba(255,255,255,.08);box-shadow:0 0 0 3px rgba(255,255,255,.55)}
+.term{background:#070C19;border:1px solid var(--line);border-radius:12px;padding:12px 20px 14px}
+.tl{font:600 12px var(--body);letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.to{font:500 28px/1.4 var(--mono);color:var(--ok);min-height:40px}
+.to.cur::after{content:"▍";animation:blink 1s infinite}
+.badge{display:inline-flex;align-items:center;gap:10px;font:700 20px var(--mono);color:var(--ok);background:rgba(91,227,160,.1);border:1px solid rgba(91,227,160,.5);padding:8px 16px;border-radius:999px;animation:pop .5s}
+@keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+
+/* ---------- viz ---------- */
+.viz{display:flex;flex-direction:column;gap:14px}
+.vl{font:600 15px var(--mono);color:var(--mut);letter-spacing:.04em}
+.chips{display:flex;gap:12px}
+.chip{width:76px;height:76px;border-radius:14px;background:var(--panel2);border:2px solid var(--line);display:grid;place-items:center;font:600 30px var(--mono);transition:all .3s}
+.chip.act{border-color:var(--loop);box-shadow:0 0 0 5px rgba(79,209,255,.2);transform:translateY(-5px)}
+.chip.done{opacity:.45}
+.slot{border-style:dashed;background:transparent;color:transparent}
+.slot.fill{border-style:solid;border-color:var(--expr);color:var(--expr);background:rgba(255,181,71,.1);animation:pop .4s}
+.slot.ok.fill{border-color:var(--ok);color:var(--ok);background:rgba(91,227,160,.1)}
+.chips.six .chip{width:64px;height:64px;font-size:26px}
+.chips.six{gap:10px}
+.chip.out{opacity:.2;transform:scale(.82);text-decoration:line-through}
+.chip.keep{border-color:var(--ok);color:var(--ok)}
+.mach{position:relative;height:86px;border-radius:16px;border:2px solid var(--expr);color:var(--expr);background:rgba(255,181,71,.07);
+  display:grid;place-items:center;font:600 30px var(--mono);transition:box-shadow .4s}
+.mach b{color:var(--fg)}
+.mach.glow{box-shadow:0 0 0 6px rgba(255,181,71,.22),0 0 40px rgba(255,181,71,.25)}
+.mach::before,.mach::after{content:"";position:absolute;left:50%;margin-left:-9px;border:9px solid transparent}
+.mach::before{top:-23px;border-top-color:var(--dim)}
+.mach::after{bottom:-23px;border-top-color:var(--dim)}
+.gate{height:112px;border-radius:16px;border:2px solid var(--cond);background:rgba(255,107,154,.07);padding:12px 14px;display:flex;flex-direction:column;justify-content:center;gap:8px;text-align:center}
+.gt{font:600 24px var(--mono);color:var(--cond)}
+.gv{font:500 20px var(--mono);color:var(--mut);min-height:28px}
+.gv.t{color:var(--ok)}.gv.fl{color:var(--cond)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 22px}
+.fadein{animation:fi .6s both}
+@keyframes fi{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.hid{opacity:0}
+
+/* scene-specific */
+.title1{font:700 46px/1.25 var(--disp);text-align:center;text-wrap:balance}
+.title1 em{font-style:normal;color:var(--expr)}
+.syn{font:500 38px var(--mono);display:flex;justify-content:center;gap:.6em;white-space:nowrap;transition:opacity .3s}
+.syn .sp{transition:opacity .35s,transform .35s}
+.syn .e{color:var(--expr)}.syn .l{color:var(--loop)}.syn .c{color:var(--cond)}
+.syn .c.opt{border-bottom:3px dashed var(--cond)}
+[data-act]:not([data-act=""]) .sp{opacity:.25}
+[data-act=e] .sp.e,[data-act=l] .sp.l,[data-act=c] .sp.c{opacity:1;transform:translateY(-4px)}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.c3{position:relative;background:var(--panel);border:2px solid var(--line);border-radius:16px;padding:22px 24px;display:flex;flex-direction:column;gap:12px;transition:all .35s}
+.c3 h3{margin:0;font:700 22px var(--disp)}
+.c3 p{margin:0;color:var(--mut);font-size:21px;line-height:1.4}
+.c3 code{font:500 22px var(--mono);background:#0A1126;border-radius:8px;padding:6px 12px;align-self:flex-start}
+.c3.e h3,.c3.e code{color:var(--expr)}.c3.l h3,.c3.l code{color:var(--loop)}.c3.c h3,.c3.c code{color:var(--cond)}
+.opt-tag{position:absolute;right:18px;top:18px;font:700 14px var(--body);letter-spacing:.16em;text-transform:uppercase;color:var(--cond);border:1.5px dashed var(--cond);border-radius:999px;padding:4px 12px}
+[data-act=e] .c3.e{border-color:var(--expr);transform:translateY(-8px);background:#1d2238}
+[data-act=l] .c3.l{border-color:var(--loop);transform:translateY(-8px);background:#14263f}
+[data-act=c] .c3.c{border-color:var(--cond);transform:translateY(-8px);background:#27203c}
+[data-act=e] .c3:not(.e),[data-act=l] .c3:not(.l),[data-act=c] .c3:not(.c){opacity:.4}
+.ring{position:relative;width:200px;height:200px}
+.ring svg{width:200px;height:200px;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:10}
+.ring .bg{stroke:var(--line)}
+.ring .fg{stroke:var(--expr);stroke-linecap:round;stroke-dasharray:553;stroke-dashoffset:0}
+.ring.go .fg{animation:drain 5s linear forwards}
+@keyframes drain{to{stroke-dashoffset:553}}
+.ring .num{position:absolute;inset:0;display:grid;place-items:center;font:700 72px var(--disp)}
+.ring small{position:absolute;left:0;right:0;bottom:-34px;text-align:center;color:var(--mut);font-size:16px;letter-spacing:.14em;text-transform:uppercase}
+.q{font:700 36px/1.3 var(--disp);text-wrap:balance}
+.q em{font-style:normal;color:var(--expr)}
+.pill{display:inline-flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:12px 24px;font:600 24px var(--body)}
+.pill i{width:12px;height:12px;border-radius:50%;display:block}
+.tag{font:700 74px/1 var(--disp);letter-spacing:.06em}
+.wmbig{font:700 100px/1 var(--disp);letter-spacing:.2em;text-indent:.2em}
+.glowtxt{animation:glow 2.4s ease-in-out infinite}
+@keyframes glow{50%{text-shadow:0 0 36px rgba(79,209,255,.55)}}
+
+@media (prefers-reduced-motion:reduce){.stage,.stage *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+
+<main class="wrap">
+  <div class="frame" id="frame">
+    <div class="stage" id="stage">
+      <div id="hdr"><div class="mini"><svg class="mark" viewBox="0 0 40 40" aria-hidden="true"><rect x="3" y="22" width="9" height="15" rx="2" fill="#FFB547"/><rect x="15.5" y="13" width="9" height="24" rx="2" fill="#4FD1FF"/><rect x="28" y="3" width="9" height="34" rx="2" fill="#FF6B9A"/></svg>EVOLV</div><div id="hdrLbl"></div></div>
+      <section class="scene" id="sc1" aria-label="Scene 1"></section>
+      <section class="scene" id="sc2" aria-label="Scene 2"></section>
+      <section class="scene" id="sc3" aria-label="Scene 3"></section>
+      <section class="scene" id="sc4" aria-label="Scene 4"></section>
+      <section class="scene" id="sc5" aria-label="Scene 5"></section>
+      <section class="scene" id="sc6" aria-label="Scene 6"></section>
+      <section class="scene" id="sc7" aria-label="Scene 7"></section>
+      <div id="cap" class="off" aria-live="polite"></div>
+    </div>
+    <div class="start" id="start">
+      <div class="in">
+        <svg class="mk" viewBox="0 0 40 40" aria-hidden="true"><rect x="3" y="22" width="9" height="15" rx="2" fill="#FFB547"/><rect x="15.5" y="13" width="9" height="24" rx="2" fill="#4FD1FF"/><rect x="28" y="3" width="9" height="34" rx="2" fill="#FF6B9A"/></svg>
+        <h2>Python List Comprehension</h2>
+        <p>A narrated mini lesson from Evolv, about three minutes long. Choose your subtitle language, turn your sound on, then press play.</p>
+        <div class="row"><button class="go" id="startBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z" fill="currentColor"/></svg>Play lesson</button></div>
+        <div class="row"><span class="lab">Subtitles</span><select class="sel" id="lsel2" aria-label="Subtitle language"></select></div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="chaps" id="chaps" aria-label="Chapters"></nav>
+
+  <div class="ctrl">
+    <button class="b primary" id="bPlay" type="button">Play</button>
+    <button class="b" id="bRestart" type="button">Restart</button>
+    <button class="b" id="bVoice" type="button" aria-pressed="true">Voice</button>
+    <button class="b" id="bMusic" type="button" aria-pressed="true">Music</button>
+    <select class="sel" id="lsel" aria-label="Subtitle language"></select>
+    <select class="sel" id="vsel" aria-label="Narrator voice"></select>
+  </div>
+  <p class="note" id="note">The narration is in English and uses the voices installed in your browser, so the sound differs between devices. Pick another voice from the list if you prefer one. Subtitles can be changed at any time.</p>
+</main>
+
+<script>
+(function(){
+"use strict";
+var $=function(id){return document.getElementById(id)};
+var q=function(s,r){return r.querySelector(s)}, qa=function(s,r){return Array.prototype.slice.call(r.querySelectorAll(s))};
+var frame=$('frame'), stage=$('stage'), capEl=$('cap'), hdr=$('hdr'), hdrLbl=$('hdrLbl');
+function fit(){stage.style.transform='scale('+(frame.clientWidth/1280)+')'}
+if(window.ResizeObserver){new ResizeObserver(fit).observe(frame)}else{addEventListener('resize',fit)}
+fit();
+
+/* ---------- state ---------- */
+var runId=0, paused=false, voiceOn=true, musicOn=true, ccOn=true, playing=false, cur=0, done=0, finished=false;
+var CANCEL={cancel:true};
+addEventListener('unhandledrejection',function(e){if(e.reason===CANCEL)e.preventDefault()});
+
+function sleep(ms){
+  var my=runId;
+  return new Promise(function(res,rej){
+    var left=ms;
+    var t=setInterval(function(){
+      if(my!==runId){clearInterval(t);rej(CANCEL);return}
+      if(!paused){left-=25;if(left<=0){clearInterval(t);res()}}
+    },25);
+  });
+}
+
+/* ---------- chapters ---------- */
+var META=[
+  {t:'Intro',lbl:'Introduction',n:4},
+  {t:'The loop',lbl:'The traditional method',n:3},
+  {t:'One line',lbl:'Introducing list comprehension',n:5},
+  {t:'Filtering',lbl:'Filtering with a condition',n:5},
+  {t:'Syntax',lbl:'The syntax',n:5},
+  {t:'Challenge',lbl:'Coding challenge',n:4},
+  {t:'Wrap-up',lbl:'Wrap-up',n:3}
+];
+var chapsEl=$('chaps');
+META.forEach(function(m,i){
+  var b=document.createElement('button');b.type='button';b.className='chap';
+  b.innerHTML='<div class="f"><i></i></div><span><em>'+(i+1)+'</em>'+m.t+'</span>';
+  b.addEventListener('click',function(){start(i)});
+  chapsEl.appendChild(b);
+});
+var chapBtns=qa('.chap',chapsEl);
+function setProg(i,f){q('.f i',chapBtns[i]).style.width=Math.round(f*100)+'%'}
+function markChapters(from){
+  chapBtns.forEach(function(b,i){b.classList.toggle('cur',i===from);setProg(i,i<from?1:0)});
+}
+
+/* ---------- voice (English) + subtitles ---------- */
+var KEYS=["Ever wondered if you could write a whole for loop in just one line of Python?", "What if you could create a new list with less code and cleaner syntax?", "Welcome to Evolv!", "Today, let's explore one of Python's coolest features — List Comprehension.", "Suppose we have a list of numbers and want to find the square of every number.", "Traditionally, we create an empty list, loop through each number, calculate its square, and append the result.", "But Python offers us a shorter way to achieve exactly the same result!", "That's List Comprehension!", "We can create a new list using a compact expression.", "The expression calculates the square,", "and the for loop processes every number in the original list.", "Python collects all the results into a new list — all in one line!", "List comprehension can also filter items using a condition.", "Here, the expression checks whether each number is divisible by two without a remainder.", "The percent sign is the modulo operator. It gives the remainder after division.", "Only even numbers are added to the new list.", "One line, and we've filtered the entire list!", "Remember this simple structure:", "expression,", "for loop,", "and an optional condition.", "Master this pattern, and you'll be able to write many list comprehensions on your own.", "Your turn! How would you create a list of cubes from one to five?", "Pause and try it yourself.", "The answer is n raised to the power of three, followed by the for loop.", "Keep practising to master the concept!", "And that's Python List Comprehension — less code, clean syntax, and powerful list creation!", "Keep practising, keep exploring, and keep evolving with Evolv.", "See you in the next video!"];
+var SUBS={"ta": ["Python-ல ஒரு முழு for loop-ஐயே, ஒரே ஒரு வரியில எழுத முடியும்னு தெரியுமா?", "கம்மியான code-ஓட, சுத்தமான syntax-ல, ஒரு புது list-ஐ உருவாக்க முடிஞ்சா எப்படி இருக்கும்?", "Evolv-க்கு உங்களை வரவேற்கிறோம்!", "இன்னைக்கு Python-ல இருக்கிற ஒரு சூப்பரான வசதியைப் பார்க்கலாம். அதுதான் List Comprehension.", "நம்மகிட்ட சில எண்கள் அடங்கிய ஒரு list இருக்குன்னு வச்சுக்கோங்க. ஒவ்வொரு எண்ணோட வர்க்கத்தையும் கண்டுபிடிக்கணும்.", "வழக்கமா, முதல்ல ஒரு காலி list-ஐ உருவாக்குவோம். அப்புறம் loop மூலமா ஒவ்வொரு எண்ணையும் எடுத்து, வர்க்கத்தைக் கணக்கிட்டு, முடிவை list-ல சேர்ப்போம்.", "ஆனா, இதே முடிவை இன்னும் சுருக்கமா பெற, Python நமக்கு ஒரு வழி தருது!", "இதுதான் List Comprehension!", "ஒரு சின்ன expression-ஐ வச்சே, புது list-ஐ உருவாக்கலாம்.", "Expression, வர்க்கத்தைக் கணக்கிடுது.", "for loop, அசல் list-ல இருக்கிற ஒவ்வொரு எண்ணையும் ஒவ்வொண்ணா எடுத்துக் கொடுக்குது.", "எல்லா முடிவுகளையும் Python ஒரு புது list-ஆ சேர்த்துடும். எல்லாமே ஒரே ஒரு வரியில!", "List comprehension-ல, ஒரு condition வச்சு தேவையானதை மட்டும் வடிகட்டவும் முடியும்.", "இங்க, ஒவ்வொரு எண்ணையும் இரண்டால வகுத்தா, மீதி பூஜ்ஜியமா வருதான்னு சரிபார்க்கிறோம்.", "இந்த % குறி modulo operator. வகுத்த பிறகு மீதி என்ன வருதுன்னு இது சொல்லும்.", "இரட்டைப்படை எண்கள் மட்டும்தான் புது list-ல சேரும்.", "ஒரே ஒரு வரியில, முழு list-ஐயும் வடிகட்டிட்டோம்!", "இந்த எளிய அமைப்பை நினைவுல வச்சுக்கோங்க:", "Expression,", "for loop,", "அப்புறம், தேவைப்பட்டா மட்டும் ஒரு condition.", "இந்த வடிவத்தைப் புரிஞ்சுகிட்டா, நிறைய list comprehension-களை நீங்களே எழுதிடலாம்.", "இப்போ உங்க முறை! ஒன்று முதல் ஐந்து வரை, கனங்களோட list-ஐ எப்படி உருவாக்குவீங்க?", "Video-வை நிறுத்தி, நீங்களே முயற்சி பண்ணுங்க.", "விடை: n-ஐ மூன்றாவது அடுக்குல உயர்த்தணும், அதுக்கப்புறம் for loop.", "தொடர்ந்து பயிற்சி பண்ணுங்க, நல்லா கத்துக்கலாம்!", "இதுதான் Python List Comprehension. கம்மியான code, சுத்தமான syntax, சக்திவாய்ந்த list-கள்!", "தொடர்ந்து பயிற்சி பண்ணுங்க, புதுசா தெரிஞ்சுக்கோங்க, Evolv-ஓட சேர்ந்து வளர்ந்துகிட்டே இருங்க.", "அடுத்த video-ல சந்திப்போம்!"], "hi": ["क्या आपने कभी सोचा है कि पूरा for loop सिर्फ़ एक लाइन में लिखा जा सकता है?", "अगर कम code और साफ़ syntax के साथ नई list बनाई जा सके, तो कैसा रहेगा?", "Evolv में आपका स्वागत है!", "आज हम Python की एक शानदार खूबी देखेंगे: List Comprehension।", "मान लीजिए हमारे पास संख्याओं की एक list है और हमें हर संख्या का वर्ग निकालना है।", "आम तौर पर हम एक खाली list बनाते हैं, हर संख्या पर loop चलाते हैं, उसका वर्ग निकालते हैं और नतीजे को list में जोड़ देते हैं।", "लेकिन Python हमें यही नतीजा पाने का एक छोटा रास्ता देता है!", "यही है List Comprehension!", "हम एक छोटे से expression से नई list बना सकते हैं।", "Expression वर्ग निकालता है,", "और for loop असली list की हर संख्या को एक-एक करके लेता है।", "Python सारे नतीजे इकट्ठा करके एक नई list बना देता है, और वो भी सिर्फ़ एक लाइन में!", "List comprehension में condition लगाकर चीज़ों को छाँटा भी जा सकता है।", "यहाँ हम जाँचते हैं कि कोई संख्या 2 से भाग देने पर बिना शेषफल के बँटती है या नहीं।", "% चिह्न modulo operator है। यह भाग देने के बाद बचा हुआ शेषफल बताता है।", "सिर्फ़ सम संख्याएँ ही नई list में जुड़ती हैं।", "एक लाइन, और पूरी list छँट गई!", "इस आसान ढाँचे को याद रखिए:", "expression,", "for loop,", "और एक वैकल्पिक condition।", "इस पैटर्न को समझ लिया, तो आप खुद कई list comprehension लिख पाएँगे।", "अब आपकी बारी! एक से पाँच तक के घनों की list कैसे बनाएँगे?", "वीडियो रोकिए और खुद करके देखिए।", "जवाब है: n का घन (n ** 3), उसके बाद for loop।", "अभ्यास करते रहिए, तभी यह कॉन्सेप्ट पक्का होगा!", "तो यही है Python List Comprehension: कम code, साफ़ syntax और दमदार list बनाने का तरीका!", "अभ्यास करते रहिए, खोजते रहिए, और Evolv के साथ आगे बढ़ते रहिए।", "अगले वीडियो में मिलते हैं!"], "ml": ["ഒരു മുഴുവൻ for loop വെറും ഒരു വരിയിൽ എഴുതാൻ കഴിയുമെന്ന് നിങ്ങൾക്കറിയാമോ?", "കുറച്ച് code കൊണ്ടും വൃത്തിയുള്ള syntax കൊണ്ടും ഒരു പുതിയ list ഉണ്ടാക്കാൻ കഴിഞ്ഞാലോ?", "Evolv-ലേക്ക് സ്വാഗതം!", "ഇന്ന് Python-ലെ ഒരു കിടിലൻ സവിശേഷത നോക്കാം: List Comprehension.", "നമ്മുടെ കയ്യിൽ കുറച്ച് സംഖ്യകളുടെ ഒരു list ഉണ്ടെന്നിരിക്കട്ടെ. ഓരോ സംഖ്യയുടെയും വർഗ്ഗം കണ്ടെത്തണം.", "സാധാരണയായി നമ്മൾ ഒരു ശൂന്യമായ list ഉണ്ടാക്കും, ഓരോ സംഖ്യയിലൂടെയും loop ചെയ്യും, അതിന്റെ വർഗ്ഗം കണക്കാക്കി ഫലം list-ലേക്ക് ചേർക്കും.", "പക്ഷേ ഇതേ ഫലം കിട്ടാൻ Python നമുക്ക് ഒരു ചെറിയ വഴി തരുന്നുണ്ട്!", "ഇതാണ് List Comprehension!", "ഒരു ചെറിയ expression ഉപയോഗിച്ച് നമുക്ക് പുതിയ list ഉണ്ടാക്കാം.", "Expression വർഗ്ഗം കണക്കാക്കുന്നു,", "for loop യഥാർത്ഥ list-ലെ ഓരോ സംഖ്യയും ഓരോന്നായി എടുത്തു തരുന്നു.", "എല്ലാ ഫലങ്ങളും Python ഒരു പുതിയ list ആയി ശേഖരിക്കും, അതും ഒറ്റ വരിയിൽ!", "ഒരു condition ഉപയോഗിച്ച് ആവശ്യമുള്ളവ മാത്രം തിരഞ്ഞെടുക്കാനും List comprehension-ൽ കഴിയും.", "ഇവിടെ ഓരോ സംഖ്യയും 2 കൊണ്ട് ഹരിച്ചാൽ ശിഷ്ടം പൂജ്യമാണോ എന്ന് പരിശോധിക്കുന്നു.", "% ചിഹ്നം modulo operator ആണ്. ഹരിച്ചതിനു ശേഷമുള്ള ശിഷ്ടം ഇത് തരും.", "ഇരട്ട സംഖ്യകൾ മാത്രമേ പുതിയ list-ൽ ചേരൂ.", "ഒരേയൊരു വരി, മുഴുവൻ list-ഉം അരിച്ചെടുത്തു!", "ഈ ലളിതമായ ഘടന ഓർത്തുവയ്ക്കൂ:", "expression,", "for loop,", "പിന്നെ ആവശ്യമെങ്കിൽ മാത്രം ഒരു condition.", "ഈ pattern മനസ്സിലാക്കിയാൽ നിങ്ങൾക്ക് സ്വന്തമായി ധാരാളം list comprehension എഴുതാം.", "ഇനി നിങ്ങളുടെ ഊഴം! ഒന്ന് മുതൽ അഞ്ച് വരെയുള്ള ഘനങ്ങളുടെ list എങ്ങനെ ഉണ്ടാക്കും?", "വീഡിയോ നിർത്തി സ്വയം ശ്രമിച്ചു നോക്കൂ.", "ഉത്തരം: n-ന്റെ ഘനം (n ** 3), അതിനു ശേഷം for loop.", "ഈ ആശയം ഉറപ്പിക്കാൻ പരിശീലിച്ചുകൊണ്ടേയിരിക്കൂ!", "ഇതാണ് Python List Comprehension: കുറഞ്ഞ code, വൃത്തിയുള്ള syntax, ശക്തമായ list നിർമ്മാണം!", "പരിശീലിക്കൂ, പുതിയത് പഠിക്കൂ, Evolv-നൊപ്പം വളർന്നുകൊണ്ടേയിരിക്കൂ.", "അടുത്ത വീഡിയോയിൽ കാണാം!"], "te": ["ఒక పూర్తి for loop ని కేవలం ఒకే ఒక లైన్‌లో రాయగలమని మీకు తెలుసా?", "తక్కువ code తో, శుభ్రమైన syntax తో కొత్త list ని తయారు చేయగలిగితే ఎలా ఉంటుంది?", "Evolv కి స్వాగతం!", "ఈ రోజు Python లోని ఒక అద్భుతమైన ఫీచర్ చూద్దాం: List Comprehension.", "మన దగ్గర కొన్ని సంఖ్యల list ఉందనుకుందాం. ప్రతి సంఖ్య వర్గాన్ని కనుక్కోవాలి.", "సాధారణంగా మనం ఖాళీ list ని సృష్టించి, ప్రతి సంఖ్య మీద loop నడిపి, దాని వర్గాన్ని లెక్కించి, ఫలితాన్ని list లో చేరుస్తాం.", "కానీ ఇదే ఫలితాన్ని పొందడానికి Python మనకు చిన్న దారి ఇస్తుంది!", "ఇదే List Comprehension!", "ఒక చిన్న expression తో కొత్త list ని తయారు చేయవచ్చు.", "Expression వర్గాన్ని లెక్కిస్తుంది,", "for loop అసలు list లోని ప్రతి సంఖ్యను ఒక్కొక్కటిగా తీసుకుంటుంది.", "Python ఫలితాలన్నింటినీ ఒక కొత్త list గా సేకరిస్తుంది, అదీ ఒకే లైన్‌లో!", "List comprehension లో condition పెట్టి, కావలసినవాటిని మాత్రమే వడపోయవచ్చు.", "ఇక్కడ ప్రతి సంఖ్యను 2 తో భాగిస్తే శేషం సున్నా వస్తుందో లేదో చూస్తున్నాం.", "% గుర్తు modulo operator. భాగించిన తర్వాత మిగిలే శేషాన్ని ఇది ఇస్తుంది.", "సరి సంఖ్యలు మాత్రమే కొత్త list లో చేరతాయి.", "ఒకే లైన్, మొత్తం list వడపోత పూర్తయింది!", "ఈ సులభమైన నిర్మాణాన్ని గుర్తుంచుకోండి:", "expression,", "for loop,", "ఆపై కావాలంటే మాత్రమే ఒక condition.", "ఈ pattern అర్థమైతే, మీరే చాలా list comprehension లు రాయగలరు.", "ఇప్పుడు మీ వంతు! ఒకటి నుండి ఐదు వరకు ఘనాల list ని ఎలా తయారు చేస్తారు?", "వీడియో ఆపి, మీరే ప్రయత్నించండి.", "సమాధానం: n ఘనం (n ** 3), ఆ తర్వాత for loop.", "ఈ కాన్సెప్ట్ మీద పట్టు రావాలంటే సాధన చేస్తూనే ఉండండి!", "ఇదే Python List Comprehension: తక్కువ code, శుభ్రమైన syntax, శక్తివంతమైన list తయారీ!", "సాధన చేయండి, అన్వేషించండి, Evolv తో కలిసి ఎదుగుతూ ఉండండి.", "తదుపరి వీడియోలో కలుద్దాం!"], "kn": ["ಒಂದು ಪೂರ್ಣ for loop ಅನ್ನು ಕೇವಲ ಒಂದೇ ಸಾಲಿನಲ್ಲಿ ಬರೆಯಬಹುದು ಎಂದು ನಿಮಗೆ ಗೊತ್ತೇ?", "ಕಡಿಮೆ code ಮತ್ತು ಸ್ವಚ್ಛವಾದ syntax ನೊಂದಿಗೆ ಹೊಸ list ಅನ್ನು ರಚಿಸಲು ಸಾಧ್ಯವಾದರೆ ಹೇಗಿರುತ್ತದೆ?", "Evolv ಗೆ ಸ್ವಾಗತ!", "ಇಂದು Python ನ ಒಂದು ಅದ್ಭುತ ವೈಶಿಷ್ಟ್ಯವನ್ನು ನೋಡೋಣ: List Comprehension.", "ನಮ್ಮ ಬಳಿ ಕೆಲವು ಸಂಖ್ಯೆಗಳ list ಇದೆ ಎಂದುಕೊಳ್ಳಿ. ಪ್ರತಿ ಸಂಖ್ಯೆಯ ವರ್ಗವನ್ನು ಕಂಡುಹಿಡಿಯಬೇಕು.", "ಸಾಮಾನ್ಯವಾಗಿ ನಾವು ಖಾಲಿ list ಮಾಡಿ, ಪ್ರತಿ ಸಂಖ್ಯೆಯ ಮೇಲೆ loop ಓಡಿಸಿ, ಅದರ ವರ್ಗ ಲೆಕ್ಕಿಸಿ, ಫಲಿತಾಂಶವನ್ನು list ಗೆ ಸೇರಿಸುತ್ತೇವೆ.", "ಆದರೆ ಇದೇ ಫಲಿತಾಂಶ ಪಡೆಯಲು Python ನಮಗೆ ಚಿಕ್ಕ ದಾರಿ ನೀಡುತ್ತದೆ!", "ಇದೇ List Comprehension!", "ಒಂದು ಚಿಕ್ಕ expression ಬಳಸಿ ಹೊಸ list ಅನ್ನು ರಚಿಸಬಹುದು.", "Expression ವರ್ಗವನ್ನು ಲೆಕ್ಕಿಸುತ್ತದೆ,", "for loop ಮೂಲ list ನ ಪ್ರತಿ ಸಂಖ್ಯೆಯನ್ನು ಒಂದೊಂದಾಗಿ ತೆಗೆದುಕೊಳ್ಳುತ್ತದೆ.", "Python ಎಲ್ಲಾ ಫಲಿತಾಂಶಗಳನ್ನು ಹೊಸ list ಆಗಿ ಸಂಗ್ರಹಿಸುತ್ತದೆ, ಅದೂ ಒಂದೇ ಸಾಲಿನಲ್ಲಿ!", "List comprehension ನಲ್ಲಿ condition ಬಳಸಿ ಬೇಕಾದವುಗಳನ್ನು ಮಾತ್ರ ಆರಿಸಬಹುದು.", "ಇಲ್ಲಿ ಪ್ರತಿ ಸಂಖ್ಯೆಯನ್ನು 2 ರಿಂದ ಭಾಗಿಸಿದಾಗ ಶೇಷ ಸೊನ್ನೆಯಾಗುತ್ತದೆಯೇ ಎಂದು ಪರಿಶೀಲಿಸುತ್ತೇವೆ.", "% ಚಿಹ್ನೆ modulo operator. ಭಾಗಿಸಿದ ನಂತರ ಉಳಿಯುವ ಶೇಷವನ್ನು ಇದು ನೀಡುತ್ತದೆ.", "ಸಮ ಸಂಖ್ಯೆಗಳು ಮಾತ್ರ ಹೊಸ list ಗೆ ಸೇರುತ್ತವೆ.", "ಒಂದೇ ಸಾಲು, ಇಡೀ list ಅನ್ನು ಶೋಧಿಸಿದೆವು!", "ಈ ಸರಳ ರಚನೆಯನ್ನು ನೆನಪಿಡಿ:", "expression,", "for loop,", "ಮತ್ತು ಬೇಕಾದರೆ ಮಾತ್ರ ಒಂದು condition.", "ಈ pattern ಅರ್ಥವಾದರೆ, ನೀವೇ ಹಲವು list comprehension ಬರೆಯಬಹುದು.", "ಈಗ ನಿಮ್ಮ ಸರದಿ! ಒಂದರಿಂದ ಐದರವರೆಗಿನ ಘನಗಳ list ಅನ್ನು ಹೇಗೆ ರಚಿಸುತ್ತೀರಿ?", "ವೀಡಿಯೊ ನಿಲ್ಲಿಸಿ, ನೀವೇ ಪ್ರಯತ್ನಿಸಿ.", "ಉತ್ತರ: n ನ ಘನ (n ** 3), ನಂತರ for loop.", "ಈ ಪರಿಕಲ್ಪನೆ ಕರಗತವಾಗಲು ಅಭ್ಯಾಸ ಮಾಡುತ್ತಲೇ ಇರಿ!", "ಇದೇ Python List Comprehension: ಕಡಿಮೆ code, ಸ್ವಚ್ಛ syntax, ಶಕ್ತಿಶಾಲಿ list ರಚನೆ!", "ಅಭ್ಯಾಸ ಮಾಡಿ, ಅನ್ವೇಷಿಸಿ, Evolv ಜೊತೆ ಬೆಳೆಯುತ್ತಿರಿ.", "ಮುಂದಿನ ವೀಡಿಯೊದಲ್ಲಿ ಸಿಗೋಣ!"], "bn": ["আপনি কি জানেন, একটা পুরো for loop মাত্র এক লাইনে লেখা যায়?", "কম code আর পরিষ্কার syntax দিয়ে নতুন list বানানো গেলে কেমন হয়?", "Evolv-এ স্বাগতম!", "আজ আমরা Python-এর একটি দারুণ ফিচার দেখব: List Comprehension।", "ধরুন আমাদের কাছে কয়েকটি সংখ্যার একটি list আছে, আর প্রতিটি সংখ্যার বর্গ বের করতে হবে।", "সাধারণত আমরা একটি খালি list বানাই, প্রতিটি সংখ্যার উপর loop চালাই, তার বর্গ হিসাব করি এবং ফলটি list-এ যোগ করি।", "কিন্তু একই ফল পেতে Python আমাদের একটি ছোট পথ দেয়!", "এটাই List Comprehension!", "একটি ছোট expression দিয়ে আমরা নতুন list বানাতে পারি।", "Expression বর্গ হিসাব করে,", "আর for loop মূল list-এর প্রতিটি সংখ্যা একে একে নেয়।", "Python সব ফল জড়ো করে একটি নতুন list বানায়, তাও মাত্র এক লাইনে!", "List comprehension-এ condition দিয়ে প্রয়োজনীয় জিনিস বেছেও নেওয়া যায়।", "এখানে আমরা দেখছি, প্রতিটি সংখ্যাকে ২ দিয়ে ভাগ করলে ভাগশেষ শূন্য হয় কি না।", "% চিহ্নটি modulo operator। ভাগ করার পর যা বাকি থাকে, সেটাই এটি দেয়।", "শুধু জোড় সংখ্যাগুলোই নতুন list-এ যোগ হয়।", "এক লাইন, আর পুরো list ছাঁকা হয়ে গেল!", "এই সহজ কাঠামোটা মনে রাখুন:", "expression,", "for loop,", "আর ইচ্ছা হলে একটি condition।", "এই pattern বুঝে গেলে আপনি নিজেই অনেক list comprehension লিখতে পারবেন।", "এবার আপনার পালা! এক থেকে পাঁচ পর্যন্ত সংখ্যার ঘনের list কীভাবে বানাবেন?", "ভিডিও থামান আর নিজে চেষ্টা করুন।", "উত্তর: n-এর ঘন (n ** 3), তারপর for loop।", "ধারণাটি আয়ত্ত করতে অনুশীলন চালিয়ে যান!", "এটাই Python List Comprehension: কম code, পরিষ্কার syntax, আর শক্তিশালী list তৈরি!", "অনুশীলন করুন, খুঁজে দেখুন, Evolv-এর সাথে এগিয়ে চলুন।", "পরের ভিডিওতে দেখা হবে!"], "mr": ["संपूर्ण for loop फक्त एका ओळीत लिहिता येतो, हे तुम्हाला माहीत आहे का?", "कमी code आणि स्वच्छ syntax वापरून नवीन list तयार करता आली तर?", "Evolv मध्ये स्वागत आहे!", "आज आपण Python ची एक भन्नाट सोय पाहणार आहोत: List Comprehension.", "समजा आपल्याकडे काही संख्यांची list आहे आणि प्रत्येक संख्येचा वर्ग काढायचा आहे.", "नेहमीच्या पद्धतीत आपण रिकामी list तयार करतो, प्रत्येक संख्येवर loop चालवतो, तिचा वर्ग काढतो आणि निकाल list मध्ये जोडतो.", "पण हाच निकाल मिळवण्यासाठी Python आपल्याला एक छोटा मार्ग देतो!", "हेच List Comprehension!", "एका छोट्या expression ने आपण नवीन list तयार करू शकतो.", "Expression वर्ग काढतो,", "आणि for loop मूळ list मधील प्रत्येक संख्या एकेक करून घेतो.", "Python सगळे निकाल गोळा करून नवीन list बनवतो, तेही फक्त एका ओळीत!", "List comprehension मध्ये condition लावून हवे तेच निवडताही येते.", "इथे प्रत्येक संख्येला २ ने भागल्यावर बाकी शून्य उरते का, ते तपासतो.", "% चिन्ह म्हणजे modulo operator. भागाकारानंतर उरणारी बाकी तो देतो.", "फक्त सम संख्याच नवीन list मध्ये जोडल्या जातात.", "एकच ओळ, आणि संपूर्ण list गाळून झाली!", "ही सोपी रचना लक्षात ठेवा:", "expression,", "for loop,", "आणि हवी असेल तरच एक condition.", "हा pattern समजला की तुम्ही स्वतः अनेक list comprehension लिहू शकाल.", "आता तुमची पाळी! एक ते पाच पर्यंतच्या घनांची list कशी तयार कराल?", "व्हिडिओ थांबवा आणि स्वतः प्रयत्न करा.", "उत्तर: n चा घन (n ** 3), त्यानंतर for loop.", "ही संकल्पना पक्की करण्यासाठी सराव करत राहा!", "हेच Python List Comprehension: कमी code, स्वच्छ syntax आणि दमदार list निर्मिती!", "सराव करा, शोध घ्या आणि Evolv सोबत पुढे जात राहा.", "पुढच्या व्हिडिओत भेटू!"], "es": ["¿Sabías que puedes escribir todo un bucle for en una sola línea de Python?", "¿Y si pudieras crear una lista nueva con menos código y una sintaxis más limpia?", "¡Bienvenido a Evolv!", "Hoy exploraremos una de las funciones más geniales de Python: la comprensión de listas.", "Supongamos que tenemos una lista de números y queremos calcular el cuadrado de cada uno.", "Tradicionalmente, creamos una lista vacía, recorremos cada número, calculamos su cuadrado y añadimos el resultado.", "¡Pero Python nos ofrece una forma más corta de lograr exactamente el mismo resultado!", "¡Eso es la comprensión de listas!", "Podemos crear una lista nueva con una expresión compacta.", "La expresión calcula el cuadrado,", "y el bucle for recorre cada número de la lista original.", "Python reúne todos los resultados en una lista nueva, ¡todo en una sola línea!", "La comprensión de listas también puede filtrar elementos con una condición.", "Aquí, la expresión comprueba si cada número es divisible entre dos sin resto.", "El signo de porcentaje es el operador módulo. Devuelve el resto de una división.", "Solo los números pares se añaden a la lista nueva.", "¡Una línea, y hemos filtrado toda la lista!", "Recuerda esta estructura sencilla:", "expresión,", "bucle for,", "y una condición opcional.", "Domina este patrón y podrás escribir muchas comprensiones de listas por tu cuenta.", "¡Te toca! ¿Cómo crearías una lista de cubos del uno al cinco?", "Pausa el vídeo e inténtalo tú mismo.", "La respuesta es n elevado a la tercera potencia, seguido del bucle for.", "¡Sigue practicando para dominar el concepto!", "¡Eso es la comprensión de listas en Python: menos código, sintaxis limpia y creación de listas potente!", "Sigue practicando, sigue explorando y sigue evolucionando con Evolv.", "¡Nos vemos en el próximo vídeo!"], "fr": ["Saviez-vous qu'on peut écrire une boucle for entière en une seule ligne de Python ?", "Et si vous pouviez créer une nouvelle liste avec moins de code et une syntaxe plus claire ?", "Bienvenue sur Evolv !", "Aujourd'hui, découvrons l'une des fonctionnalités les plus sympas de Python : la compréhension de liste.", "Supposons que nous ayons une liste de nombres et que nous voulions calculer le carré de chacun.", "Traditionnellement, on crée une liste vide, on parcourt chaque nombre, on calcule son carré et on ajoute le résultat.", "Mais Python nous offre un moyen plus court d'obtenir exactement le même résultat !", "Voilà la compréhension de liste !", "On peut créer une nouvelle liste avec une expression compacte.", "L'expression calcule le carré,", "et la boucle for parcourt chaque nombre de la liste d'origine.", "Python rassemble tous les résultats dans une nouvelle liste, le tout en une seule ligne !", "La compréhension de liste peut aussi filtrer des éléments grâce à une condition.", "Ici, l'expression vérifie si chaque nombre est divisible par deux sans reste.", "Le signe pourcentage est l'opérateur modulo. Il donne le reste d'une division.", "Seuls les nombres pairs sont ajoutés à la nouvelle liste.", "Une seule ligne, et toute la liste est filtrée !", "Retenez cette structure simple :", "expression,", "boucle for,", "et une condition facultative.", "Maîtrisez ce modèle, et vous saurez écrire de nombreuses compréhensions de liste par vous-même.", "À vous de jouer ! Comment créeriez-vous une liste de cubes de un à cinq ?", "Mettez la vidéo en pause et essayez vous-même.", "La réponse : n à la puissance trois, suivi de la boucle for.", "Continuez à vous entraîner pour maîtriser le concept !", "Voilà la compréhension de liste en Python : moins de code, une syntaxe claire et une création de listes puissante !", "Continuez à pratiquer, à explorer et à évoluer avec Evolv.", "À bientôt dans la prochaine vidéo !"]};
+var LANGS=[['en','English'],['ta','தமிழ் · Tamil'],['hi','हिन्दी · Hindi'],['ml','മലയാളം · Malayalam'],['te','తెలుగు · Telugu'],['kn','ಕನ್ನಡ · Kannada'],['bn','বাংলা · Bengali'],['mr','मराठी · Marathi'],['es','Español · Spanish'],['fr','Français · French'],['off','Subtitles off']];
+var SUB='ta', lastEn='';
+var voice=null, hasSpeech=('speechSynthesis' in window)&&typeof SpeechSynthesisUtterance!=='undefined';
+var vsel=$('vsel'), lsel=$('lsel'), lsel2=$('lsel2');
+[lsel,lsel2].forEach(function(sel){
+  LANGS.forEach(function(l){var o=document.createElement('option');o.value=l[0];o.textContent=(l[0]==='off'?'':'Subtitles: ')+l[1];sel.appendChild(o)});
+});
+function sub(text){
+  if(SUB==='en'||SUB==='off')return text;
+  var i=KEYS.indexOf(text);
+  return (i>-1&&SUBS[SUB])?SUBS[SUB][i]:text;
+}
+function setSub(l){
+  SUB=l;ccOn=(l!=='off');lsel.value=l;lsel2.value=l;
+  capEl.classList.toggle('ta',l!=='en'&&l!=='off');
+  if(capEl.textContent&&lastEn)cap(sub(lastEn));
+}
+lsel.addEventListener('change',function(){setSub(lsel.value)});
+lsel2.addEventListener('change',function(){setSub(lsel2.value)});
+function loadVoices(){
+  if(!hasSpeech)return;
+  var all=speechSynthesis.getVoices().filter(function(v){return /^en/i.test(v.lang)});
+  if(!all.length)return;
+  var prev=voice&&voice.voiceURI;
+  vsel.innerHTML='';
+  all.forEach(function(v,i){var o=document.createElement('option');o.value=i;o.textContent=v.name+' ('+v.lang+')';vsel.appendChild(o)});
+  var prefs=[/Natural|Neural|Online/i,/Google UK English Female/i,/Google US English/i,/Samantha|Karen|Moira|Aria|Jenny|Libby|Sonia|Daniel/i,/en[-_](IN|GB)/i];
+  var pick=null;
+  if(prev){pick=all.filter(function(v){return v.voiceURI===prev})[0]||null}
+  for(var p=0;p<prefs.length&&!pick;p++){pick=all.filter(function(v){return prefs[p].test(v.name)||prefs[p].test(v.lang)})[0]}
+  voice=pick||all[0];
+  vsel.value=String(all.indexOf(voice));
+  vsel._list=all;
+}
+if(hasSpeech){loadVoices();speechSynthesis.onvoiceschanged=loadVoices}else{
+  vsel.hidden=true;voiceOn=false;$('bVoice').hidden=true;
+  $('note').textContent='This browser has no speech voices, so the lesson plays with subtitles and music only.';
+}
+vsel.addEventListener('change',function(){if(vsel._list){voice=vsel._list[+vsel.value]}});
+setSub('ta');
+
+function cap(t){capEl.textContent=t||'';capEl.classList.toggle('off',!t||!ccOn)}
+
+function say(text){
+  var my=runId;
+  lastEn=text;
+  cap(sub(text));
+  return new Promise(function(res,rej){
+    var finish=function(){
+      if(my!==runId){rej(CANCEL);return}
+      done++;setProg(cur,Math.min(1,done/META[cur].n));res();
+    };
+    var words=text.split(/\s+/).length, est=Math.max(1300,words*380+500);
+    if(!voiceOn||!hasSpeech||!voice){sleep(est).then(finish,rej);return}
+    var u=new SpeechSynthesisUtterance(text);
+    u.voice=voice;u.lang=voice.lang;u.rate=1.0;u.pitch=1;
+    var ended=false;
+    var end=function(){if(ended)return;ended=true;finish()};
+    u.onend=end;u.onerror=end;
+    sleep(est*3+4000).then(end,function(){});
+    speechSynthesis.speak(u);
+  });
+}
+
+/* ---------- music (generated, quiet) ---------- */
+var ac=null, mg=null, mTimer=null, nextT=0, stepN=0;
+var CHORDS=[[220,261.63,329.63,440],[174.61,220,261.63,349.23],[261.63,329.63,392,523.25],[196,246.94,293.66,392]];
+function initAudio(){
+  if(ac)return;
+  var AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
+  ac=new AC();mg=ac.createGain();mg.gain.value=0;
+  var lp=ac.createBiquadFilter();lp.type='lowpass';lp.frequency.value=1500;
+  mg.connect(lp);lp.connect(ac.destination);
+}
+function note(f,t,dur,type,vol){
+  var o=ac.createOscillator(),g=ac.createGain();
+  o.type=type;o.frequency.value=f;
+  g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.connect(g);g.connect(mg);o.start(t);o.stop(t+dur+0.05);
+}
+function sched(){
+  if(!ac)return;
+  while(nextT<ac.currentTime+0.4){
+    var bar=Math.floor(stepN/8)%4, ch=CHORDS[bar], s=stepN%8;
+    var pat=[0,2,1,3,2,1,3,2];
+    note(ch[pat[s]]*(s%4===3?2:1),nextT,0.34,'triangle',0.5);
+    if(s===0){note(ch[0]/2,nextT,2.4,'sine',0.7)}
+    nextT+=0.3125;stepN++;
+  }
+}
+function musicStart(){
+  initAudio();if(!ac)return;
+  if(ac.state==='suspended')ac.resume();
+  mg.gain.cancelScheduledValues(ac.currentTime);
+  mg.gain.setTargetAtTime(musicOn?0.035:0,ac.currentTime,0.4);
+  if(!mTimer){nextT=ac.currentTime+0.1;mTimer=setInterval(sched,80)}
+}
+function musicStop(){
+  if(mg)mg.gain.setTargetAtTime(0,ac.currentTime,0.6);
+  var t=mTimer;mTimer=null;setTimeout(function(){clearInterval(t)},2500);
+}
+function blip(f){
+  if(!ac||!musicOn)return;
+  var t=ac.currentTime,o=ac.createOscillator(),g=ac.createGain();
+  o.type='sine';o.frequency.value=f;
+  g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.05,t+0.01);g.gain.exponentialRampToValueAtTime(0.0001,t+0.22);
+  o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+0.25);
+}
+
+/* ---------- code helpers ---------- */
+function esc(s){return s.replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})}
+var TOK=/(\b(?:for|in|if)\b)|(\b(?:print|range|append)\b)|(\b\d+\b)|(\*\*|==|%)|(_{3,})|([\s\S])/g;
+function tok(s){
+  return s.replace(TOK,function(m,a,b,c,d,e,f){
+    return a?'<span class="k">'+a+'</span>':b?'<span class="f">'+b+'</span>':c?'<span class="n">'+c+'</span>':d?'<span class="o">'+d+'</span>':e?'<span class="blank">'+e+'</span>':esc(f);
+  });
+}
+function P(cls,t){return '<span class="part '+cls+'">'+tok(t)+'</span>'}
+function LN(no,html,key,cls){return '<div class="ln '+(cls||'')+'" data-k="'+key+'"><i>'+no+'</i><span>'+html+'</span></div>'}
+function ED(file,lines){
+  return '<div class="ed"><div class="tb"><b></b><b></b><b></b><em>'+file+'</em><u>Python 3</u></div><div class="cd">'+lines.join('')+'</div></div>';
+}
+var TERM='<div class="term"><div class="tl">Output</div><div class="to"></div></div>';
+function hlLines(r){
+  var keys=Array.prototype.slice.call(arguments,1);
+  qa('.ln',r).forEach(function(el){el.classList.toggle('on',keys.indexOf(el.getAttribute('data-k'))>-1)});
+}
+function renumber(r){
+  qa('.ln:not(.gone)',r).forEach(function(el,i){el.firstChild.textContent=i+1});
+}
+async function typeIn(el,text,ms,code){
+  for(var i=1;i<=text.length;i++){
+    el.innerHTML=code?tok(text.slice(0,i)):esc(text.slice(0,i));
+    await sleep(ms);
+  }
+}
+async function typeOut(r,text){
+  var el=q('.to',r);el.classList.add('cur');
+  await typeIn(el,text,35,false);
+  await sleep(250);el.classList.remove('cur');
+}
+function chips(vals,cls){return vals.map(function(v){return '<div class="chip '+(cls||'')+'">'+v+'</div>'}).join('')}
+function VIZ(label,filled){
+  var slots=[1,4,9,16,25].map(function(v){return '<div class="chip slot'+(filled?' fill':'')+'" data-v="'+v+'">'+v+'</div>'}).join('');
+  return '<div class="viz"><div class="vl">numbers</div><div class="chips" data-r="in">'+chips([1,2,3,4,5])+'</div>'+
+    '<div class="mach" data-r="m"><span>'+label+'</span></div><div class="vl">squares</div><div class="chips" data-r="out">'+slots+'</div></div>';
+}
+var MARK='<svg class="mark %c" viewBox="0 0 40 40" aria-hidden="true"><rect class="b1" x="3" y="22" width="9" height="15" rx="2" fill="#FFB547"/><rect class="b2" x="15.5" y="13" width="9" height="24" rx="2" fill="#4FD1FF"/><rect class="b3" x="28" y="3" width="9" height="34" rx="2" fill="#FF6B9A"/></svg>';
+
+var SC=[$('sc1'),$('sc2'),$('sc3'),$('sc4'),$('sc5'),$('sc6'),$('sc7')];
+function activate(i){
+  SC.forEach(function(s,k){s.classList.toggle('active',k===i)});
+  hdr.classList.toggle('on',i>0&&i<6);
+  hdrLbl.textContent='Scene '+(i+1)+' of 7 · '+META[i].lbl;
+}
+
+/* ================= SCENES ================= */
+
+/* Scene 1: intro */
+async function scene1(){
+  var r=SC[0];
+  r.innerHTML=
+   '<div class="abs" id="b1" style="left:0;right:0;top:34px;display:flex;justify-content:center;align-items:center;gap:18px;opacity:0;transition:opacity .6s"><div style="width:52px;height:52px">'+MARK.replace('%c','')+'</div><div class="wm">EVOLV</div></div>'+
+   '<div class="abs" style="left:230px;top:124px;width:820px">'+ED('squares.py',[])+'</div>'+
+   '<div class="abs" id="bdg" style="left:230px;top:376px;width:820px;text-align:center;min-height:44px"></div>'+
+   '<div class="abs title1" id="ttl" style="left:80px;right:80px;top:432px;opacity:0">Python List Comprehension —<br><em>Less Code,</em> More Power!</div>';
+  activate(0);
+  var cd=q('.cd',r);
+  var lines=['numbers = [1, 2, 3, 4, 5]','squares = []','for n in numbers:','    squares.append(n ** 2)'];
+  await sleep(700);
+  var p=say("Ever wondered if you could write a whole for loop in just one line of Python?");
+  for(var i=0;i<lines.length;i++){
+    cd.insertAdjacentHTML('beforeend',LN(i+1,'','l'+(i+1)));
+    var el=q('[data-k=l'+(i+1)+'] span',cd);
+    hlLines(r,'l'+(i+1));
+    await typeIn(el,lines[i],32,true);
+    await sleep(160);
+  }
+  hlLines(r);
+  await p;
+  p=say("What if you could create a new list with less code and cleaner syntax?");
+  await sleep(500);
+  var l2=q('[data-k=l2] span',cd);
+  ['l3','l4'].forEach(function(k){q('[data-k='+k+']',cd).classList.add('gone')});
+  l2.innerHTML=tok('squares = [n ** 2 for n in numbers]');
+  q('[data-k=l2]',cd).classList.add('swap');
+  await sleep(900);renumber(r);
+  $('bdg').innerHTML='<span class="badge">3 lines → 1 line</span>';
+  await p;
+  p=say("Welcome to Evolv!");
+  $('b1').style.opacity=1;
+  q('.mark',r).classList.add('grow');
+  await p;
+  p=say("Today, let's explore one of Python's coolest features — List Comprehension.");
+  $('ttl').classList.add('fadein');$('ttl').style.opacity=1;
+  await p;
+  await sleep(900);
+}
+
+/* Scene 2: traditional loop */
+async function scene2(){
+  var r=SC[1];
+  var lines=[
+    LN(1,tok('numbers = [1, 2, 3, 4, 5]'),'l1'),LN(2,tok('squares = []'),'l2'),LN(3,'','l3'),
+    LN(4,tok('for n in numbers:'),'l4'),LN(5,tok('    squares.append(n ** 2)'),'l5'),LN(6,'','l6'),LN(7,tok('print(squares)'),'l7')];
+  r.innerHTML='<div class="abs" style="left:56px;top:96px;width:640px">'+ED('squares.py',lines)+'</div>'+
+    '<div class="abs" style="left:56px;top:452px;width:640px">'+TERM+'</div>'+
+    '<div class="abs fadein" style="left:742px;top:96px;width:482px">'+VIZ('n ** 2',false)+'</div>'+
+    '<div class="abs" id="teaser" style="left:742px;top:520px;width:482px;opacity:0"><span class="pill"><i style="background:var(--ok)"></i>Same result, fewer lines</span></div>';
+  activate(1);
+  var inC=qa('[data-r=in] .chip',r), slots=qa('[data-r=out] .chip',r), mach=q('[data-r=m] span',r);
+  qa('.chip.slot',r).forEach(function(s){s.textContent=''});
+  await sleep(500);
+  var p=say("Suppose we have a list of numbers and want to find the square of every number.");
+  hlLines(r,'l1');
+  await p;
+  p=say("Traditionally, we create an empty list, loop through each number, calculate its square, and append the result.");
+  hlLines(r,'l2');
+  await sleep(2200);
+  for(var i=1;i<=5;i++){
+    inC[i-1].classList.add('act');hlLines(r,'l4');mach.innerHTML='n = <b>'+i+'</b>';
+    await sleep(380);
+    hlLines(r,'l5');mach.innerHTML=i+' ** 2 = <b>'+(i*i)+'</b>';
+    await sleep(380);
+    slots[i-1].textContent=i*i;slots[i-1].classList.add('fill');
+    inC[i-1].classList.remove('act');inC[i-1].classList.add('done');
+    await sleep(260);
+  }
+  mach.textContent='n ** 2';
+  hlLines(r,'l7');
+  await p;
+  await typeOut(r,'[1, 4, 9, 16, 25]');
+  p=say("But Python offers us a shorter way to achieve exactly the same result!");
+  hlLines(r);
+  $('teaser').classList.add('fadein');$('teaser').style.opacity=1;
+  await p;
+  await sleep(500);
+}
+
+/* Scene 3: list comprehension */
+async function scene3(){
+  var r=SC[2];
+  var lines=[
+    LN(1,tok('numbers = [1, 2, 3, 4, 5]'),'l1'),LN(2,tok('squares = []'),'l2'),LN(3,'','l3'),
+    LN(4,tok('for n in numbers:'),'l4'),LN(5,tok('    squares.append(n ** 2)'),'l5'),LN(6,'','l6'),LN(7,tok('print(squares)'),'l7')];
+  r.innerHTML='<div class="abs" style="left:56px;top:96px;width:640px">'+ED('squares.py',lines)+'</div>'+
+    '<div class="abs" style="left:56px;top:452px;width:640px">'+TERM+'</div>'+
+    '<div class="abs" id="bdg3" style="left:56px;top:566px;width:640px;min-height:44px"></div>'+
+    '<div class="abs" style="left:742px;top:96px;width:482px">'+VIZ('n ** 2',true)+'</div>';
+  qa('.to',r)[0].textContent='[1, 4, 9, 16, 25]';
+  activate(2);
+  var cd=q('.cd',r), inC=qa('[data-r=in] .chip',r), slots=qa('[data-r=out] .chip',r), machWrap=q('[data-r=m]',r);
+  await sleep(700);
+  var p=say("That's List Comprehension!");
+  await sleep(300);
+  q('[data-k=l2] span',cd).innerHTML=tok('squares = ')+'<span class="part all">'+tok('[')+P('expr','n ** 2')+' '+P('loop','for n in numbers')+tok(']')+'</span>';
+  q('[data-k=l2]',cd).classList.add('swap');
+  ['l4','l5','l6'].forEach(function(k){q('[data-k='+k+']',cd).classList.add('gone')});
+  slots.forEach(function(s){s.classList.remove('fill');s.textContent=''});
+  qa('.to',r)[0].textContent='';
+  await sleep(900);renumber(r);
+  await p;
+  p=say("We can create a new list using a compact expression.");
+  cd.setAttribute('data-hl','all');
+  await p;
+  p=say("The expression calculates the square,");
+  cd.setAttribute('data-hl','expr');machWrap.classList.add('glow');
+  await p;
+  p=say("and the for loop processes every number in the original list.");
+  cd.setAttribute('data-hl','loop');machWrap.classList.remove('glow');
+  var a1=(async function(){
+    await sleep(500);
+    for(var i=0;i<5;i++){inC[i].classList.add('act');await sleep(420);inC[i].classList.remove('act')}
+  })();
+  await Promise.all([p,a1]);
+  p=say("Python collects all the results into a new list — all in one line!");
+  cd.setAttribute('data-hl','all');
+  var a2=(async function(){
+    for(var i=0;i<5;i++){
+      inC[i].classList.add('act');await sleep(260);
+      slots[i].textContent=slots[i].getAttribute('data-v');slots[i].classList.add('fill');
+      inC[i].classList.remove('act');inC[i].classList.add('done');
+      await sleep(200);
+    }
+    hlLines(r,'l7');
+    await typeOut(r,'[1, 4, 9, 16, 25]');
+    $('bdg3').innerHTML='<span class="badge">4 lines → 1 line</span>';
+  })();
+  await Promise.all([p,a2]);
+  cd.setAttribute('data-hl','');hlLines(r);
+  await sleep(900);
+}
+
+/* Scene 4: filtering */
+async function scene4(){
+  var r=SC[3];
+  var lines=[LN(1,tok('numbers = [1, 2, 3, 4, 5, 6]'),'l1'),
+    LN(2,tok('even_numbers = ')+tok('[')+P('expr','n')+' '+P('loop','for n in numbers')+' '+P('cond','if n % 2 == 0')+tok(']'),'l2'),
+    LN(3,'','l3'),LN(4,tok('print(even_numbers)'),'l4')];
+  r.innerHTML='<div class="abs" style="left:190px;top:84px;width:900px">'+ED('even.py',lines)+'</div>'+
+   '<div class="abs viz" style="left:56px;top:338px;width:440px"><div class="vl">numbers</div><div class="chips six">'+chips([1,2,3,4,5,6])+'</div></div>'+
+   '<div class="abs" style="left:524px;top:338px;width:246px"><div class="vl" style="margin-bottom:14px">filter</div><div class="gate"><div class="gt">n % 2 == 0</div><div class="gv" id="gv">waiting…</div></div></div>'+
+   '<div class="abs viz" style="left:806px;top:338px;width:420px"><div class="vl">even_numbers</div><div class="chips six" data-r="out"><div class="chip slot ok"></div><div class="chip slot ok"></div><div class="chip slot ok"></div></div><div class="term" style="padding:8px 16px 10px;margin-top:6px;opacity:0;transition:opacity .5s" id="t4"><div class="to" style="font-size:24px;min-height:34px"></div></div></div>'+
+   '<div class="abs card" id="mod" style="left:56px;top:500px;width:1168px;display:flex;align-items:center;justify-content:space-between;gap:28px;opacity:0">'+
+     '<div style="min-width:0"><div style="font:700 21px var(--disp);color:var(--cond)">% is the modulo operator</div><div style="color:var(--mut);font-size:21px">It gives the remainder after division.</div></div>'+
+     '<div style="font:500 24px var(--mono);display:flex;gap:30px;flex-wrap:wrap"><span><span class="n">4</span> <span class="o">%</span> <span class="n">2</span> = <span class="n">0</span> → <span style="color:var(--ok)">even ✓</span></span><span><span class="n">5</span> <span class="o">%</span> <span class="n">2</span> = <span class="n">1</span> → <span style="color:var(--cond)">odd ✗</span></span></div></div>';
+  // fix: expression part uses plain n
+  var cd=q('.cd',r), inC=qa('.chips.six:not([data-r]) .chip',r), slots=qa('[data-r=out] .chip',r), gv=$('gv');
+  activate(3);
+  await sleep(600);
+  var p=say("List comprehension can also filter items using a condition.");
+  hlLines(r,'l2');cd.setAttribute('data-hl','cond');
+  await p;
+  p=say("Here, the expression checks whether each number is divisible by two without a remainder.");
+  $('mod').classList.add('fadein');$('mod').style.opacity=1;
+  await p;
+  var anim=(async function(){
+    await sleep(300);
+    var k=0;
+    for(var i=1;i<=6;i++){
+      inC[i-1].classList.add('act');
+      var rem=i%2, even=rem===0;
+      gv.className='gv '+(even?'t':'fl');gv.textContent=i+' % 2 = '+rem+' → '+(even?'True':'False');
+      await sleep(420);
+      inC[i-1].classList.remove('act');
+      if(even){inC[i-1].classList.add('keep');slots[k].textContent=i;slots[k].classList.add('fill');k++}
+      else{inC[i-1].classList.add('out')}
+      await sleep(420);
+    }
+    gv.className='gv';gv.textContent='3 passed';
+  })();
+  var sp=(async function(){
+    await say("The percent sign is the modulo operator. It gives the remainder after division.");
+    await say("Only even numbers are added to the new list.");
+  })();
+  await Promise.all([anim,sp]);
+  p=say("One line, and we've filtered the entire list!");
+  cd.setAttribute('data-hl','all');
+  hlLines(r,'l4');
+  $('t4').style.opacity=1;
+  var tg=q('.to',$('t4'));
+  tg.classList.add('cur');
+  await typeIn(tg,'[2, 4, 6]',45,false);
+  await sleep(200);tg.classList.remove('cur');
+  await p;
+  cd.setAttribute('data-hl','');hlLines(r);
+  await sleep(900);
+}
+
+/* Scene 5: syntax */
+async function scene5(){
+  var r=SC[4];
+  r.innerHTML='<div class="abs" id="act5" data-act="" style="left:0;top:92px;width:1280px">'+
+    '<div class="syn"><span>[</span><span class="sp e">expression</span><span class="sp l">for item in iterable</span><span class="sp c opt">if condition</span><span>]</span></div>'+
+    '<div class="cards" style="margin:56px 56px 0">'+
+      '<div class="c3 e"><h3>Expression</h3><p>What to calculate, or include, in the new list.</p><code>n ** 2</code></div>'+
+      '<div class="c3 l"><h3>For loop</h3><p>Which items to process, one at a time.</p><code>for n in numbers</code></div>'+
+      '<div class="c3 c"><span class="opt-tag">optional</span><h3>Condition</h3><p>Which items should be included.</p><code>if n % 2 == 0</code></div>'+
+    '</div>'+
+    '<div id="ex5" style="margin:34px 56px 0;display:flex;gap:18px;align-items:center;justify-content:center;flex-wrap:wrap;opacity:0">'+
+      '<span style="color:var(--mut);font-size:21px">No <code style="font:500 21px var(--mono);color:var(--cond)">if</code> needed:</span>'+
+      '<code style="font:500 24px var(--mono);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 16px">'+tok('[n ** 2 for n in numbers]')+'</code></div>'+
+  '</div>';
+  var a=$('act5');
+  activate(4);
+  await sleep(500);
+  var p=say("Remember this simple structure:");
+  a.classList.add('fadein');
+  await p;
+  p=say("expression,");a.setAttribute('data-act','e');await p;await sleep(250);
+  p=say("for loop,");a.setAttribute('data-act','l');await p;await sleep(250);
+  p=say("and an optional condition.");a.setAttribute('data-act','c');
+  await p;
+  $('ex5').classList.add('fadein');$('ex5').style.opacity=1;
+  p=say("Master this pattern, and you'll be able to write many list comprehensions on your own.");
+  a.setAttribute('data-act','');
+  await p;
+  await sleep(1000);
+}
+
+/* Scene 6: challenge */
+async function scene6(){
+  var r=SC[5];
+  var ln1=LN(1,tok('cubes = [________ for n in range(1, 6)]'),'l1');
+  var ln2=LN(2,tok('print(cubes)'),'l2','gone');
+  r.innerHTML='<div class="abs q" style="left:160px;top:96px;width:960px">Can you create a list of <em>cubes</em> from 1 to 5 using list comprehension?</div>'+
+   '<div class="abs" style="left:160px;top:262px;width:720px">'+ED('cubes.py',[ln1,ln2])+'</div>'+
+   '<div class="abs" style="left:160px;top:456px;width:720px">'+TERM+'</div>'+
+   '<div class="abs ring" id="ring" style="left:980px;top:262px"><svg viewBox="0 0 200 200" aria-hidden="true"><circle class="bg" cx="100" cy="100" r="88"/><circle class="fg" cx="100" cy="100" r="88"/></svg><div class="num" id="rn">5</div><small>Think</small></div>'+
+   '<div class="abs card" id="hint" style="left:920px;top:456px;width:300px;opacity:0"><div style="font:600 14px var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:6px">Remember</div><div style="font-size:20px;line-height:1.4"><code style="font:500 20px var(--mono)">'+tok('range(1, 6)')+'</code> gives 1 to 5. The end value is not included.</div></div>';
+  activate(5);
+  var cd=q('.cd',r);
+  await sleep(600);
+  var p=say("Your turn! How would you create a list of cubes from one to five?");
+  await p;
+  p=say("Pause and try it yourself.");
+  await p;
+  $('ring').classList.add('go');
+  for(var s=5;s>=1;s--){
+    $('rn').textContent=s;blip(s===1?880:660);
+    await sleep(1000);
+  }
+  $('rn').textContent='✓';
+  p=say("The answer is n raised to the power of three, followed by the for loop.");
+  q('[data-k=l1] span',cd).innerHTML=tok('cubes = [')+P('expr','n ** 3')+tok(' for n in range(1, 6)]');
+  q('[data-k=l1]',cd).classList.add('swap');
+  cd.setAttribute('data-hl','expr');
+  await sleep(900);
+  cd.setAttribute('data-hl','loop');
+  await p;
+  q('[data-k=l2]',cd).classList.remove('gone');
+  p=say("Keep practising to master the concept!");
+  cd.setAttribute('data-hl','');
+  hlLines(r,'l2');
+  await typeOut(r,'[1, 8, 27, 64, 125]');
+  $('hint').classList.add('fadein');$('hint').style.opacity=1;
+  await p;
+  hlLines(r);
+  await sleep(1200);
+}
+
+/* Scene 7: closing */
+async function scene7(){
+  var r=SC[6];
+  r.innerHTML='<div class="abs" style="left:0;right:0;top:70px;display:flex;flex-direction:column;align-items:center;gap:22px">'+
+    '<div id="m7" style="width:118px;height:118px;opacity:0">'+MARK.replace('%c','')+'</div>'+
+    '<div class="wmbig" id="w7" style="opacity:0">EVOLV</div>'+
+    '<div class="tag" id="t7" style="opacity:0;margin-top:14px;text-align:center"><span style="color:var(--expr)">Learn.</span> <span style="color:var(--loop)">Build.</span> <span style="color:var(--cond)">Evolve.</span></div>'+
+    '<div id="r7" style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:30px;padding:0 60px"></div></div>';
+  activate(6);
+  var m=$('m7'),w=$('w7'),t=$('t7'),rc=$('r7');
+  await sleep(500);
+  m.style.opacity=1;q('.mark',m).classList.add('grow');
+  w.classList.add('fadein');w.style.opacity=1;
+  var p=say("And that's Python List Comprehension — less code, clean syntax, and powerful list creation!");
+  var pills=[['Less code','var(--expr)'],['Clean syntax','var(--loop)'],['Powerful lists','var(--cond)']];
+  for(var i=0;i<pills.length;i++){
+    await sleep(1100);
+    rc.insertAdjacentHTML('beforeend','<span class="pill fadein"><i style="background:'+pills[i][1]+'"></i>'+pills[i][0]+'</span>');
+  }
+  await p;
+  p=say("Keep practising, keep exploring, and keep evolving with Evolv.");
+  w.classList.add('glowtxt');
+  await p;
+  p=say("See you in the next video!");
+  t.classList.add('fadein');t.style.opacity=1;
+  await p;
+  await sleep(2200);
+}
+
+var SCENES=[scene1,scene2,scene3,scene4,scene5,scene6,scene7];
+
+/* ---------- run control ---------- */
+var bPlay=$('bPlay');
+function ui(){
+  bPlay.textContent=finished?'Replay':(!playing?'Play':(paused?'Resume':'Pause'));
+}
+async function start(from){
+  $('start').hidden=true;
+  runId++;var my=runId;
+  if(hasSpeech)speechSynthesis.cancel();
+  paused=false;playing=true;finished=false;stage.classList.remove('paused');
+  musicStart();
+  markChapters(from);ui();
+  try{
+    await sleep(250);
+    for(var i=from;i<SCENES.length;i++){
+      cur=i;done=0;markChapters(i);
+      await SCENES[i]();
+      setProg(i,1);
+    }
+    if(my===runId){finished=true;playing=false;cap('');musicStop();ui()}
+  }catch(e){
+    if(e!==CANCEL)console.error(e);
+  }
+}
+function togglePause(){
+  if(!playing){start(finished?0:cur);return}
+  paused=!paused;
+  stage.classList.toggle('paused',paused);
+  if(hasSpeech){paused?speechSynthesis.pause():speechSynthesis.resume()}
+  if(ac){paused?ac.suspend():ac.resume()}
+  ui();
+}
+bPlay.addEventListener('click',togglePause);
+$('bRestart').addEventListener('click',function(){start(0)});
+$('startBtn').addEventListener('click',function(){start(0)});
+function flip(btn,get,set){btn.addEventListener('click',function(){var v=!get();set(v);btn.setAttribute('aria-pressed',String(v))})}
+flip($('bVoice'),function(){return voiceOn},function(v){voiceOn=v;if(!v&&hasSpeech)speechSynthesis.cancel()});
+flip($('bMusic'),function(){return musicOn},function(v){musicOn=v;if(mg)mg.gain.setTargetAtTime(v?0.035:0,ac.currentTime,0.3)});
+markChapters(0);ui();
+
+/* idle first frame: show scene 1 title so the poster is not empty */
+SC[0].innerHTML='<div class="abs title1" style="left:80px;right:80px;top:250px">Python List Comprehension —<br><em>Less Code,</em> More Power!</div>';
+SC[0].classList.add('active');
+})();
+</script>
+
+</body></html>

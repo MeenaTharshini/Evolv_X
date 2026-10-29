@@ -1,0 +1,689 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Nested Conditions in Python: Decisions Within Decisions</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap">
+<style>
+/* Layout: one rounded stage (logo, swappable view, subtitle bar), chapter tabs below, control pills under that. */
+:root{
+  --bg:#070c1a; --stage:#0b1326; --panel:#101a33; --panel2:#0d1630; --line:#1f2d52;
+  --fg:#e8ecfa; --mute:#8794b8; --dim:#4a5678;
+  --cyan:#4cc9f0; --amber:#ffb547; --green:#4ade80; --coral:#ff6b81; --violet:#a78bfa;
+  --display:"Plus Jakarta Sans","Segoe UI",system-ui,-apple-system,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{
+  margin:0; background:var(--bg); color:var(--fg); font-family:var(--display); font-size:15px; line-height:1.5;
+  padding-block:20px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+.wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+button,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+
+/* stage */
+.stage{
+  position:relative; border:1px solid var(--line); border-radius:22px; padding:20px 22px 18px;
+  background:
+    linear-gradient(rgba(76,201,240,.035) 1px,transparent 1px) 0 0/34px 34px,
+    linear-gradient(90deg,rgba(76,201,240,.035) 1px,transparent 1px) 0 0/34px 34px,
+    radial-gradient(900px 380px at 50% 0%,rgba(76,201,240,.08),transparent 70%),
+    var(--stage);
+  display:flex; flex-direction:column; gap:14px; overflow:hidden;
+}
+.brand{display:flex;align-items:center;justify-content:center;gap:12px}
+.brand svg{width:34px;height:34px}
+.brand b{letter-spacing:.32em;font-weight:800;font-size:16px}
+.views{display:grid}
+.view{grid-area:1/1;opacity:0;visibility:hidden;transition:opacity .45s;min-width:0}
+.stage[data-view="intro"] .v-intro,
+.stage[data-view="bench"] .v-bench,
+.stage[data-view="wrap"] .v-wrap{opacity:1;visibility:visible}
+
+/* intro */
+.v-intro{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.park{width:100%;max-width:760px;height:auto}
+.pill{display:inline-block;border:1px solid rgba(74,222,128,.45);color:var(--green);background:rgba(74,222,128,.08);
+  font-family:var(--mono);font-size:12px;font-weight:500;padding:5px 14px;border-radius:99px}
+h1{margin:0;font-size:clamp(26px,4.6vw,46px);line-height:1.12;font-weight:800;text-wrap:balance;letter-spacing:-.01em}
+h1 em{font-style:normal;color:var(--amber)}
+
+/* park scene */
+.park .ground{stroke:var(--line);stroke-width:2}
+.park .track{stroke:var(--cyan);stroke-width:4;fill:none;stroke-linecap:round}
+.park .sup{stroke:rgba(76,201,240,.35);stroke-width:2}
+#student{transform:translate(30px,0);transition:transform 3.2s cubic-bezier(.4,.1,.3,1)}
+.park.s1 #student{transform:translate(215px,0)}
+.park.s3 #student{transform:translate(330px,0)}
+.pop{opacity:0;transform:translateY(6px);transition:opacity .5s,transform .5s}
+.park.s2 .tick,.park.s3 .tick{opacity:1;transform:none}
+.park.s3 .hgt{opacity:1;transform:none}
+.park.s4 .q{opacity:1;transform:none;animation:bob 1.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-4px)}}
+
+/* workbench */
+.v-bench{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:16px;align-items:start}
+.v-bench>*{min-width:0}
+.left{display:flex;flex-direction:column;gap:12px}
+.chap{display:flex;align-items:center;gap:10px;flex-wrap:wrap;grid-column:1/-1}
+.chap .pill{border-color:rgba(76,201,240,.45);color:var(--cyan);background:rgba(76,201,240,.08)}
+.chap span.t{font-weight:700;font-size:17px}
+.win{border:1px solid var(--line);border-radius:14px;background:var(--panel2);overflow:hidden}
+.win .bar{display:flex;align-items:center;gap:7px;padding:9px 14px;border-bottom:1px solid var(--line);background:var(--panel)}
+.win .bar i{width:11px;height:11px;border-radius:50%;display:block}
+.win .bar i:nth-child(1){background:#ff5f57}.win .bar i:nth-child(2){background:#febc2e}.win .bar i:nth-child(3){background:#28c840}
+.win .bar .fn{font-family:var(--mono);font-size:11.5px;color:var(--mute);margin-left:8px}
+.win .bar .ver{margin-left:auto;font-family:var(--mono);font-size:10.5px;color:var(--dim)}
+.code{padding:8px 0;overflow-x:auto}
+.ln{display:flex;align-items:center;gap:14px;padding:1px 14px;font-family:var(--mono);font-size:clamp(12.5px,1.55vw,15.5px);line-height:1.85;
+  border-left:3px solid transparent;transition:opacity .4s,background .4s,border-color .4s}
+.ln .n{width:1.4em;text-align:right;color:var(--dim);flex:none;user-select:none}
+.ln .src{white-space:pre;flex:1;min-width:0}
+.ln .bdg{flex:none;font-size:10.5px;font-weight:700;padding:1px 8px;border-radius:99px;opacity:0;transform:scale(.8);transition:.3s}
+.ln .bdg.show{opacity:1;transform:none}
+.ln .bdg.t{background:rgba(74,222,128,.15);color:var(--green);border:1px solid rgba(74,222,128,.5)}
+.ln .bdg.f{background:rgba(255,107,129,.13);color:var(--coral);border:1px solid rgba(255,107,129,.5)}
+.ln.dim{opacity:.28}
+.ln.c{background:rgba(76,201,240,.12);border-left-color:var(--cyan)}
+.ln.a{background:rgba(255,181,71,.12);border-left-color:var(--amber)}
+.ln.g{background:rgba(74,222,128,.13);border-left-color:var(--green)}
+.ln.x{background:rgba(255,107,129,.14);border-left-color:var(--coral)}
+.win.depth .ln[data-d="1"] .src{box-shadow:inset 2px 0 0 rgba(76,201,240,.55)}
+.win.depth .ln[data-d="2"] .src{box-shadow:inset 2px 0 0 rgba(76,201,240,.55),inset 34px 0 0 -32px rgba(255,181,71,.8)}
+.k{color:#a78bfa}.s{color:#86efac}.num{color:#7ee0a0}.v{color:#e8ecfa}.f{color:#4cc9f0}.o{color:#ffb547}
+
+.out{border:1px solid var(--line);border-radius:14px;background:#060b18;padding:10px 14px;min-height:88px}
+.out .h{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);margin-bottom:4px}
+.out pre{margin:0;font-family:var(--mono);font-size:14px;color:var(--green);white-space:pre-wrap;min-height:1.6em;line-height:1.6}
+.out pre.err{color:var(--coral);font-size:12.5px}
+.out pre.caret::after{content:"▍";animation:blink 1s steps(2) infinite;color:var(--cyan)}
+@keyframes blink{50%{opacity:0}}
+
+/* quiz */
+.quiz{border:1px solid rgba(255,181,71,.5);border-radius:14px;background:rgba(255,181,71,.06);padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.quiz .h{font-weight:800;color:var(--amber)}
+.opts{display:grid;gap:8px}
+.opt{display:flex;align-items:center;gap:10px;text-align:left;border:1px solid var(--line);background:var(--panel);border-radius:11px;padding:9px 12px;cursor:pointer;font-family:var(--mono);font-size:13.5px}
+.opt b{font-family:var(--display);color:var(--mute);width:1.2em}
+.opt:hover{border-color:var(--cyan)}
+.opt.pick{border-color:var(--cyan);background:rgba(76,201,240,.1)}
+.opt.right{border-color:var(--green);background:rgba(74,222,128,.14)}
+.opt.wrong{border-color:var(--coral);background:rgba(255,107,129,.12)}
+.timer{height:6px;border-radius:9px;background:var(--line);overflow:hidden}
+.timer i{display:block;height:100%;width:100%;background:var(--amber);transform-origin:left}
+.qrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--mute)}
+.qrow button{margin-left:auto}
+.fb{font-weight:700;font-size:13.5px}
+
+/* tree + scopes */
+.right{display:flex;flex-direction:column;gap:8px}
+.tree{width:100%;height:auto;display:block}
+.tree .edge{stroke:var(--dim);stroke-width:2;fill:none;stroke-dasharray:5 5;transition:.4s}
+.tree .edge.lt{stroke:var(--green);stroke-dasharray:none;filter:drop-shadow(0 0 4px rgba(74,222,128,.7))}
+.tree .edge.lf{stroke:var(--coral);stroke-dasharray:none;filter:drop-shadow(0 0 4px rgba(255,107,129,.6))}
+.tree .edge.off{opacity:.25}
+.tree .nd rect{fill:var(--panel);stroke:var(--line);stroke-width:1.5;transition:.4s}
+.tree .nd text{fill:var(--fg);font-family:var(--mono);font-size:12.5px;text-anchor:middle}
+.tree .nd.cond rect{stroke:rgba(76,201,240,.5)}
+.tree .nd.on rect{stroke:var(--cyan);fill:rgba(76,201,240,.16);filter:drop-shadow(0 0 8px rgba(76,201,240,.55))}
+.tree .nd.win rect{stroke:var(--green);fill:rgba(74,222,128,.17);filter:drop-shadow(0 0 9px rgba(74,222,128,.6))}
+.tree .nd.win text{fill:var(--green);font-weight:700}
+.tree .nd.off{opacity:.25}
+.tree .nd.out text{font-size:10.5px}
+.tree .lab{opacity:0;transition:.3s}
+.tree .lab.show{opacity:1}
+.tree .lab rect{rx:9}
+.tree .lab.t rect{fill:#0f3a27;stroke:var(--green)}.tree .lab.t text{fill:var(--green)}
+.tree .lab.f rect{fill:#3d1620;stroke:var(--coral)}.tree .lab.f text{fill:var(--coral)}
+.tree .lab text{font-family:var(--mono);font-size:10px;font-weight:700;text-anchor:middle}
+#walker{transition:transform .9s cubic-bezier(.4,.1,.3,1),opacity .4s;opacity:0}
+#walker.show{opacity:1}
+.cap{font-size:12.5px;color:var(--mute);text-align:center}
+.scopes{display:flex;flex-direction:column;gap:10px;padding:4px 0}
+.sc{border:2px solid var(--cyan);border-radius:14px;padding:10px 12px 12px;background:rgba(76,201,240,.06);display:flex;flex-direction:column;gap:8px}
+.sc .tag{font-family:var(--mono);font-size:13px;font-weight:700}
+.sc.outer .tag{color:var(--cyan)}
+.sc.inner{border-color:var(--amber);background:rgba(255,181,71,.07)}
+.sc.inner .tag{color:var(--amber)}
+.sc.leaf{border-color:var(--green);background:rgba(74,222,128,.08);padding:8px 12px;font-family:var(--mono);font-size:13px;color:var(--green)}
+.sc.bad{border-style:dashed;border-color:var(--coral);background:rgba(255,107,129,.06)}
+.sc.bad .tag,.sc.bad .empty{color:var(--coral)}
+.sc .empty{font-size:12.5px;font-style:italic}
+.sc.shake{animation:shake .5s 2}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.ok{color:var(--green);font-weight:700;font-size:13.5px}
+
+/* wrap-up */
+.v-wrap{display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;width:100%;max-width:860px}
+.card{border:1px solid var(--line);border-radius:16px;background:var(--panel);padding:18px 16px;text-align:left;opacity:.25;transform:translateY(10px);transition:.6s}
+.card.show{opacity:1;transform:none;border-color:rgba(74,222,128,.5)}
+.card b{display:block;color:var(--green);font-family:var(--mono);font-size:12px;margin-bottom:6px}
+.card p{margin:0;font-size:15px}
+.card code{font-family:var(--mono);color:var(--amber);font-size:13.5px}
+
+/* subtitle bar */
+.sub{border:1px solid var(--line);border-radius:12px;background:rgba(6,11,24,.75);padding:10px 18px;min-height:64px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:clamp(15px,2vw,19px);font-weight:600;text-wrap:balance}
+.sub.off{visibility:hidden}
+.startov{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(7,12,26,.55);backdrop-filter:blur(2px);z-index:5;transition:opacity .3s}
+.startov.gone{opacity:0;pointer-events:none}
+.startov button{background:var(--amber);color:#1a1200;border:0;border-radius:99px;padding:14px 30px;font-weight:800;font-size:17px;cursor:pointer;box-shadow:0 8px 30px rgba(255,181,71,.35)}
+
+/* tabs and controls */
+.tabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:10px;padding:0;margin:0;list-style:none}
+.tab{width:100%;text-align:left;cursor:pointer;border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:9px 12px 10px;display:flex;flex-direction:column;gap:6px}
+.tab .tb{height:4px;border-radius:9px;background:var(--line);overflow:hidden}
+.tab .tb i{display:block;height:100%;width:0;background:var(--cyan);transition:width .5s}
+.tab .tl{font-weight:700;font-size:14px}
+.tab .tl s{text-decoration:none;color:var(--dim);margin-right:6px;font-weight:500}
+.tab.act{border-color:var(--cyan);background:rgba(76,201,240,.08)}
+.tab.done .tb i{background:var(--green)}
+.ctrls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn,.sel{border:1px solid var(--line);background:var(--panel);border-radius:99px;padding:10px 18px;cursor:pointer;font-weight:700;font-size:14.5px}
+.btn:hover,.sel:hover{border-color:var(--cyan)}
+.btn.main{background:var(--amber);color:#1a1200;border-color:var(--amber);min-width:104px}
+.btn[aria-pressed="true"]{border-color:var(--green);color:var(--green)}
+.btn.sm{padding:6px 14px;font-size:13px}
+.sel{appearance:none;padding-right:34px;background-image:linear-gradient(45deg,transparent 50%,var(--mute) 50%),linear-gradient(135deg,var(--mute) 50%,transparent 50%);background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px;background-repeat:no-repeat;max-width:100%}
+.sel option{background:var(--panel);color:var(--fg)}
+#voiceSel{flex:1 1 200px;min-width:0;border-color:rgba(76,201,240,.55)}
+
+@media (max-width:780px){
+  .v-bench{grid-template-columns:1fr}
+  .stage{padding:16px 14px 14px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition-duration:.01s!important}
+}
+</style>
+<main class="wrap">
+<div class="stage" id="stage" data-view="intro">
+  <div class="brand" aria-label="EVOLV">
+    <svg viewBox="0 0 34 34" aria-hidden="true"><rect x="2" y="20" width="8" height="12" rx="3" fill="#ffb547"/><rect x="13" y="10" width="8" height="22" rx="3" fill="#4cc9f0"/><rect x="24" y="2" width="8" height="30" rx="3" fill="#ff6b81"/></svg>
+    <b>EVOLV</b>
+  </div>
+
+  <div class="views">
+    <!-- INTRO -->
+    <section class="view v-intro">
+      <svg class="park" id="park" viewBox="0 0 760 250" role="img" aria-label="A student walks into an amusement park, shows a ticket, then has her height checked for the roller coaster">
+        <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a1330"/><stop offset="1" stop-color="#101d40"/></linearGradient></defs>
+        <rect x="0" y="0" width="760" height="250" rx="14" fill="url(#sky)"/>
+        <g fill="#cfe9ff" opacity=".7"><circle cx="60" cy="30" r="1.5"/><circle cx="190" cy="55" r="1.2"/><circle cx="300" cy="22" r="1.6"/><circle cx="520" cy="28" r="1.3"/><circle cx="690" cy="48" r="1.6"/><circle cx="620" cy="16" r="1.1"/></g>
+        <line class="ground" x1="0" y1="215" x2="760" y2="215"/>
+        <!-- roller coaster -->
+        <path id="trk" class="track" d="M440 205 C 480 50, 530 50, 560 140 S 620 40, 655 110 S 705 170, 748 205"/>
+        <g class="sup"><line x1="505" y1="80" x2="505" y2="215"/><line x1="560" y1="140" x2="560" y2="215"/><line x1="620" y1="85" x2="620" y2="215"/><line x1="655" y1="110" x2="655" y2="215"/><line x1="700" y1="165" x2="700" y2="215"/></g>
+        <g><rect x="-11" y="-14" width="22" height="10" rx="3" fill="#ffb547"/><circle cx="-5" cy="-3" r="3" fill="#0a1330"/><circle cx="5" cy="-3" r="3" fill="#0a1330"/>
+          <animateMotion dur="7s" repeatCount="indefinite" rotate="auto"><mpath href="#trk"/></animateMotion></g>
+        <!-- entrance gate -->
+        <g><rect x="268" y="150" width="8" height="65" fill="#1f2d52"/><rect x="326" y="150" width="8" height="65" fill="#1f2d52"/>
+          <rect x="262" y="128" width="78" height="26" rx="6" fill="#4cc9f0"/><text x="301" y="146" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif" font-weight="800" font-size="11" fill="#07102a" letter-spacing="1.5">ENTRANCE</text></g>
+        <!-- height pole -->
+        <g><rect x="436" y="140" width="5" height="75" fill="#1f2d52"/>
+          <g class="pop hgt"><line x1="404" y1="161" x2="468" y2="161" stroke="#4ade80" stroke-width="2.5" stroke-dasharray="5 4"/><rect x="446" y="132" width="62" height="20" rx="6" fill="#0f3a27" stroke="#4ade80"/><text x="477" y="146" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" font-weight="700" fill="#4ade80">140 cm</text></g></g>
+        <!-- student -->
+        <g id="student">
+          <rect x="-8" y="199" width="6" height="16" rx="3" fill="#4cc9f0"/><rect x="2" y="199" width="6" height="16" rx="3" fill="#4cc9f0"/>
+          <rect x="-12" y="177" width="24" height="26" rx="8" fill="#ffb547"/>
+          <circle cx="0" cy="167" r="11" fill="#ffd9b0"/><path d="M-11 165 Q-9 152 0 152 Q10 152 11 165 Q4 158 -11 165Z" fill="#2b1b3d"/>
+          <g class="pop tick"><rect x="-56" y="104" width="112" height="34" rx="11" fill="#101a33" stroke="#ffb547" stroke-width="1.5"/>
+            <text x="-18" y="126" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" font-weight="700" fill="#ffb547">Ticket</text>
+            <path d="M18 121 l6 6 l12 -13" fill="none" stroke="#4ade80" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g>
+        </g>
+        <g class="pop q"><text x="380" y="52" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="17" font-weight="700" fill="#4cc9f0">if ticket:  →  if height:</text></g>
+      </svg>
+      <span class="pill">an if inside an if</span>
+      <h1>Nested Conditions in Python —<br><em>Decisions Within Decisions!</em></h1>
+    </section>
+
+    <!-- WORKBENCH -->
+    <section class="view v-bench">
+      <div class="chap"><span class="pill" id="chapPill">The code</span><span class="t" id="chapTitle"></span></div>
+      <div class="left">
+        <div class="win" id="win">
+          <div class="bar"><i></i><i></i><i></i><span class="fn" id="fn">roller_coaster.py</span><span class="ver">Python 3</span></div>
+          <div class="code" id="code"></div>
+        </div>
+        <div class="out" id="outBox"><div class="h">Output</div><pre id="outPre"></pre></div>
+        <div class="quiz" id="quiz" hidden>
+          <div class="h">Your turn: what will Python print?</div>
+          <div class="opts" id="opts"></div>
+          <div class="timer"><i id="timerBar"></i></div>
+          <div class="qrow"><span id="qTxt">Answer reveals soon…</span><button class="btn sm" id="revealBtn" type="button">Show answer</button></div>
+          <div class="fb" id="fb"></div>
+        </div>
+      </div>
+      <div class="right">
+        <svg class="tree" id="tree" viewBox="0 0 524 330" role="img" aria-label="Decision tree for the code">
+          <path class="edge" id="eRI" d="M245 64 L180 143"/>
+          <path class="edge" id="eRC" d="M335 42 Q435 42 435 143"/>
+          <path class="edge" id="eIA" d="M150 187 L95 268"/>
+          <path class="edge" id="eIB" d="M196 187 L250 268"/>
+          <g class="lab t" id="lRI"><rect x="182" y="94" width="46" height="18" rx="9"/><text x="205" y="107">TRUE</text></g>
+          <g class="lab f" id="lRC"><rect x="387" y="58" width="46" height="18" rx="9"/><text x="410" y="71">FALSE</text></g>
+          <g class="lab t" id="lIA"><rect x="99" y="219" width="46" height="18" rx="9"/><text x="122" y="232">TRUE</text></g>
+          <g class="lab f" id="lIB"><rect x="200" y="219" width="46" height="18" rx="9"/><text x="223" y="232">FALSE</text></g>
+          <g class="nd cond" id="nRoot"><rect x="185" y="20" width="150" height="44" rx="12"/><text id="tRoot" x="260" y="47"></text></g>
+          <g class="nd cond" id="nInner"><rect x="98" y="143" width="150" height="44" rx="12"/><text id="tInner" x="173" y="170"></text></g>
+          <g class="nd out" id="nA"><rect x="6" y="268" width="164" height="44" rx="12"/><text id="tA" x="88" y="295"></text></g>
+          <g class="nd out" id="nB"><rect x="180" y="268" width="164" height="44" rx="12"/><text id="tB" x="262" y="295"></text></g>
+          <g class="nd out" id="nC"><rect x="353" y="143" width="164" height="44" rx="12"/><text id="tC" x="435" y="170"></text></g>
+          <g id="walker" style="transform:translate(260px,12px)"><circle r="9" fill="#ffb547" stroke="#1a1200" stroke-width="2"/><circle cx="-2.5" cy="-2" r="1.4" fill="#1a1200"/><circle cx="2.5" cy="-2" r="1.4" fill="#1a1200"/></g>
+        </svg>
+        <div class="scopes" id="scopes" hidden></div>
+        <div class="cap" id="treeCap">Decision tree: the student walks down the path Python takes.</div>
+      </div>
+    </section>
+
+    <!-- WRAP-UP -->
+    <section class="view v-wrap">
+      <h1>You can read <em>decisions within decisions!</em></h1>
+      <div class="cards">
+        <div class="card" id="w1"><b>1 · WHAT</b><p>A nested condition is an <code>if</code> inside another <code>if</code>.</p></div>
+        <div class="card" id="w2"><b>2 · DEPENDS</b><p>The inner condition only runs when the outer condition is <code>True</code>.</p></div>
+        <div class="card" id="w3"><b>3 · INDENT</b><p>Indentation shows what is inside what. Every <code>else</code> matches its own <code>if</code>.</p></div>
+      </div>
+      <button class="btn main" type="button" id="replayBtn">Replay lesson</button>
+    </section>
+  </div>
+
+  <div class="sub" id="sub" aria-live="polite"></div>
+  <div class="startov" id="startov"><button type="button" id="startBtn">Start the lesson</button></div>
+</div>
+
+<ol class="tabs" id="tabs"></ol>
+
+<div class="ctrls">
+  <button class="btn main" id="playBtn" type="button">Pause</button>
+  <button class="btn" id="restartBtn" type="button">Restart</button>
+  <button class="btn" id="chapBtn" type="button">Replay chapter</button>
+  <button class="btn" id="voiceBtn" type="button" aria-pressed="true">Voice</button>
+  <button class="btn" id="musicBtn" type="button" aria-pressed="false">Music</button>
+  <select class="sel" id="subSel" aria-label="Subtitles"><option value="on">Subtitles: English</option><option value="off">Subtitles: Off</option></select>
+  <select class="sel" id="voiceSel" aria-label="Narrator voice"><option value="">Default voice</option></select>
+</div>
+</main>
+<script>
+(function(){
+"use strict";
+const $=id=>document.getElementById(id);
+const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+
+/* ---------- code data ---------- */
+const PARK={file:"roller_coaster.py",lines:[
+ "has_ticket = True","height = 150","",
+ "if has_ticket:","    if height >= 140:",'        print("Enjoy the ride!")',
+ "    else:",'        print("Too short for this ride.")',"else:",'    print("Please buy a ticket.")'],
+ tree:{root:"if has_ticket",inner:"if height >= 140",A:"Enjoy the ride!",B:"Too short for this ride.",C:"Please buy a ticket."}};
+const GATE={file:"entry_gate.py",lines:[
+ "age = 20","has_id = False","",
+ "if age >= 18:","    if has_id:",'        print("Entry allowed!")',
+ "    else:",'        print("ID required.")',"else:",'    print("Too young.")'],
+ tree:{root:"if age >= 18",inner:"if has_id",A:"Entry allowed!",B:"ID required.",C:"Too young."}};
+const IND_OK=["if has_ticket:","    if height >= 140:",'        print("Enjoy the ride!")'];
+const IND_BAD=["if has_ticket:","if height >= 140:",'    print("Enjoy the ride!")'];
+
+/* tiny Python highlighter */
+function hl(raw){
+  const re=/("[^"]*")|\b(if|else|True|False)\b|\b(print)\b|\b(\d+)\b|(>=|==|=)/g;
+  let out="",last=0,m;
+  while((m=re.exec(raw))){
+    out+=esc(raw.slice(last,m.index));
+    const t=esc(m[0]);
+    out+= m[1]?`<span class="s">${t}</span>`: m[2]?`<span class="k">${t}</span>`: m[3]?`<span class="f">${t}</span>`: m[4]?`<span class="num">${t}</span>`:`<span class="o">${t}</span>`;
+    last=re.lastIndex;
+  }
+  return out+esc(raw.slice(last));
+}
+const depthOf=s=>Math.floor((s.length-s.trimStart().length)/4);
+
+let curLines=[];
+function renderCode(lines,file){
+  curLines=lines.slice();
+  if(file) $("fn").textContent=file;
+  $("code").innerHTML=lines.map((t,i)=>
+    `<div class="ln" id="ln${i+1}" data-d="${depthOf(t)}"><span class="n">${i+1}</span><span class="src">${hl(t)}</span><span class="bdg"></span></div>`).join("");
+}
+function setLine(n,text){ curLines[n-1]=text; const el=$("ln"+n); el.dataset.d=depthOf(text); el.querySelector(".src").innerHTML=hl(text); }
+/* marks: {c:[..],a:[..],g:[..],x:[..],dim:[..]} ; clear first */
+function mark(m){
+  document.querySelectorAll("#code .ln").forEach(e=>{e.classList.remove("c","a","g","x","dim")});
+  if(!m) return;
+  for(const k in m) m[k].forEach(n=>{const e=$("ln"+n); if(e) e.classList.add(k)});
+}
+function badge(n,val){
+  const b=$("ln"+n).querySelector(".bdg");
+  if(val===null){b.className="bdg";b.textContent="";return}
+  b.className="bdg show "+(val?"t":"f"); b.textContent=val?"TRUE":"FALSE";
+}
+function clearBadges(){document.querySelectorAll("#code .bdg").forEach(b=>{b.className="bdg";b.textContent=""})}
+
+/* ---------- decision tree ---------- */
+const POS={root:[260,12],inner:[173,135],A:[88,260],B:[262,260],C:[435,135]};
+const NODES={root:"nRoot",inner:"nInner",A:"nA",B:"nB",C:"nC"};
+const EDGES={RI:["eRI","lRI"],RC:["eRC","lRC"],IA:["eIA","lIA"],IB:["eIB","lIB"]};
+function setTree(t){
+  $("tRoot").textContent=t.root+" ?"; $("tInner").textContent=t.inner+" ?";
+  $("tA").textContent=t.A; $("tB").textContent=t.B; $("tC").textContent=t.C;
+}
+function resetTree(){
+  for(const k in NODES) $(NODES[k]).classList.remove("on","win","off");
+  for(const k in EDGES){ $(EDGES[k][0]).setAttribute("class","edge"); $(EDGES[k][1]).classList.remove("show"); }
+  const w=$("walker"); w.classList.remove("show"); walk("root");
+}
+function nodeCls(k,c,add=true){ $(NODES[k]).classList[add?"add":"remove"](c) }
+function walk(k){ const [x,y]=POS[k]; $("walker").style.transform=`translate(${x}px,${y}px)`; }
+function showWalker(){ $("walker").classList.add("show"); }
+function lightEdge(k,truth){
+  const [e,l]=EDGES[k]; $(e).setAttribute("class","edge "+(truth?"lt":"lf")); $(l).classList.add("show");
+}
+function dimEdge(k){ $(EDGES[k][0]).classList.add("off") }
+/* evaluate a condition node: val true/false */
+function evalRoot(val){
+  nodeCls("root","on"); showWalker(); walk("root");
+}
+function branchRoot(val){
+  lightEdge(val?"RI":"RC",val); dimEdge(val?"RC":"RI");
+}
+function enterInner(){ walk("inner"); nodeCls("inner","on"); }
+function branchInner(val){
+  lightEdge(val?"IA":"IB",val); dimEdge(val?"IB":"IA");
+}
+function arrive(k){
+  walk(k); nodeCls(k,"win");
+  ["A","B","C"].forEach(o=>{ if(o!==k) nodeCls(o,"off") });
+  if(k==="C") nodeCls("inner","off");
+}
+
+/* ---------- output console ---------- */
+let typeId=0;
+function outClear(){ typeId++; $("outPre").textContent=""; $("outPre").className=""; }
+function outError(t){ typeId++; $("outPre").className="err"; $("outPre").textContent=t; }
+async function outType(text){
+  const id=++typeId, pre=$("outPre"); pre.className="caret"; pre.textContent="";
+  for(let i=1;i<=text.length;i++){
+    await new Promise(r=>setTimeout(r,45));
+    if(id!==typeId) return;
+    pre.textContent=text.slice(0,i);
+  }
+}
+
+/* ---------- scopes panel (indentation chapter) ---------- */
+function renderScopes(mode){
+  const box=$("scopes");
+  if(mode==="ok"){
+    box.innerHTML=`<div class="sc outer"><span class="tag">if has_ticket:</span>
+      <div class="sc inner"><span class="tag">if height &gt;= 140:</span>
+      <div class="sc leaf">print("Enjoy the ride!")</div></div></div>
+      <div class="ok">Indented = inside. Each level goes four spaces deeper.</div>`;
+  } else if(mode==="bad"){
+    box.innerHTML=`<div class="sc outer bad shake"><span class="tag">if has_ticket:</span><span class="empty">Python expects an indented line here…</span></div>
+      <div class="sc inner bad"><span class="tag">if height &gt;= 140:</span><div class="sc leaf">print("Enjoy the ride!")</div></div>`;
+  } else box.innerHTML="";
+}
+
+/* ---------- playback engine ---------- */
+const CANCEL={};
+let token=0,paused=true,started=false,finished=false,cur=0;
+const synth=("speechSynthesis" in window)?window.speechSynthesis:null;
+let voiceOn=!!synth, musicOn=false, voices=[];
+
+function sleep(ms,my){
+  return new Promise((res,rej)=>{
+    let el=0;
+    const iv=setInterval(()=>{
+      if(my!==token){clearInterval(iv);rej(CANCEL);return}
+      if(!paused){el+=60; if(el>=ms){clearInterval(iv);res()}}
+    },60);
+  });
+}
+function speak(text,cb){
+  if(!synth){cb();return}
+  synth.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  const v=voices.find(x=>x.voiceURI===$("voiceSel").value);
+  if(v){u.voice=v;u.lang=v.lang}else u.lang="en-US";
+  u.rate=.95; u.onend=cb; u.onerror=cb;
+  synth.speak(u);
+}
+async function narrate(text,min,my){
+  let done=!voiceOn;
+  if(voiceOn) speak(text,()=>{done=true});
+  const est=Math.max(min,text.length*50+700);
+  let el=0;
+  for(;;){
+    await sleep(60,my); el+=60;
+    if((el>=est&&done)||el>est+7000) break;
+  }
+}
+function showSub(t){ $("sub").textContent=t }
+
+/* ---------- tabs ---------- */
+function buildTabs(){
+  $("tabs").innerHTML=CH.map((c,i)=>`<li><button class="tab" type="button" data-i="${i}"><span class="tb"><i></i></span><span class="tl"><s>${i+1}</s>${c.tab}</span></button></li>`).join("");
+  $("tabs").addEventListener("click",e=>{const b=e.target.closest(".tab"); if(b) run(+b.dataset.i)});
+}
+function setProg(c,s,n){
+  document.querySelectorAll(".tab").forEach((t,i)=>{
+    t.classList.toggle("act",i===c);
+    const f=i<c?1:(i===c?s/n:0);
+    t.classList.toggle("done",i<c||(i===c&&s>=n));
+    t.querySelector("i").style.width=(f*100)+"%";
+  });
+}
+
+/* ---------- views ---------- */
+function view(v){ $("stage").dataset.view=v }
+function bench(cfg,pill,title,opts={}){
+  view("bench");
+  $("chapPill").textContent=pill; $("chapTitle").textContent=title;
+  renderCode(cfg.lines,cfg.file); setTree(cfg.tree); resetTree(); outClear(); mark(null);
+  $("win").classList.toggle("depth",!!opts.depth);
+  $("quiz").hidden=true; $("outBox").hidden=false;
+  const sc=!!opts.scopes;
+  $("tree").hidden=sc; $("scopes").hidden=!sc;
+  $("treeCap").textContent=sc?"Indented lines live inside the line above them.":"Decision tree: Mia walks the path Python takes.";
+  if(sc) renderScopes(opts.scopes);
+}
+function parkStep(n){
+  $("park").setAttribute("class","park "+Array.from({length:n},(_,i)=>"s"+(i+1)).join(" "));
+}
+
+/* ---------- quiz ---------- */
+const QOPTS=[["A","Entry allowed!"],["B","ID required."],["C","Too young."]];
+let qPicked=null,qNow=false;
+function showQuiz(){
+  qPicked=null;qNow=false;
+  $("fb").textContent=""; $("qTxt").textContent="Pick an answer…"; $("timerBar").style.transform="scaleX(1)";
+  $("opts").innerHTML=QOPTS.map(o=>`<button class="opt" type="button" data-k="${o[0]}"><b>${o[0]}</b>${o[1]}</button>`).join("");
+  $("quiz").hidden=false;
+}
+async function countdown(my,secs){
+  const total=secs*1000; let el=0;
+  while(el<total&&!qNow){
+    await sleep(100,my); el+=100;
+    $("timerBar").style.transform=`scaleX(${Math.max(0,1-el/total)})`;
+    $("qTxt").textContent=`Thinking time: ${Math.max(0,Math.ceil((total-el)/1000))}s`;
+  }
+  $("qTxt").textContent="Time's up. Let's trace the code together."; $("timerBar").style.transform="scaleX(0)";
+}
+function revealQuiz(){
+  document.querySelectorAll("#opts .opt").forEach(b=>{
+    b.classList.remove("pick");
+    if(b.dataset.k==="B") b.classList.add("right"); else if(b.dataset.k===qPicked) b.classList.add("wrong");
+  });
+  $("fb").style.color=qPicked==="B"?"var(--green)":"var(--amber)";
+  $("fb").textContent=qPicked==="B"?"You predicted it. Great reading!":(qPicked?"Close! Now you know the path: the answer is B.":"The answer is B: ID required.");
+}
+
+/* ---------- chapters ---------- */
+const CH=[
+{tab:"Intro",enter(){view("intro");parkStep(0)},steps:[
+ {say:"Welcome to EVOLV! Today we learn nested conditions in Python: decisions within decisions."},
+ {say:"Meet Mia. She is entering an amusement park.",min:3600,do(){parkStep(1)}},
+ {say:"To ride a roller coaster, you must first have a ticket.",do(){parkStep(2)}},
+ {say:"But even with a ticket, you must meet the height requirement.",do(){parkStep(3)}},
+ {say:"How can Python check both decisions step by step?",min:2600,do(){parkStep(4)}}]},
+
+{tab:"The code",enter(){bench(PARK,"The code","Two ifs, one inside the other")},steps:[
+ {say:"Here is the code. The variable has_ticket is True, and height is 150.",do(){mark({a:[1,2]})}},
+ {say:"The outer if checks one thing: does the student have a ticket?",do(){mark({c:[4]})}},
+ {say:"The inner if sits inside the outer if. It checks the height, but only when the outer condition is true.",do(){mark({a:[5,6,7,8]})}},
+ {say:"Each else belongs to its own if. This else goes with the height check.",do(){mark({a:[5,7]})}},
+ {say:"And this else goes with the ticket check.",do(){mark({c:[4,9]})}},
+ {say:"Indentation shows which condition contains another. The deeper the indent, the deeper the decision.",do(){$("win").classList.add("depth");mark({})}}]},
+
+{tab:"Scenario A",enter(){bench(PARK,"Scenario A","Ticket: yes · Height: 150 cm")},steps:[
+ {say:"Scenario A. The student has a ticket, and the height is 150 centimeters.",do(){mark({a:[1,2]});showWalker()}},
+ {say:"Python checks the outer condition first. Has a ticket? True.",do(){mark({c:[4]});badge(4,true);evalRoot();branchRoot(true)}},
+ {say:"Because it is true, Python goes inside and checks the height. Is 150 at least 140? True.",do(){mark({a:[5]});enterInner();badge(5,true);branchInner(true)}},
+ {say:"So the print line inside the inner if runs.",do(){mark({g:[6],dim:[7,8,9,10]});arrive("A");outType("Enjoy the ride!")}},
+ {say:"Both else parts are skipped. Output: Enjoy the ride!",min:1500}]},
+
+{tab:"Scenario B",enter(){bench(PARK,"Scenario B","Ticket: yes · Height: 130 cm");setLine(2,"height = 130")},steps:[
+ {say:"Scenario B. The student has a ticket, but the height is only 130 centimeters.",do(){mark({a:[1,2]});showWalker()}},
+ {say:"Outer condition: has_ticket is True. So Python goes inside.",do(){mark({c:[4]});badge(4,true);evalRoot();branchRoot(true);enterInner()}},
+ {say:"Inner condition: is 130 at least 140? No. It is False.",do(){mark({a:[5]});badge(5,false);branchInner(false)}},
+ {say:"So Python skips the print under the inner if, and jumps to the inner else.",do(){mark({a:[7],dim:[6,9,10]})}},
+ {say:"The inner else runs. Output: Too short for this ride.",do(){mark({a:[7],g:[8],dim:[6,9,10]});arrive("B");outType("Too short for this ride.")}}]},
+
+{tab:"Scenario C",enter(){bench(PARK,"Scenario C","Ticket: no");setLine(1,"has_ticket = False")},steps:[
+ {say:"Scenario C. The student has no ticket.",do(){mark({a:[1]});showWalker()}},
+ {say:"Outer condition: has_ticket is False.",do(){mark({c:[4]});badge(4,false);evalRoot();branchRoot(false)}},
+ {say:"Python skips the whole inner block. It never even checks the height.",do(){mark({c:[4],dim:[5,6,7,8]})}},
+ {say:"It jumps to the outer else. Output: Please buy a ticket.",do(){mark({c:[9],g:[10],dim:[5,6,7,8]});arrive("C");outType("Please buy a ticket.")}},
+ {say:"Remember: an inner condition only runs when its outer condition is true.",min:1500}]},
+
+{tab:"Indentation",enter(){bench({file:"indent.py",lines:IND_OK,tree:PARK.tree},"Indentation","Spaces show what is inside what",{depth:true,scopes:"ok"})},steps:[
+ {say:"Indentation tells Python what belongs inside what.",do(){mark({})}},
+ {say:"The outer if starts at the left edge. The inner if is pushed in by four spaces, so it lives inside the outer if.",do(){mark({c:[1],a:[2]})}},
+ {say:"The print line is pushed in again. It lives inside the inner if.",do(){mark({g:[3]})}},
+ {say:"Now a common mistake. Here, the inner if is not indented.",do(){renderCode(IND_BAD,"indent.py");mark({x:[2]});renderScopes("bad")}},
+ {say:"Python is confused. It expects an indented line after the outer if, so it shows an IndentationError.",do(){outError('  File "indent.py", line 2\n    if height >= 140:\n    ^\nIndentationError: expected an indented block after \'if\' statement on line 1')}},
+ {say:"The fix: indent the inner if, and everything inside it, by four spaces.",do(){renderCode(IND_OK,"indent.py");mark({g:[1,2,3]});renderScopes("ok");outClear();outType("Enjoy the ride!")}}]},
+
+{tab:"Challenge",enter(){bench(GATE,"Challenge","Predict the output")},steps:[
+ {say:"Prediction time! Read this code carefully.",do(){mark({a:[1,2]})}},
+ {say:"What will Python print? Pick an answer. Take a moment to think.",do(){showQuiz()},async after(my){await countdown(my,10)}},
+ {say:"Let's check. First, age is 20. Is 20 at least 18? True.",do(){mark({c:[4]});badge(4,true);evalRoot();branchRoot(true)}},
+ {say:"Now the inner condition. has_id is False, so this is False.",do(){mark({a:[5]});enterInner();badge(5,false);branchInner(false)}},
+ {say:"Python skips the first print, and runs the inner else. The output is: ID required.",do(){mark({a:[7],g:[8],dim:[6,9,10]});arrive("B");outType("ID required.");revealQuiz()}},
+ {say:"The outer else never runs, because the outer condition was true.",min:1500}]},
+
+{tab:"Wrap-up",enter(){view("wrap");["w1","w2","w3"].forEach(i=>$(i).classList.remove("show"))},steps:[
+ {say:"A nested condition is an if inside another if.",do(){$("w1").classList.add("show")}},
+ {say:"The inner condition runs only when the outer condition is true.",do(){$("w2").classList.add("show")}},
+ {say:"Indentation controls the structure, and every else belongs to its matching if.",do(){$("w3").classList.add("show")}},
+ {say:"Great work! Keep practicing with EVOLV.",min:2000}]}
+];
+
+async function run(from){
+  const my=++token;
+  if(synth) synth.cancel();
+  started=true; finished=false; paused=false; $("startov").classList.add("gone"); setPlayLabel();
+  try{
+    for(let c=from;c<CH.length;c++){
+      cur=c; CH[c].enter();
+      const st=CH[c].steps;
+      for(let s=0;s<st.length;s++){
+        setProg(c,s,st.length);
+        const step=st[s];
+        showSub(step.say);
+        if(step.do) step.do();
+        await narrate(step.say,step.min||0,my);
+        if(step.after) await step.after(my);
+      }
+      setProg(c,st.length,st.length);
+    }
+    finished=true; paused=true; setPlayLabel();
+  }catch(e){ if(e!==CANCEL) throw e }
+}
+function setPlayLabel(){ $("playBtn").textContent=finished?"Replay":(!started?"Play":(paused?"Resume":"Pause")) }
+function togglePlay(){
+  if(!started||finished){run(finished?0:cur);return}
+  paused=!paused;
+  if(synth){ paused?synth.pause():synth.resume() }
+  setPlayLabel();
+}
+
+/* ---------- music (soft generated plucks, no audio files) ---------- */
+let ac=null,mg=null,mt=null,mi=0;
+const SCALE=[261.63,329.63,392,523.25,392,329.63,293.66,392,261.63,349.23,440,523.25,440,349.23,329.63,392];
+function pluck(f,dur,vol){
+  const o=ac.createOscillator(),g=ac.createGain();
+  o.type="triangle"; o.frequency.value=f;
+  g.gain.setValueAtTime(0.0001,ac.currentTime);
+  g.gain.exponentialRampToValueAtTime(vol,ac.currentTime+.03);
+  g.gain.exponentialRampToValueAtTime(0.0001,ac.currentTime+dur);
+  o.connect(g);g.connect(mg);o.start();o.stop(ac.currentTime+dur+.05);
+}
+function startMusic(){
+  try{
+    ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+    ac.resume(); mg=ac.createGain(); mg.gain.value=.07; mg.connect(ac.destination);
+    mt=setInterval(()=>{
+      if(paused&&started&&!finished) return;
+      pluck(SCALE[mi%SCALE.length],1.1,.5);
+      if(mi%8===0) pluck(SCALE[mi%SCALE.length]/2,1.8,.7);
+      mi++;
+    },430);
+  }catch(e){ musicOn=false; $("musicBtn").setAttribute("aria-pressed","false") }
+}
+function stopMusic(){ clearInterval(mt); mt=null; if(mg){mg.disconnect();mg=null} }
+
+/* ---------- voices ---------- */
+function loadVoices(){
+  if(!synth) return;
+  voices=synth.getVoices().filter(v=>/^en/i.test(v.lang));
+  const sel=$("voiceSel"), keep=sel.value;
+  sel.innerHTML=voices.length?voices.map(v=>`<option value="${esc(v.voiceURI)}">${esc(v.name)} (${esc(v.lang)})</option>`).join(""):'<option value="">Default voice</option>';
+  if(keep&&voices.some(v=>v.voiceURI===keep)) sel.value=keep;
+  else{
+    const pref=voices.find(v=>/female|aria|jenny|samantha|zira|neerja|heera/i.test(v.name))||voices.find(v=>/en-(GB|IN)/i.test(v.lang))||voices[0];
+    if(pref) sel.value=pref.voiceURI;
+  }
+}
+
+/* ---------- controls ---------- */
+$("playBtn").addEventListener("click",togglePlay);
+$("startBtn").addEventListener("click",()=>run(0));
+$("restartBtn").addEventListener("click",()=>run(0));
+$("replayBtn").addEventListener("click",()=>run(0));
+$("chapBtn").addEventListener("click",()=>run(cur));
+$("voiceBtn").addEventListener("click",()=>{
+  if(!synth) return;
+  voiceOn=!voiceOn; $("voiceBtn").setAttribute("aria-pressed",String(voiceOn));
+  if(!voiceOn) synth.cancel();
+});
+$("musicBtn").addEventListener("click",()=>{
+  musicOn=!musicOn; $("musicBtn").setAttribute("aria-pressed",String(musicOn));
+  musicOn?startMusic():stopMusic();
+});
+$("subSel").addEventListener("change",e=>$("sub").classList.toggle("off",e.target.value==="off"));
+$("opts").addEventListener("click",e=>{
+  const b=e.target.closest(".opt"); if(!b||$("fb").textContent) return;
+  qPicked=b.dataset.k;
+  document.querySelectorAll("#opts .opt").forEach(x=>x.classList.toggle("pick",x===b));
+});
+$("revealBtn").addEventListener("click",()=>{qNow=true});
+
+if(!synth){ $("voiceBtn").disabled=true; $("voiceBtn").setAttribute("aria-pressed","false"); $("voiceSel").disabled=true; }
+else{ loadVoices(); synth.addEventListener&&synth.addEventListener("voiceschanged",loadVoices); }
+
+/* ---------- initial state: intro scene at rest, waiting for Start ---------- */
+buildTabs();
+CH[0].enter();
+parkStep(4);
+showSub("To ride a roller coaster, you must first have a ticket. But even with a ticket, you must meet the height requirement. How can Python check both decisions step by step?");
+setProg(0,0,1);
+setPlayLabel();
+})();
+</script>
+
+</body></html>

@@ -30,6 +30,7 @@ import {
   getCompletedStages,
   getCompletedStageCount,
   isStageComplete,
+  isStageUnlocked,
   isTopicComplete,
   getNextIncompleteStage,
   syncCompletedTopics,
@@ -38,7 +39,6 @@ import {
 import "../styles/study-map.css";
 
 const DEFAULT_COURSE = "python";
-const QUIZ_TOTAL_MARKS = 5;
 
 const COURSE_INFO = {
   python: {
@@ -54,8 +54,7 @@ const WORLDS = [
   {
     icon: "🌱",
     title: "Python Meadow",
-    description:
-      "Discover Python, variables, and your first lines of code.",
+    description: "Discover Python, variables, and your first lines of code.",
     color: "meadow",
   },
   {
@@ -104,12 +103,14 @@ const STAGE_ICONS = {
   quiz: Trophy,
 };
 
-function readJSON(key, fallback) {
+function readJSON(key, fallback = null) {
   try {
     if (typeof window === "undefined") return fallback;
 
-    const raw = localStorage.getItem(key);
-    return raw === null ? fallback : JSON.parse(raw);
+    const raw = window.localStorage.getItem(key);
+    if (raw === null) return fallback;
+
+    return JSON.parse(raw) ?? fallback;
   } catch {
     return fallback;
   }
@@ -117,8 +118,9 @@ function readJSON(key, fallback) {
 
 function readNumber(key, fallback = 0) {
   try {
-    const raw = localStorage.getItem(key);
+    if (typeof window === "undefined") return fallback;
 
+    const raw = window.localStorage.getItem(key);
     if (raw === null || raw.trim() === "") return fallback;
 
     const value = Number(raw);
@@ -142,37 +144,48 @@ function readObject(key) {
 function readLastViewed(courseId) {
   const value = readJSON(`evolv_${courseId}_last_viewed`, null);
 
-  if (!value || !Number.isFinite(Number(value.lessonId))) {
+  if (
+    !value ||
+    typeof value !== "object" ||
+    !Number.isFinite(Number(value.lessonId))
+  ) {
     return null;
   }
 
+  const lessonId = Number(value.lessonId);
   const stage = STAGES.includes(value.stage) ? value.stage : "video";
 
   return {
-    lessonId: Number(value.lessonId),
+    worldIndex: Number.isInteger(Number(value.worldIndex))
+      ? Number(value.worldIndex)
+      : null,
+    lessonId,
     stage,
-    destination: `/study/${courseId}/lesson/${Number(
-      value.lessonId
-    )}?stage=${stage}`,
+    destination: stageDestination(courseId, lessonId, stage),
   };
 }
 
 function durationFor(lesson) {
-  return lesson.duration || "8 min";
+  return lesson?.duration || "8 min";
 }
 
 function xpFor(lesson) {
-  const value = Number(lesson.xp);
+  const value = Number(lesson?.xp);
 
   return Number.isFinite(value) && value > 0 ? value : 10;
 }
 
 function areaFor(lesson, index) {
   return (
-    lesson.area ||
-    lesson.chapter ||
-    lesson.category ||
-    WORLDS[Math.min(Math.floor(index / 10), WORLDS.length - 1)].title
+    lesson?.area ||
+    lesson?.chapter ||
+    lesson?.category ||
+    WORLDS[
+      Math.min(
+        Math.floor(index / 10),
+        WORLDS.length - 1
+      )
+    ].title
   );
 }
 
@@ -188,7 +201,10 @@ function groupLessons(lessons) {
       groups.push(group);
     }
 
-    group.lessons.push({ ...lesson, _index: index });
+    group.lessons.push({
+      ...lesson,
+      _index: index,
+    });
   });
 
   return groups.map((group, index) => ({
@@ -206,14 +222,22 @@ function formatMinutes(lessons) {
 }
 
 function quizResultFor(scores, lessonId) {
-  const value = scores[String(lessonId)] ?? scores[`python_${lessonId}`];
+  const value =
+    scores[String(lessonId)] ??
+    scores[`python_${lessonId}`];
 
   if (typeof value === "number" && Number.isFinite(value)) {
-    return { attempts: 1, latestScore: value };
+    return {
+      attempts: 1,
+      latestScore: value,
+    };
   }
 
   if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return { attempts: 0, latestScore: null };
+    return {
+      attempts: 0,
+      latestScore: null,
+    };
   }
 
   const attempts = Number(value.attempts);
@@ -245,8 +269,6 @@ function getNextStage(progress, lessonId) {
 }
 
 function getTopicStageDestination(courseId, lesson, progress) {
-  // Completed topics are opened in review mode.
-  // Incomplete topics resume at their next incomplete stage.
   const stage = isTopicComplete(progress, lesson.id)
     ? "video"
     : getNextStage(progress, lesson.id);
@@ -255,21 +277,26 @@ function getTopicStageDestination(courseId, lesson, progress) {
 }
 
 function isLessonAvailable(groups, progress, worldIndex, lesson) {
-  // A completed topic is always available for review, even if older
-  // progress data is inconsistent with the current unlock sequence.
+  if (!lesson) return false;
+
+  // Completed topics remain available for review.
   if (isTopicComplete(progress, lesson.id)) return true;
 
+  // The first topic is the starting point.
   if (worldIndex === 0 && lesson._index === 0) return true;
 
   const allLessons = groups.flatMap((group) => group.lessons);
 
   const previousLesson =
     lesson._index > 0
-      ? allLessons.find((item) => item._index === lesson._index - 1)
+      ? allLessons.find(
+          (item) => item._index === lesson._index - 1
+        )
       : null;
 
   if (!previousLesson) return worldIndex === 0;
 
+  // The previous topic must have all four stages completed.
   return isTopicComplete(progress, previousLesson.id);
 }
 
@@ -277,12 +304,14 @@ function getInitialSelection(groups, progress, lastViewed) {
   if (lastViewed) {
     const worldIndex = groups.findIndex((group) =>
       group.lessons.some(
-        (lesson) => Number(lesson.id) === Number(lastViewed.lessonId)
+        (lesson) =>
+          Number(lesson.id) === Number(lastViewed.lessonId)
       )
     );
 
     const lesson = groups[worldIndex]?.lessons.find(
-      (item) => Number(item.id) === Number(lastViewed.lessonId)
+      (item) =>
+        Number(item.id) === Number(lastViewed.lessonId)
     );
 
     if (
@@ -296,11 +325,9 @@ function getInitialSelection(groups, progress, lastViewed) {
     }
   }
 
-  // Find the next incomplete, unlocked topic first.
+  // Select the first available, incomplete topic.
   for (let worldIndex = 0; worldIndex < groups.length; worldIndex += 1) {
-    const group = groups[worldIndex];
-
-    for (const lesson of group.lessons) {
+    for (const lesson of groups[worldIndex].lessons) {
       if (
         isLessonAvailable(groups, progress, worldIndex, lesson) &&
         !isTopicComplete(progress, lesson.id)
@@ -313,7 +340,7 @@ function getInitialSelection(groups, progress, lastViewed) {
     }
   }
 
-  // If everything is completed, select the first topic for review.
+  // If everything is complete, select the first topic for review.
   return {
     worldIndex: groups.length ? 0 : null,
     lessonId: groups[0]?.lessons[0]
@@ -332,7 +359,10 @@ export default function StudyMap() {
   const course = COURSE_INFO[courseId];
   const lessons = pythonLessons;
 
-  const groups = useMemo(() => groupLessons(lessons), [lessons]);
+  const groups = useMemo(
+    () => groupLessons(lessons),
+    [lessons]
+  );
 
   const [stageProgress, setStageProgress] = useState(
     () => getStageProgress(courseId)
@@ -342,59 +372,123 @@ export default function StudyMap() {
     () => readObject(`evolv_${courseId}_quiz_scores`)
   );
 
-  const [xp, setXp] = useState(() =>
-    readNumber(`evolv_${courseId}_xp`)
+  const [xp, setXp] = useState(
+    () => readNumber(`evolv_${courseId}_xp`)
   );
 
-  const [streak, setStreak] = useState(() =>
-    readNumber(`evolv_${courseId}_streak`)
+  const [streak, setStreak] = useState(
+    () => readNumber(`evolv_${courseId}_streak`)
   );
 
-  const [lastViewed, setLastViewed] = useState(() =>
-    readLastViewed(courseId)
+  const [lastViewed, setLastViewed] = useState(
+    () => readLastViewed(courseId)
   );
 
-  const initial = getInitialSelection(groups, stageProgress, lastViewed);
+  const initial = getInitialSelection(
+    groups,
+    stageProgress,
+    lastViewed
+  );
 
-  const [expandedWorld, setExpandedWorld] = useState(initial.worldIndex);
-  const [selectedTopic, setSelectedTopic] = useState(initial.lessonId);
+  const [expandedWorld, setExpandedWorld] = useState(
+    initial.worldIndex
+  );
+
+  const [selectedTopic, setSelectedTopic] = useState(
+    initial.lessonId
+  );
 
   const refreshProgress = useCallback(() => {
-    const latestProgress = getStageProgress(courseId);
-
-    setStageProgress(latestProgress);
+    setStageProgress(getStageProgress(courseId));
     setQuizScores(readObject(`evolv_${courseId}_quiz_scores`));
     setXp(readNumber(`evolv_${courseId}_xp`));
     setStreak(readNumber(`evolv_${courseId}_streak`));
     setLastViewed(readLastViewed(courseId));
   }, [courseId]);
 
+  // Initialize when the route changes to another course.
   useEffect(() => {
-    const latest = getStageProgress(courseId);
+    const progress = getStageProgress(courseId);
+    const saved = readLastViewed(courseId);
 
-    syncCompletedTopics(courseId, lessons, latest, false);
+    const selection = getInitialSelection(
+      groups,
+      progress,
+      saved
+    );
+
+    setStageProgress(progress);
+    setLastViewed(saved);
+    setQuizScores(readObject(`evolv_${courseId}_quiz_scores`));
+    setXp(readNumber(`evolv_${courseId}_xp`));
+    setStreak(readNumber(`evolv_${courseId}_streak`));
+    setExpandedWorld(selection.worldIndex);
+    setSelectedTopic(selection.lessonId);
+  }, [courseId, groups]);
+
+  // Keep progress synchronized with changes from LessonPage.
+  useEffect(() => {
+    syncCompletedTopics(
+      courseId,
+      lessons,
+      getStageProgress(courseId),
+      false
+    );
+
     refreshProgress();
+
+    const relevantKeys = [
+      `evolv_${courseId}_stage_progress`,
+      `evolv_${courseId}_completed`,
+      `evolv_${courseId}_xp`,
+      `evolv_${courseId}_streak`,
+      `evolv_${courseId}_quiz_scores`,
+      `evolv_${courseId}_last_viewed`,
+    ];
 
     const onStorage = (event) => {
       if (
-        !event ||
-        event.key === null ||
-        [
-          `evolv_${courseId}_stage_progress`,
-          `evolv_${courseId}_completed`,
-          `evolv_${courseId}_xp`,
-          `evolv_${courseId}_streak`,
-          `evolv_${courseId}_quiz_scores`,
-          `evolv_${courseId}_last_viewed`,
-        ].includes(event.key)
+        event.key !== null &&
+        !relevantKeys.includes(event.key)
       ) {
-        refreshProgress();
+        return;
       }
+
+      refreshProgress();
+
+      if (
+        event.key === `evolv_${courseId}_last_viewed` ||
+        event.key === null
+      ) {
+        const saved = readLastViewed(courseId);
+
+        if (saved) {
+          const selection = getInitialSelection(
+            groups,
+            getStageProgress(courseId),
+            saved
+          );
+
+          setExpandedWorld(selection.worldIndex);
+          setSelectedTopic(selection.lessonId);
+        }
+      }
+    };
+
+    const onLastViewedUpdated = () => {
+      refreshProgress();
     };
 
     window.addEventListener("focus", refreshProgress);
     window.addEventListener("storage", onStorage);
-    window.addEventListener("evolv-progress-updated", refreshProgress);
+    window.addEventListener(
+      "evolv-progress-updated",
+      refreshProgress
+    );
+    window.addEventListener(
+      "evolv-last-viewed-updated",
+      onLastViewedUpdated
+    );
 
     return () => {
       window.removeEventListener("focus", refreshProgress);
@@ -403,10 +497,14 @@ export default function StudyMap() {
         "evolv-progress-updated",
         refreshProgress
       );
+      window.removeEventListener(
+        "evolv-last-viewed-updated",
+        onLastViewedUpdated
+      );
     };
-  }, [courseId, lessons, refreshProgress]);
+  }, [courseId, groups, lessons, refreshProgress]);
 
-  // Fetch the actual streak from the backend.
+  // Refresh the learning streak from the backend.
   useEffect(() => {
     let cancelled = false;
 
@@ -428,15 +526,18 @@ export default function StudyMap() {
             `evolv_${courseId}_streak`,
             String(currentStreak)
           );
-        } catch (storageError) {
+        } catch (error) {
           console.error(
             "Could not cache learning streak:",
-            storageError
+            error
           );
         }
       } catch (error) {
         if (!cancelled) {
-          console.error("Could not load learning streak:", error);
+          console.error(
+            "Could not load learning streak:",
+            error
+          );
         }
       }
     }
@@ -448,21 +549,12 @@ export default function StudyMap() {
     };
   }, [courseId]);
 
-  useEffect(() => {
-    const selection = getInitialSelection(
-      groups,
-      stageProgress,
-      lastViewed
-    );
-
-    setExpandedWorld(selection.worldIndex);
-    setSelectedTopic(selection.lessonId);
-  }, [courseId, groups, stageProgress, lastViewed]);
-
   const completedIds = useMemo(
     () =>
       lessons
-        .filter((lesson) => isTopicComplete(stageProgress, lesson.id))
+        .filter((lesson) =>
+          isTopicComplete(stageProgress, lesson.id)
+        )
         .map((lesson) => Number(lesson.id)),
     [lessons, stageProgress]
   );
@@ -479,19 +571,21 @@ export default function StudyMap() {
     : 0;
 
   const allComplete =
-    lessons.length > 0 && completedCount === lessons.length;
+    lessons.length > 0 &&
+    completedCount === lessons.length;
 
   const nextLesson =
     lessons.find(
-      (lesson) => !isTopicComplete(stageProgress, lesson.id)
+      (lesson) =>
+        !isTopicComplete(stageProgress, lesson.id)
     ) || null;
 
-  // XP is read from saved progress; this component does not award XP.
-  // The completed-topic calculation is only a fallback for older data.
   const earnedXp = lessons.reduce(
     (total, lesson) =>
       total +
-      (isTopicComplete(stageProgress, lesson.id) ? xpFor(lesson) : 0),
+      (isTopicComplete(stageProgress, lesson.id)
+        ? xpFor(lesson)
+        : 0),
     0
   );
 
@@ -499,7 +593,8 @@ export default function StudyMap() {
 
   const quizAttemptCount = lessons.reduce(
     (total, lesson) =>
-      total + quizResultFor(quizScores, lesson.id).attempts,
+      total +
+      quizResultFor(quizScores, lesson.id).attempts,
     0
   );
 
@@ -510,12 +605,13 @@ export default function StudyMap() {
 
     if (!group) return false;
 
-    // Keep worlds containing completed lessons accessible for review.
-    const hasCompletedTopic = group.lessons.some((lesson) =>
-      isTopicComplete(stageProgress, lesson.id)
-    );
-
-    if (hasCompletedTopic) return true;
+    if (
+      group.lessons.some((lesson) =>
+        isTopicComplete(stageProgress, lesson.id)
+      )
+    ) {
+      return true;
+    }
 
     return groups
       .slice(0, worldIndex)
@@ -527,7 +623,6 @@ export default function StudyMap() {
   }
 
   function isLessonUnlocked(lesson) {
-    // Completed lessons remain openable even when revisiting old topics.
     if (isTopicComplete(stageProgress, lesson.id)) return true;
 
     const worldIndex = groups.findIndex((group) =>
@@ -544,16 +639,27 @@ export default function StudyMap() {
     );
   }
 
+  // Save the last viewed topic and select it on the map.
   function recordLastViewed(lesson, worldIndex, destination) {
     if (!lesson) return;
 
-    const match = String(destination || "").match(/[?&]stage=([^&]+)/);
+    const match = String(destination || "").match(
+      /[?&]stage=([^&]+)/
+    );
 
-    const stage = match
-      ? decodeURIComponent(match[1])
-      : getNextStage(stageProgress, lesson.id);
+    let stage = getNextStage(stageProgress, lesson.id);
 
-    const safeStage = STAGES.includes(stage) ? stage : "video";
+    if (match) {
+      try {
+        stage = decodeURIComponent(match[1]);
+      } catch {
+        stage = match[1];
+      }
+    }
+
+    const safeStage = STAGES.includes(stage)
+      ? stage
+      : "video";
 
     const record = {
       worldIndex,
@@ -572,10 +678,25 @@ export default function StudyMap() {
         JSON.stringify(record)
       );
     } catch (error) {
-      console.error("Could not save last-viewed topic:", error);
+      console.error(
+        "Could not save last-viewed topic:",
+        error
+      );
     }
 
     setLastViewed(record);
+
+    if (
+      worldIndex >= 0 &&
+      worldIndex < groups.length
+    ) {
+      setExpandedWorld(worldIndex);
+      setSelectedTopic(Number(lesson.id));
+    }
+
+    window.dispatchEvent(
+      new Event("evolv-last-viewed-updated")
+    );
   }
 
   function toggleWorld(index) {
@@ -601,11 +722,14 @@ export default function StudyMap() {
   }
 
   const selectedGroup =
-    expandedWorld === null ? null : groups[expandedWorld];
+    expandedWorld === null
+      ? null
+      : groups[expandedWorld];
 
   const selectedLesson =
     selectedGroup?.lessons.find(
-      (lesson) => Number(lesson.id) === Number(selectedTopic)
+      (lesson) =>
+        Number(lesson.id) === Number(selectedTopic)
     ) || null;
 
   const selectedCompleted = selectedLesson
@@ -614,19 +738,34 @@ export default function StudyMap() {
 
   const savedLesson = lastViewed
     ? lessons.find(
-        (lesson) => Number(lesson.id) === Number(lastViewed.lessonId)
+        (lesson) =>
+          Number(lesson.id) === Number(lastViewed.lessonId)
       )
     : null;
 
   const resumeLesson = savedLesson || nextLesson;
 
+  const savedStageIncomplete =
+    Boolean(savedLesson) &&
+    Boolean(lastViewed?.stage) &&
+    !isStageComplete(
+      stageProgress,
+      savedLesson.id,
+      lastViewed.stage
+    );
+
   const resumeDestination = resumeLesson
-    ? savedLesson &&
-      Number(lastViewed?.lessonId) === Number(resumeLesson.id) &&
-      STAGES.includes(lastViewed?.stage) &&
-      !isStageComplete(stageProgress, resumeLesson.id, lastViewed.stage)
-      ? stageDestination(courseId, resumeLesson.id, lastViewed.stage)
-      : getTopicStageDestination(courseId, resumeLesson, stageProgress)
+    ? savedStageIncomplete
+      ? stageDestination(
+          courseId,
+          resumeLesson.id,
+          lastViewed.stage
+        )
+      : getTopicStageDestination(
+          courseId,
+          resumeLesson,
+          stageProgress
+        )
     : "/dashboard";
 
   const resumeLabel = !resumeLesson
@@ -640,11 +779,18 @@ export default function StudyMap() {
           : "Continue learning";
 
   function getTopicAction(lesson) {
-    const completed = isTopicComplete(stageProgress, lesson.id);
+    const completed = isTopicComplete(
+      stageProgress,
+      lesson.id
+    );
 
     const destination = completed
       ? stageDestination(courseId, lesson.id, "video")
-      : getTopicStageDestination(courseId, lesson, stageProgress);
+      : getTopicStageDestination(
+          courseId,
+          lesson,
+          stageProgress
+        );
 
     return {
       label: completed
@@ -654,6 +800,24 @@ export default function StudyMap() {
           : "Start learning",
       destination,
     };
+  }
+
+  const studyMapDestination = `/study/${courseId}`;
+
+  function openTopicOnMap(lesson, destination) {
+    if (!lesson) return;
+
+    const worldIndex = groups.findIndex((group) =>
+      group.lessons.some(
+        (item) => Number(item.id) === Number(lesson.id)
+      )
+    );
+
+    recordLastViewed(
+      lesson,
+      worldIndex,
+      destination
+    );
   }
 
   return (
@@ -712,14 +876,19 @@ export default function StudyMap() {
                 <small>
                   {resumeLesson
                     ? `${course.subtitle} · ${
-                        isTopicComplete(stageProgress, resumeLesson.id)
+                        isTopicComplete(
+                          stageProgress,
+                          resumeLesson.id
+                        )
                           ? "Topic completed — ready to review"
                           : `Next stage: ${
                               STAGE_LABELS[
-                                getNextStage(
-                                  stageProgress,
-                                  resumeLesson.id
-                                )
+                                savedStageIncomplete
+                                  ? lastViewed.stage
+                                  : getNextStage(
+                                      stageProgress,
+                                      resumeLesson.id
+                                    )
                               ]
                             }`
                       }`
@@ -728,23 +897,19 @@ export default function StudyMap() {
               </div>
 
               <Link
-                to={resumeDestination}
+                to={
+                  resumeLesson
+                    ? studyMapDestination
+                    : "/dashboard"
+                }
                 className="sm-resume-button"
                 onClick={() => {
-                  if (!resumeLesson) return;
-
-                  const worldIndex = groups.findIndex((group) =>
-                    group.lessons.some(
-                      (lesson) =>
-                        Number(lesson.id) === Number(resumeLesson.id)
-                    )
-                  );
-
-                  recordLastViewed(
-                    resumeLesson,
-                    worldIndex,
-                    resumeDestination
-                  );
+                  if (resumeLesson) {
+                    openTopicOnMap(
+                      resumeLesson,
+                      resumeDestination
+                    );
+                  }
                 }}
               >
                 {resumeLabel}
@@ -889,8 +1054,9 @@ export default function StudyMap() {
                 const expanded = expandedWorld === groupIndex;
                 const locked = !isWorldUnlocked(groupIndex);
 
-                const completedInWorld = group.lessons.filter((lesson) =>
-                  isTopicComplete(stageProgress, lesson.id)
+                const completedInWorld = group.lessons.filter(
+                  (lesson) =>
+                    isTopicComplete(stageProgress, lesson.id)
                 ).length;
 
                 const worldComplete =
@@ -999,7 +1165,9 @@ export default function StudyMap() {
                             </span>
 
                             <div>
-                              <strong>Your {group.title} journey</strong>
+                              <strong>
+                                Your {group.title} journey
+                              </strong>
                               <p>
                                 Complete Video, Concept, Hands-on, and
                                 Quiz to unlock the next topic. You can
@@ -1026,22 +1194,27 @@ export default function StudyMap() {
                               {group.lessons.map((lesson, localIndex) => {
                                 const index = lesson._index;
                                 const lessonId = Number(lesson.id);
+                                const completed =
+                                  completedSet.has(lessonId);
 
-                                const completed = completedSet.has(lessonId);
+                                const completedStages =
+                                  getCompletedStages(
+                                    stageProgress,
+                                    lesson.id
+                                  );
 
-                                const completedStages = getCompletedStages(
-                                  stageProgress,
-                                  lesson.id
-                                );
+                                const stageCount =
+                                  getCompletedStageCount(
+                                    stageProgress,
+                                    lesson.id
+                                  );
 
-                                const stageCount = getCompletedStageCount(
-                                  stageProgress,
-                                  lesson.id
-                                );
+                                const unlocked =
+                                  isLessonUnlocked(lesson);
 
-                                const unlocked = isLessonUnlocked(lesson);
                                 const selected =
-                                  Number(selectedTopic) === lessonId;
+                                  Number(selectedTopic) === lessonId &&
+                                  expandedWorld === groupIndex;
 
                                 const isNext =
                                   !completed &&
@@ -1057,13 +1230,16 @@ export default function StudyMap() {
                                         ? "path-center-right"
                                         : "path-right";
 
-                                const topicAction = getTopicAction(lesson);
+                                const topicAction =
+                                  getTopicAction(lesson);
 
                                 return (
                                   <div
                                     className={[
                                       "sm-path-entry",
-                                      selected ? "has-selected-topic" : "",
+                                      selected
+                                        ? "has-selected-topic"
+                                        : "",
                                     ]
                                       .filter(Boolean)
                                       .join(" ")}
@@ -1228,11 +1404,20 @@ export default function StudyMap() {
                                             <div className="sm-stage-grid">
                                               {STAGES.map(
                                                 (stage, stageIndex) => {
-                                                  const done = isStageComplete(
-                                                    stageProgress,
-                                                    selectedLesson.id,
-                                                    stage
-                                                  );
+                                                  const done =
+                                                    isStageComplete(
+                                                      stageProgress,
+                                                      selectedLesson.id,
+                                                      stage
+                                                    );
+
+                                                  const stageUnlocked =
+                                                    done ||
+                                                    isStageUnlocked(
+                                                      stageProgress,
+                                                      selectedLesson.id,
+                                                      stage
+                                                    );
 
                                                   const Icon =
                                                     STAGE_ICONS[stage];
@@ -1253,22 +1438,29 @@ export default function StudyMap() {
                                                         done
                                                           ? "is-stage-done"
                                                           : "",
+                                                        stageUnlocked
+                                                          ? "is-stage-unlocked"
+                                                          : "is-stage-locked",
                                                       ]
                                                         .filter(Boolean)
                                                         .join(" ")}
-                                                      onClick={() =>
+                                                      aria-disabled={!stageUnlocked}
+                                                      onClick={(event) => {
+                                                        if (!stageUnlocked) {
+                                                          event.preventDefault();
+                                                          return;
+                                                        }
+
                                                         recordLastViewed(
                                                           selectedLesson,
                                                           groupIndex,
                                                           destination
-                                                        )
-                                                      }
+                                                        );
+                                                      }}
                                                     >
                                                       <span className="sm-stage-link-icon">
                                                         {done ? (
-                                                          <CheckCircle2
-                                                            size={17}
-                                                          />
+                                                          <CheckCircle2 size={17} />
                                                         ) : (
                                                           <Icon size={17} />
                                                         )}
@@ -1281,7 +1473,9 @@ export default function StudyMap() {
                                                       <span className="sm-stage-link-number">
                                                         {done
                                                           ? "Review"
-                                                          : `Level ${stageIndex + 1}`}
+                                                          : stageUnlocked
+                                                            ? `Level ${stageIndex + 1} · Start`
+                                                            : "🔒 Locked"}
                                                       </span>
                                                     </Link>
                                                   );
@@ -1298,12 +1492,11 @@ export default function StudyMap() {
                                             </span>
 
                                             <Link
-                                              to={topicAction.destination}
+                                              to={studyMapDestination}
                                               className="sm-compact-topic-button"
                                               onClick={() =>
-                                                recordLastViewed(
+                                                openTopicOnMap(
                                                   selectedLesson,
-                                                  groupIndex,
                                                   topicAction.destination
                                                 )
                                               }
@@ -1337,8 +1530,8 @@ export default function StudyMap() {
                                 </strong>
 
                                 <small>
-                                  {completedInWorld} of {group.lessons.length}{" "}
-                                  topics completed
+                                  {completedInWorld} of{" "}
+                                  {group.lessons.length} topics completed
                                 </small>
                               </span>
                             </div>
@@ -1349,8 +1542,8 @@ export default function StudyMap() {
                               <Map size={23} />
                               <strong>Select a topic circle</strong>
                               <p>
-                                Select an unlocked topic to start, resume,
-                                or review learning.
+                                Select an unlocked topic to start,
+                                resume, or review learning.
                               </p>
                             </div>
                           )}
@@ -1392,30 +1585,18 @@ export default function StudyMap() {
 
             {nextLesson && (
               <Link
-                to={getTopicStageDestination(
-                  courseId,
-                  nextLesson,
-                  stageProgress
-                )}
+                to={studyMapDestination}
                 className="sm-finish-button"
-                onClick={() => {
-                  const worldIndex = groups.findIndex((group) =>
-                    group.lessons.some(
-                      (lesson) =>
-                        Number(lesson.id) === Number(nextLesson.id)
-                    )
-                  );
-
-                  recordLastViewed(
+                onClick={() =>
+                  openTopicOnMap(
                     nextLesson,
-                    worldIndex,
                     getTopicStageDestination(
                       courseId,
                       nextLesson,
                       stageProgress
                     )
-                  );
-                }}
+                  )
+                }
               >
                 Continue <ArrowRight size={15} />
               </Link>

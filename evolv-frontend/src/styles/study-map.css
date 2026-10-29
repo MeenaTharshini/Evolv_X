@@ -5424,3 +5424,19 @@
     transform: none;
   }
 }
+
+/* Sequential stage unlocking */
+.sm-page .sm-stage-link.is-stage-locked {
+  opacity: 0.52;
+  filter: saturate(0.55);
+  cursor: not-allowed;
+  background: #f4f6f5;
+  border-color: #dfe6e2;
+}
+.sm-page .sm-stage-link.is-stage-locked:hover {
+  transform: none;
+  box-shadow: none;
+}
+.sm-page .sm-stage-link.is-stage-unlocked:not(.is-stage-done) {
+  border-color: #8dd5b3;
+}

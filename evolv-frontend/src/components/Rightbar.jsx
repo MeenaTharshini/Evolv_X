@@ -1,5 +1,4 @@
-
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Flame,
   Zap,
@@ -26,50 +25,125 @@ const initialStreak = {
   week: [],
 };
 
-const readNumber = (key, fallback = 0) => {
-  const value = Number(localStorage.getItem(key));
-  return Number.isFinite(value) && value >= 0 ? value : fallback;
+const initialProgress = {
+  xp: 0,
+  completed: [],
 };
 
+/**
+ * Read a non-negative number from browser storage safely.
+ */
+function readNumber(key, fallback = 0) {
+  try {
+    const rawValue = localStorage.getItem(key);
+
+    if (rawValue === null || rawValue.trim() === "") {
+      return fallback;
+    }
+
+    const value = Number(rawValue);
+
+    return Number.isFinite(value) && value >= 0
+      ? value
+      : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+/**
+ * Read the current EVOLV authentication token.
+ * AuthPage saves the token as "evolv_token".
+ */
 function getAuthToken() {
-  // Change "token" if your login uses another localStorage key.
-  return localStorage.getItem("token");
+  try {
+    return (
+      localStorage.getItem("evolv_token") ||
+      sessionStorage.getItem("evolv_token") ||
+      localStorage.getItem("token") ||
+      sessionStorage.getItem("token") ||
+      ""
+    );
+  } catch {
+    return "";
+  }
+}
+
+/**
+ * Safely read JSON responses.
+ */
+async function readResponse(response) {
+  try {
+    return await response.json();
+  } catch {
+    return {};
+  }
+}
+
+/**
+ * Read completed Python lessons from local storage.
+ */
+function readCompletedLessons() {
+  try {
+    const saved = localStorage.getItem("evolv_python_completed");
+
+    if (!saved) {
+      return [];
+    }
+
+    const parsed = JSON.parse(saved);
+
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Normalize streak data returned by the backend.
+ */
+function normalizeStreak(data) {
+  return {
+    currentStreak: Math.max(
+      0,
+      Number(data.currentStreak) || 0
+    ),
+    longestStreak: Math.max(
+      0,
+      Number(data.longestStreak) || 0
+    ),
+    activeToday: Boolean(data.activeToday),
+    today: data.today || "",
+    week: Array.isArray(data.week) ? data.week : [],
+  };
 }
 
 export default function Rightbar() {
-  const [progress, setProgress] = useState({
-    xp: 0,
-    completed: [],
-  });
-
+  const [progress, setProgress] = useState(initialProgress);
   const [streakData, setStreakData] = useState(initialStreak);
   const [streakLoading, setStreakLoading] = useState(true);
   const [streakError, setStreakError] = useState("");
 
+  /**
+   * Refresh XP and completed lessons.
+   *
+   * These keys must match the keys used by LessonPage.jsx.
+   */
   const refreshProgress = useCallback(() => {
-    try {
-      const savedCompleted = JSON.parse(
-        localStorage.getItem("evolv_python_completed") || "[]"
-      );
-
-      setProgress({
-        xp: readNumber("evolv_python_xp"),
-        completed: Array.isArray(savedCompleted)
-          ? savedCompleted
-          : [],
-      });
-    } catch {
-      setProgress({
-        xp: readNumber("evolv_python_xp"),
-        completed: [],
-      });
-    }
+    setProgress({
+      xp: readNumber("evolv_python_xp"),
+      completed: readCompletedLessons(),
+    });
   }, []);
 
+  /**
+   * Fetch the authenticated user's streak from the backend.
+   */
   const refreshStreak = useCallback(async () => {
     const token = getAuthToken();
 
     if (!token) {
+      setStreakData(initialStreak);
       setStreakError("Please log in to view your learning streak.");
       setStreakLoading(false);
       return;
@@ -83,37 +157,53 @@ export default function Rightbar() {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
+          Accept: "application/json",
         },
       });
 
-      const data = await response.json();
+      const data = await readResponse(response);
 
       if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          throw new Error(
+            "Your session may have expired. Please log in again."
+          );
+        }
+
         throw new Error(
-          data.error || "Unable to load your learning streak."
+          data.error ||
+            data.message ||
+            `Unable to load your learning streak (${response.status}).`
         );
       }
 
-      setStreakData({
-        currentStreak: Number(data.currentStreak) || 0,
-        longestStreak: Number(data.longestStreak) || 0,
-        activeToday: Boolean(data.activeToday),
-        today: data.today || "",
-        week: Array.isArray(data.week) ? data.week : [],
-      });
+      setStreakData(normalizeStreak(data));
     } catch (error) {
-      console.error("Streak fetch error:", error);
+      console.error("EVOLV streak fetch error:", error);
+
       setStreakError(
-        error.message || "Could not connect to the streak service."
+        error.message ||
+          "Could not connect to the streak service."
       );
     } finally {
       setStreakLoading(false);
     }
   }, []);
 
+  /**
+   * Load data initially and refresh it when learning progress changes.
+   */
   useEffect(() => {
-    refreshProgress();
-    refreshStreak();
+    let mounted = true;
+
+    const loadInitialData = async () => {
+      if (!mounted) return;
+
+      refreshProgress();
+      await refreshStreak();
+    };
+
+    loadInitialData();
 
     const handleProgressUpdate = () => {
       refreshProgress();
@@ -125,9 +215,22 @@ export default function Rightbar() {
       refreshStreak();
     };
 
-    const handleStorage = () => {
-      refreshProgress();
-      refreshStreak();
+    const handleStorage = (event) => {
+      // Refresh for relevant EVOLV storage changes, or when the
+      // browser reports a general storage update.
+      if (
+        !event ||
+        !event.key ||
+        [
+          "evolv_token",
+          "token",
+          "evolv_python_xp",
+          "evolv_python_completed",
+        ].includes(event.key)
+      ) {
+        refreshProgress();
+        refreshStreak();
+      }
     };
 
     const handleVisibility = () => {
@@ -137,24 +240,26 @@ export default function Rightbar() {
       }
     };
 
-    window.addEventListener("focus", handleFocus);
-    window.addEventListener("storage", handleStorage);
     window.addEventListener(
       "evolv-progress-updated",
       handleProgressUpdate
     );
+    window.addEventListener("focus", handleFocus);
+    window.addEventListener("storage", handleStorage);
     document.addEventListener(
       "visibilitychange",
       handleVisibility
     );
 
     return () => {
-      window.removeEventListener("focus", handleFocus);
-      window.removeEventListener("storage", handleStorage);
+      mounted = false;
+
       window.removeEventListener(
         "evolv-progress-updated",
         handleProgressUpdate
       );
+      window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("storage", handleStorage);
       document.removeEventListener(
         "visibilitychange",
         handleVisibility
@@ -162,15 +267,22 @@ export default function Rightbar() {
     };
   }, [refreshProgress, refreshStreak]);
 
+  /**
+   * Python lesson progress calculations.
+   */
   const totalLessons = pythonLessons.length;
-  const completedCount = progress.completed.length;
+
+  const completedCount = useMemo(() => {
+    const uniqueCompleted = new Set(
+      progress.completed.map(String)
+    );
+
+    return Math.min(uniqueCompleted.size, totalLessons);
+  }, [progress.completed, totalLessons]);
 
   const completionPercent =
     totalLessons > 0
-      ? Math.min(
-          100,
-          Math.round((completedCount / totalLessons) * 100)
-        )
+      ? Math.round((completedCount / totalLessons) * 100)
       : 0;
 
   const remainingLessons = Math.max(
@@ -178,37 +290,76 @@ export default function Rightbar() {
     totalLessons - completedCount
   );
 
+  /**
+   * Streak display values.
+   */
   const streak = streakData.currentStreak;
 
+  const streakProgress = Math.min(
+    100,
+    (streak / 5) * 100
+  );
+
+  const streakStatus = streakLoading
+    ? "Checking your progress..."
+    : streakError
+      ? "Streak unavailable"
+      : streakData.activeToday
+        ? "You've learned today!"
+        : "Keep your momentum going";
+
+  const streakMessage = streakLoading
+    ? "Loading your learning streak..."
+    : streakError
+      ? streakError
+      : streakData.activeToday
+        ? "Great work! Your learning activity is recorded for today."
+        : streak > 0
+          ? "Complete a lesson today to maintain your streak."
+          : "Complete your first lesson today to start your streak.";
+
   return (
-    <aside className="ev-rightbar" aria-label="Learning overview">
+    <aside
+      className="ev-rightbar"
+      aria-label="Learning overview"
+    >
+      {/* Sidebar heading */}
       <div className="ev-rightbar-heading">
         <div>
-          <span className="ev-rightbar-eyebrow">YOUR OVERVIEW</span>
+          <span className="ev-rightbar-eyebrow">
+            YOUR OVERVIEW
+          </span>
+
           <h2>Learning Hub</h2>
         </div>
 
-        <span className="ev-rightbar-heading-icon">
+        <span
+          className="ev-rightbar-heading-icon"
+          aria-hidden="true"
+        >
           <Sparkles size={19} />
         </span>
       </div>
 
-      {/* Backend-powered learning streak */}
-      <section className="ev-rightbar-streak">
+      {/* Learning streak */}
+      <section
+        className="ev-rightbar-streak"
+        aria-labelledby="ev-streak-heading"
+      >
         <div className="ev-rightbar-streak-top">
-          <span className="ev-rightbar-streak-icon">
+          <span
+            className="ev-rightbar-streak-icon"
+            aria-hidden="true"
+          >
             <Flame size={23} fill="currentColor" />
           </span>
 
           <span className="ev-rightbar-streak-label">
-            <strong>Learning streak</strong>
-            <small>
-              {streakLoading
-                ? "Checking your progress..."
-                : streakData.activeToday
-                  ? "You've learned today!"
-                  : "Keep your momentum going"}
-            </small>
+            <strong id="ev-streak-heading">
+              Learning streak
+            </strong>
+
+            <small>{streakStatus}</small>
           </span>
 
           <button
@@ -227,7 +378,10 @@ export default function Rightbar() {
         </div>
 
         <div className="ev-rightbar-streak-value">
-          <strong>{streakLoading ? "…" : streak}</strong>
+          <strong>
+            {streakLoading ? "…" : streak}
+          </strong>
+
           <span>{streak === 1 ? "day" : "days"}</span>
         </div>
 
@@ -241,43 +395,44 @@ export default function Rightbar() {
         >
           <span
             style={{
-              width: `${Math.min(100, streak * 20)}%`,
+              width: `${streakProgress}%`,
             }}
           />
         </div>
 
         <div className="ev-rightbar-streak-best">
-          <Trophy size={14} />
+          <Trophy size={14} aria-hidden="true" />
+
           <span>
             Best streak: {streakData.longestStreak}{" "}
-            {streakData.longestStreak === 1 ? "day" : "days"}
+            {streakData.longestStreak === 1
+              ? "day"
+              : "days"}
           </span>
         </div>
 
-        <p aria-live="polite">
-          {streakLoading
-            ? "Loading your learning streak..."
-            : streakError
-              ? streakError
-              : streakData.activeToday
-                ? "Great work! Your learning activity is recorded for today."
-                : streak > 0
-                  ? "Your streak is active. Complete a lesson today to keep it going."
-                  : "Complete your first lesson today to start your streak."}
+        <p
+          className="ev-rightbar-streak-message"
+          aria-live="polite"
+        >
+          {streakMessage}
         </p>
 
         {/* Weekly activity */}
         <div className="ev-rightbar-week">
           <div className="ev-rightbar-week-heading">
-            <CalendarDays size={15} />
+            <CalendarDays size={15} aria-hidden="true" />
             <strong>This week</strong>
           </div>
 
           {streakData.week.length > 0 ? (
             <div className="ev-rightbar-week-days">
-              {streakData.week.map((day) => (
+              {streakData.week.map((day, index) => (
                 <div
-                  key={day.date}
+                  key={
+                    day.date ||
+                    `${day.day || "day"}-${index}`
+                  }
                   className={[
                     "ev-rightbar-week-day",
                     day.completed ? "is-completed" : "",
@@ -286,17 +441,20 @@ export default function Rightbar() {
                   ]
                     .filter(Boolean)
                     .join(" ")}
-                  title={`${day.date}: ${
+                  title={`${day.date || day.day || "Day"}: ${
                     day.completed
                       ? "Activity completed"
                       : "No activity recorded"
                   }`}
                 >
-                  <span>{day.day}</span>
+                  <span>{day.day || "—"}</span>
 
                   <span className="ev-rightbar-week-dot">
                     {day.completed ? (
-                      <CheckCircle2 size={16} />
+                      <CheckCircle2
+                        size={16}
+                        aria-label="Activity completed"
+                      />
                     ) : (
                       <span className="ev-rightbar-week-empty" />
                     )}
@@ -316,29 +474,45 @@ export default function Rightbar() {
         </div>
       </section>
 
-      {/* Existing XP and lesson progress */}
-      <section className="ev-rightbar-section">
+      {/* XP and lesson progress */}
+      <section
+        className="ev-rightbar-section"
+        aria-labelledby="ev-progress-heading"
+      >
         <div className="ev-rightbar-section-title">
-          <Target size={17} />
-          <h3>Your progress</h3>
+          <Target size={17} aria-hidden="true" />
+          <h3 id="ev-progress-heading">
+            Your progress
+          </h3>
         </div>
 
+        {/* Total XP */}
         <div className="ev-rightbar-xp-card">
-          <span className="ev-rightbar-metric-icon ev-xp-icon">
+          <span
+            className="ev-rightbar-metric-icon ev-xp-icon"
+            aria-hidden="true"
+          >
             <Zap size={20} fill="currentColor" />
           </span>
 
           <div className="ev-rightbar-metric-copy">
             <span>Total XP</span>
-            <strong>{progress.xp.toLocaleString()}</strong>
+
+            <strong>
+              {progress.xp.toLocaleString()}
+            </strong>
           </div>
 
-          <span className="ev-rightbar-metric-tag">XP</span>
+          <span className="ev-rightbar-metric-tag">
+            XP
+          </span>
         </div>
 
+        {/* Python lesson completion */}
         <div className="ev-rightbar-progress-card">
           <div className="ev-rightbar-progress-top">
             <span>Python lessons</span>
+
             <strong>
               {completedCount}/{totalLessons}
             </strong>
@@ -350,35 +524,55 @@ export default function Rightbar() {
             aria-label="Python lesson completion"
             aria-valuemin={0}
             aria-valuemax={totalLessons}
-            aria-valuenow={Math.min(completedCount, totalLessons)}
+            aria-valuenow={completedCount}
           >
-            <span style={{ width: `${completionPercent}%` }} />
+            <span
+              style={{
+                width: `${completionPercent}%`,
+              }}
+            />
           </div>
 
           <div className="ev-rightbar-progress-bottom">
-            <span>{completionPercent}% complete</span>
-            <span>{remainingLessons} left</span>
+            <span>
+              {completionPercent}% complete
+            </span>
+
+            <span>
+              {remainingLessons} left
+            </span>
           </div>
         </div>
       </section>
 
+      {/* Motivation card */}
       <section className="ev-rightbar-goal">
-        <div className="ev-rightbar-goal-icon">
+        <div
+          className="ev-rightbar-goal-icon"
+          aria-hidden="true"
+        >
           <Trophy size={21} />
         </div>
 
         <div className="ev-rightbar-goal-copy">
           <strong>One step at a time</strong>
+
           <p>
             Finish a lesson today to move closer to your goal.
           </p>
         </div>
       </section>
 
-      <section className="ev-rightbar-next">
+      {/* Continue learning */}
+      <section
+        className="ev-rightbar-next"
+        aria-labelledby="ev-next-heading"
+      >
         <div className="ev-rightbar-section-title">
-          <BookOpen size={17} />
-          <h3>Ready to learn?</h3>
+          <BookOpen size={17} aria-hidden="true" />
+          <h3 id="ev-next-heading">
+            Ready to learn?
+          </h3>
         </div>
 
         <p>
@@ -389,13 +583,19 @@ export default function Rightbar() {
           to="/study/python"
           className="ev-rightbar-continue"
         >
-          Open Study Map
-          <ArrowRight size={16} />
+          <span>Open Study Map</span>
+
+          <ArrowRight
+            size={16}
+            aria-hidden="true"
+          />
         </Link>
       </section>
 
+      {/* Footer */}
       <div className="ev-rightbar-quote">
-        <CheckCircle2 size={17} />
+        <CheckCircle2 size={17} aria-hidden="true" />
+
         <p>
           Consistency beats perfection. Every lesson counts.
         </p>

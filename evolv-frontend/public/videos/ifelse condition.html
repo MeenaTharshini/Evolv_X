@@ -1,0 +1,148 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Making Decisions with Python: if-else · EVOLV</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0f1e;--p:#0f1730;--b:#25325a;--cy:#4dd0ff;--am:#ffb347;--gr:#4ade80;--rd:#ff6b81;--pu:#a78bfa;--tx:#e8ecff;--mu:#7f8bb3;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--tx);font-family:Outfit,system-ui,"Noto Sans Tamil",sans-serif}
+body{padding:12px;padding-top:calc(12px + env(safe-area-inset-top,0px));padding-bottom:calc(12px + env(safe-area-inset-bottom,0px))}
+.app{max-width:1060px;margin:auto}
+.stage{position:relative;border:1px solid var(--b);border-radius:20px;padding:18px;min-height:600px;display:flex;flex-direction:column;align-items:center;gap:10px;overflow:hidden;background:radial-gradient(ellipse at 50% 0,#14204a66,transparent 70%),linear-gradient(#0c1328,#090e1c)}
+.logo{display:flex;gap:10px;align-items:center;font-weight:800;letter-spacing:.25em}
+.bars{display:flex;gap:4px;align-items:flex-end;height:30px}.bars i{width:9px;border-radius:3px}
+.badge{border:1px solid #2f8f63;color:var(--gr);background:#0f2a27;border-radius:99px;padding:4px 14px;font:600 13px JetBrains Mono,monospace}
+h1{font-size:clamp(22px,4vw,40px);text-align:center;margin:2px 0;font-weight:800;line-height:1.15}h1 em{color:var(--am);font-style:normal}
+.vis{width:100%;flex:1;display:flex;gap:18px;justify-content:center;align-items:center;flex-wrap:wrap;animation:in .5s}
+@keyframes in{from{opacity:0;transform:translateY(8px)}}
+@keyframes pu{50%{box-shadow:0 0 22px #4dd0ff88}}
+.win{background:var(--p);border:1px solid var(--b);border-radius:12px;min-width:300px;box-shadow:0 8px 30px #0006;padding-bottom:8px}
+.wb{display:flex;gap:6px;align-items:center;padding:9px 12px;border-bottom:1px solid var(--b);font:12px JetBrains Mono,monospace;color:var(--mu);margin-bottom:6px}
+.d{width:11px;height:11px;border-radius:50%}
+.cl{display:flex;font:500 15px/1.9 JetBrains Mono,monospace;padding:0 14px;white-space:pre;border-left:3px solid transparent;transition:.35s}
+.cl b{color:#4a5680;width:26px;font-weight:400}
+.cl.on{background:#4dd0ff1f;border-left-color:var(--cy)}.cl.run{background:#4ade8026;border-left-color:var(--gr)}.cl.dim{opacity:.28}
+.k{color:var(--pu)}.s,.n{color:var(--gr)}.f{color:var(--cy)}
+.showind .sp{background:#ffb34755;border-radius:3px}
+.glowc .c{color:var(--am);font-weight:800;font-style:normal;animation:pu 1s infinite;text-shadow:0 0 10px var(--am)}
+.flow{display:flex;flex-direction:column;align-items:center;gap:8px;min-width:280px}
+.cond{border:2px solid var(--cy);color:var(--cy);padding:10px 18px;border-radius:12px;font:600 15px JetBrains Mono,monospace;background:#0f1d3a;text-align:center}
+.cond.go{animation:pu 1s infinite}
+.tag{height:24px;font-weight:800;letter-spacing:.12em;opacity:0;transition:.3s}.tag.t{color:var(--gr);opacity:1}.tag.f{color:var(--rd);opacity:1}
+.brs{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.br{border:2px solid var(--b);border-radius:12px;padding:10px 14px;text-align:center;min-width:140px;transition:.45s;background:var(--p)}
+.br small{display:block;font:12px JetBrains Mono,monospace;color:var(--mu);margin-top:3px}
+.lb{display:block;font:700 11px JetBrains Mono,monospace;color:var(--mu);margin-bottom:4px}
+.br.lit.i{border-color:var(--gr);background:#4ade8022;box-shadow:0 0 22px #4ade8055}.br.lit.e{border-color:var(--am);background:#ffb34720;box-shadow:0 0 22px #ffb34755}.br.skip{opacity:.22}
+.out{border:1px dashed var(--b);border-radius:10px;padding:8px 14px;font:14px JetBrains Mono,monospace;min-width:230px;text-align:center;color:var(--mu)}.out code{color:var(--gr)}
+.note,.q{border:1px solid var(--b);background:var(--p);border-radius:12px;padding:16px 20px;min-width:240px;max-width:300px;font-size:18px;line-height:1.5;text-align:center}
+.q{font-size:20px}.cd{font:800 56px JetBrains Mono,monospace;color:var(--am)}
+.rv{opacity:0;transform:translateY(10px);transition:.6s}.rv.show{opacity:1;transform:none}
+.it{font-size:64px;text-align:center}.it small{display:block;font:600 14px Outfit;color:var(--mu)}
+.hero{display:flex;gap:26px;justify-content:center;width:100%}
+.hid{display:none}
+.card{display:none;gap:14px;flex-wrap:wrap;justify-content:center;width:100%}.card.show{display:flex}
+.card h3{width:100%;text-align:center;margin:0;color:var(--am)}
+.pn{background:var(--p);border:1px solid var(--b);border-radius:12px;padding:10px 14px;min-width:290px}
+.pn pre{margin:6px 0;font:500 14px/1.8 JetBrains Mono,monospace}.pn.bad{border-color:var(--rd)}.pn.good{border-color:var(--gr);opacity:0;transform:translateY(8px);transition:.5s}
+.card.fx .pn.good{opacity:1;transform:none}.pn.bad .m{color:var(--rd)}.pn.good .m{color:var(--gr)}.m{font-size:14px}
+.rc{border:1px solid var(--b);background:var(--p);border-radius:12px;padding:12px 18px;font-size:19px;width:min(520px,100%)}
+.sub{width:100%;border:1px solid var(--b);background:#0b1226;border-radius:12px;padding:12px 18px;text-align:center;font-size:clamp(16px,2.3vw,22px);line-height:1.45;min-height:64px;display:flex;align-items:center;justify-content:center}
+.big{position:absolute;inset:0;z-index:5;border:0;background:#080d1bcc;color:var(--am);font:800 28px Outfit;cursor:pointer;backdrop-filter:blur(3px)}
+.tabs{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:14px}
+.tab{background:var(--p);border:1px solid var(--b);border-radius:12px;padding:10px 12px;color:var(--tx);text-align:left;cursor:pointer;font:600 14px Outfit}
+.tab i{display:block;height:4px;background:var(--b);border-radius:4px;margin-bottom:8px;overflow:hidden}.tab u{display:block;height:100%;width:0;background:var(--cy);transition:width .5s}
+.tab span{color:var(--mu);margin-right:6px}.tab.act{border-color:var(--cy)}
+.ctl{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.pill,select{background:var(--p);border:1px solid var(--b);color:var(--tx);border-radius:14px;padding:12px 20px;font:600 15px Outfit;cursor:pointer}
+.pill.am{background:var(--am);color:#1a1200;border-color:var(--am);border-radius:99px}.pill.on{border-color:var(--cy);color:var(--cy)}
+select{padding:12px;max-width:100%}
+</style></head><body><div class="app">
+<div class="stage" id="stage">
+<button class="big" id="big">▶ Start lesson</button>
+<div class="logo"><div class="bars"><i style="height:14px;background:var(--am)"></i><i style="height:30px;background:var(--cy)"></i><i style="height:24px;background:#ff5d8f"></i></div>EVOLV</div>
+<div class="badge" id="badge"></div><h1 id="title"></h1>
+<div class="vis" id="vis"></div>
+<div class="sub" id="sub"></div>
+</div>
+<div class="tabs" id="tabs"></div>
+<div class="ctl"><button class="pill am" id="pb">Play</button><button class="pill" id="rs">Restart</button><button class="pill on" id="vb">Voice</button><button class="pill" id="mb">Music</button>
+<select id="ss"><option value="en">Subtitles: English</option><option value="ta">Subtitles: தமிழ் · Tamil</option><option value="off">Subtitles: Off</option></select><select id="vs"></select></div>
+</div>
+<script>
+const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s);
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const hl=s=>esc(s).replace(/("[^"]*")|\b(if|else)\b|\b(print)\b|\b(\d+)\b/g,(m,a,b,c,d)=>a?`<span class=s>${a}</span>`:b?`<span class=k>${b}</span>`:c?`<span class=f>${c}</span>`:`<span class=n>${d}</span>`).replace(/:$/,'<i class=c>:</i>');
+const li=(s,i)=>{const m=s.match(/^ */)[0];return `<b>${i+1}</b><span class=sp>${m}</span>${hl(s.slice(m.length))}`};
+const win=(n,L)=>`<div class=win id=W><div class=wb><i class=d style=background:#ff5f57></i><i class=d style=background:#febc2e></i><i class=d style=background:#28c840></i><span>${n}</span><span style=margin-left:auto>Python 3</span></div>${L.map((s,i)=>`<div class=cl id=L${i}>${li(s,i)}</div>`).join('')}</div>`;
+const mark=(on=[],dim=[],run=[])=>$$('#W .cl').forEach((e,i)=>e.className='cl'+(on.includes(i)?' on':'')+(run.includes(i)?' run':'')+(dim.includes(i)?' dim':''));
+const flow=(c,a,b)=>`<div class=flow><div class=cond id=fc>${c}</div><div class=tag id=ft></div><div class=brs><div class=br id=bi><span class=lb>TRUE</span><b class=k>if</b> block<small>${a}</small></div><div class=br id=be><span class=lb>FALSE</span><b class=k>else</b> block<small>${b}</small></div></div><div class=out>Output: <code id=ov>…</code></div></div>`;
+const sf=o=>{if(o.c!=null){$('#fc').textContent=o.c;$('#fc').classList.add('go')}
+if('tag'in o){const t=$('#ft');t.className='tag '+(o.tag||'');t.textContent=o.tag=='t'?'TRUE ✓':o.tag=='f'?'FALSE ✗':''}
+if('lit'in o){$('#bi').className='br'+(o.lit=='i'?' lit i':o.lit=='e'?' skip':'');$('#be').className='br'+(o.lit=='e'?' lit e':o.lit=='i'?' skip':'')}
+if('out'in o)$('#ov').textContent=o.out};
+const rv=id=>$('#'+id)?.classList.add('show');
+const S=(en,ta,run,d)=>({en,ta,run,d});
+const demo=(init,m,steps)=>{return win('ticket.py',['money = '+init,'ticket_price = 80','','if money >= ticket_price:','    print("Ticket purchased!")','else:','    print("Not enough money!")'])+flow('money >= ticket_price','Ticket purchased!','Not enough money!')};
+const res=(m)=>{const t=m>=80;return()=>{sf({c:m+' >= 80',tag:t?'t':'f',lit:t?'i':'e',out:t?'Ticket purchased!':'Not enough money!'});mark([3],t?[5,6]:[4],[t?4:6]);if(!t)$('#L5').classList.add('on')}};
+const C=[['Mistake 1: forgot the colon','if money >= ticket_price\n    print("Ticket purchased!")','if money >= ticket_price:\n    print("Ticket purchased!")','SyntaxError: expected ":"','Colon added: block starts ✓'],
+['Mistake 2: wrong indentation','if money >= ticket_price:\nprint("Ticket purchased!")','if money >= ticket_price:\n    print("Ticket purchased!")','IndentationError: expected an indented block','Indented: print belongs to if ✓'],
+['Mistake 3: two ifs instead of if-else','if money >= 80:\n    print("Ticket purchased!")\nif money < 80:\n    print("Not enough money!")','if money >= 80:\n    print("Ticket purchased!")\nelse:\n    print("Not enough money!")','🔍🔍 Python checks twice, two separate questions','🔍 One check → exactly one branch ✓']];
+const cards=C.map((c,i)=>`<div class=card id=c${i}><h3>${c[0]}</h3><div class="pn bad"><b>✗ Mistake</b><pre>${c[1].split('\n').map(hl).join('\n')}</pre><div class=m>${c[3]}</div></div><div class="pn good"><b>✓ Fixed</b><pre>${c[2].split('\n').map(hl).join('\n')}</pre><div class=m>${c[4]}</div></div></div>`).join('');
+const card=n=>async id=>{$$('.card').forEach(e=>e.classList.remove('show','fx'));$('#c'+n).classList.add('show');await wait(4200,id);$('#c'+n)?.classList.add('fx')};
+const rc=['🔀 if-else picks one of two paths','✅ True → if block · ❌ False → else block','⌨️ A colon <b>:</b> and indentation define the blocks','1️⃣ Exactly one branch runs'];
+const SC=[
+{tab:'Intro',badge:'Real-life decision',title:'Making Decisions with Python: <em>if-else</em>',
+html:`<div class=vis><div class=hero><div class="it rv" id=a1>🧑‍🎓<small>You</small></div><div class="it rv" id=a2>👛<small>₹100</small></div><div class="it rv" id=a3>🎟️<small>Ticket price?</small></div></div><div class="flow rv" id=fk><div class=cond>Ticket price ≤ ₹100 ?</div><div class=brs><div class="br lit i">✅ Yes → Buy ticket</div><div class="br lit e">❌ No → Cannot buy</div></div></div></div>`,
+steps:[S('Imagine you have 100 rupees. If the ticket costs 100 rupees or less, you can buy it. Otherwise, you cannot.','உன்கிட்ட ₹100 இருக்கு. டிக்கெட் ₹100 அல்லது குறைவுன்னா வாங்கலாம். இல்லைன்னா முடியாது.',async id=>{rv('a1');await wait(1200,id);rv('a2');await wait(1500,id);rv('a3')}),
+S('How can Python make this decision?','இந்த முடிவை Python எப்படி எடுக்கும்?',()=>rv('fk'))]},
+{tab:'Syntax',badge:'The syntax',title:'Meet <em>if</em> and <em>else</em>',
+html:`<div class=vis>${win('syntax.py',['if condition:','    statement_if_true','else:','    statement_if_false'])}<div class=note id=nt>Python chooses between two paths</div></div>`,
+steps:[S('The if line checks the condition.','if வரி condition-ஐ சரிபார்க்கும்.',()=>{mark([0]);$('#nt').innerHTML='<b class=k>if</b> checks the condition'}),
+S('If the condition is True, the if block runs. If it is False, the else block runs.','True-ன்னா if block ஓடும்; False-ன்னா else block ஓடும்.',()=>{mark([1,3]);$('#nt').innerHTML='<b style=color:var(--gr)>True</b> → if block<br><b style=color:var(--rd)>False</b> → else block'}),
+S('The colon begins each block.','colon : ஒவ்வொரு block-ஐயும் ஆரம்பிக்கும்.',()=>{mark([0,2]);$('#W').classList.add('glowc');$('#nt').innerHTML='The colon <b style=color:var(--am)>:</b> begins each block'}),
+S('Indentation, the spaces before a line, tells Python which statements belong to each block.','Indentation, அதாவது வரி முன்னாடி இருக்குற space, எந்த statement எந்த block-க்குன்னு Python-க்கு சொல்லும்.',()=>{$('#W').classList.remove('glowc');$('#W').classList.add('showind');mark([1,3]);$('#nt').innerHTML='Indent = 4 spaces.<br>Same indent → same block'})]},
+{tab:'If True',badge:'Condition is True',title:'Let\'s <em>run</em> it!',html:demo(100,100),
+steps:[S('Python reads from the top. Money is 100, and ticket price is 80.','Python மேலிருந்து படிக்கும்: money 100, ticket_price 80.',()=>mark([0,1])),
+S('The if line asks: is 100 greater than or equal to 80?','if வரி கேட்குது: 100 >= 80 சரியா?',()=>{mark([3]);sf({c:'100 >= 80'})}),
+S('Yes! The condition is True, so Python runs the if block and prints Ticket purchased!','ஆமா! True, அதனால if block ஓடி Ticket purchased! print ஆகும்.',res(100)),
+S('The else branch stays dimmed. It was skipped.','else branch dim ஆகி இருக்கு. அது skip ஆச்சு.',()=>mark([3,4],[5,6],[4]))]},
+{tab:'If False',badge:'Condition is False',title:'Change the <em>value</em>',html:demo(100,50),
+steps:[S('Now change money to 50. The ticket price is still 80.','இப்போ money-ஐ 50 ஆக மாத்துவோம். ticket_price 80 தான்.',()=>{$('#L0').innerHTML=li('money = 50',0);mark([0]);sf({c:'money >= ticket_price',tag:'',lit:'',out:'…'})}),
+S('Is 50 greater than or equal to 80? No. The condition is False, so Python runs the else block.','50 >= 80 சரியா? இல்ல! False, அதனால else block ஓடும்.',res(50)),
+S('Exactly one of the two branches runs. Never both!','இரண்டு branch-ல ஒன்னு மட்டும்தான் ஓடும், ரெண்டும் இல்ல!',()=>$('.out').style.borderColor='var(--am)')]},
+{tab:'Mistakes',badge:'Common mistakes',title:'Avoid these <em>traps</em>',html:`<div class=vis style="flex-direction:column">${cards}</div>`,
+steps:[S('Mistake one: forgetting the colon causes a syntax error. Add the colon to fix it.','தவறு 1: colon மறந்தா SyntaxError வரும். : சேர்த்தா சரி.',card(0),6500),
+S('Mistake two: no indentation causes an error. Indent the print line so it belongs to the if.','தவறு 2: Indentation இல்லைன்னா error. print-ஐ உள்ளே தள்ளணும்.',card(1),6500),
+S('Mistake three: two separate ifs check twice. For two exclusive outcomes, use if-else.','தவறு 3: தனித்தனி if போடாதே. இரண்டு வழி மட்டும்னா if-else பயன்படுத்து.',card(2),7500)]},
+{tab:'Challenge',badge:'Your turn',title:'Prediction <em>challenge</em>',
+html:`<div class=vis>${win('weather.py',['temperature = 20','','if temperature > 25:','    print("It\'s hot!")','else:','    print("It\'s cool!")'])}<div class=q id=q>🤔 Predict the output<div class=cd id=cd>?</div></div><div id=fw class=hid>${flow('temperature > 25',"It's hot!","It's cool!")}</div></div>`,
+steps:[S('Challenge time! Read this code and predict the output.','சவால் நேரம்! இந்த code என்ன print பண்ணும்னு யூகி.',()=>mark()),
+S('Pause and think. Is 20 greater than 25?','யோசி... 20 > 25 சரியா?',async id=>{for(let n=5;n>0;n--){const e=$('#cd');if(!e||id!==runId)return;e.textContent=n;await wait(1000,id)}},6500),
+S("Because 20 is not greater than 25, the condition is False, so Python runs the else block: It's cool!","20 > 25 False, அதனால else block ஓடும்: It's cool!",()=>{$('#q').classList.add('hid');$('#fw').classList.remove('hid');sf({c:'20 > 25',tag:'f',lit:'e',out:"It's cool!"});mark([2,4],[3],[5])})]},
+{tab:'Wrap-up',badge:'Wrap-up',title:'You can now <em>decide</em> in Python!',
+html:`<div class=vis style="flex-direction:column">${rc.map((t,i)=>`<div class="rc rv" id=r${i}>${t}</div>`).join('')}</div>`,
+steps:[S('You learned that if-else chooses between two paths. True runs the if block, False runs the else block.','if-else இரண்டு வழில ஒன்னை தேர்ந்தெடுக்கும். True-ன்னா if, False-ன்னா else.',async id=>{rv('r0');await wait(2500,id);rv('r1')}),
+S('Remember the colon and the indentation, and only one branch ever runs. Now try changing the values yourself!','colon, indentation இரண்டையும் நினைவுல வை; ஒரு branch மட்டும்தான் ஓடும். நீயே values மாத்தி முயற்சி பண்ணு!',async id=>{rv('r2');await wait(2500,id);rv('r3')})]}];
+// ---- player
+let runId=0,paused=false,started=false,ended=false,voiceOn=true,cur=null;
+$('#tabs').innerHTML=SC.map((s,i)=>`<button class=tab onclick="start(${i})"><i><u></u></i><span>${i+1}</span>${s.tab}</button>`).join('');
+const prog=(s,k,n)=>$$('.tab').forEach((t,i)=>{t.classList.toggle('act',i==s);t.querySelector('u').style.width=(i<s?100:i>s?0:Math.round((k+.5)/n*100))+'%'});
+function load(i){const s=SC[i];$('#badge').textContent=s.badge;$('#title').innerHTML=s.title;$('#vis').innerHTML=s.html;$('#vis').style.animation='none';void $('#vis').offsetWidth;$('#vis').style.animation=''}
+async function wait(ms,id){let t=0;while(t<ms){await new Promise(r=>setTimeout(r,100));if(id!==runId)return;if(!paused)t+=100}}
+function speak(txt){return new Promise(res=>{const u=new SpeechSynthesisUtterance(txt),v=speechSynthesis.getVoices().find(v=>v.name===$('#vs').value);if(v)u.voice=v;u.lang=v?v.lang:'en-GB';u.rate=.95;u.onend=u.onerror=res;speechSynthesis.speak(u)})}
+function sub(){const l=$('#ss').value;$('#sub').textContent=!cur||l=='off'?'':cur[l]}
+async function runStep(st,id){cur=st;sub();st.run&&st.run(id);const n=st.en.length;
+await Promise.all([wait(st.d||Math.max(2800,n*62),id),voiceOn?Promise.race([speak(st.en),wait(n*130+3000,id)]):0])}
+async function start(i=0){const id=++runId;started=true;ended=false;paused=false;speechSynthesis.cancel();$('#big').style.display='none';$('#pb').textContent='Pause';
+for(let s=i;s<SC.length;s++){load(s);const st=SC[s].steps;for(let k=0;k<st.length;k++){if(id!==runId)return;prog(s,k,st.length);await runStep(st[k],id)}if(id!==runId)return;prog(s+1,0,1);$$('.tab')[s].querySelector('u').style.width='100%'}
+ended=true;cur=null;$('#pb').textContent='Replay';$('#sub').textContent='🎉 Great job!'}
+$('#big').onclick=()=>start(0);$('#rs').onclick=()=>start(0);
+$('#pb').onclick=()=>{if(!started||ended)return start(0);paused=!paused;paused?speechSynthesis.pause():speechSynthesis.resume();$('#pb').textContent=paused?'Resume':'Pause'};
+$('#vb').onclick=e=>{voiceOn=!voiceOn;e.target.classList.toggle('on',voiceOn);if(!voiceOn)speechSynthesis.cancel()};
+$('#ss').onchange=sub;
+let ac,mt=0,mi=0;const chord=()=>{[[220,261.6,329.6],[174.6,220,261.6],[196,261.6,329.6],[196,246.9,293.7]][mi++%4].forEach(f=>{const o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime;o.frequency.value=f;o.connect(g);g.connect(ac.destination);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.025,t+.8);g.gain.linearRampToValueAtTime(0,t+3);o.start(t);o.stop(t+3.1)})};
+$('#mb').onclick=e=>{if(mt){clearInterval(mt);mt=0}else{ac=ac||new AudioContext();chord();mt=setInterval(chord,2600)}e.target.classList.toggle('on',!!mt)};
+function voices(){const v=speechSynthesis.getVoices().filter(v=>v.lang.startsWith('en'));if(!v.length){$('#vs').innerHTML='<option>Default voice</option>';return}
+const pick=v.find(x=>/UK English Female/.test(x.name))||v[0];$('#vs').innerHTML=v.map(x=>`<option ${x===pick?'selected':''}>${x.name}</option>`).join('')}
+voices();speechSynthesis.onvoiceschanged=voices;
+load(0);prog(0,-.5,1);
+</script></body></html>

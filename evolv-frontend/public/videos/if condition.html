@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>EVOLV · Making Decisions with Python: The if Condition</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#070b17;--cd:#0a1020;--bd:#1d2a4a;--cy:#38c8f0;--pu:#a78bfa;--am:#ffb340;--gr:#4ade80;--rd:#f87171;--pk:#ff5d8f;--tx:#eef2ff;--mu:#8fa0cf;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:radial-gradient(ellipse at 0 100%,rgba(255,93,143,.06),transparent 45%),linear-gradient(rgba(80,130,255,.06) 1px,transparent 1px) 0 0/34px 34px,linear-gradient(90deg,rgba(80,130,255,.06) 1px,transparent 1px) 0 0/34px 34px,var(--bg);color:var(--tx);font:16px/1.5 Outfit,"Trebuchet MS",system-ui,sans-serif;min-height:100vh}
+.wrap{max-width:1060px;margin:auto;padding:14px}
+.stage{border:1px solid var(--bd);border-radius:20px;background:radial-gradient(ellipse at 10% 100%,rgba(255,93,143,.07),transparent 50%),var(--cd);padding:22px 18px;min-height:560px;display:flex;flex-direction:column;align-items:center;gap:16px}
+.logo{display:flex;align-items:center;gap:12px;font-weight:800;letter-spacing:4px;font-size:20px}
+.row{display:grid;grid-template-columns:1.15fr 1fr;gap:16px;width:100%;max-width:880px;align-items:start}
+.row.solo{grid-template-columns:1fr;max-width:520px}
+@media(max-width:800px){.row{grid-template-columns:1fr}}
+.win{background:#0e1630;border:1px solid #223158;border-radius:12px;overflow:hidden}
+.wb{display:flex;align-items:center;gap:7px;padding:9px 14px;border-bottom:1px solid var(--bd);font:12px "JetBrains Mono",monospace;color:var(--mu)}
+.wb i{width:11px;height:11px;border-radius:50%;background:#ff5f57}.wb i:nth-child(2){background:#febc2e}.wb i:nth-child(3){background:#28c840;margin-right:8px}.wb em{margin-left:auto;font-style:normal;font-size:11px}
+.code{font:15px/1.8 "JetBrains Mono",Consolas,monospace;white-space:pre;padding:10px 6px;overflow-x:auto}
+.ln{display:block;padding:0 12px;border-left:3px solid transparent}.ln b{color:#4a5a8c;font-weight:400;margin-right:14px}
+.ln.on{background:rgba(255,179,64,.14);border-left-color:var(--am)}
+.k{color:var(--pu)}.s{color:var(--gr)}.n{color:var(--gr)}.t{color:var(--am)}
+.out{font:14px "JetBrains Mono",monospace;color:var(--gr);border-top:1px solid var(--bd);padding:8px 14px;min-height:38px}
+.vis{min-width:0}
+.cap{color:var(--cy);font-weight:600;font-size:14px;margin-bottom:8px}
+.nd{border:2px solid #2b3a70;border-radius:10px;padding:8px 12px;margin:0 0 6px;display:flex;justify-content:space-between;gap:8px;transition:.4s;font:14px "JetBrains Mono",monospace}
+.nd b{font-size:12px;opacity:0;font-family:Outfit,sans-serif}
+.nd.T,.nd.R{border-color:var(--gr);background:rgba(74,222,128,.12);box-shadow:0 0 16px rgba(74,222,128,.3)}
+.nd.F{border-color:var(--rd);background:rgba(248,113,113,.1)}.nd.S{opacity:.35;border-style:dashed}
+.nd.T b,.nd.F b,.nd.R b{opacity:1}.nd.T b,.nd.R b{color:var(--gr)}.nd.F b{color:var(--rd)}
+.ar{text-align:center;color:var(--mu);font-size:12px;margin:-2px 0 4px}
+.story{display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:center}
+.story div{border:2px solid #2b3a70;border-radius:14px;padding:16px;font-size:16px}.story span{display:block;font-size:44px}
+.story div:nth-child(1){animation:gl 6s infinite}.story div:nth-child(2){animation:gl 6s 3s infinite}
+@keyframes gl{0%,45%{border-color:var(--am);box-shadow:0 0 18px rgba(255,179,64,.4)}55%,100%{border-color:#2b3a70;box-shadow:none}}
+.ops{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px;font:14px "JetBrains Mono",monospace}
+.ops div{background:#0c1640;border-radius:8px;padding:6px;text-align:center}.ops em{display:block;font-style:normal;font-size:11px;color:var(--gr)}
+.badge{font:600 13px "JetBrains Mono",monospace;color:var(--gr);border:1px solid #1f6f4f;background:rgba(74,222,128,.08);border-radius:99px;padding:4px 16px}
+h2{margin:0;text-align:center;font-weight:800;font-size:clamp(26px,4.6vw,44px);line-height:1.15;max-width:760px}.ac{color:var(--am)}
+.subbox{width:100%;max-width:880px;border:1px solid var(--bd);background:#0b1226;border-radius:12px;padding:12px 20px;text-align:center;font-size:19px;min-height:68px;display:grid;place-items:center}
+button,select{background:#111a36;color:var(--tx);border:1px solid #26365f;border-radius:99px;padding:10px 20px;font:600 15px Outfit,sans-serif;cursor:pointer}
+button:hover,select:hover{border-color:var(--cy)}button:focus-visible,select:focus-visible,.tab:focus-visible{outline:2px solid var(--am)}
+#pp{background:var(--am);color:#1a1200;border-color:var(--am);min-width:96px}
+.tg.on{border-color:var(--cy);color:var(--cy);background:rgba(56,200,240,.1)}
+select{max-width:100%;border-radius:14px}
+nav{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:10px;margin:14px 0}
+.tab{position:relative;text-align:left;padding:14px 14px 10px;border-radius:12px;background:#0c1329;border:1px solid var(--bd);color:#dbe4ff;font:600 15px Outfit,sans-serif;overflow:hidden}
+.tab u{position:absolute;left:14px;right:14px;top:8px;height:4px;background:#1d2a4a;border-radius:4px}.tab u i{display:block;height:100%;background:var(--cy);border-radius:4px;transition:width .5s}
+.tab span{color:#5d6d9c;margin-right:6px;font-weight:400}.tab{padding-top:22px}.tab.on{border-color:var(--cy);background:#0e1a38}
+.ctl{display:flex;gap:10px;flex-wrap:wrap}
+.opt{display:block;width:100%;text-align:left;margin:6px 0;font:14px "JetBrains Mono",monospace;border-radius:10px}
+.opt.ok{border-color:var(--gr);background:rgba(74,222,128,.18)}.opt.no{border-color:var(--rd);background:rgba(248,113,113,.14)}
+.fb{margin:8px 0;color:var(--am)}
+.mk{border:1px solid #2b3a70;border-radius:10px;padding:8px 12px;margin:6px 0;cursor:pointer;font-size:14px}
+.mk code{color:var(--rd);font-family:"JetBrains Mono",monospace;white-space:pre-wrap}.mk .fx{display:none;color:var(--gr);margin-top:4px}.mk.open .fx{display:block}.mk.open code{color:var(--mu);text-decoration:line-through}
+pre.sol{background:#0c1640;border-radius:8px;padding:10px;color:var(--gr);font:13px "JetBrains Mono",monospace;margin:8px 0 0;overflow-x:auto}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body>
+<div class="wrap">
+<div class="stage">
+<div class="logo"><svg width="30" height="30" viewBox="0 0 28 28"><rect x="1" y="14" width="7" height="13" rx="2" fill="#ffb347"/><rect x="10" y="7" width="7" height="20" rx="2" fill="#38c8f0"/><rect x="19" y="1" width="7" height="26" rx="2" fill="#ff5d8f"/></svg>EVOLV</div>
+<div class="row" id="row"><div class="win" id="win"><div class="wb"><i></i><i></i><i></i><span id="fn"></span><em>Python 3</em></div><div class="code" id="code"></div><div class="out" id="out"></div></div><div class="vis" id="vis"></div></div>
+<div class="badge" id="bd"></div><h2 id="hd"></h2>
+<div class="subbox" id="sub" aria-live="polite"></div>
+</div>
+<nav id="tabs"></nav>
+<div class="ctl"><button id="pp">Play</button><button id="rs">Restart</button><button id="vb" class="tg on">Voice</button><button id="mb" class="tg">Music</button>
+<select id="lg" aria-label="Subtitles"></select><select id="vc" aria-label="Voice"></select><select id="rt" aria-label="Speed"><option value="0.8">Speed: Slow</option><option value="1" selected>Speed: Normal</option><option value="1.2">Speed: Fast</option></select></div>
+</div>
+<script>
+const LG={e:["English","en"],t:["தமிழ் · Tamil","ta"],h:["हिन्दी · Hindi","hi"]};
+const MK=[];
+const C={
+syn:'if condition:\n    statement',
+e1:'raining = True\n\nif raining:\n    print("Take an umbrella!")',
+e2:'raining = False\n\nif raining:\n    print("Take an umbrella!")',
+ag:'age = 18\n\nif age >= 18:\n    print("You are eligible!")',
+bad:'age = 18\n\nif age >= 18\nprint("You are eligible!")',
+pn:'number = 5\n\nif number > 10:\n    print("Big number")'};
+const SY=a=>["if  →  check a condition","condition  →  True or False","colon :  →  block starts","indent  →  controlled line"].map((t,k)=>[t,k==a?"R":"",k==a?"◀":""]);
+const S=[
+{ti:"Intro · The rain decision",x:"story",s:{e:"Imagine you go outside only when it is raining. How can you tell a computer to make this decision? Python uses an if condition!",t:"மழை பெய்யும்போது மட்டுமே வெளியே செல்வீர்கள் என்று வைத்துக் கொள்ளுங்கள். இந்த முடிவை கணினிக்கு எப்படிச் சொல்வது? பைத்தான் if நிபந்தனையைப் பயன்படுத்துகிறது!",h:"सोचिए आप सिर्फ़ बारिश होने पर बाहर जाते हैं। कंप्यूटर को यह फ़ैसला कैसे बताएँ? Python इसके लिए if कंडीशन इस्तेमाल करता है!"}},
+{ti:"Syntax · The word if",c:"syn",hl:[0],n:SY(0),s:{e:"This is the basic pattern. The word if tells Python to check something.",t:"இதுதான் அடிப்படை வடிவம். if என்ற சொல் எதையாவது சோதிக்கச் சொல்கிறது.",h:"यह बुनियादी पैटर्न है। if शब्द Python को कुछ जाँचने को कहता है।"}},
+{ti:"Syntax · What is a condition?",c:"syn",hl:[0],n:SY(1),s:{e:"A condition is something that is either True or False.",t:"நிபந்தனை என்பது True அல்லது False ஆக இருக்கும் ஒன்று.",h:"कंडीशन वह है जो True या False होती है।"}},
+{ti:"Syntax · The colon",c:"syn",hl:[0],n:SY(2),s:{e:"The colon marks the start of the code block.",t:"கோலன் (:) குறியீட்டுத் தொகுதியின் தொடக்கத்தைக் குறிக்கிறது.",h:"कोलन (:) कोड ब्लॉक की शुरुआत बताता है।"}},
+{ti:"Syntax · Indentation",c:"syn",hl:[1],n:SY(3),s:{e:"The indented line is controlled by the condition. Indentation shows which statement belongs to the if.",t:"உள்தள்ளிய வரி நிபந்தனையின் கட்டுப்பாட்டில் இருக்கும். எந்த வரி if-க்கு சொந்தம் என்பதை இது காட்டுகிறது.",h:"इंडेंट वाली लाइन शर्त के नियंत्रण में होती है। इंडेंटेशन बताता है कि कौन सी लाइन if की है।"}},
+{ti:"Example · raining is True",c:"e1",hl:[0],s:{e:"Now an example. The variable raining stores True.",t:"ஒரு எடுத்துக்காட்டு. raining என்ற மாறியில் True உள்ளது.",h:"अब एक उदाहरण। raining वेरिएबल में True है।"}},
+{ti:"Example · raining is True",c:"e1",hl:[2],n:[["raining  →  True","T","TRUE"]],s:{e:"Python checks the condition. raining is True.",t:"பைத்தான் நிபந்தனையைச் சோதிக்கிறது. raining True.",h:"Python शर्त जाँचता है। raining True है।"}},
+{ti:"Example · raining is True",c:"e1",hl:[3],o:"Take an umbrella!",n:[["raining  →  True","T","TRUE"],["print line runs","R","RUNS"]],s:{e:"The condition is True, so the indented line runs. Look at the output!",t:"நிபந்தனை True, எனவே உள்தள்ளிய வரி இயங்கும். வெளியீட்டைப் பாருங்கள்!",h:"शर्त True है, इसलिए इंडेंट वाली लाइन चलती है। आउटपुट देखिए!"}},
+{ti:"Example · raining is False",c:"e2",hl:[0],s:{e:"Now let’s change raining to False.",t:"இப்போது raining-ஐ False ஆக மாற்றுவோம்.",h:"अब raining को False कर देते हैं।"}},
+{ti:"Example · raining is False",c:"e2",hl:[2],o:"(nothing is printed)",n:[["raining  →  False","F","FALSE"],["print line skipped","S","SKIPPED"]],s:{e:"Python checks again. The condition is False, so the indented line is skipped. Nothing is printed.",t:"மீண்டும் சோதிக்கிறது. நிபந்தனை False, எனவே உள்தள்ளிய வரி தவிர்க்கப்படும். எதுவும் அச்சாகாது.",h:"फिर से जाँच। शर्त False है, इसलिए इंडेंट वाली लाइन छूट जाती है। कुछ नहीं छपता।"}},
+{ti:"Rule · Runs only when True",n:[["Condition is True  →  block runs","T","RUNS"],["Condition is False  →  block skipped","F","SKIPPED"]],s:{e:"An if block runs only when its condition is True.",t:"நிபந்தனை True ஆக இருக்கும்போது மட்டுமே if தொகுதி இயங்கும்.",h:"if ब्लॉक तभी चलता है जब उसकी शर्त True हो।"}},
+{ti:"Numbers · Comparing with numbers",c:"ag",hl:[0],s:{e:"Conditions can use numbers too. Here, age is 18.",t:"நிபந்தனையில் எண்களையும் பயன்படுத்தலாம். இங்கே age 18.",h:"शर्त में संख्याएँ भी हो सकती हैं। यहाँ age 18 है।"}},
+{ti:"Numbers · Comparing with numbers",c:"ag",hl:[2],n:[["age >= 18  →  18 >= 18","T","TRUE"]],s:{e:"Python asks: is 18 greater than or equal to 18? Yes! So the condition is True.",t:"18, 18-க்கு சமமா அல்லது அதிகமா? ஆம்! எனவே நிபந்தனை True.",h:"Python पूछता है: क्या 18, 18 के बराबर या ज़्यादा है? हाँ! इसलिए शर्त True है।"}},
+{ti:"Numbers · Comparing with numbers",c:"ag",hl:[3],o:"You are eligible!",n:[["18 >= 18  →  True","T","TRUE"],["print line runs","R","RUNS"]],s:{e:"Because it is True, the print line runs.",t:"True என்பதால் print வரி இயங்குகிறது.",h:"True होने से print लाइन चलती है।"}},
+{ti:"Mistake · Spot the errors",c:"bad",hl:[2,3],o:"SyntaxError: expected ':'",n:[["Missing colon after the condition","F","ERROR"],["print is not indented","F","ERROR"]],s:{e:"Watch out! The colon is missing, and print is not indented. Python needs both to know where the block starts and what it controls.",t:"கவனம்! கோலன் இல்லை, print உள்தள்ளப்படவில்லை. தொகுதி எங்கே தொடங்குகிறது, எதைக் கட்டுப்படுத்துகிறது என்று அறிய இரண்டும் தேவை.",h:"ध्यान दीजिए! कोलन नहीं है और print इंडेंट नहीं है। ब्लॉक कहाँ शुरू होता है और क्या नियंत्रित करता है, यह जानने के लिए दोनों ज़रूरी हैं।"}},
+{ti:"Fix · Corrected code",c:"ag",hl:[2,3],o:"You are eligible!",n:[["Colon added","T","FIXED"],["print indented (4 spaces)","T","FIXED"]],s:{e:"Fixed! Add the colon, and indent the line with four spaces.",t:"சரி! கோலன் சேர்த்து, வரியை நான்கு இடைவெளியில் உள்தள்ளுங்கள்.",h:"ठीक! कोलन लगाइए और लाइन को चार स्पेस से इंडेंट कीजिए।"}},
+{ti:"Predict · Will anything print?",c:"pn",hl:[2],rv:1,q:{o:["Big number","Nothing is printed"],a:1,w:"5 > 10 is False, so nothing prints."},s:{e:"Quick prediction. Will anything be printed? Think about it.",t:"ஒரு விரைவான ஊகம். ஏதாவது அச்சாகுமா? யோசியுங்கள்.",h:"एक झटपट अनुमान। क्या कुछ छपेगा? सोचिए।"}},
+{ti:"Answer · Nothing is printed",c:"pn",hl:[2],o:"(nothing is printed)",n:[["number > 10  →  5 > 10","F","FALSE"],["print line skipped","S","SKIPPED"]],s:{e:"Nothing! 5 is not greater than 10, so the condition is False and the block is skipped.",t:"எதுவும் இல்லை! 5, 10-ஐ விட பெரியது அல்ல, எனவே நிபந்தனை False, தொகுதி தவிர்க்கப்படும்.",h:"कुछ नहीं! 5, 10 से बड़ा नहीं है, इसलिए शर्त False है और ब्लॉक छूट जाता है।"}},
+{ti:"Recap · Remember",x:"recap",s:{e:"Remember: Python executes the indented code inside an if statement only when its condition is True!",t:"நினைவில் கொள்ளுங்கள்: நிபந்தனை True ஆக இருக்கும்போது மட்டுமே if உள்ளே உள்ள உள்தள்ளிய குறியீடு இயங்கும்!",h:"याद रखिए: if के अंदर इंडेंट किया हुआ कोड तभी चलता है जब उसकी शर्त True हो!"}}];
+
+const F={syn:"syntax.py",e1:"rain.py",e2:"rain.py",ag:"vote.py",bad:"vote.py",pn:"number.py"};
+const CH=[["Intro",0,0],["Syntax",1,4],["Example",5,10],["Numbers",11,13],["Mistake",14,15],["Predict",16,17],["Wrap-up",18,18]];
+const $=i=>document.getElementById(i);let i=0,play=false,tok=0,tm,sl="e",vo=true,ac,mus=[];
+const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+function hi(l){return esc(l).replace(/\b(if|elif|else|print)\b/g,'<span class=k>$1</span>').replace(/("[^"]*")/g,'<span class=s>$1</span>').replace(/\b(\d+|True|False)\b/g,m=>/\d/.test(m)?'<span class=n>'+m+'</span>':'<span class=t>'+m+'</span>')}
+function lines(c,hl){return c.split("\n").map((l,k)=>`<span class="ln ${hl.includes(k)?"on":""}"><b>${k+1}</b>${hi(l)}</span>`).join("")}
+function jump(k){i=k;render()}
+function render(){const s=S[i],p=s.ti.split(" · ");
+let t=p.length>1?p[1]:p[0];t=t[0].toUpperCase()+t.slice(1);const w=t.split(" "),k=Math.ceil(w.length/2);
+$("bd").textContent=p.length>1?p[0]:(s.x=="recap"?"EVOLV Python":"Intro");
+$("hd").innerHTML=`<span class=ac>${esc(w.slice(0,k).join(" "))}</span> ${esc(w.slice(k).join(" "))}`;
+$("win").style.display=s.c?"":"none";$("row").classList.toggle("solo",!s.c);
+if(s.c){$("fn").textContent=F[s.c];$("code").innerHTML=lines(C[s.c],s.hl||[])}
+$("out").textContent=s.o?"▸ "+s.o:"▸";let h="";
+if(s.x=="story")h='<div class="story" style="grid-template-columns:1fr"><div><span>🌧️ 🌧️ 🌧️</span><span>🧑‍🎓</span>It’s raining → go outside!</div></div>';
+if(s.n)h+='<div class=cap>Decision tree</div>'+s.n.map((n,k)=>(k?'<div class="ar">▼ if not</div>':"")+`<div class="nd ${n[1]}"><span>${esc(n[0])}</span><b>${n[2]||""}</b></div>`).join("");
+if(s.x=="ops")h+='<div class="ops"><div>==<em>18==18 True</em></div><div>!=<em>18!=20 True</em></div><div>&gt;<em>18&gt;20 False</em></div><div>&lt;<em>18&lt;20 True</em></div><div>&gt;=<em>18&gt;=18 True</em></div><div>&lt;=<em>18&lt;=17 False</em></div></div>';
+if(s.x=="mk")h=MK.map(m=>`<div class="mk" tabindex=0 onclick="this.classList.toggle('open')"><code>${esc(m[0])}</code><div class="fx">✔ ${esc(m[1])}</div></div>`).join("");
+if(s.x=="recap")h='<div style="line-height:1.9;font-size:17px">✅ <b>if</b> checks a condition<br>✅ A condition is True or False<br>✅ A colon <b>:</b> starts the block<br>✅ Indent the line it controls<br>✅ The block runs only when True</div>';
+if(s.q)h=`<div class=cap>Pick your answer</div>${s.q.o.map((o,k)=>`<button class=opt data-k=${k}>${esc(o)}</button>`).join("")}<div class=fb id=fb></div>`;
+if(s.ch)h=`<div id=hn class=fb>Think first, then use a hint.</div><button id=hb>Hint</button> <button id=sb>Solution</button><div id=sl></div>`;
+$("vis").innerHTML=h;if(s.rv)$("fb").textContent="⏳ Think… the answer appears in a few seconds";
+if(s.q)document.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{const k=+b.dataset.k;b.classList.add(k==s.q.a?"ok":"no");$("fb").textContent=(k==s.q.a?"✅ Correct! ":"❌ Not quite. ")+s.q.w;if(k==s.q.a&&s.c=="q3")$("code").innerHTML=lines(C.q3.replace("____","else"),[4])});
+if(s.ch){let k=0;$("hb").onclick=()=>{if(k<s.ch.h.length)$("hn").textContent="💡 Hint "+(k+1)+": "+s.ch.h[k++]};$("sb").onclick=()=>{$("sl").innerHTML='<pre class=sol>'+esc(s.ch.sol)+"</pre>"}}
+$("tabs").innerHTML=CH.map((c,n)=>{const pc=i>c[2]?100:i<c[1]?0:(i-c[1]+1)/(c[2]-c[1]+1)*100;return `<button class="tab ${i>=c[1]&&i<=c[2]?"on":""}" onclick="jump(${c[1]})"><u><i style="width:${pc}%"></i></u><span>${n+1}</span>${c[0]}</button>`}).join("");
+say()}
+function V(){return"speechSynthesis"in window?speechSynthesis.getVoices():[]}
+function say(){clearTimeout(tm);if("speechSynthesis"in window)speechSynthesis.cancel();const t=++tok,s=S[i];
+const v=V().find(v=>v.name==$("vc").value);let nl=sl;if(v){nl="e";for(const k in LG)if(v.lang.toLowerCase().startsWith(LG[k][1]))nl=k}
+const txt=s.s[nl]||s.s.e;$("sub").textContent=s.s[sl]||s.s.e;
+const stop=(s.q&&!s.rv)||s.ch||s.x=="recap";const nxt=()=>{if(t==tok&&play){if(stop){play=false;$("pp").textContent="Play";return}if(i<S.length-1)jump(i+1)}};
+const fb=()=>{tm=setTimeout(nxt,Math.max(3500,txt.length*70)+(s.rv?7000:0))};
+if(!play)return;
+if(vo&&"speechSynthesis"in window){const u=new SpeechSynthesisUtterance(txt);u.lang=LG[nl][1];if(v){u.voice=v;u.lang=v.lang}u.rate=+$("rt").value;u.onend=()=>{tm=setTimeout(nxt,s.rv?7000:900)};u.onerror=fb;speechSynthesis.speak(u)}else fb()}
+function voices(){const vs=V(),m=vs.filter(v=>v.lang.toLowerCase().startsWith(LG[sl][1])),r=vs.filter(v=>!m.includes(v));
+$("vc").innerHTML=m.concat(r).map(v=>`<option value="${v.name}">${v.name}</option>`).join("")||"<option value=''>Default voice</option>"}
+$("lg").innerHTML=Object.entries(LG).map(([k,v])=>`<option value=${k}>Subtitles: ${v[0]}</option>`).join("");
+$("lg").onchange=e=>{sl=e.target.value;voices();say()};$("vc").onchange=say;$("rt").onchange=say;
+$("pp").onclick=()=>{play=!play;$("pp").textContent=play?"Pause":"Play";if(play)say();else{if("speechSynthesis"in window)speechSynthesis.cancel();clearTimeout(tm);tok++}};
+$("rs").onclick=()=>{play=true;$("pp").textContent="Pause";jump(0)};
+$("vb").onclick=e=>{vo=!vo;e.target.classList.toggle("on",vo);say()};
+$("mb").onclick=e=>{const on=e.target.classList.toggle("on");if(on){ac=ac||new AudioContext();const g=ac.createGain();g.gain.value=.03;g.connect(ac.destination);mus=[g];[220,277.18,329.63,440].forEach((f,k)=>{const o=ac.createOscillator(),a=ac.createGain(),l=ac.createOscillator(),q=ac.createGain();o.frequency.value=f;a.gain.value=.5;l.frequency.value=.08+k*.05;q.gain.value=.4;l.connect(q);q.connect(a.gain);o.connect(a);a.connect(g);o.start();l.start();mus.push(o,l)})}else mus.forEach(n=>{try{n.stop?n.stop():n.disconnect()}catch(x){}})};
+if("speechSynthesis"in window)speechSynthesis.onvoiceschanged=voices;voices();render();
+</script></body></html>

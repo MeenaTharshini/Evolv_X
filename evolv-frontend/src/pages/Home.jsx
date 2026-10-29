@@ -1,3 +1,4 @@
+
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ArrowRight,
@@ -27,7 +28,6 @@ const PROGRESS_KEY = `evolv_${COURSE_ID}_completed`;
 const XP_KEY = `evolv_${COURSE_ID}_xp`;
 const STREAK_KEY = `evolv_${COURSE_ID}_streak`;
 
-// Keep these keys aligned with the keys used in StudyMap.jsx.
 const LAST_VIEWED_KEYS = [
   `evolv_${COURSE_ID}_lastViewed`,
   `evolv_${COURSE_ID}_last_viewed`,
@@ -37,8 +37,6 @@ const LAST_VIEWED_KEYS = [
   `evolv_${COURSE_ID}_current_lesson`,
 ];
 
-// Add additional registered courses here as your platform grows.
-// The course IDs must match the IDs used in your routes and backend.
 const COURSE_CATALOG = [
   {
     id: "python",
@@ -51,8 +49,6 @@ const COURSE_CATALOG = [
     duration: "Self-paced",
   },
 ];
-
-const lessonColors = ["pink", "green", "blue", "purple", "orange"];
 
 function readNumber(key, fallback = 0) {
   try {
@@ -93,7 +89,6 @@ function getXpFromProgress(completedIds) {
 
   return pythonLessons.reduce((total, lesson) => {
     if (!completedSet.has(Number(lesson.id))) return total;
-
     return total + (Number(lesson.xp) || 10);
   }, 0);
 }
@@ -112,7 +107,6 @@ function getStoredXp(completedIds) {
 
 function getLessonDuration(lesson) {
   if (lesson?.duration) return lesson.duration;
-
   return Number(lesson?.id) === 1 ? "5 min" : "6 min";
 }
 
@@ -141,7 +135,6 @@ function readLastViewedModule() {
 
       if (!raw) continue;
 
-      // The saved value might be a simple lesson ID or a JSON object.
       try {
         const parsed = JSON.parse(raw);
 
@@ -166,7 +159,7 @@ function readLastViewedModule() {
               title: parsed.title || parsed.lessonTitle || parsed.name,
               courseId: parsed.courseId || parsed.course_id || COURSE_ID,
               stage: parsed.stage || parsed.lastStage,
-              path: parsed.path,
+              path: parsed.path || parsed.destination,
             };
           }
         }
@@ -177,7 +170,7 @@ function readLastViewedModule() {
       }
     }
   } catch {
-    // If storage is unavailable, use the first incomplete lesson instead.
+    // Fall back to the first incomplete lesson.
   }
 
   return null;
@@ -194,16 +187,22 @@ function getLastViewedLesson(lastViewed) {
 
   if (!lesson) return null;
 
+  // Home's main Continue buttons intentionally open the Study Map.
+  // Keep a valid lesson URL available if it is needed elsewhere.
+  const stage = lastViewed.stage
+    ? `?stage=${encodeURIComponent(String(lastViewed.stage))}`
+    : "";
+
+  const savedPath =
+    typeof lastViewed.path === "string" &&
+    lastViewed.path.startsWith("/") &&
+    lastViewed.path.includes(`/lesson/${lesson.id}`)
+      ? lastViewed.path
+      : `${STUDY_MAP_LINK}/lesson/${lesson.id}${stage}`;
+
   return {
     ...lesson,
-    resumePath:
-      typeof lastViewed.path === "string" && lastViewed.path.startsWith("/")
-        ? lastViewed.path
-        : `${STUDY_MAP_LINK}/lesson/${lesson.id}${
-            lastViewed.stage
-              ? `/${encodeURIComponent(String(lastViewed.stage))}`
-              : ""
-          }`,
+    resumePath: savedPath,
   };
 }
 
@@ -229,6 +228,7 @@ function readRegisteredCourses() {
       if (!raw) continue;
 
       const parsed = JSON.parse(raw);
+
       const courseList = Array.isArray(parsed)
         ? parsed
         : Array.isArray(parsed?.courses)
@@ -237,7 +237,7 @@ function readRegisteredCourses() {
 
       if (!courseList) continue;
 
-      const ids = courseList
+      return courseList
         .map((course) =>
           typeof course === "string" || typeof course === "number"
             ? String(course).toLowerCase()
@@ -250,14 +250,11 @@ function readRegisteredCourses() {
               ).toLowerCase()
         )
         .filter(Boolean);
-
-      return ids;
     }
   } catch {
-    // Use the default course if registered-course data is unavailable.
+    // Use the default course if registration data is unavailable.
   }
 
-  // Backward-compatible fallback for the current Python course.
   return [COURSE_ID];
 }
 
@@ -346,10 +343,10 @@ function CourseCard({ course, completedCount, totalCount }) {
       </div>
 
       <Link
-        className="home-button home-button-primary home-course-open"
-        to={`/study/${course.id}`}
+        className="home-button home-button-primary"
+        to={STUDY_MAP_LINK}
       >
-        {progress === 100 ? "Review course" : "Open course"}
+        {completedCount > 0 ? "Continue learning" : "Explore courses"}
         <ArrowRight size={17} />
       </Link>
     </article>
@@ -392,7 +389,7 @@ export default function Home() {
         console.warn("Could not cache the streak locally:", storageError);
       }
     } catch (error) {
-      // Keep the cached streak visible when the API is unavailable.
+      // Keep the locally cached streak if the API is unavailable.
       console.error("Could not load learning streak:", error);
     }
   }, []);
@@ -417,11 +414,7 @@ export default function Home() {
       ) {
         refreshProgress();
 
-        if (
-          !event ||
-          event.key === null ||
-          event.key === STREAK_KEY
-        ) {
+        if (!event || event.key === null || event.key === STREAK_KEY) {
           refreshBackendStreak();
         }
       }
@@ -442,9 +435,10 @@ export default function Home() {
       "evolv-progress-updated",
       handleProgressUpdated
     );
-
-    // Also refresh when StudyMap announces a last-viewed module change.
-    window.addEventListener("evolv-last-viewed-updated", refreshProgress);
+    window.addEventListener(
+      "evolv-last-viewed-updated",
+      refreshProgress
+    );
 
     return () => {
       window.removeEventListener("focus", handleFocus);
@@ -475,7 +469,6 @@ export default function Home() {
     : 0;
 
   const nextLesson = getNextIncompleteLesson(completedIds);
-
   const viewedLesson = getLastViewedLesson(lastViewed);
 
   const resumeLesson =
@@ -546,10 +539,13 @@ export default function Home() {
 
               <div className="home-welcome-actions">
                 <Link
-                  className="home-button home-button-primary"
-                  to={resumeLesson?.resumePath || STUDY_MAP_LINK}
+                  className="home-button home-button-primary home-continue-button"
+                  to={STUDY_MAP_LINK}
                 >
-                  {resumeLesson ? "Continue learning" : "Explore courses"}
+                  {resumeLesson &&
+                  completedSet.has(Number(resumeLesson.id))
+                    ? "Review module"
+                    : "Resume module"}
                   <ArrowRight size={17} />
                 </Link>
 
@@ -665,7 +661,7 @@ export default function Home() {
             <SectionHeading
               eyebrow="PICK UP WHERE YOU LEFT OFF"
               title="Continue learning"
-              description="Jump straight back into the module you last visited."
+              description="Jump back into your learning path."
             />
 
             {resumeLesson ? (
@@ -680,9 +676,7 @@ export default function Home() {
                     Python Foundations
                   </span>
 
-                  <h3 id="home-continue-title">
-                    {resumeLesson.title}
-                  </h3>
+                  <h3 id="home-continue-title">{resumeLesson.title}</h3>
 
                   <p>
                     {resumeLesson.description ||
@@ -705,12 +699,10 @@ export default function Home() {
                 </div>
 
                 <Link
-                  className="home-button home-button-primary home-continue-button"
-                  to={resumeLesson.resumePath}
+                  className="home-button home-button-primary"
+                  to={STUDY_MAP_LINK}
                 >
-                  {completedSet.has(Number(resumeLesson.id))
-                    ? "Review module"
-                    : "Resume module"}
+                  Continue learning
                   <ArrowRight size={17} />
                 </Link>
               </article>
@@ -726,8 +718,7 @@ export default function Home() {
                   </h3>
 
                   <p>
-                    Open a course to begin learning. Your recently viewed
-                    module will appear here next time.
+                    Open the learning path to begin your first module.
                   </p>
                 </div>
 
@@ -742,7 +733,7 @@ export default function Home() {
             )}
           </section>
 
-          {/* Registered courses only — no individual lesson list */}
+          {/* Registered courses */}
           <section
             className="home-courses-section"
             aria-labelledby="home-courses-title"
@@ -777,8 +768,8 @@ export default function Home() {
                 <div className="home-continue-details">
                   <h3 id="home-courses-title">No courses yet</h3>
                   <p>
-                    Explore the available learning paths and register for
-                    a course to see it here.
+                    Explore the available learning paths and register for a
+                    course to see it here.
                   </p>
                 </div>
 
@@ -804,9 +795,7 @@ export default function Home() {
             <div className="home-start-copy">
               <span className="home-eyebrow">YOUR NEXT LITTLE WIN</span>
 
-              <h2>
-                Small steps lead to brilliant things.
-              </h2>
+              <h2>Small steps lead to brilliant things.</h2>
 
               <p>
                 Keep exploring, practising, and building skills at your own
@@ -816,9 +805,9 @@ export default function Home() {
 
             <Link
               className="home-button home-button-primary"
-              to={resumeLesson?.resumePath || STUDY_MAP_LINK}
+              to={STUDY_MAP_LINK}
             >
-              {resumeLesson ? "Continue learning" : "Explore learning paths"}
+              Continue learning
               <ArrowRight size={17} />
             </Link>
           </section>

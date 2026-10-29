@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Printing Messages in Python: Meet print()!</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&family=JetBrains+Mono:wght@500;700&family=Noto+Sans+Tamil:wght@500;700&display=swap">
+<style>
+:root{
+  --bg:#060a14; --card:#0a1124; --panel:#0e1630; --edge:#1d2b4d; --ink:#e9eefc; --dim:#8b98ba;
+  --cyan:#4cc9f0; --amber:#ffb648; --green:#4ade80; --pink:#ff5d8f; --purple:#a78bfa;
+  --sans:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+  --tamil:'Noto Sans Tamil','Plus Jakarta Sans',system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans)}
+body{padding:14px;min-height:100vh}
+.player{max-width:1060px;margin:0 auto;display:grid;gap:14px}
+
+/* ---------- stage ---------- */
+.stage{position:relative;border:1px solid var(--edge);border-radius:22px;min-height:580px;padding:20px 26px 18px;
+  display:flex;flex-direction:column;align-items:center;gap:10px;overflow:hidden;
+  background:
+   linear-gradient(rgba(76,201,240,.045) 1px,transparent 1px) 0 0/34px 34px,
+   linear-gradient(90deg,rgba(76,201,240,.045) 1px,transparent 1px) 0 0/34px 34px,
+   radial-gradient(900px 380px at 50% -10%,rgba(76,201,240,.10),transparent 70%),var(--card)}
+.logo{display:flex;align-items:center;gap:12px;font-weight:800;letter-spacing:.28em;font-size:15px}
+.bars{display:flex;align-items:flex-end;gap:5px;height:28px}
+.bars i{display:block;width:9px;border-radius:3px}
+.bars i:nth-child(1){height:15px;background:var(--amber)}
+.bars i:nth-child(2){height:22px;background:var(--cyan)}
+.bars i:nth-child(3){height:28px;background:var(--pink)}
+.content{flex:1;width:100%;max-width:900px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-height:230px;transition:opacity .35s}
+.content.fade{opacity:0}
+.hero{text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px}
+.badge{border:1px solid rgba(74,222,128,.55);color:var(--green);background:rgba(74,222,128,.08);border-radius:999px;padding:5px 16px;font:700 13px var(--mono)}
+h1{margin:0;font-weight:800;line-height:1.12;font-size:clamp(24px,3.6vw,36px);text-wrap:balance}
+h1.big{font-size:clamp(28px,5vw,50px)}
+h1 em{font-style:normal;color:var(--amber)}
+.sub{width:100%;max-width:900px;min-height:60px;display:flex;align-items:center;justify-content:center;text-align:center;
+  border:1px solid var(--edge);background:#070c1b;border-radius:12px;padding:10px 20px;font-weight:600;font-size:clamp(15px,1.9vw,19px);line-height:1.5}
+.sub.ta{font-family:var(--tamil)}
+.sub.off{visibility:hidden}
+
+/* ---------- editor + output ---------- */
+.pair{width:100%;display:grid;grid-template-columns:1.25fr 1fr;gap:16px;align-items:start}
+.win{background:var(--panel);border:1px solid #26385f;border-radius:13px;overflow:hidden;box-shadow:0 10px 34px rgba(0,0,0,.35)}
+.win .head{display:flex;align-items:center;gap:7px;padding:9px 14px;border-bottom:1px solid #1f2f52;font:600 12px var(--mono);color:var(--dim)}
+.win .head .d{width:11px;height:11px;border-radius:50%}
+.win .head .file{margin-left:8px}.win .head .py{margin-left:auto;font-size:11px}
+.code{padding:10px 16px 12px;min-height:150px;font:700 clamp(15px,2.2vw,21px)/1.75 var(--mono)}
+.line{display:flex;gap:16px;white-space:pre;border-radius:6px;padding:0 6px;margin:0 -6px;transition:background .3s,box-shadow .3s}
+.line .no{color:#4a5a82;min-width:1ch;text-align:right;user-select:none}
+.line.focus{background:rgba(255,182,72,.14);box-shadow:inset 3px 0 0 var(--amber)}
+.t-fn{color:#7dd3fc}.t-str,.t-q{color:#86efac}.t-num{color:#fbbf24}.t-par,.t-com{color:#e9eefc}.t-op{color:#c4b5fd}
+.bad{text-decoration:underline wavy var(--pink);text-underline-offset:5px}
+.hl-fn .t-fn,.hl-str .t-q,.hl-str .t-str,.hl-par .t-par,.hl-com .t-com,.hl-expr .t-num,.hl-expr .t-op{
+  background:rgba(255,182,72,.22);outline:2px solid var(--amber);border-radius:5px;box-shadow:0 0 14px rgba(255,182,72,.55)}
+.caret{display:inline-block;width:2px;height:1.15em;background:var(--cyan);vertical-align:-3px;margin-left:1px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.term{background:#04070e;border:1px solid #17361f;border-left:4px solid var(--green);border-radius:13px;overflow:hidden;box-shadow:0 10px 34px rgba(0,0,0,.35)}
+.term .head{display:flex;align-items:center;gap:8px;padding:9px 14px;border-bottom:1px solid #143021;font:700 11px var(--mono);letter-spacing:.16em;color:var(--green)}
+.term .head i{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 1.6s infinite}
+@keyframes pulse{50%{opacity:.35}}
+.out{padding:10px 16px 12px;min-height:150px;font:700 clamp(15px,2.2vw,21px)/1.75 var(--mono)}
+.o{color:#b9f6ca;border-radius:6px;padding:0 6px;margin:0 -6px;animation:rise .45s both;transition:background .3s,box-shadow .3s}
+.o.err{color:#ff9db7;white-space:normal;line-height:1.5;font-size:.86em}
+.o.ph{color:#33415f}
+.o.focus{background:rgba(255,182,72,.14);box-shadow:inset 3px 0 0 var(--amber)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;min-height:36px}
+.chip{border-radius:999px;padding:7px 16px;font:700 14px var(--sans);border:1px solid;animation:pop .45s both}
+.chip code{font-family:var(--mono)}
+.chip.c{color:var(--cyan);border-color:rgba(76,201,240,.55);background:rgba(76,201,240,.09)}
+.chip.a{color:var(--amber);border-color:rgba(255,182,72,.6);background:rgba(255,182,72,.09)}
+.chip.g{color:var(--green);border-color:rgba(74,222,128,.55);background:rgba(74,222,128,.09)}
+.chip.p{color:var(--pink);border-color:rgba(255,93,143,.55);background:rgba(255,93,143,.09)}
+@keyframes pop{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:none}}
+.count{position:absolute;right:30px;top:78px;width:74px;height:74px;border-radius:50%;display:grid;place-items:center;
+  font:800 36px var(--sans);color:var(--amber);border:3px solid var(--amber);background:rgba(255,182,72,.08);animation:pop .3s both}
+
+/* intro monitor */
+.monitor{display:flex;flex-direction:column;align-items:center;position:relative;margin-top:2px}
+.screen{width:min(380px,78vw);height:190px;background:#04070e;border:8px solid #1a2547;border-radius:14px;box-shadow:0 0 0 2px #2c3d6a,0 0 40px rgba(76,201,240,.22);
+  display:flex;align-items:center;justify-content:center;font:700 clamp(18px,3vw,26px) var(--mono);color:var(--green);text-shadow:0 0 12px rgba(74,222,128,.55)}
+.stand{width:46px;height:20px;background:#1a2547}.base{width:130px;height:9px;border-radius:6px;background:#26385f}
+.float{position:absolute;font:700 15px var(--mono);border-radius:10px;padding:6px 12px;border:1px solid;animation:pop .5s both}
+.float.f1{left:-92px;top:20px;color:var(--cyan);border-color:rgba(76,201,240,.6);background:rgba(76,201,240,.1)}
+.float.f2{right:-110px;top:70px;color:var(--amber);border-color:rgba(255,182,72,.6);background:rgba(255,182,72,.1)}
+.float.f3{left:-72px;bottom:44px;color:var(--green);border-color:rgba(74,222,128,.6);background:rgba(74,222,128,.1)}
+/* wrap-up */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;width:100%}
+.card{background:var(--panel);border:1px solid #26385f;border-radius:12px;padding:12px 14px;animation:rise .5s both}
+.card b{display:block;color:var(--green);font-size:14px;margin-bottom:4px}
+.card code{font:700 14px var(--mono);color:#7dd3fc}
+.next{border:1px solid rgba(255,182,72,.6);color:var(--amber);background:rgba(255,182,72,.09);border-radius:999px;padding:8px 20px;font-weight:800;animation:pop .5s both}
+
+/* overlay */
+.overlay{position:absolute;inset:0;background:rgba(6,10,20,.82);backdrop-filter:blur(3px);display:flex;flex-direction:column;gap:14px;align-items:center;justify-content:center;z-index:5;text-align:center;padding:20px}
+.overlay.gone{display:none}
+.overlay h2{margin:0;font-size:clamp(22px,3.4vw,32px);max-width:640px;line-height:1.2}
+.overlay h2 em{font-style:normal;color:var(--amber)}
+.overlay p{margin:0;color:var(--dim);font-size:14px}
+.bigplay{border:0;border-radius:999px;background:var(--amber);color:#1b1300;font:800 18px var(--sans);padding:14px 34px;cursor:pointer;box-shadow:0 8px 30px rgba(255,182,72,.35)}
+.bigplay:hover{filter:brightness(1.08)}
+
+/* ---------- tabs + controls ---------- */
+.tabs{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+.tab{appearance:none;font:inherit;text-align:left;cursor:pointer;color:#d4dcf5;font-weight:700;font-size:15px;
+  background:#0b1330;border:1px solid var(--edge);border-radius:12px;padding:10px 14px 12px}
+.tab i{display:block;height:5px;border-radius:5px;background:#27345a;margin-bottom:9px;overflow:hidden}
+.tab i b{display:block;height:100%;width:0;background:var(--cyan);transition:width .4s}
+.tab span{color:#5d6d97;margin-right:6px;font-weight:600}
+.tab.on{border-color:var(--cyan);box-shadow:0 0 0 1px rgba(76,201,240,.35)}
+.bar{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.btn{appearance:none;font:inherit;font-weight:700;font-size:15px;cursor:pointer;color:var(--ink);background:#0d1531;border:1px solid var(--edge);border-radius:999px;padding:11px 22px}
+.btn:hover{border-color:#355089}
+.btn.main{background:var(--amber);border-color:var(--amber);color:#1b1300;min-width:104px}
+.btn.tog{display:inline-flex;align-items:center;gap:9px}
+.btn.tog::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
+.btn.tog.off{color:var(--dim)}.btn.tog.off::before{background:#4a5a82;box-shadow:none}
+select{appearance:none;font:inherit;font-weight:600;font-size:15px;color:var(--ink);cursor:pointer;min-width:0;
+  background:#0d1531 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23cfd8f3' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 16px center;
+  border:1px solid var(--edge);border-radius:14px;padding:11px 40px 11px 18px}
+#voiceSel{border-color:var(--cyan);flex:1 1 220px;max-width:340px}
+#subSel{flex:0 1 250px}
+.btn:focus-visible,select:focus-visible,.tab:focus-visible,.bigplay:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+
+@media (max-width:820px){
+  .tabs{grid-template-columns:repeat(3,1fr)}
+  .pair{grid-template-columns:1fr}
+  .float{display:none}
+  .stage{padding:16px 14px 14px}
+}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main class="player">
+  <section class="stage" id="stage" aria-label="Printing Messages in Python video">
+    <div class="logo"><div class="bars"><i></i><i></i><i></i></div>EVOLV</div>
+    <div class="content" id="content"></div>
+    <div class="hero"><div class="badge" id="badge"></div><h1 id="title"></h1></div>
+    <div class="sub" id="sub" aria-live="off"></div>
+    <div class="overlay" id="overlay">
+      <div class="logo"><div class="bars"><i></i><i></i><i></i></div>EVOLV</div>
+      <h2>Printing Messages in Python: <em>Meet print()!</em></h2>
+      <p>About 3 minutes · narration, subtitles and replay included</p>
+      <button class="bigplay" id="start">▶ Play lesson</button>
+    </div>
+  </section>
+  <nav class="tabs" id="tabs" aria-label="Lesson sections"></nav>
+  <div class="bar">
+    <button class="btn main" id="pp">Pause</button>
+    <button class="btn" id="rs">Restart</button>
+    <button class="btn tog" id="vo" aria-pressed="true">Voice</button>
+    <button class="btn tog" id="mu" aria-pressed="true">Music</button>
+    <select id="subSel" aria-label="Subtitles">
+      <option value="en">Subtitles: English</option>
+      <option value="ta">Subtitles: தமிழ் · Tamil</option>
+      <option value="off">Subtitles: Off</option>
+    </select>
+    <select id="voiceSel" aria-label="Narration voice"></select>
+  </div>
+</main>
+
+<script>
+(function(){
+'use strict';
+var $=function(id){return document.getElementById(id)};
+var ABORT={abort:true};
+var token=0,paused=false,playing=false,started=false,sceneIdx=0,curBeat=null;
+var voiceOn=true,musicOn=true,subLang='en',finished=false;
+
+/* ---------- tiny helpers ---------- */
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function el(tag,cls,html){var e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e}
+function sleep(ms,t,flag){return new Promise(function(res,rej){
+  var left=ms;
+  (function tick(){
+    if(t!==token)return rej(ABORT);
+    if(flag&&flag.done)return res();
+    if(!paused)left-=50;
+    if(left<=0)return res();
+    setTimeout(tick,50);
+  })();
+})}
+function tokenize(s,showBad){
+  var h='',i=0,c;
+  while(i<s.length){
+    c=s[i];
+    if(c==='"'){
+      var j=s.indexOf('"',i+1),closed=j!==-1;
+      var inner=s.slice(i+1,closed?j:s.length);
+      h+='<span class="'+(closed||!showBad?'':'bad')+'"><span class="t-q">"</span><span class="t-str">'+esc(inner)+'</span>'+(closed?'<span class="t-q">"</span>':'')+'</span>';
+      i=closed?j+1:s.length;
+    }else if(/[0-9]/.test(c)){
+      var k=i;while(k<s.length&&/[0-9]/.test(s[k]))k++;
+      h+='<span class="t-num">'+s.slice(i,k)+'</span>';i=k;
+    }else if(/[A-Za-z_]/.test(c)){
+      var m=i;while(m<s.length&&/[A-Za-z_0-9]/.test(s[m]))m++;
+      var w=s.slice(i,m);h+=(w==='print'?'<span class="t-fn">print</span>':esc(w));i=m;
+    }else if(c==='('||c===')'){h+='<span class="t-par">'+c+'</span>';i++}
+    else if(c===','){h+='<span class="t-com">,</span>';i++}
+    else if(c==='+'){h+='<span class="t-op">+</span>';i++}
+    else{h+=esc(c);i++}
+  }
+  return h;
+}
+
+/* ---------- editor / output builders ---------- */
+function makeEditor(file){
+  var win=el('div','win',
+   '<div class="head"><span class="d" style="background:#ff5f57"></span><span class="d" style="background:#febc2e"></span><span class="d" style="background:#28c840"></span><span class="file">'+file+'</span><span class="py">Python 3</span></div><div class="code"></div>');
+  var code=win.querySelector('.code');
+  var api={el:win,lines:[],
+    add:function(){var n=api.lines.length+1;var ln=el('div','line','<span class="no">'+n+'</span><span class="src"></span>');code.appendChild(ln);api.lines.push(ln);return api.lines.length-1},
+    set:function(i,txt,caret,bad){api.lines[i].querySelector('.src').innerHTML=tokenize(txt,bad)+(caret?'<span class="caret"></span>':'')},
+    type:async function(i,txt,t){for(var k=1;k<=txt.length;k++){api.set(i,txt.slice(0,k),true);await sleep(52,t)}api.set(i,txt,false)},
+    hl:function(i,kind){api.lines[i].className='line'+(kind?' hl-'+kind:'')},
+    focus:function(i,on){api.lines[i].classList.toggle('focus',on)},
+    reset:function(){code.innerHTML='';api.lines=[]}};
+  return api;
+}
+function makeTerm(){
+  var win=el('div','term','<div class="head"><i></i>OUTPUT</div><div class="out"></div>');
+  var out=win.querySelector('.out');
+  var api={el:win,rows:[],
+    print:function(txt,cls){var r=el('div','o'+(cls?' '+cls:''));r.textContent=txt;out.appendChild(r);api.rows.push(r);blip(660);return r},
+    ph:function(n){for(var i=0;i<n;i++){var r=el('div','o ph');r.textContent='?';out.appendChild(r);api.rows.push(r)}},
+    reveal:function(i,txt){var r=api.rows[i];r.className='o';r.textContent=txt;blip(740)},
+    focus:function(i,on){api.rows[i].classList.toggle('focus',on)},
+    clear:function(){out.innerHTML='';api.rows=[]}};
+  return api;
+}
+function pair(file){
+  var ed=makeEditor(file),tm=makeTerm(),chips=el('div','chips');
+  var p=el('div','pair');p.appendChild(ed.el);p.appendChild(tm.el);
+  S.ed=ed;S.tm=tm;S.chips=chips;
+  return [p,chips];
+}
+function chip(text,color){var c=el('span','chip '+color,text);S.chips.appendChild(c);blip(520);return c}
+var S={}; /* per-scene state */
+
+/* ---------- scenes ---------- */
+var SCENES=[
+/* 1 */{tab:'Intro',badge:'Your first Python command',title:'Printing Messages in Python — <em>Meet print()!</em>',big:true,
+  build:function(){
+    var m=el('div','monitor','<div class="screen" id="scr"></div><div class="stand"></div><div class="base"></div>');
+    S.scr=m.querySelector('#scr');return [m];
+  },
+  beats:[
+   {en:'How do we tell Python to display a message on the screen? We use a simple function called print()!',
+    ta:'Python-கிட்ட ஒரு message-ஐ screen-ல காட்டச் சொல்றது எப்படி? print() என்ற ஒரு எளிய function-ஐப் பயன்படுத்தினால் போதும்!',
+    act:async function(t){
+      var msg='Hello, learner!';
+      for(var k=1;k<=msg.length;k++){S.scr.innerHTML=esc(msg.slice(0,k))+'<span class="caret"></span>';await sleep(110,t)}
+      var f=el('div','float f1','print()');S.scr.parentNode.appendChild(f);
+    }},
+   {en:'Today you will learn how to print text, numbers, and simple results.',
+    ta:'இன்னைக்கு text, numbers, எளிய results-ஐ print() மூலம் எப்படிக் காட்டுறதுன்னு கத்துக்கலாம்.',
+    act:async function(t){
+      var p=S.scr.parentNode;
+      p.appendChild(el('div','float f2','numbers'));await sleep(900,t);
+      p.appendChild(el('div','float f3','results'));
+    }}
+  ]},
+/* 2 */{tab:'First print',badge:'Step 1 · Hello, World!',title:'Print Your <em>First Message</em>',
+  build:function(){return pair('hello.py')},
+  beats:[
+   {en:"Let's print our first message. Watch the code being typed.",
+    ta:'நம்ம முதல் message-ஐ print பண்ணலாம். Code type ஆகுறதைப் பாருங்க.',
+    act:async function(t){
+      var i=S.ed.add();await S.ed.type(i,'print("Hello, World!")',t);
+      await sleep(350,t);S.tm.print('Hello, World!');
+    }},
+   {en:'The print function displays information on the screen.',ta:'print() தகவலைத் திரையில் காட்டும்.',
+    act:async function(t){S.ed.hl(0,'fn');await sleep(500,t);chip('print() → displays information','c')}},
+   {en:'Text must be inside quotation marks.',ta:'Text-ஐ எப்பவும் quotation marks-க்குள்ள எழுதணும்.',
+    act:async function(t){S.ed.hl(0,'str');await sleep(500,t);chip('"quotes" → mark the text','a')}},
+   {en:'The parentheses hold the information we want to display.',ta:'அடைப்புக்குறிக்குள்ள (parentheses) நாம காட்ட விரும்புற தகவலை வைக்கணும்.',
+    act:async function(t){S.ed.hl(0,'par');await sleep(500,t);chip('( ) → hold what to show','g');await sleep(900,t);S.ed.hl(0,null)}}
+  ]},
+/* 3 */{tab:'Values',badge:'Text, numbers and math',title:'Print Different <em>Types of Values</em>',
+  build:function(){return pair('values.py')},
+  beats:[
+   {en:'Text works the same way. Here we print a welcome message.',
+    ta:'Text-ஐயும் இதே மாதிரிதான் print பண்ணலாம். இங்க ஒரு welcome message-ஐ print பண்றோம்.',
+    act:async function(t){var i=S.ed.add();await S.ed.type(i,'print("Welcome to EVOLV!")',t);await sleep(300,t);S.tm.print('Welcome to EVOLV!')}},
+   {en:'Now numbers. Numbers do not need quotation marks.',ta:'இப்போ numbers. Numbers-க்கு quotation marks தேவையில்ல.',
+    act:async function(t){var i=S.ed.add();await S.ed.type(i,'print(100)',t);await sleep(300,t);S.tm.print('100')}},
+   {en:'Python can also do math. Here it calculates 25 plus 5 first, then prints the result.',
+    ta:'Python கணக்கும் போடும். இங்க 25 + 5-ஐ முதல்ல கணக்கிட்டு, அப்புறம் result-ஐ print பண்ணும்.',
+    act:async function(t){var i=S.ed.add();await S.ed.type(i,'print(25 + 5)',t);S.ed.hl(i,'expr');await sleep(700,t);S.tm.print('30');await sleep(900,t);S.ed.hl(i,null)}},
+   {en:'So remember: text is shown as written, but math is calculated before it is printed.',
+    ta:'நினைவில் வச்சுக்கோங்க: Text எழுதின மாதிரியே தெரியும். ஆனா கணக்கு முதல்ல கணக்கிடப்பட்டு அப்புறம்தான் print ஆகும்.',
+    act:async function(t){chip('"text" → shown as written','c');await sleep(1200,t);chip('25 + 5 → calculated first','a')}}
+  ]},
+/* 4 */{tab:'Multiple',badge:'Many lines, many values',title:'Print <em>More Than One</em> Thing',
+  build:function(){return pair('multi.py')},
+  beats:[
+   {en:'You can use print many times. Each message appears on a new line.',
+    ta:'print()-ஐ பல தடவை பயன்படுத்தலாம். ஒவ்வொரு message-உம் புது வரியில வரும்.',
+    act:async function(t){
+      var a=S.ed.add();await S.ed.type(a,'print("My name is Alex.")',t);await sleep(250,t);S.tm.print('My name is Alex.');
+      await sleep(500,t);
+      var b=S.ed.add();await S.ed.type(b,'print("I am learning Python.")',t);await sleep(250,t);S.tm.print('I am learning Python.');
+    }},
+   {en:'You can also print several values together. Separate them with a comma.',
+    ta:'பல values-ஐ சேர்த்தும் print பண்ணலாம். அவற்றை comma போட்டுப் பிரிக்கணும்.',
+    act:async function(t){
+      await sleep(400,t);S.ed.reset();S.tm.clear();
+      var i=S.ed.add();await S.ed.type(i,'print("Age:", 19)',t);await sleep(300,t);S.tm.print('Age: 19');
+    }},
+   {en:'Python adds a space between the values for you.',ta:'Values-க்கு நடுவுல Python தானாவே ஒரு space போட்டுக்கும்.',
+    act:async function(t){S.ed.hl(0,'com');await sleep(500,t);chip(', → adds a space between values','g');await sleep(1200,t);S.ed.hl(0,null)}}
+  ]},
+/* 5 */{tab:'Mistakes',badge:'Common mistakes',title:'Spot the <em>Mistake</em>',
+  build:function(){return pair('mistake.py')},
+  beats:[
+   {en:'Now a common mistake. This message is missing the closing quotation mark.',
+    ta:'இப்போ ஒரு பொதுவான தவறு. இந்த message-ல மூடுற quotation mark விட்டுப்போச்சு.',
+    act:async function(t){var i=S.ed.add();await S.ed.type(i,'print("Hello!)',t);S.ed.set(i,'print("Hello!)',false,true)}},
+   {en:'Python cannot find where the text ends, so it shows a syntax error.',
+    ta:'Text எங்க முடியுதுன்னு Python-க்கு தெரியாது, அதனால syntax error காட்டும்.',
+    act:async function(t){await sleep(400,t);S.tm.print('SyntaxError: unterminated string literal (detected at line 1)','err');chip('Missing " → SyntaxError','p')}},
+   {en:'The fix is simple: add the closing quotation mark.',
+    ta:'சரிசெய்றது ரொம்ப எளிது: மூடுற quotation mark-ஐச் சேர்த்தா போதும்.',
+    act:async function(t){
+      await sleep(500,t);S.ed.set(0,'print("Hello!")',false);S.ed.hl(0,'str');S.tm.clear();S.chips.innerHTML='';
+      await sleep(600,t);S.tm.print('Hello!');chip('Fixed! ✓','g');await sleep(700,t);S.ed.hl(0,null);
+    }},
+   {en:'One more thing. Printing five with quotes, and five without quotes, both show the same five.',
+    ta:'இன்னொரு விஷயம். print("5")-உம் print(5)-உம் ரெண்டுமே 5-ஐத்தான் காட்டும்.',
+    act:async function(t){
+      await sleep(300,t);S.ed.reset();S.tm.clear();S.chips.innerHTML='';
+      var a=S.ed.add();await S.ed.type(a,'print("5")',t);await sleep(200,t);S.tm.print('5');
+      await sleep(300,t);
+      var b=S.ed.add();await S.ed.type(b,'print(5)',t);await sleep(200,t);S.tm.print('5');
+    }},
+   {en:'They look the same, but the first one is text, and the second one is a number.',
+    ta:'பார்க்க ஒரே மாதிரி இருந்தாலும், முதலாவது text, ரெண்டாவது number.',
+    act:async function(t){
+      S.ed.hl(0,'str');chip('"5" → text','c');await sleep(1600,t);S.ed.hl(0,null);
+      S.ed.hl(1,'expr');chip('5 → number','a');await sleep(1200,t);S.ed.hl(1,null);
+    }}
+  ]},
+/* 6 */{tab:'Challenge',badge:'Your turn',title:'Predict the <em>Output!</em>',
+  build:function(){return pair('predict.py')},
+  beats:[
+   {en:'Time for a challenge! Look at these three lines. What will Python print? Think about it. You can pause the video if you need more time.',
+    ta:'இப்போ ஒரு challenge! இந்த மூணு வரிகளைப் பாருங்க. Output என்னன்னு யோசிச்சு சொல்லுங்க.',
+    act:async function(t){
+      var L=['print("Python")','print(10 + 20)','print("10 + 20")'];
+      for(var i=0;i<3;i++){var n=S.ed.add();await S.ed.type(n,L[i],t);await sleep(200,t)}
+      S.tm.ph(3);
+      for(var c=5;c>=1;c--){
+        var d=el('div','count',String(c));$('stage').appendChild(d);
+        await sleep(1000,t);d.remove();
+      }
+    }},
+   {en:'Ready? Here is the output.',ta:'தயாரா? இதோ output.',
+    act:async function(t){
+      var O=['Python','30','10 + 20'];
+      for(var i=0;i<3;i++){S.tm.reveal(i,O[i]);await sleep(800,t)}
+    }},
+   {en:'The second line is math, so Python calculates it and prints 30.',
+    ta:'ரெண்டாவது வரி கணக்கு, அதனால Python கணக்கிட்டு 30-ஐ print பண்ணுது.',
+    act:async function(t){S.ed.focus(1,true);S.tm.focus(1,true);chip('10 + 20 → calculated','a');await sleep(900,t)}},
+   {en:'The third line is inside quotation marks, so Python prints it exactly as text.',
+    ta:'மூணாவது வரி quotation marks-க்குள்ள இருக்கு, அதனால Python அதை அப்படியே text-ஆ print பண்ணுது.',
+    act:async function(t){S.ed.focus(1,false);S.tm.focus(1,false);S.ed.focus(2,true);S.tm.focus(2,true);chip('"10 + 20" → shown as text','c');await sleep(900,t)}}
+  ]},
+/* 7 */{tab:'Wrap-up',badge:'Lesson complete',title:'You Can <em>Print!</em>',
+  build:function(){var g=el('div','cards');S.cards=g;var n=el('div');S.next=n;return [g,n]},
+  beats:[
+   {en:'Great job! Now you can use print to show text, numbers, calculations, and multiple values.',
+    ta:'அருமை! இப்போ நீங்க print()-ஐப் பயன்படுத்தி text, numbers, calculations, பல values-ஐக் காட்ட முடியும்.',
+    act:async function(t){
+      var C=[['Text','print("Hello")'],['Numbers','print(100)'],['Math','print(25 + 5)'],['Many values','print("Age:", 19)']];
+      for(var i=0;i<C.length;i++){S.cards.appendChild(el('div','card','<b>✓ '+C[i][0]+'</b><code>'+esc(C[i][1])+'</code>'));blip(500+i*90);await sleep(900,t)}
+    }},
+   {en:'You can also spot a missing quotation mark. See you in the next lesson, on variables!',
+    ta:'Missing quotation mark மாதிரி தவறுகளையும் கண்டுபிடிக்க முடியும். அடுத்த lesson-ல variables பார்க்கலாம்!',
+    act:async function(t){
+      S.cards.appendChild(el('div','card','<b>✓ Spot mistakes</b><code>print("Hello!)</code>'));
+      await sleep(700,t);S.next.className='next';S.next.textContent='Up next: Variables →';
+    }}
+  ]}
+];
+
+/* ---------- tabs ---------- */
+var tabsEl=$('tabs');
+SCENES.forEach(function(sc,i){
+  var b=el('button','tab','<i><b></b></i><span>'+(i+1)+'</span>'+sc.tab);
+  b.type='button';b.addEventListener('click',function(){if(!started)return;runFrom(i)});
+  tabsEl.appendChild(b);
+});
+function paintTabs(active){
+  var tabs=tabsEl.children;
+  for(var i=0;i<tabs.length;i++){
+    tabs[i].classList.toggle('on',i===active);
+    tabs[i].querySelector('b').style.width=i<active?'100%':'0%';
+  }
+}
+function prog(i,f){tabsEl.children[i].querySelector('b').style.width=Math.round(f*100)+'%'}
+
+/* ---------- audio: voice, music ---------- */
+var voiceSel=$('voiceSel');
+function enVoices(){return ('speechSynthesis' in window)?speechSynthesis.getVoices().filter(function(v){return /^en/i.test(v.lang)}):[]}
+function fillVoices(){
+  var vs=enVoices(),cur=voiceSel.value;voiceSel.innerHTML='';
+  if(!vs.length){var o=document.createElement('option');o.value='';o.textContent='Default browser voice';voiceSel.appendChild(o);return}
+  vs.forEach(function(v){var o=document.createElement('option');o.value=v.name;o.textContent=v.name+' ('+v.lang+')';voiceSel.appendChild(o)});
+  var pick=vs.filter(function(v){return cur&&v.name===cur})[0]||vs.filter(function(v){return /Google UK English Female/i.test(v.name)})[0]||
+    vs.filter(function(v){return /en-GB|en-IN/i.test(v.lang)})[0]||vs[0];
+  voiceSel.value=pick.name;
+}
+if('speechSynthesis' in window){fillVoices();speechSynthesis.addEventListener&&speechSynthesis.addEventListener('voiceschanged',fillVoices)}
+else{voiceSel.innerHTML='<option>Narration not supported</option>';voiceSel.disabled=true}
+
+function speak(text,t){
+  var flag={done:false};
+  var est=Math.max(2.2,text.split(/\s+/).length*0.46+0.8);
+  if(!voiceOn||!('speechSynthesis' in window))return sleep(est*1000,t);
+  try{
+    speechSynthesis.cancel();
+    var u=new SpeechSynthesisUtterance(text);
+    var v=enVoices().filter(function(x){return x.name===voiceSel.value})[0];
+    if(v){u.voice=v;u.lang=v.lang}else u.lang='en-GB';
+    u.rate=.95;u.pitch=1;
+    u.onend=u.onerror=function(){flag.done=true};
+    speechSynthesis.speak(u);
+    if(paused)speechSynthesis.pause();
+  }catch(e){return sleep(est*1000,t)}
+  return sleep(est*1000*1.7+1800,t,flag);
+}
+function stopSpeech(){try{if('speechSynthesis' in window)speechSynthesis.cancel()}catch(e){}}
+
+var ac=null,mg=null,mTimer=null,chordI=0;
+var CH=[[220,261.63,329.63],[174.61,220,261.63],[261.63,329.63,392],[196,246.94,293.66]];
+function tone(f,when,dur,vol,type){
+  var o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.value=f;
+  g.gain.setValueAtTime(0.0001,when);g.gain.linearRampToValueAtTime(vol,when+Math.min(.8,dur/3));g.gain.exponentialRampToValueAtTime(0.0001,when+dur);
+  o.connect(g);g.connect(mg);o.start(when);o.stop(when+dur+.05);
+}
+function musicBar(){
+  var c=CH[chordI++%4],n=ac.currentTime+.05;
+  c.forEach(function(f){tone(f/2,n,4.2,.045,'triangle')});
+  for(var k=0;k<8;k++)tone(c[k%3]*2,n+k*.5,.9,.02,'sine');
+}
+function musicStart(){
+  try{
+    if(!ac){var AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;ac=new AC();mg=ac.createGain();mg.gain.value=0;mg.connect(ac.destination)}
+    ac.resume();mg.gain.setTargetAtTime(.9,ac.currentTime,.4);
+    if(!mTimer){musicBar();mTimer=setInterval(musicBar,4000)}
+  }catch(e){}
+}
+function musicStop(){
+  try{if(mg)mg.gain.setTargetAtTime(0,ac.currentTime,.2);if(mTimer){clearInterval(mTimer);mTimer=null}}catch(e){}
+}
+function blip(f){
+  if(!musicOn||!ac||paused)return;
+  try{var n=ac.currentTime,o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.value=f;
+    g.gain.setValueAtTime(.0001,n);g.gain.linearRampToValueAtTime(.05,n+.02);g.gain.exponentialRampToValueAtTime(.0001,n+.18);
+    o.connect(g);g.connect(ac.destination);o.start(n);o.stop(n+.2)}catch(e){}
+}
+
+/* ---------- subtitles ---------- */
+var subEl=$('sub');
+function paintSub(){
+  subEl.className='sub'+(subLang==='ta'?' ta':'')+(subLang==='off'?' off':'');
+  subEl.textContent=finished?(subLang==='ta'?'Lesson முடிஞ்சது — மறுபடியும் பார்க்க Replay-ஐ அழுத்துங்க.':'Lesson complete — press Replay to watch again.'):(curBeat?(subLang==='ta'?curBeat.ta:curBeat.en):'\u00a0');
+}
+
+/* ---------- engine ---------- */
+var contentEl=$('content'),ppBtn=$('pp');
+function setPP(label){ppBtn.textContent=label}
+async function enterScene(i,t){
+  var sc=SCENES[i];sceneIdx=i;
+  contentEl.classList.add('fade');await sleep(250,t);
+  Array.prototype.forEach.call(document.querySelectorAll('.count'),function(n){n.remove()});
+  S={};contentEl.innerHTML='';
+  sc.build().forEach(function(n){contentEl.appendChild(n)});
+  $('badge').textContent=sc.badge;
+  var h=$('title');h.innerHTML=sc.title;h.className=sc.big?'big':'';
+  paintTabs(i);contentEl.classList.remove('fade');await sleep(250,t);
+}
+async function playBeat(b,t){
+  curBeat=b;paintSub();
+  await Promise.all([speak(b.en,t),b.act?b.act(t):Promise.resolve()]);
+}
+async function runFrom(i){
+  var t=++token;paused=false;playing=true;finished=false;stopSpeech();setPP('Pause');
+  if(ac&&ac.state==='suspended'&&musicOn)ac.resume();
+  if(musicOn)musicStart();
+  try{
+    for(var s=i;s<SCENES.length;s++){
+      await enterScene(s,t);
+      var bs=SCENES[s].beats;
+      for(var b=0;b<bs.length;b++){
+        await playBeat(bs[b],t);prog(s,(b+1)/bs.length);await sleep(450,t);
+      }
+    }
+    playing=false;curBeat=null;stopSpeech();setPP('Replay');
+    musicStop();
+    finished=true;prog(SCENES.length-1,1);paintSub();
+  }catch(e){if(e!==ABORT)console.error(e)}
+}
+
+/* ---------- controls ---------- */
+function startNow(){
+  if(started)return;started=true;$('overlay').classList.add('gone');runFrom(0);
+}
+$('start').addEventListener('click',startNow);
+ppBtn.addEventListener('click',function(){
+  if(!started){startNow();return}
+  if(!playing){runFrom(0);return}
+  paused=!paused;
+  if(paused){setPP('Play');try{speechSynthesis.pause()}catch(e){}if(ac)ac.suspend()}
+  else{setPP('Pause');try{speechSynthesis.resume()}catch(e){}if(ac&&musicOn)ac.resume()}
+});
+$('rs').addEventListener('click',function(){if(!started){startNow();return}runFrom(0)});
+$('vo').addEventListener('click',function(){
+  voiceOn=!voiceOn;this.classList.toggle('off',!voiceOn);this.setAttribute('aria-pressed',String(voiceOn));
+  if(!voiceOn)stopSpeech();
+});
+$('mu').addEventListener('click',function(){
+  musicOn=!musicOn;this.classList.toggle('off',!musicOn);this.setAttribute('aria-pressed',String(musicOn));
+  if(musicOn){if(started&&playing)musicStart()}else musicStop();
+});
+$('subSel').addEventListener('change',function(){subLang=this.value;paintSub()});
+document.addEventListener('keydown',function(e){
+  if(/INPUT|SELECT|TEXTAREA/.test(e.target.tagName))return;
+  if(e.code==='Space'){e.preventDefault();ppBtn.click()}
+  else if(e.key==='r'||e.key==='R'){$('rs').click()}
+});
+
+paintTabs(-1);paintSub();
+})();
+</script>
+</body>
+</html>

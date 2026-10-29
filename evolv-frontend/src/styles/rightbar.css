@@ -1,3 +1,6 @@
+/* =========================================
+   EVOLV — RIGHT LEARNING SIDEBAR
+   ========================================= */
 
 .ev-rightbar,
 .ev-rightbar * {
@@ -8,28 +11,62 @@
   position: fixed;
   inset: 0 0 0 auto;
   z-index: 20;
+
   display: flex;
   flex-direction: column;
   gap: 23px;
+
   width: 300px;
+  height: 100vh;
   height: 100dvh;
+
   padding: 28px 21px 24px;
+
   overflow-x: hidden;
   overflow-y: auto;
+  overscroll-behavior: contain;
+
+  color: #23352d;
   background: #fff;
   border-left: 1px solid #e8eee9;
-  color: #23352d;
+
   font-family: inherit;
+  scrollbar-width: thin;
+  scrollbar-color: #dce8df transparent;
 }
+
+.ev-rightbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.ev-rightbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ev-rightbar::-webkit-scrollbar-thumb {
+  background: #dce8df;
+  border-radius: 999px;
+}
+
+.ev-rightbar::-webkit-scrollbar-thumb:hover {
+  background: #b8d1c0;
+}
+
+/* =========================================
+   SIDEBAR HEADING
+   ========================================= */
 
 .ev-rightbar-heading {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  flex-shrink: 0;
 }
 
 .ev-rightbar-eyebrow {
+  display: block;
+
   color: #8b9990;
   font-size: 9px;
   font-weight: 850;
@@ -38,10 +75,12 @@
 
 .ev-rightbar-heading h2 {
   margin: 6px 0 0;
+
   color: #23352d;
   font-size: 21px;
   font-weight: 800;
   letter-spacing: -0.7px;
+  line-height: 1.25;
 }
 
 .ev-rightbar-heading-icon {
@@ -50,17 +89,28 @@
   width: 40px;
   height: 40px;
   place-items: center;
+
   color: #218b64;
   background: #e9f8ef;
   border: 1px solid #d9f0e1;
   border-radius: 13px;
 }
 
-/* Streak card */
+/* =========================================
+   LEARNING STREAK CARD
+   ========================================= */
 
 .ev-rightbar-streak {
+  flex-shrink: 0;
+
   padding: 18px;
-  background: linear-gradient(145deg, #fff9e9, #fffdf7);
+
+  background: linear-gradient(
+    145deg,
+    #fff9e9 0%,
+    #fffdf7 100%
+  );
+
   border: 1px solid #f3e7c9;
   border-radius: 17px;
 }
@@ -77,6 +127,7 @@
   width: 43px;
   height: 43px;
   place-items: center;
+
   color: #ed9239;
   background: #fff0d5;
   border: 1px solid #f9e2b6;
@@ -95,12 +146,13 @@
   color: #594328;
   font-size: 12px;
   font-weight: 800;
+  line-height: 1.4;
 }
 
 .ev-rightbar-streak-label small {
   color: #a08d72;
   font-size: 10px;
-  line-height: 1.4;
+  line-height: 1.5;
 }
 
 .ev-rightbar-refresh {
@@ -110,16 +162,24 @@
   height: 29px;
   padding: 0;
   place-items: center;
+
   color: #9d6d2c;
   background: #fff6e4;
   border: 1px solid #f3e5c8;
   border-radius: 9px;
+
   cursor: pointer;
-  transition: background 160ms ease;
+
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
 }
 
 .ev-rightbar-refresh:hover:not(:disabled) {
+  color: #805019;
   background: #ffedc9;
+  transform: rotate(15deg);
 }
 
 .ev-rightbar-refresh:disabled {
@@ -131,6 +191,7 @@
   display: flex;
   align-items: baseline;
   gap: 7px;
+
   margin: 18px 0 13px;
 }
 
@@ -140,6 +201,7 @@
   font-weight: 850;
   line-height: 1;
   letter-spacing: -1.5px;
+  font-variant-numeric: tabular-nums;
 }
 
 .ev-rightbar-streak-value span {
@@ -147,6 +209,8 @@
   font-size: 12px;
   font-weight: 650;
 }
+
+/* Streak progress */
 
 .ev-rightbar-streak-track,
 .ev-rightbar-progress-track {
@@ -159,8 +223,15 @@
 .ev-rightbar-streak-track span {
   display: block;
   height: 100%;
-  background: linear-gradient(90deg, #f2b54e, #ed8836);
+
+  background: linear-gradient(
+    90deg,
+    #f2b54e,
+    #ed8836
+  );
+
   border-radius: inherit;
+
   transition: width 250ms ease;
 }
 
@@ -168,24 +239,31 @@
   display: flex;
   align-items: center;
   gap: 6px;
+
   margin-top: 12px;
+
   color: #9b772d;
   font-size: 11px;
   font-weight: 750;
 }
 
-.ev-rightbar-streak > p {
+.ev-rightbar-streak-message {
   margin: 11px 0 0;
+
   color: #8f7b60;
   font-size: 10px;
   line-height: 1.65;
+  overflow-wrap: anywhere;
 }
 
-/* Weekly calendar */
+/* =========================================
+   WEEKLY ACTIVITY
+   ========================================= */
 
 .ev-rightbar-week {
   padding-top: 15px;
   margin-top: 15px;
+
   border-top: 1px solid #f1e7d4;
 }
 
@@ -193,7 +271,9 @@
   display: flex;
   align-items: center;
   gap: 7px;
+
   margin-bottom: 12px;
+
   color: #9b772d;
   font-size: 12px;
 }
@@ -214,9 +294,16 @@
   flex-direction: column;
   align-items: center;
   gap: 8px;
+
   color: #9a907d;
   font-size: 10px;
   font-weight: 700;
+}
+
+.ev-rightbar-week-day > span:first-child {
+  min-height: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .ev-rightbar-week-day.is-today {
@@ -231,7 +318,9 @@
   display: grid;
   width: 27px;
   height: 27px;
+  flex-shrink: 0;
   place-items: center;
+
   color: #c8bda9;
   background: #f8f3e9;
   border: 1px solid #eee4d2;
@@ -253,6 +342,7 @@
   display: block;
   width: 6px;
   height: 6px;
+
   background: currentColor;
   border-radius: 50%;
   opacity: 0.4;
@@ -260,12 +350,15 @@
 
 .ev-rightbar-week-empty-message {
   margin: 0;
+
   color: #8f7b60;
   font-size: 10px;
   line-height: 1.6;
 }
 
-/* Section headings */
+/* =========================================
+   SHARED SECTION HEADINGS
+   ========================================= */
 
 .ev-rightbar-section {
   display: flex;
@@ -277,26 +370,46 @@
   display: flex;
   align-items: center;
   gap: 9px;
+
   color: #29966c;
+}
+
+.ev-rightbar-section-title > svg {
+  flex-shrink: 0;
 }
 
 .ev-rightbar-section-title h3 {
   margin: 0;
+
   color: #31463a;
   font-size: 13px;
   font-weight: 800;
+  line-height: 1.4;
 }
 
-/* XP card */
+/* =========================================
+   XP CARD
+   ========================================= */
 
 .ev-rightbar-xp-card {
   display: flex;
   align-items: center;
   gap: 12px;
+
   padding: 14px;
+
   background: #f8faf9;
   border: 1px solid #e9efeb;
   border-radius: 14px;
+
+  transition:
+    border-color 180ms ease,
+    background 180ms ease;
+}
+
+.ev-rightbar-xp-card:hover {
+  background: #f4faf6;
+  border-color: #d9e9df;
 }
 
 .ev-rightbar-metric-icon {
@@ -305,6 +418,7 @@
   width: 42px;
   height: 42px;
   place-items: center;
+
   border-radius: 12px;
 }
 
@@ -332,22 +446,29 @@
   color: #2a4335;
   font-size: 21px;
   font-weight: 850;
-  line-height: 1;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
 }
 
 .ev-rightbar-metric-tag {
   padding: 5px 7px;
+
   color: #9d771b;
   background: #fff3d2;
   border-radius: 7px;
+
   font-size: 9px;
   font-weight: 850;
 }
 
-/* Lesson progress */
+/* =========================================
+   LESSON PROGRESS
+   ========================================= */
 
 .ev-rightbar-progress-card {
   padding: 15px;
+
   background: #fff;
   border: 1px solid #e8eee9;
   border-radius: 14px;
@@ -375,6 +496,7 @@
   color: #23885f;
   font-size: 11px;
   font-weight: 850;
+  white-space: nowrap;
 }
 
 .ev-rightbar-progress-track {
@@ -385,13 +507,21 @@
 .ev-rightbar-progress-track span {
   display: block;
   height: 100%;
-  background: linear-gradient(90deg, #40bd83, #218c62);
+
+  background: linear-gradient(
+    90deg,
+    #40bd83,
+    #218c62
+  );
+
   border-radius: inherit;
+
   transition: width 250ms ease;
 }
 
 .ev-rightbar-progress-bottom {
   margin-top: 10px;
+
   color: #929e96;
   font-size: 10px;
 }
@@ -401,13 +531,17 @@
   font-weight: 750;
 }
 
-/* Goal card */
+/* =========================================
+   MOTIVATION CARD
+   ========================================= */
 
 .ev-rightbar-goal {
   display: flex;
   align-items: flex-start;
   gap: 12px;
+
   padding: 15px;
+
   background: #f0f7ff;
   border: 1px solid #dfebfb;
   border-radius: 15px;
@@ -419,6 +553,7 @@
   width: 38px;
   height: 38px;
   place-items: center;
+
   color: #4d81c6;
   background: #e1edff;
   border-radius: 11px;
@@ -431,19 +566,24 @@
 .ev-rightbar-goal-copy strong {
   display: block;
   margin: 2px 0 6px;
+
   color: #304d70;
   font-size: 12px;
   font-weight: 800;
+  line-height: 1.4;
 }
 
 .ev-rightbar-goal-copy p {
   margin: 0;
+
   color: #7489a1;
   font-size: 10px;
   line-height: 1.7;
 }
 
-/* Continue learning */
+/* =========================================
+   CONTINUE LEARNING
+   ========================================= */
 
 .ev-rightbar-next {
   display: flex;
@@ -453,6 +593,7 @@
 
 .ev-rightbar-next > p {
   margin: -3px 0 0;
+
   color: #849188;
   font-size: 11px;
   line-height: 1.7;
@@ -463,39 +604,63 @@
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+
   min-height: 43px;
   padding: 0 13px;
+
   color: #fff;
   background: #239b70;
   border: 1px solid #239b70;
   border-radius: 11px;
+
   font-size: 11px;
   font-weight: 800;
   text-decoration: none;
+
   transition:
     background 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
     transform 160ms ease;
 }
 
+.ev-rightbar-continue > span {
+  min-width: 0;
+}
+
+.ev-rightbar-continue > svg {
+  flex-shrink: 0;
+  transition: transform 160ms ease;
+}
+
 .ev-rightbar-continue:hover {
+  color: #fff;
   background: #187b57;
+  border-color: #187b57;
+  box-shadow: 0 5px 12px rgb(24 123 87 / 15%);
   transform: translateY(-1px);
 }
 
-.ev-rightbar-continue:focus-visible,
-.ev-rightbar-refresh:focus-visible {
-  outline: 2px solid #218b64;
-  outline-offset: 3px;
+.ev-rightbar-continue:hover > svg {
+  transform: translateX(3px);
 }
 
-/* Footer quote */
+.ev-rightbar-continue:active {
+  transform: translateY(0);
+}
+
+/* =========================================
+   FOOTER QUOTE
+   ========================================= */
 
 .ev-rightbar-quote {
   display: flex;
   align-items: flex-start;
   gap: 9px;
+
   padding-top: 16px;
   margin-top: auto;
+
   color: #36976b;
   border-top: 1px solid #e9efeb;
 }
@@ -507,12 +672,25 @@
 
 .ev-rightbar-quote p {
   margin: 0;
+
   color: #85938a;
   font-size: 10px;
   line-height: 1.7;
 }
 
-/* Loading animation */
+/* =========================================
+   ACCESSIBILITY
+   ========================================= */
+
+.ev-rightbar-continue:focus-visible,
+.ev-rightbar-refresh:focus-visible {
+  outline: 2px solid #218b64;
+  outline-offset: 3px;
+}
+
+/* =========================================
+   LOADING ANIMATION
+   ========================================= */
 
 .ev-spin {
   animation: ev-rightbar-spin 1s linear infinite;
@@ -524,31 +702,69 @@
   }
 }
 
-/* Responsive layout */
+/* =========================================
+   RESPONSIVE LAYOUT
+   ========================================= */
 
-@media (max-width: 1200px) {
+/* Medium desktop */
+@media (max-width: 1200px) and (min-width: 901px) {
   .ev-rightbar {
     width: 270px;
     padding-right: 17px;
     padding-left: 17px;
+    gap: 20px;
+  }
+
+  .ev-rightbar-streak {
+    padding: 15px;
+  }
+
+  .ev-rightbar-heading h2 {
+    font-size: 20px;
+  }
+
+  .ev-rightbar-streak-value strong {
+    font-size: 35px;
   }
 }
 
+/* Tablet and mobile */
 @media (max-width: 900px) {
   .ev-rightbar {
     display: none;
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .ev-rightbar-streak-track span,
-  .ev-rightbar-progress-track span,
-  .ev-rightbar-continue,
-  .ev-rightbar-refresh {
-    transition: none;
+/* Short desktop screens */
+@media (max-height: 760px) and (min-width: 901px) {
+  .ev-rightbar {
+    gap: 17px;
+    padding-top: 20px;
+    padding-bottom: 18px;
   }
 
-  .ev-spin {
-    animation: none;
+  .ev-rightbar-streak {
+    padding: 14px;
+  }
+
+  .ev-rightbar-streak-value {
+    margin: 14px 0 11px;
+  }
+
+  .ev-rightbar-week {
+    padding-top: 12px;
+    margin-top: 12px;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .ev-rightbar *,
+  .ev-rightbar *::before,
+  .ev-rightbar *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

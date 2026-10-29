@@ -13,15 +13,13 @@ function completedTopicsKey(courseId) {
 }
 
 /*
- * Safely read JSON from localStorage
+ * Safely read JSON from localStorage.
  */
 function readJSON(key, fallback = {}) {
   try {
     const value = localStorage.getItem(key);
 
-    if (!value) {
-      return fallback;
-    }
+    if (!value) return fallback;
 
     const parsed = JSON.parse(value);
 
@@ -33,20 +31,24 @@ function readJSON(key, fallback = {}) {
 }
 
 /*
- * Get saved stage progress for a course.
+ * Get saved stage progress.
  *
  * Structure:
  * {
  *   "1": {
- *     "video": { completed: true, completedAt: "..." },
- *     "concept": { completed: true, completedAt: "..." }
+ *     "video": {
+ *       completed: true,
+ *       completedAt: "..."
+ *     },
+ *     "concept": {
+ *       completed: false,
+ *       completedAt: null
+ *     }
  *   }
  * }
  */
 export function getStageProgress(courseId) {
-  if (!courseId) {
-    return {};
-  }
+  if (!courseId) return {};
 
   const progress = readJSON(stageProgressKey(courseId), {});
 
@@ -62,18 +64,16 @@ export function getStageProgress(courseId) {
 }
 
 /*
- * Check whether one stage is completed.
+ * Check whether a stage is completed.
  */
 export function isStageComplete(progress, topicId, stage) {
-  if (!STAGES.includes(stage)) {
-    return false;
-  }
+  if (!STAGES.includes(stage)) return false;
 
   return progress?.[String(topicId)]?.[stage]?.completed === true;
 }
 
 /*
- * Return the completed stages of a topic.
+ * Get completed stages for one topic.
  */
 export function getCompletedStages(progress, topicId) {
   return STAGES.filter((stage) =>
@@ -82,7 +82,7 @@ export function getCompletedStages(progress, topicId) {
 }
 
 /*
- * Return the number of completed stages.
+ * Get the number of completed stages.
  */
 export function getCompletedStageCount(progress, topicId) {
   return getCompletedStages(progress, topicId).length;
@@ -98,10 +98,69 @@ export function isTopicComplete(progress, topicId) {
 }
 
 /*
- * Save completion for ONE stage only.
+ * Get the first incomplete stage.
  *
- * Completing Video does not complete Concept,
- * Hands-on, Quiz, or the whole topic.
+ * Examples:
+ * Nothing completed -> "video"
+ * Video completed -> "concept"
+ * Video + Concept completed -> "hands-on"
+ * First three completed -> "quiz"
+ * All completed -> null
+ */
+export function getNextIncompleteStage(progress, topicId) {
+  return (
+    STAGES.find(
+      (stage) => !isStageComplete(progress, topicId, stage)
+    ) || null
+  );
+}
+
+/*
+ * Check whether a stage is unlocked.
+ *
+ * Video is always the first available stage.
+ * Every other stage requires the previous stage
+ * to be completed.
+ */
+export function isStageUnlocked(progress, topicId, stage) {
+  const stageIndex = STAGES.indexOf(stage);
+
+  if (stageIndex === -1) return false;
+
+  // The first stage is available by default.
+  if (stageIndex === 0) return true;
+
+  // A stage is unlocked only if every preceding
+  // stage has been completed.
+  return STAGES.slice(0, stageIndex).every((previousStage) =>
+    isStageComplete(progress, topicId, previousStage)
+  );
+}
+
+/*
+ * Get the next stage in sequence.
+ *
+ * Returns null if the current stage is invalid
+ * or if it is the final stage.
+ */
+export function getNextStage(stage) {
+  const index = STAGES.indexOf(stage);
+
+  if (index === -1 || index === STAGES.length - 1) {
+    return null;
+  }
+
+  return STAGES[index + 1];
+}
+
+/*
+ * Save completion for one stage only.
+ *
+ * A stage cannot be completed through this function
+ * unless all preceding stages have been completed.
+ *
+ * Completing Quiz completes the topic only when the
+ * other three stages have also been completed.
  */
 export function saveStageCompletion(courseId, topicId, stage) {
   if (!courseId) {
@@ -119,8 +178,17 @@ export function saveStageCompletion(courseId, topicId, stage) {
   }
 
   const progress = getStageProgress(courseId);
-  const topicKey = String(topicId);
 
+  // Enforce sequential completion.
+  if (!isStageUnlocked(progress, topicId, stage)) {
+    const expectedStage = getNextIncompleteStage(progress, topicId);
+
+    throw new Error(
+      `Complete "${expectedStage}" before completing "${stage}".`
+    );
+  }
+
+  const topicKey = String(topicId);
   const existingTopic = progress[topicKey] || {};
   const existingStage = existingTopic[stage] || {};
 
@@ -142,11 +210,10 @@ export function saveStageCompletion(courseId, topicId, stage) {
     JSON.stringify(updatedProgress)
   );
 
-  // Update the legacy completed-topics list only when all
-  // four stages of a topic have been completed.
+  // Keep the legacy completed-topic list in sync.
   syncCompletedTopics(courseId, null, updatedProgress, false);
 
-  // Notify StudyMap and other components to refresh.
+  // Notify the map and other components.
   if (typeof window !== "undefined") {
     window.dispatchEvent(new Event("evolv-progress-updated"));
   }
@@ -155,14 +222,10 @@ export function saveStageCompletion(courseId, topicId, stage) {
 }
 
 /*
- * Synchronize the old completed-topics list.
+ * Synchronize the legacy completed-topic list.
  *
- * If lessons are provided, only those lessons are checked.
- * If lessons are null, existing topic IDs in stage progress
- * are checked.
- *
- * This keeps compatibility with components that still read:
- * evolv_<courseId>_completed
+ * A topic is added only when all four stages
+ * are marked completed.
  */
 export function syncCompletedTopics(
   courseId,
@@ -170,9 +233,7 @@ export function syncCompletedTopics(
   progress = null,
   dispatchEvent = true
 ) {
-  if (!courseId) {
-    return [];
-  }
+  if (!courseId) return [];
 
   const currentProgress = progress || getStageProgress(courseId);
 
@@ -214,18 +275,14 @@ export function syncCompletedTopics(
 }
 
 /*
- * Read the completed-topic IDs from localStorage.
+ * Read completed topic IDs.
  */
 export function getCompletedTopics(courseId) {
-  if (!courseId) {
-    return [];
-  }
+  if (!courseId) return [];
 
   const completed = readJSON(completedTopicsKey(courseId), []);
 
-  if (!Array.isArray(completed)) {
-    return [];
-  }
+  if (!Array.isArray(completed)) return [];
 
   return completed
     .map(Number)
@@ -233,19 +290,15 @@ export function getCompletedTopics(courseId) {
 }
 
 /*
- * Get the next incomplete stage for a topic.
- * Returns "video" if no stages have been completed.
- * Returns null if the topic is fully completed.
+ * Get the number of completed stages as a percentage.
  */
-export function getNextIncompleteStage(progress, topicId) {
-  return (
-    STAGES.find(
-      (stage) => !isStageComplete(progress, topicId, stage)
-    ) || null
+export function getTopicProgressPercentage(progress, topicId) {
+  return Math.round(
+    (getCompletedStageCount(progress, topicId) / STAGES.length) * 100
   );
 }
 
 /*
- * Export the stage list for use in LessonPage and StudyMap.
+ * Export the stage list for StudyMap and LessonPage.
  */
 export { STAGES };

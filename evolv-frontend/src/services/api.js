@@ -1,31 +1,44 @@
 
 const API_BASE_URL = "http://localhost:5000/api";
 
-function getToken() {
-  return (
-    localStorage.getItem("evolv_token") ||
-    sessionStorage.getItem("evolv_token")
-  );
+export function getAuthToken() {
+  try {
+    return (
+      localStorage.getItem("evolv_token") ||
+      sessionStorage.getItem("evolv_token") ||
+      ""
+    );
+  } catch {
+    return "";
+  }
 }
 
 async function request(endpoint, options = {}) {
-  const token = options.token || getToken();
-  const { token: _ignoredToken, ...fetchOptions } = options;
+  const token = getAuthToken();
 
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...fetchOptions,
+    ...options,
     headers: {
+      Accept: "application/json",
       "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...fetchOptions.headers,
+      ...options.headers,
     },
   });
 
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error(
+        "Your session has expired or is invalid. Please log in again."
+      );
+    }
+
     throw new Error(
-      data.error || `Request failed (${response.status})`
+      data.error ||
+        data.message ||
+        `Request failed with status ${response.status}.`
     );
   }
 
@@ -46,26 +59,30 @@ export function loginUser(credentials) {
   });
 }
 
-export function getCurrentUser(token) {
-  return request("/auth/me", {
-    method: "GET",
-    token,
-  });
+export function getCurrentUser() {
+  return request("/auth/me");
 }
 
-// Fetch the authenticated user's streak from the backend.
 export function getStreak() {
   return request("/streak");
 }
 
-// Record a successfully completed learning activity.
 export function recordLearningActivity({
   activityType = "lesson",
   activityRef,
 }) {
-  if (!activityRef) {
+  if (!["lesson", "quiz"].includes(activityType)) {
     return Promise.reject(
-      new Error("activityRef is required.")
+      new Error("Activity type must be lesson or quiz.")
+    );
+  }
+
+  if (
+    typeof activityRef !== "string" ||
+    !activityRef.trim()
+  ) {
+    return Promise.reject(
+      new Error("A valid activity reference is required.")
     );
   }
 
@@ -73,7 +90,7 @@ export function recordLearningActivity({
     method: "POST",
     body: JSON.stringify({
       activityType,
-      activityRef,
+      activityRef: activityRef.trim(),
     }),
   });
 }

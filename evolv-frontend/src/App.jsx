@@ -1,10 +1,10 @@
-
 import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import AuthPage from "./pages/AuthPage";
 import Home from "./pages/Home";
 import StudyMap from "./pages/StudyMap";
 import LessonPage from "./pages/LessonPage";
+import MyProgress from "./pages/MyProgress";
 
 function ProtectedRoute({ children }) {
   const token =
@@ -26,7 +26,7 @@ export default function App() {
   return (
     <HashRouter>
       <Routes>
-        {/* Login and signup */}
+        {/* Login */}
         <Route
           path="/"
           element={
@@ -45,6 +45,7 @@ export default function App() {
           }
         />
 
+        {/* Signup */}
         <Route
           path="/signup"
           element={
@@ -54,7 +55,7 @@ export default function App() {
           }
         />
 
-        {/* Dashboard */}
+        {/* Protected dashboard */}
         <Route
           path="/dashboard"
           element={
@@ -64,7 +65,17 @@ export default function App() {
           }
         />
 
-        {/* Learning map for each course */}
+        {/* My Progress */}
+        <Route
+          path="/progress"
+          element={
+            <ProtectedRoute>
+              <MyProgress />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Study Map */}
         <Route
           path="/study/:courseId"
           element={
@@ -74,7 +85,7 @@ export default function App() {
           }
         />
 
-        {/* Lessons within any course */}
+        {/* Individual lesson and stage */}
         <Route
           path="/study/:courseId/lesson/:lessonId"
           element={
