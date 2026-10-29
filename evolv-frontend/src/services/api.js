@@ -1,5 +1,7 @@
 
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = (
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api"
+).replace(/\/+$/, "");
 
 export function getAuthToken() {
   try {
@@ -77,10 +79,7 @@ export function recordLearningActivity({
     );
   }
 
-  if (
-    typeof activityRef !== "string" ||
-    !activityRef.trim()
-  ) {
+  if (typeof activityRef !== "string" || !activityRef.trim()) {
     return Promise.reject(
       new Error("A valid activity reference is required.")
     );
