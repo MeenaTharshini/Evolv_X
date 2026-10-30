@@ -306,7 +306,8 @@ const pythonLessons = [
     ["//", "*", "%", "/"],
     2,
     "It is the percent symbol.",
-    {
+    { videoUrl: "/videos/Numbers%20and%20Calculations.html",
+      videoTitle: "Videos — Video",
       instructions:
         "Build a bill calculator using a price and quantity. Display the total and the remainder when the total is divided by 5.",
       starterCode:
