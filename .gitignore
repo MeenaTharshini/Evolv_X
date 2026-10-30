@@ -87,14 +87,14 @@ ENV/
 env/
 
 # ==========================================
-# Test and coverage artifacts
+# Test artifacts
 # ==========================================
 .nyc_output/
 junit.xml
 test-results/
 
 # ==========================================
-# Package manager and debug artifacts
+# TypeScript artifacts
 # ==========================================
 *.tsbuildinfo
 
