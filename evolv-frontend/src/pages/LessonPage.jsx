@@ -140,10 +140,6 @@ function notifyProgressUpdated() {
   window.dispatchEvent(
     new Event("evolv-progress-updated")
   );
-
-  window.dispatchEvent(
-    new Event("evolv:progress-updated")
-  );
 }
 
 // ==================================================
@@ -701,48 +697,66 @@ export default function LessonPage() {
   ]);
 
   // ------------------------------------------------
-  // Load stage progress
+  // Load and refresh stage progress
   // ------------------------------------------------
 
-  const refreshProgress = useCallback(async () => {
-    if (!lesson) {
-      setStageProgress(emptyStageProgress());
-      setProgressLoading(false);
-      return;
-    }
+  const refreshProgress = useCallback(
+    async ({ showLoader = false } = {}) => {
+      if (!lesson) {
+        setStageProgress(emptyStageProgress());
+        setProgressError("");
+        setProgressLoading(false);
+        return;
+      }
 
-    setProgressLoading(true);
-    setProgressError("");
+      // Only initial loading or a manual retry shows
+      // the full-screen loader.
+      if (showLoader) {
+        setProgressLoading(true);
+      }
 
-    try {
-      const records = await getLessonStageProgress(
-        lesson.id
-      );
+      setProgressError("");
 
-      setStageProgress(
-        buildStageProgress(records, lesson.id)
-      );
-    } catch (error) {
-      console.error(
-        "Could not load Supabase stage progress:",
-        error
-      );
+      try {
+        const records = await getLessonStageProgress(
+          lesson.id
+        );
 
-      setProgressError(
-        error?.message ||
-          "Could not load your learning progress. Please log in again and retry."
-      );
-    } finally {
-      setProgressLoading(false);
-    }
-  }, [lesson]);
+        setStageProgress(
+          buildStageProgress(records, lesson.id)
+        );
 
+        // Refresh local summaries without a full-page loader.
+        setQuizScores(readObject(quizScoreKey(courseId)));
+        setXp(readNumber(xpKey(courseId)));
+        setCurrentStreak(readNumber(streakKey(courseId)));
+      } catch (error) {
+        console.error(
+          "Could not refresh lesson progress:",
+          error
+        );
+
+        setProgressError(
+          error?.message ||
+            "Could not refresh your learning progress. Please try again."
+        );
+      } finally {
+        if (showLoader) {
+          setProgressLoading(false);
+        }
+      }
+    },
+    [courseId, lesson]
+  );
+
+  // Initial load for the current lesson.
   useEffect(() => {
     let cancelled = false;
 
-    async function load() {
+    async function loadInitialProgress() {
       if (!lesson) {
         setStageProgress(emptyStageProgress());
+        setProgressError("");
         setProgressLoading(false);
         return;
       }
@@ -751,29 +765,27 @@ export default function LessonPage() {
       setProgressError("");
 
       try {
-        const records =
-          await getLessonStageProgress(lesson.id);
+        const records = await getLessonStageProgress(
+          lesson.id
+        );
 
-        if (!cancelled) {
-          setStageProgress(
-            buildStageProgress(
-              records,
-              lesson.id
-            )
-          );
-        }
+        if (cancelled) return;
+
+        setStageProgress(
+          buildStageProgress(records, lesson.id)
+        );
       } catch (error) {
-        if (!cancelled) {
-          console.error(
-            "Could not load stage progress:",
-            error
-          );
+        if (cancelled) return;
 
-          setProgressError(
-            error?.message ||
-              "Could not load your progress. Please try again."
-          );
-        }
+        console.error(
+          "Could not load stage progress:",
+          error
+        );
+
+        setProgressError(
+          error?.message ||
+            "Could not load your progress. Please try again."
+        );
       } finally {
         if (!cancelled) {
           setProgressLoading(false);
@@ -781,41 +793,32 @@ export default function LessonPage() {
       }
     }
 
-    void load();
+    void loadInitialProgress();
 
     return () => {
       cancelled = true;
     };
   }, [lesson]);
 
+  // Background progress updates must not show the loader.
+  // Listen to one event only to prevent duplicate refreshes.
   useEffect(() => {
-    const handleUpdate = () => {
-      void refreshProgress();
+    const handleProgressUpdate = () => {
+      void refreshProgress({ showLoader: false });
     };
 
     window.addEventListener(
       "evolv-progress-updated",
-      handleUpdate
-    );
-
-    window.addEventListener(
-      "evolv:progress-updated",
-      handleUpdate
+      handleProgressUpdate
     );
 
     return () => {
       window.removeEventListener(
         "evolv-progress-updated",
-        handleUpdate
-      );
-
-      window.removeEventListener(
-        "evolv:progress-updated",
-        handleUpdate
+        handleProgressUpdate
       );
     };
   }, [refreshProgress]);
-
   // ------------------------------------------------
   // Load XP and streak
   // ------------------------------------------------
@@ -1350,7 +1353,9 @@ if (progressLoading) {
           <button
             type="button"
             className="lesson-primary-button"
-            onClick={() => void refreshProgress()}
+            onClick={() =>
+  void refreshProgress({ showLoader: true })
+}
           >
             Retry
             <RotateCcw size={17} />
