@@ -40,7 +40,7 @@ import {
   getLessonStageProgress,
   saveStageCompletion,
 } from "../lib/progressService";
-
+import EvolvLoader from "../components/EvolvLoader";
 import { recordLearningActivity } from "../services/api";
 
 import { coursePaths } from "../data/coursePaths";
@@ -1322,28 +1322,12 @@ export default function LessonPage() {
   }
 
   // ==================================================
-  // RENDER: LOADING
-  // ==================================================
+// RENDER: LOADING
+// ==================================================
 
-  if (progressLoading) {
-    return (
-      <main
-        className={`lesson-page course-${course.color || "green"}`}
-      >
-        <section className="lesson-card">
-          <p className="lesson-eyebrow">
-            EVOLV ADVENTURE WORLD
-          </p>
-
-          <h1>
-            Loading your learning journey…
-          </h1>
-
-          <p>Checking your saved progress.</p>
-        </section>
-      </main>
-    );
-  }
+if (progressLoading) {
+  return <EvolvLoader />;
+}
 
   // ==================================================
   // RENDER: PROGRESS ERROR
