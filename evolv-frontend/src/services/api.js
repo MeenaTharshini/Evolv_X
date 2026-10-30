@@ -5,9 +5,30 @@ import { supabase } from "../lib/supabaseClient";
 // API CONFIGURATION
 // ==================================================
 
+// ==================================================
+// API CONFIGURATION
+// ==================================================
+
 const API_BASE_URL = (
-  import.meta.env.VITE_API_BASE_URL
-).replace(/\/+$/, "");
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000"
+).trim().replace(/\/+$/, "");
+
+if (!API_BASE_URL) {
+  throw new Error(
+    "VITE_API_BASE_URL is missing. Configure it in your environment."
+  );
+}
+
+if (
+  import.meta.env.PROD &&
+  API_BASE_URL.includes("localhost")
+) {
+  console.error(
+    "EVOLV is using localhost in production. Configure VITE_API_BASE_URL to point to the deployed backend."
+  );
+}
+
+console.info("EVOLV API base URL:", API_BASE_URL);
 
 // ==================================================
 // AUTHENTICATION

@@ -27,6 +27,7 @@ const PORT = Number(process.env.PORT) || 5000;
 
 // Frontend origins allowed to access the API.
 const allowedOrigins = new Set([
+  "https://evolv-x-three.vercel.app",
   "http://localhost:5173",
   "http://127.0.0.1:5173",
   "https://evolv-x-eight.vercel.app",
