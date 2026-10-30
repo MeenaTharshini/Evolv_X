@@ -1,18 +1,22 @@
 /* =========================================================
-   EVOLV — EVO LEARNING COMPANION
-   Original CSS mascot, expressions and animations
+   EVOLV — EVO LEARNING COMPANION & TOPIC COMPLETION
+   Matches EvoMascot.jsx and TopicCompletionModal.jsx
    ========================================================= */
+
+/* =========================
+   EVO MASCOT BASE
+   ========================= */
 
 .evo-mascot {
   --evo-size: 180px;
-  --evo-green: #39c98a;
-  --evo-green-dark: #159b70;
-  --evo-green-light: #8af0bc;
-  --evo-teal: #16a6a0;
-  --evo-navy: #173d43;
+  --evo-green: #78c850;
+  --evo-dark-green: #398b39;
+  --evo-soft-green: #e8f8dd;
   --evo-gold: #ffbd38;
   --evo-pink: #ff9cae;
 
+  position: relative;
+  isolation: isolate;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -20,8 +24,6 @@
   width: 100%;
   font-family: inherit;
   text-align: center;
-  position: relative;
-  isolation: isolate;
 }
 
 .evo-mascot *,
@@ -30,879 +32,334 @@
   box-sizing: border-box;
 }
 
+/* =========================
+   MASCOT STAGE
+   ========================= */
+
 .evo-mascot-stage {
   position: relative;
-  width: var(--evo-size);
-  height: calc(var(--evo-size) * 1.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
+  isolation: isolate;
   flex-shrink: 0;
+  width: calc(var(--evo-size) * 1.45);
+  height: calc(var(--evo-size) * 1.12);
+  margin: 0 auto;
 }
 
-/* =========================================================
-   GROUND SHADOW
-   ========================================================= */
-
-.evo-ground-shadow {
-  position: absolute;
-  width: 58%;
-  height: 8%;
-  left: 21%;
-  bottom: 3%;
-  border-radius: 50%;
-  background: rgba(22, 93, 76, 0.13);
-  filter: blur(5px);
-  animation: evo-shadow 2.6s ease-in-out infinite;
+/* The loader markup supplies the character itself. */
+.evo-mascot .evo-loader {
+  position: relative;
+  width: var(--evo-size);
+  height: calc(var(--evo-size) * 1.05);
+  flex-shrink: 0;
+  overflow: visible;
 }
 
-/* =========================================================
-   MAIN CHARACTER
-   ========================================================= */
-
-.evo-character {
-  position: absolute;
-  width: 77%;
-  height: 88%;
-  left: 11.5%;
-  top: 6%;
+/* Character animation wrapper */
+.evo-mascot-character {
+  position: relative;
+  z-index: 2;
   transform-origin: center bottom;
-  animation: evo-idle 2.8s ease-in-out infinite;
+  animation: evo-mascot-float 3s ease-in-out infinite;
 }
 
-.evo-body {
-  position: absolute;
+.evo-mascot--idle .evo-mascot-character {
+  animation: evo-mascot-float 3s ease-in-out infinite;
+}
+
+.evo-mascot--happy .evo-mascot-character {
+  animation: evo-mascot-happy 1.8s ease-in-out infinite;
+}
+
+.evo-mascot--celebrate .evo-mascot-character {
+  animation: evo-mascot-celebrate 1.1s ease-in-out infinite;
+}
+
+.evo-mascot--thinking .evo-mascot-character {
+  animation: evo-mascot-think 3s ease-in-out infinite;
+}
+
+.evo-mascot--encouraging .evo-mascot-character {
+  animation: evo-mascot-encourage 2.2s ease-in-out infinite;
+}
+
+/* =========================
+   LOADER CHARACTER BODY
+   ========================= */
+
+.evo-mascot .evo-loader-body {
+  border-radius: 46% 46% 43% 43%;
+  box-shadow:
+    inset -8px -10px 0 rgba(45, 133, 47, 0.12),
+    inset 6px 7px 0 rgba(255, 255, 255, 0.48),
+    0 13px 25px rgba(55, 130, 48, 0.16);
+}
+
+.evo-mascot .evo-loader-leaf {
+  filter: drop-shadow(0 3px 3px rgba(45, 133, 47, 0.12));
+}
+
+.evo-mascot .evo-loader-eye {
+  transition:
+    transform 160ms ease,
+    height 160ms ease;
+}
+
+.evo-mascot .evo-loader-eye span {
+  transition: transform 160ms ease;
+}
+
+.evo-mascot .evo-loader-cheek {
+  opacity: 0.9;
+}
+
+.evo-mascot .evo-loader-mouth {
+  transition: all 180ms ease;
+}
+
+/* Expressions */
+
+.evo-mascot .evo-mascot-eye-blink {
+  transform: scaleY(0.12);
+}
+
+.evo-mascot .evo-mascot-star-eye {
   width: 100%;
-  height: 75%;
-  left: 0;
-  bottom: 10%;
-  overflow: visible;
-  border-radius: 44% 44% 39% 39% / 36% 36% 42% 42%;
-  background:
-    radial-gradient(
-      ellipse at 32% 17%,
-      rgba(255, 255, 255, 0.85) 0%,
-      rgba(255, 255, 255, 0.2) 23%,
-      transparent 45%
-    ),
-    linear-gradient(
-      145deg,
-      #a2f5c9 0%,
-      #59dfa4 28%,
-      #36c58e 63%,
-      #1ca77c 100%
-    );
-  border: 2px solid rgba(18, 143, 101, 0.32);
-  box-shadow:
-    inset -8px -11px 15px rgba(12, 119, 82, 0.17),
-    inset 5px 6px 12px rgba(255, 255, 255, 0.35),
-    0 10px 18px rgba(27, 150, 108, 0.15);
-  z-index: 3;
-}
-
-.evo-head-highlight {
-  position: absolute;
-  width: 27%;
-  height: 13%;
-  top: 8%;
-  left: 17%;
-  border-radius: 50%;
-  transform: rotate(-36deg);
-  background: rgba(255, 255, 255, 0.36);
-  filter: blur(2px);
-}
-
-/* =========================================================
-   ANTENNA AND LEAF
-   ========================================================= */
-
-.evo-antenna {
-  position: absolute;
-  width: 29%;
-  height: 19%;
-  top: 0;
-  left: 35.5%;
-  z-index: 2;
-}
-
-.evo-antenna-stem {
-  position: absolute;
-  width: 10%;
-  height: 53%;
-  left: 45%;
-  bottom: 0;
-  border-radius: 20px;
-  background: linear-gradient(
-    90deg,
-    #168d75,
-    #32bd91,
-    #168d75
-  );
-}
-
-.evo-antenna-leaf {
-  position: absolute;
-  width: 65%;
-  height: 59%;
-  left: 26%;
-  top: 0;
-  border-radius: 95% 5% 85% 15%;
-  transform: rotate(-13deg);
-  background: linear-gradient(
-    135deg,
-    #b2ffd0,
-    #43d99b 55%,
-    #14a77e
-  );
-  border: 1px solid rgba(19, 135, 95, 0.25);
-  box-shadow: 0 0 12px rgba(80, 233, 158, 0.24);
-}
-
-.evo-antenna-glow {
-  position: absolute;
-  width: 20%;
-  height: 20%;
-  top: 11%;
-  left: 55%;
-  border-radius: 50%;
-  background: white;
-  opacity: 0.8;
-  filter: blur(1px);
-}
-
-/* =========================================================
-   EYES
-   ========================================================= */
-
-.evo-eyes {
-  position: absolute;
-  width: 62%;
-  height: 20%;
-  top: 35%;
-  left: 19%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  z-index: 5;
-}
-
-.evo-eye {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 31%;
-  height: 87%;
-  overflow: hidden;
-  border-radius: 50%;
-  background: #fff;
-  border: 1px solid rgba(23, 61, 67, 0.13);
-  box-shadow:
-    inset 0 -2px 3px rgba(23, 61, 67, 0.07),
-    0 2px 2px rgba(23, 61, 67, 0.07);
-  transition:
-    height 0.15s ease,
-    transform 0.2s ease;
-}
-
-.evo-pupil {
-  position: relative;
-  display: block;
-  width: 57%;
-  height: 66%;
-  border-radius: 50%;
-  background: #173d43;
-  box-shadow: inset 0 -2px 2px rgba(0, 0, 0, 0.15);
-}
-
-.evo-eye-shine {
-  position: absolute;
-  width: 34%;
-  height: 34%;
-  top: 13%;
-  right: 12%;
-  border-radius: 50%;
-  background: white;
-}
-
-/* Happy eyes */
-
-.evo-eye--happy {
-  height: 35%;
-  border: none;
-  background: transparent;
-  border-radius: 0;
-  overflow: visible;
-  box-shadow: none;
-}
-
-.evo-eye--happy::before {
-  content: "";
-  position: absolute;
-  width: 80%;
-  height: 65%;
-  top: 20%;
-  border-top: 4px solid #173d43;
-  border-radius: 50% 50% 0 0;
-}
-
-.evo-eye--happy .evo-pupil {
-  display: none;
-}
-
-/* Starry eyes */
-
-.evo-eye--starry {
-  background: #fff9e8;
-  border-color: rgba(255, 189, 56, 0.6);
-}
-
-.evo-eye-star {
-  width: 82%;
-  height: 82%;
-  color: #f4a91d;
-  filter: drop-shadow(0 0 3px rgba(255, 189, 56, 0.28));
-  animation: evo-star-eye 0.9s ease-in-out infinite alternate;
-}
-
-/* Thinking eyes */
-
-.evo-eye--thinking .evo-pupil {
-  transform: translate(12%, -8%);
-}
-
-/* Blink */
-
-.evo-eye--blink {
-  height: 5%;
-  min-height: 3px;
-  border-radius: 50%;
-  background: #173d43;
-  border: none;
-  box-shadow: none;
-}
-
-.evo-eye--blink .evo-pupil,
-.evo-eye--blink .evo-eye-star {
-  display: none;
-}
-
-/* =========================================================
-   CHEEKS
-   ========================================================= */
-
-.evo-cheek {
-  position: absolute;
-  width: 12%;
-  height: 5%;
-  top: 49%;
-  border-radius: 50%;
-  background: var(--evo-pink);
-  opacity: 0.72;
-  filter: blur(0.5px);
-  z-index: 4;
-}
-
-.evo-cheek--left {
-  left: 8%;
-}
-
-.evo-cheek--right {
-  right: 8%;
-}
-
-/* =========================================================
-   MOUTH
-   ========================================================= */
-
-.evo-mouth {
-  position: absolute;
-  width: 17%;
-  height: 7%;
-  top: 57%;
-  left: 41.5%;
-  border-bottom: 3px solid #174b46;
-  border-radius: 0 0 50% 50%;
-  z-index: 5;
-  transition:
-    width 0.2s ease,
-    height 0.2s ease;
-}
-
-.evo-mouth--big {
-  width: 25%;
-  height: 12%;
-  left: 37.5%;
-  top: 55%;
-  border: 2px solid #174b46;
-  border-top: none;
-  border-radius: 0 0 50% 50%;
-  background: #b94f5b;
-  overflow: hidden;
-}
-
-.evo-mouth-highlight {
-  position: absolute;
-  width: 70%;
-  height: 20%;
-  top: 0;
-  left: 15%;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 50%;
-}
-
-/* =========================================================
-   CHEST BADGE
-   ========================================================= */
-
-.evo-chest-badge {
-  position: absolute;
-  width: 24%;
-  height: 19%;
-  left: 38%;
-  bottom: 12%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #fff8dc;
-  background: linear-gradient(145deg, #23a98d, #138a80);
-  border: 2px solid rgba(255, 255, 255, 0.76);
-  border-radius: 50%;
-  box-shadow:
-    0 2px 5px rgba(16, 105, 84, 0.2),
-    inset 0 1px 2px rgba(255, 255, 255, 0.45);
-  z-index: 5;
-}
-
-/* =========================================================
-   ARMS AND HANDS
-   ========================================================= */
-
-.evo-arm {
-  position: absolute;
-  width: 22%;
-  height: 28%;
-  top: 47%;
-  border-radius: 50%;
-  background: linear-gradient(
-    135deg,
-    #76e8af,
-    #35bf8a
-  );
-  border: 1px solid rgba(19, 143, 101, 0.25);
-  z-index: 2;
-}
-
-.evo-arm--left {
-  left: -10%;
-  transform: rotate(27deg);
-}
-
-.evo-arm--right {
-  right: -10%;
-  transform: rotate(-27deg);
-}
-
-.evo-hand {
-  position: absolute;
-  width: 64%;
-  height: 46%;
-  left: 15%;
-  bottom: -2%;
-  border-radius: 50%;
-  background: #a3f2c4;
-  border: 1px solid rgba(19, 143, 101, 0.2);
-}
-
-/* =========================================================
-   FEET
-   ========================================================= */
-
-.evo-feet {
-  position: absolute;
-  width: 60%;
-  height: 14%;
-  left: 20%;
-  bottom: 0;
-  display: flex;
-  justify-content: space-between;
-  z-index: 1;
-}
-
-.evo-foot {
-  display: block;
-  width: 39%;
   height: 100%;
-  border-radius: 45% 45% 38% 38%;
-  background: linear-gradient(
-    145deg,
-    #30c58d,
-    #159c79
-  );
-  border: 1px solid rgba(18, 129, 91, 0.25);
-  box-shadow: inset 0 2px 3px rgba(255, 255, 255, 0.18);
+  color: #ffffff;
 }
 
-.evo-foot--left {
-  transform: rotate(-8deg);
+.evo-mascot .evo-mascot-big-smile {
+  transform: scale(1.18);
 }
 
-.evo-foot--right {
-  transform: rotate(8deg);
+.evo-mascot .evo-mascot-thinking-mouth {
+  transform: translateX(4px) rotate(-8deg) scale(0.8);
 }
 
-/* =========================================================
+.evo-mascot .evo-loader-shadow {
+  opacity: 0.65;
+}
+
+/* =========================
    FLOATING DECORATIONS
-   ========================================================= */
+   ========================= */
 
-.evo-decoration {
+.evo-mascot .evo-decoration {
   position: absolute;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 6;
-  animation: evo-float 2.5s ease-in-out infinite;
+  z-index: 3;
+  display: grid;
+  place-items: center;
   pointer-events: none;
+  color: #8bcf58;
+  animation: evo-mascot-sparkle 2s ease-in-out infinite;
 }
 
-.evo-decoration--left {
-  top: 24%;
-  left: 0;
-  color: #e8ae2e;
-  animation-delay: -0.8s;
+.evo-mascot .evo-decoration--left {
+  top: 23%;
+  left: 2%;
 }
 
-.evo-decoration--right {
+.evo-mascot .evo-decoration--right {
   top: 16%;
-  right: 0;
-  color: #25b9a0;
-  animation-delay: -1.5s;
+  right: 2%;
+  color: #f2bf4a;
+  animation-delay: 0.6s;
 }
 
-/* =========================================================
-   CONFETTI
-   ========================================================= */
+/* =========================
+   ACHIEVEMENTS & MOOD ICONS
+   ========================= */
 
-.evo-confetti {
+.evo-mascot .evo-achievement,
+.evo-mascot .evo-encouragement-heart,
+.evo-mascot .evo-happy-zap {
   position: absolute;
+  z-index: 4;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  filter: drop-shadow(0 5px 8px rgba(0, 0, 0, 0.08));
+}
+
+.evo-mascot .evo-achievement {
+  top: 5%;
+  right: 5%;
+  color: #f5b82e;
+  background: linear-gradient(145deg, #ffe58b, #ffbd38);
+  animation: evo-mascot-sparkle 1.4s ease-in-out infinite;
+}
+
+.evo-mascot .evo-encouragement-heart {
+  top: 23%;
+  right: 3%;
+  color: #f17e9a;
+  background: #fff0f4;
+  animation: evo-mascot-heart 1.5s ease-in-out infinite;
+}
+
+.evo-mascot .evo-happy-zap {
+  top: 24%;
+  right: 4%;
+  color: #f4bd37;
+  background: #fff6d8;
+  animation: evo-mascot-sparkle 1.3s ease-in-out infinite;
+}
+
+/* =========================
+   CELEBRATION CONFETTI
+   ========================= */
+
+.evo-mascot .evo-confetti {
+  position: absolute;
+  z-index: 1;
   width: 7px;
   height: 12px;
-  border-radius: 3px;
-  top: 15%;
-  left: 50%;
-  z-index: 7;
-  opacity: 0;
+  border-radius: 4px;
+  background: #f5c94e;
   pointer-events: none;
-  animation: evo-confetti-fall 1.5s ease-out infinite;
+  animation: evo-mascot-confetti 2s ease-in-out infinite;
 }
 
-.evo-confetti--one {
-  background: #ffc54d;
-  --confetti-x: -45px;
-  --confetti-y: 55px;
-  animation-delay: 0s;
+.evo-mascot .evo-confetti--one {
+  top: 16%;
+  left: 18%;
 }
 
-.evo-confetti--two {
-  background: #43cba0;
-  --confetti-x: 50px;
-  --confetti-y: 75px;
-  animation-delay: 0.25s;
+.evo-mascot .evo-confetti--two {
+  top: 36%;
+  right: 13%;
+  background: #f08cab;
+  animation-delay: 0.3s;
 }
 
-.evo-confetti--three {
-  background: #f38da5;
-  --confetti-x: -68px;
-  --confetti-y: 80px;
+.evo-mascot .evo-confetti--three {
+  top: 60%;
+  left: 9%;
+  background: #79c9f2;
+  animation-delay: 0.7s;
+}
+
+.evo-mascot .evo-confetti--four {
+  top: 52%;
+  right: 7%;
+  background: #8dcc65;
   animation-delay: 0.5s;
 }
 
-.evo-confetti--four {
-  background: #7b9bff;
-  --confetti-x: 68px;
-  --confetti-y: 65px;
-  animation-delay: 0.75s;
-}
+/* =========================
+   EVO NAME
+   ========================= */
 
-/* =========================================================
-   ACHIEVEMENT BADGES
-   ========================================================= */
-
-.evo-achievement,
-.evo-encouragement-heart,
-.evo-happy-zap {
-  position: absolute;
+.evo-mascot .evo-mascot-name {
+  position: relative;
+  z-index: 2;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 18%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  z-index: 8;
-  box-shadow: 0 4px 12px rgba(25, 71, 62, 0.13);
-}
-
-.evo-achievement {
-  top: 12%;
-  right: 5%;
-  color: #fff;
-  background: linear-gradient(145deg, #ffd76b, #f4a91d);
-  animation: evo-badge-pop 1.2s ease-in-out infinite alternate;
-}
-
-.evo-encouragement-heart {
-  top: 22%;
-  right: 2%;
-  color: #f36e92;
-  background: #fff0f4;
-  animation: evo-heart-beat 1.2s ease-in-out infinite;
-}
-
-.evo-happy-zap {
-  top: 18%;
-  right: 3%;
-  color: #e6a51d;
-  background: #fff6d8;
-  animation: evo-zap 1s ease-in-out infinite alternate;
-}
-
-/* =========================================================
-   CHARACTER MOODS
-   ========================================================= */
-
-/* Idle */
-
-.evo-mascot--idle .evo-character {
-  animation: evo-idle 2.8s ease-in-out infinite;
-}
-
-/* Happy */
-
-.evo-mascot--happy .evo-character {
-  animation: evo-happy 1.1s ease-in-out infinite;
-}
-
-.evo-mascot--happy .evo-cheek {
-  opacity: 0.95;
-}
-
-/* Celebration */
-
-.evo-mascot--celebrate .evo-character {
-  animation: evo-celebrate 0.75s ease-in-out infinite;
-}
-
-.evo-mascot--celebrate .evo-body {
-  box-shadow:
-    inset -8px -11px 15px rgba(12, 119, 82, 0.13),
-    inset 5px 6px 12px rgba(255, 255, 255, 0.4),
-    0 0 24px rgba(67, 223, 154, 0.3);
-}
-
-/* Thinking */
-
-.evo-mascot--thinking .evo-character {
-  animation: evo-thinking 2s ease-in-out infinite;
-}
-
-/* Encouraging */
-
-.evo-mascot--encouraging .evo-character {
-  animation: evo-encouraging 1.8s ease-in-out infinite;
-}
-
-/* =========================================================
-   CHARACTER NAME
-   ========================================================= */
-
-.evo-mascot-name {
-  display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: center;
   gap: 7px;
-  margin-top: -3px;
-  color: #167b62;
+  margin-top: 0;
+  color: #347d39;
 }
 
-.evo-name-dot {
+.evo-mascot .evo-name-dot {
   width: 7px;
   height: 7px;
+  flex-shrink: 0;
   border-radius: 50%;
-  background: #31c98c;
-  box-shadow: 0 0 0 4px rgba(49, 201, 140, 0.12);
+  background: #78c850;
+  box-shadow: 0 0 0 4px #e9f8df;
 }
 
-.evo-mascot-name strong {
-  font-size: 18px;
+.evo-mascot .evo-mascot-name strong {
+  font-size: 17px;
   font-weight: 900;
-  letter-spacing: 2px;
+  letter-spacing: 0.12em;
 }
 
-.evo-name-caption {
-  font-size: 8px;
+.evo-mascot .evo-name-caption {
+  flex-basis: 100%;
+  color: #8a9b88;
+  font-size: 9px;
   font-weight: 800;
-  letter-spacing: 1px;
-  color: #7d9991;
+  letter-spacing: 0.16em;
 }
 
-/* =========================================================
-   OPTIONAL MESSAGE
-   ========================================================= */
+/* =========================
+   MASCOT MESSAGE
+   ========================= */
 
-.evo-mascot-message {
-  max-width: 300px;
-  margin: 12px auto 0;
+.evo-mascot .evo-mascot-message {
+  position: relative;
+  z-index: 2;
+  width: fit-content;
+  max-width: min(280px, 100%);
+  margin: 10px auto 0;
   padding: 10px 15px;
   border: 1px solid #d9f2e5;
   border-radius: 15px;
-  color: #28584c;
-  background: linear-gradient(
-    135deg,
-    #f1fff7,
-    #f7fffb
-  );
-  font-size: 14px;
-  line-height: 1.6;
+  color: #557052;
+  background: linear-gradient(135deg, #f1fff7, #f7fffb);
+  font-size: 13px;
   font-weight: 600;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
   box-shadow: 0 4px 14px rgba(27, 126, 86, 0.06);
-  animation: evo-message-appear 0.4s ease-out both;
 }
 
 /* =========================================================
-   ANIMATIONS
-   ========================================================= */
-
-@keyframes evo-idle {
-  0%,
-  100% {
-    transform: translateY(0) rotate(0deg);
-  }
-
-  50% {
-    transform: translateY(-7px) rotate(1deg);
-  }
-}
-
-@keyframes evo-happy {
-  0%,
-  100% {
-    transform: translateY(0) rotate(0deg) scale(1);
-  }
-
-  30% {
-    transform: translateY(-9px) rotate(-4deg) scale(1.02);
-  }
-
-  65% {
-    transform: translateY(-4px) rotate(4deg) scale(1.02);
-  }
-}
-
-@keyframes evo-celebrate {
-  0%,
-  100% {
-    transform: translateY(0) rotate(0deg) scale(1);
-  }
-
-  25% {
-    transform: translateY(-17px) rotate(-8deg) scale(1.04);
-  }
-
-  50% {
-    transform: translateY(-7px) rotate(5deg) scale(1.02);
-  }
-
-  75% {
-    transform: translateY(-15px) rotate(8deg) scale(1.04);
-  }
-}
-
-@keyframes evo-thinking {
-  0%,
-  100% {
-    transform: rotate(0deg) translateY(0);
-  }
-
-  40% {
-    transform: rotate(5deg) translateY(-3px);
-  }
-
-  70% {
-    transform: rotate(-3deg) translateY(-1px);
-  }
-}
-
-@keyframes evo-encouraging {
-  0%,
-  100% {
-    transform: translateY(0) rotate(0deg);
-  }
-
-  50% {
-    transform: translateY(-5px) rotate(-3deg);
-  }
-}
-
-@keyframes evo-shadow {
-  0%,
-  100% {
-    transform: scaleX(1);
-    opacity: 0.8;
-  }
-
-  50% {
-    transform: scaleX(0.8);
-    opacity: 0.5;
-  }
-}
-
-@keyframes evo-float {
-  0%,
-  100% {
-    transform: translateY(0) rotate(0deg);
-  }
-
-  50% {
-    transform: translateY(-9px) rotate(12deg);
-  }
-}
-
-@keyframes evo-confetti-fall {
-  0% {
-    transform: translate(0, 0) rotate(0deg) scale(0.5);
-    opacity: 0;
-  }
-
-  15% {
-    opacity: 1;
-  }
-
-  100% {
-    transform: translate(
-      var(--confetti-x),
-      var(--confetti-y)
-    ) rotate(240deg) scale(1);
-    opacity: 0;
-  }
-}
-
-@keyframes evo-badge-pop {
-  0% {
-    transform: scale(0.92) rotate(-8deg);
-  }
-
-  100% {
-    transform: scale(1.08) rotate(8deg);
-  }
-}
-
-@keyframes evo-heart-beat {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-
-  15% {
-    transform: scale(1.16);
-  }
-
-  30% {
-    transform: scale(1);
-  }
-
-  45% {
-    transform: scale(1.12);
-  }
-}
-
-@keyframes evo-zap {
-  from {
-    transform: rotate(-8deg) scale(0.95);
-  }
-
-  to {
-    transform: rotate(8deg) scale(1.08);
-  }
-}
-
-@keyframes evo-star-eye {
-  from {
-    transform: scale(0.88) rotate(-8deg);
-  }
-
-  to {
-    transform: scale(1) rotate(8deg);
-  }
-}
-
-@keyframes evo-message-appear {
-  from {
-    opacity: 0;
-    transform: translateY(7px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* =========================================================
-   RESPONSIVE DESIGN
-   ========================================================= */
-
-@media (max-width: 480px) {
-  .evo-mascot-message {
-    max-width: 260px;
-    font-size: 13px;
-  }
-
-  .evo-name-caption {
-    font-size: 7px;
-  }
-}
-
-/* =========================================================
-   ACCESSIBILITY: REDUCED MOTION
-   ========================================================= */
-
-@media (prefers-reduced-motion: reduce) {
-  .evo-mascot *,
-  .evo-mascot *::before,
-  .evo-mascot *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    scroll-behavior: auto !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-/* =========================================================
-   TOPIC COMPLETION MODAL
+   TOPIC COMPLETION MODAL — OVERLAY
    ========================================================= */
 
 .evo-completion-overlay {
   position: fixed;
   inset: 0;
   z-index: 9999;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
-  overflow-y: auto;
+
+  padding: 16px;
+  box-sizing: border-box;
+  overflow: hidden;
+
   background: rgba(17, 42, 39, 0.58);
   backdrop-filter: blur(7px);
   -webkit-backdrop-filter: blur(7px);
+
   animation: evo-overlay-appear 0.25s ease-out both;
 }
 
+/* =========================================================
+   MAIN MODAL
+   ========================================================= */
+
 .evo-completion-modal {
   position: relative;
-  width: min(100%, 465px);
-  max-height: calc(100dvh - 40px);
+
+  display: flex;
+  flex-direction: column;
+
+  width: min(100%, 520px);
+  max-width: 520px;
+  max-height: calc(100dvh - 32px);
+
+  margin: auto;
+  padding: 22px 26px 18px;
+
+  box-sizing: border-box;
+  overflow-x: hidden;
   overflow-y: auto;
-  padding: 28px 28px 22px;
+  overscroll-behavior: contain;
+
   border: 1px solid rgba(255, 255, 255, 0.85);
-  border-radius: 27px;
+  border-radius: 26px;
+
   background:
     radial-gradient(
       circle at 50% 25%,
@@ -910,24 +367,41 @@
       transparent 38%
     ),
     linear-gradient(160deg, #ffffff, #f4fff8 100%);
+
   box-shadow: 0 25px 90px rgba(12, 51, 41, 0.28);
+
   animation: evo-modal-appear 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
+/* Prevent content from widening the modal */
+.evo-completion-modal > * {
+  min-width: 0;
+}
+
+/* =========================
+   CLOSE BUTTON
+   ========================= */
+
 .evo-completion-close {
   position: absolute;
-  top: 15px;
-  right: 15px;
-  z-index: 3;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+
   display: grid;
   width: 36px;
   height: 36px;
+  flex-shrink: 0;
   place-items: center;
+
   border: 1px solid #e5f0e9;
   border-radius: 50%;
+
   color: #648078;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
+
   cursor: pointer;
+
   transition:
     background 0.2s ease,
     color 0.2s ease,
@@ -943,13 +417,17 @@
 .evo-completion-close:focus-visible,
 .evo-completion-continue:focus-visible {
   outline: 3px solid #85e8b5;
-  outline-offset: 4px;
+  outline-offset: 3px;
 }
 
+/* =========================
+   HEADING
+   ========================= */
+
 .evo-completion-heading {
+  flex-shrink: 0;
+  padding: 5px 35px 0;
   text-align: center;
-  padding-right: 15px;
-  padding-left: 15px;
 }
 
 .evo-completion-eyebrow {
@@ -957,17 +435,19 @@
   align-items: center;
   justify-content: center;
   gap: 7px;
+
   color: #19966e;
   font-size: 10px;
   font-weight: 900;
-  letter-spacing: 1.2px;
+  letter-spacing: 1.1px;
+  line-height: 1.5;
 }
 
 .evo-completion-heading h2 {
-  margin: 10px 0 5px;
-  color: #173d35;
-  font-size: clamp(27px, 6vw, 34px);
-  line-height: 1.15;
+  margin: 7px 0 5px;
+  color: #24334d;
+  font-size: clamp(27px, 5vw, 34px);
+  line-height: 1.12;
   font-weight: 900;
   letter-spacing: -1px;
 }
@@ -976,37 +456,57 @@
   margin: 0;
   color: #71877e;
   font-size: 13px;
-  line-height: 1.6;
+  line-height: 1.5;
 }
+
+/* =========================
+   EVO CELEBRATION AREA
+   ========================= */
 
 .evo-completion-mascot {
   position: relative;
+
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 215px;
-  margin: 4px 0 12px;
-  overflow: hidden;
+
+  flex-shrink: 0;
+  min-height: 0;
+  height: 245px;
+  margin: 0 0 8px;
+
+  overflow: visible;
   border-radius: 24px;
+
   background:
     radial-gradient(
-      circle at 50% 50%,
+      circle at 50% 45%,
       rgba(135, 238, 180, 0.2),
-      transparent 57%
+      transparent 60%
     );
 }
 
 .evo-completion-mascot > .evo-mascot {
+  position: relative;
   z-index: 2;
+  flex-shrink: 0;
 }
 
+/* Orbit rings */
 .evo-completion-orbit {
   position: absolute;
+  top: 50%;
+  left: 50%;
+
   width: 172px;
   height: 172px;
+
   border: 1px dashed rgba(48, 192, 130, 0.28);
   border-radius: 50%;
+
   pointer-events: none;
+  transform: translate(-50%, -50%);
 }
 
 .evo-orbit-one {
@@ -1020,14 +520,22 @@
   animation: evo-orbit-spin 30s linear infinite reverse;
 }
 
+/* =========================
+   COMPLETED TOPIC CARD
+   ========================= */
+
 .evo-completion-topic {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 13px 15px;
+
+  flex-shrink: 0;
+  min-width: 0;
+  padding: 11px 13px;
+
   border: 1px solid #e0f2e7;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.92);
 }
 
 .evo-completion-topic-icon {
@@ -1036,9 +544,14 @@
   width: 40px;
   height: 40px;
   place-items: center;
+
   color: #14966a;
   border-radius: 13px;
   background: #e4fff0;
+}
+
+.evo-completion-topic > div {
+  min-width: 0;
 }
 
 .evo-completion-topic-label {
@@ -1049,23 +562,33 @@
 }
 
 .evo-completion-topic h3 {
-  margin: 4px 0 0;
+  margin: 3px 0 0;
   color: #21473b;
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1.4;
   overflow-wrap: anywhere;
 }
 
+/* =========================
+   XP REWARD CARD
+   ========================= */
+
 .evo-completion-xp-card {
   position: relative;
+
   display: flex;
   align-items: center;
-  gap: 13px;
-  margin-top: 13px;
-  padding: 16px;
+  gap: 12px;
+
+  flex-shrink: 0;
+  min-width: 0;
+  margin-top: 10px;
+  padding: 12px 14px;
+
   overflow: hidden;
   border: 1px solid #f5df9d;
   border-radius: 18px;
+
   background: linear-gradient(120deg, #fff8df, #fffdf4);
 }
 
@@ -1074,10 +597,13 @@
   position: absolute;
   top: -40px;
   right: 30px;
+
   width: 100px;
   height: 100px;
+
   border-radius: 50%;
   background: rgba(255, 204, 86, 0.12);
+
   pointer-events: none;
 }
 
@@ -1087,6 +613,7 @@
   width: 47px;
   height: 47px;
   place-items: center;
+
   color: #fff;
   border-radius: 15px;
   background: linear-gradient(145deg, #ffd95f, #f4a91d);
@@ -1094,38 +621,54 @@
 }
 
 .evo-completion-xp-copy {
+  position: relative;
+  z-index: 1;
+
   display: flex;
   flex: 1;
-  min-width: 0;
   flex-direction: column;
   gap: 4px;
+
+  min-width: 0;
 }
 
 .evo-completion-xp-copy > span {
   color: #8a7950;
   font-size: 11px;
   font-weight: 700;
+  line-height: 1.4;
 }
 
 .evo-completion-xp-copy > strong {
   color: #a46c0d;
   font-size: clamp(22px, 5vw, 27px);
-  line-height: 1.2;
+  line-height: 1.15;
   font-weight: 900;
+
   animation: evo-xp-reveal 0.6s ease-out both;
 }
 
 .evo-completion-star {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
   color: #eeb12c;
   animation: evo-star-eye 1.2s ease-in-out infinite alternate;
 }
+
+/* =========================
+   TOTAL XP
+   ========================= */
 
 .evo-completion-total {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  padding: 15px 3px;
+
+  flex-shrink: 0;
+  padding: 11px 3px;
+
   border-bottom: 1px solid #e6f0e9;
 }
 
@@ -1133,12 +676,14 @@
   display: flex;
   align-items: center;
   gap: 8px;
+
   color: #58746a;
   font-size: 12px;
   font-weight: 700;
 }
 
 .evo-completion-total > span svg {
+  flex-shrink: 0;
   color: #dca52d;
 }
 
@@ -1146,14 +691,23 @@
   color: #1a7657;
   font-size: 16px;
   font-weight: 900;
+  white-space: nowrap;
 }
+
+/* =========================
+   LEARNING STREAK
+   ========================= */
 
 .evo-completion-streak {
   display: flex;
   align-items: flex-start;
-  gap: 11px;
-  margin-top: 14px;
-  padding: 13px;
+  gap: 10px;
+
+  flex-shrink: 0;
+  min-width: 0;
+  margin-top: 10px;
+  padding: 11px;
+
   border: 1px solid #f4e1cf;
   border-radius: 16px;
   background: #fff8f0;
@@ -1170,6 +724,7 @@
   width: 39px;
   height: 39px;
   place-items: center;
+
   color: #ef8b43;
   border-radius: 13px;
   background: #ffead7;
@@ -1189,7 +744,8 @@
   display: block;
   color: #774b2f;
   font-size: 12px;
-  line-height: 1.5;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
 }
 
 .evo-completion-streak--active
@@ -1198,10 +754,11 @@
 }
 
 .evo-completion-streak-copy > p {
-  margin: 4px 0 0;
+  margin: 3px 0 0;
   color: #927864;
   font-size: 11px;
-  line-height: 1.6;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 .evo-completion-streak--active
@@ -1215,24 +772,35 @@
   color: #28ad71;
 }
 
+/* =========================
+   CONTINUE BUTTON
+   ========================= */
+
 .evo-completion-continue {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
+
+  flex-shrink: 0;
   width: 100%;
-  min-height: 51px;
-  margin-top: 18px;
-  padding: 13px 18px;
+  min-height: 46px;
+  margin-top: 12px;
+  padding: 11px 16px;
+
   border: 0;
   border-radius: 15px;
-  color: white;
+
+  color: #fff;
   background: linear-gradient(100deg, #21b87f, #159b83);
   box-shadow: 0 7px 17px rgba(26, 166, 117, 0.2);
+
   font: inherit;
   font-size: 14px;
   font-weight: 800;
+
   cursor: pointer;
+
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease,
@@ -1250,6 +818,7 @@
 }
 
 .evo-completion-continue svg {
+  flex-shrink: 0;
   transition: transform 0.2s ease;
 }
 
@@ -1257,12 +826,22 @@
   transform: translateX(4px);
 }
 
+/* =========================
+   FOOTER
+   ========================= */
+
 .evo-completion-footer {
-  margin: 13px 0 0;
+  flex-shrink: 0;
+  margin: 9px 0 0;
   color: #8aa096;
   font-size: 11px;
+  line-height: 1.5;
   text-align: center;
 }
+
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
 
 @keyframes evo-overlay-appear {
   from {
@@ -1277,7 +856,7 @@
 @keyframes evo-modal-appear {
   from {
     opacity: 0;
-    transform: translateY(22px) scale(0.96);
+    transform: translateY(14px) scale(0.98);
   }
 
   to {
@@ -1288,11 +867,11 @@
 
 @keyframes evo-orbit-spin {
   from {
-    transform: rotate(0deg);
+    transform: translate(-50%, -50%) rotate(0deg);
   }
 
   to {
-    transform: rotate(360deg);
+    transform: translate(-50%, -50%) rotate(360deg);
   }
 }
 
@@ -1308,41 +887,253 @@
   }
 }
 
-@media (max-width: 480px) {
-  .evo-completion-overlay {
-    align-items: center;
-    padding: 12px;
+@keyframes evo-mascot-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg);
   }
 
+  50% {
+    transform: translateY(-8px) rotate(1deg);
+  }
+}
+
+@keyframes evo-mascot-happy {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-2deg);
+  }
+
+  50% {
+    transform: translateY(-10px) rotate(2deg);
+  }
+}
+
+@keyframes evo-mascot-celebrate {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg) scale(1);
+  }
+
+  50% {
+    transform: translateY(-11px) rotate(3deg) scale(1.035);
+  }
+}
+
+@keyframes evo-mascot-think {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+
+  50% {
+    transform: rotate(3deg);
+  }
+}
+
+@keyframes evo-mascot-encourage {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes evo-mascot-sparkle {
+  0%,
+  100% {
+    transform: scale(0.85) rotate(-8deg);
+    opacity: 0.7;
+  }
+
+  50% {
+    transform: scale(1.12) rotate(8deg);
+    opacity: 1;
+  }
+}
+
+@keyframes evo-mascot-heart {
+  0%,
+  100% {
+    transform: translateY(0) scale(0.92);
+  }
+
+  50% {
+    transform: translateY(-7px) scale(1.08);
+  }
+}
+
+@keyframes evo-mascot-confetti {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+
+  50% {
+    transform: translateY(-12px) rotate(25deg);
+  }
+}
+
+@keyframes evo-star-eye {
+  from {
+    transform: scale(0.88) rotate(-8deg);
+  }
+
+  to {
+    transform: scale(1) rotate(8deg);
+  }
+}
+
+/* =========================================================
+   RESPONSIVE — SHORT SCREENS
+   ========================================================= */
+
+@media (max-height: 800px) {
   .evo-completion-modal {
-    max-height: calc(100dvh - 24px);
-    padding: 24px 18px 18px;
-    border-radius: 22px;
+    padding-top: 17px;
+    padding-bottom: 15px;
   }
 
   .evo-completion-mascot {
-    min-height: 195px;
+    height: 185px;
+    margin-bottom: 5px;
+  }
+
+  .evo-completion-topic {
+    padding: 9px 12px;
+  }
+
+  .evo-completion-xp-card {
+    margin-top: 8px;
+    padding: 10px 12px;
+  }
+
+  .evo-completion-total {
+    padding: 9px 3px;
+  }
+
+  .evo-completion-streak {
+    margin-top: 8px;
+    padding: 9px;
+  }
+
+  .evo-completion-continue {
+    min-height: 43px;
+    margin-top: 9px;
+  }
+}
+
+@media (max-height: 650px) {
+  .evo-completion-modal {
+    padding-top: 12px;
+    padding-bottom: 10px;
+  }
+
+  .evo-completion-heading h2 {
+    font-size: 25px;
+    margin: 5px 0 3px;
+  }
+
+  .evo-completion-heading > p {
+    font-size: 12px;
+  }
+
+  .evo-completion-mascot {
+    height: 135px;
+    margin-bottom: 4px;
+  }
+
+  .evo-completion-topic-icon {
+    width: 34px;
+    height: 34px;
+  }
+
+  .evo-completion-xp-icon {
+    width: 39px;
+    height: 39px;
+  }
+
+  .evo-completion-footer {
+    margin-top: 5px;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE — MOBILE
+   ========================================================= */
+
+@media (max-width: 480px) {
+  .evo-completion-overlay {
+    padding: 10px;
+  }
+
+  .evo-completion-modal {
+    width: 100%;
+    max-width: 100%;
+    max-height: calc(100dvh - 20px);
+    padding: 18px 16px 15px;
+    border-radius: 22px;
+  }
+
+  .evo-completion-heading {
+    padding-right: 25px;
+    padding-left: 25px;
+  }
+
+  .evo-completion-eyebrow {
+    font-size: 9px;
+    letter-spacing: 0.8px;
+  }
+
+  .evo-completion-heading h2 {
+    font-size: 28px;
+  }
+
+  .evo-completion-mascot {
+    height: 190px;
+  }
+
+  .evo-mascot-stage {
+    width: calc(var(--evo-size) * 1.3);
+    height: calc(var(--evo-size) * 1.05);
   }
 
   .evo-completion-orbit {
-    width: 150px;
-    height: 150px;
+    width: 145px;
+    height: 145px;
   }
 
   .evo-orbit-two {
-    width: 180px;
-    height: 180px;
+    width: 175px;
+    height: 175px;
+  }
+
+  .evo-completion-xp-copy > span {
+    font-size: 10px;
+  }
+
+  .evo-completion-streak-copy > p {
+    font-size: 10px;
   }
 }
+
+/* =========================================================
+   ACCESSIBILITY — REDUCED MOTION
+   ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
   .evo-completion-overlay,
   .evo-completion-modal,
-  .evo-completion-xp-copy > strong {
-    animation: none;
-  }
-
-  .evo-completion-orbit {
-    animation: none;
+  .evo-completion-xp-copy > strong,
+  .evo-completion-orbit,
+  .evo-completion-star,
+  .evo-mascot *,
+  .evo-mascot *::before,
+  .evo-mascot *::after {
+    animation: none !important;
+    transition: none !important;
   }
 }
