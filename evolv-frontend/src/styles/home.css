@@ -1513,3 +1513,382 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* =========================================
+   EVOLV — Animated Learning Companion
+========================================= */
+
+.home-loading-screen {
+  min-height: 68vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 20px;
+  overflow: hidden;
+  text-align: center;
+  background:
+    radial-gradient(
+      circle at 50% 40%,
+      rgba(224, 244, 255, 0.7),
+      transparent 40%
+    ),
+    #fbfcff;
+  border-radius: 28px;
+}
+
+.home-loading-scene {
+  position: relative;
+  width: 260px;
+  height: 245px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Original EVO mascot */
+
+.evo-loader {
+  position: relative;
+  width: 140px;
+  height: 165px;
+  animation: evo-float 1.8s ease-in-out infinite;
+  z-index: 2;
+}
+
+.evo-loader-body {
+  position: absolute;
+  top: 35px;
+  left: 10px;
+  width: 120px;
+  height: 112px;
+  border-radius: 48% 48% 43% 43%;
+  background: linear-gradient(145deg, #b9f4d2 0%, #61d8a0 100%);
+  border: 3px solid #38b980;
+  box-shadow:
+    inset -9px -9px 0 rgba(28, 159, 105, 0.12),
+    0 10px 0 rgba(62, 187, 132, 0.12);
+}
+
+.evo-loader-leaf {
+  position: absolute;
+  top: 13px;
+  width: 29px;
+  height: 48px;
+  background: linear-gradient(145deg, #a6edc0, #42c98d);
+  border: 3px solid #38b980;
+  border-radius: 90% 10% 85% 15%;
+  z-index: 1;
+}
+
+.evo-leaf-left {
+  left: 38px;
+  transform: rotate(-32deg);
+}
+
+.evo-leaf-right {
+  right: 38px;
+  transform: rotate(58deg) scaleX(-1);
+}
+
+.evo-loader-eye {
+  position: absolute;
+  top: 39px;
+  width: 17px;
+  height: 23px;
+  background: #193e3a;
+  border-radius: 50%;
+  animation: evo-blink 4s infinite;
+}
+
+.evo-eye-left {
+  left: 31px;
+}
+
+.evo-eye-right {
+  right: 31px;
+}
+
+.evo-loader-eye span {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 5px;
+  height: 6px;
+  background: white;
+  border-radius: 50%;
+}
+
+.evo-loader-cheek {
+  position: absolute;
+  top: 68px;
+  width: 15px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff9eac;
+  opacity: 0.85;
+}
+
+.evo-cheek-left {
+  left: 15px;
+}
+
+.evo-cheek-right {
+  right: 15px;
+}
+
+.evo-loader-mouth {
+  position: absolute;
+  top: 66px;
+  left: 53px;
+  width: 13px;
+  height: 8px;
+  border-bottom: 3px solid #193e3a;
+  border-radius: 0 0 50% 50%;
+}
+
+.evo-loader-shadow {
+  position: absolute;
+  bottom: -1px;
+  left: 20px;
+  width: 100px;
+  height: 14px;
+  background: rgba(49, 94, 89, 0.12);
+  border-radius: 50%;
+  animation: evo-shadow 1.8s ease-in-out infinite;
+}
+
+/* Floating stars */
+
+.home-loading-star {
+  position: absolute;
+  color: #f3bd4f;
+  font-size: 27px;
+  animation: evo-sparkle 2s ease-in-out infinite;
+}
+
+.loading-star-one {
+  top: 34px;
+  left: 28px;
+}
+
+.loading-star-two {
+  top: 65px;
+  right: 22px;
+  color: #83a5ff;
+  animation-delay: 0.6s;
+}
+
+.loading-star-three {
+  bottom: 39px;
+  left: 38px;
+  color: #fa9bb4;
+  animation-delay: 1s;
+}
+
+/* Learning symbols */
+
+.home-loading-symbol {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 43px;
+  height: 43px;
+  border-radius: 15px;
+  background: white;
+  box-shadow: 0 7px 22px rgba(47, 74, 116, 0.1);
+  font-size: 21px;
+  font-weight: 800;
+}
+
+.loading-symbol-book {
+  top: 28px;
+  right: 24px;
+  animation: evo-orbit 2.4s ease-in-out infinite;
+}
+
+.loading-symbol-bulb {
+  bottom: 37px;
+  right: 23px;
+  animation: evo-orbit 2.4s ease-in-out infinite 0.7s;
+}
+
+.loading-symbol-code {
+  bottom: 20px;
+  left: 13px;
+  color: #6481ef;
+  font-size: 15px;
+  animation: evo-orbit 2.4s ease-in-out infinite 1.2s;
+}
+
+/* Loading message */
+
+.home-loading-copy {
+  max-width: 400px;
+  width: 100%;
+  margin-top: 12px;
+}
+
+.home-loading-brand {
+  display: inline-block;
+  color: #263d59;
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 3px;
+}
+
+.home-loading-brand span {
+  color: #55c996;
+}
+
+.home-loading-copy h2 {
+  margin: 13px 0 8px;
+  color: #243750;
+  font-size: clamp(22px, 3vw, 29px);
+  font-weight: 800;
+  letter-spacing: -0.8px;
+}
+
+.home-loading-copy p {
+  margin: 0;
+  color: #7b8a9e;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.home-loading-progress {
+  width: 185px;
+  height: 7px;
+  margin: 24px auto 15px;
+  overflow: hidden;
+  border-radius: 20px;
+  background: #e9eef6;
+}
+
+.home-loading-progress span {
+  display: block;
+  width: 40%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #57d6a0, #8b9eff);
+  animation: evo-progress 1.5s ease-in-out infinite;
+}
+
+.home-loading-caption {
+  color: #91a0b2;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+}
+
+.home-loading-caption span {
+  padding: 0 5px;
+  color: #59c99b;
+}
+
+/* Animations */
+
+@keyframes evo-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-2deg);
+  }
+
+  50% {
+    transform: translateY(-13px) rotate(2deg);
+  }
+}
+
+@keyframes evo-shadow {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+
+  50% {
+    transform: scale(0.75);
+    opacity: 0.4;
+  }
+}
+
+@keyframes evo-sparkle {
+  0%,
+  100% {
+    transform: scale(0.8) rotate(0deg);
+    opacity: 0.55;
+  }
+
+  50% {
+    transform: scale(1.2) rotate(18deg);
+    opacity: 1;
+  }
+}
+
+@keyframes evo-orbit {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-5deg);
+  }
+
+  50% {
+    transform: translateY(-9px) rotate(7deg);
+  }
+}
+
+@keyframes evo-blink {
+  0%,
+  43%,
+  47%,
+  100% {
+    transform: scaleY(1);
+  }
+
+  45% {
+    transform: scaleY(0.08);
+  }
+}
+
+@keyframes evo-progress {
+  0% {
+    transform: translateX(-110%);
+  }
+
+  100% {
+    transform: translateX(360%);
+  }
+}
+
+/* Smaller screens */
+
+@media (max-width: 600px) {
+  .home-loading-screen {
+    min-height: 60vh;
+    padding: 30px 14px;
+    border-radius: 20px;
+  }
+
+  .home-loading-scene {
+    transform: scale(0.9);
+    margin: -8px 0;
+  }
+
+  .home-loading-copy h2 {
+    font-size: 23px;
+  }
+}
+
+/* Respect accessibility preferences */
+
+@media (prefers-reduced-motion: reduce) {
+  .evo-loader,
+  .evo-loader-shadow,
+  .home-loading-star,
+  .home-loading-symbol,
+  .evo-loader-eye,
+  .home-loading-progress span {
+    animation: none !important;
+  }
+}

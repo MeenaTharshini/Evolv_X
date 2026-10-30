@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Numbers and Calculations — EVOLV Adventure World</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#070b17;--card:#0b1226;--c2:#10192f;--line:#1e2d52;--cy:#4fd1ff;--am:#ffb84a;--gr:#4ade80;--rd:#ff6b81;--tx:#eef2ff;--mu:#8493b8;--mono:"JetBrains Mono",ui-monospace,Menlo,monospace;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;background:radial-gradient(1100px 560px at 50% -8%,#10204a,transparent 60%),var(--bg);color:var(--tx);font-family:Outfit,"Noto Sans Tamil",system-ui,sans-serif}
+body.paused *{animation-play-state:paused!important}
+.app{max-width:900px;margin:0 auto;padding:14px}
+.stage{position:relative;overflow:hidden;background:linear-gradient(180deg,#0c1329,#080d1d);border:1px solid var(--line);border-radius:22px;padding:20px 18px 18px}
+.stage::before{content:"";position:absolute;inset:0;background:linear-gradient(#4f8cff12 1px,transparent 1px) 0 0/34px 34px,linear-gradient(90deg,#4f8cff12 1px,transparent 1px) 0 0/34px 34px;pointer-events:none}
+.stage>*{position:relative}
+.ff{position:absolute!important;width:5px;height:5px;border-radius:50%;background:var(--gr);box-shadow:0 0 10px 3px #4ade8088;animation:ff 7s ease-in-out infinite;pointer-events:none}
+@keyframes ff{0%,100%{transform:translate(0,0);opacity:.15}50%{transform:translate(24px,-30px);opacity:1}}
+.logo{display:flex;justify-content:center;align-items:center;gap:12px;font-weight:800;letter-spacing:.28em;font-size:19px}
+.world{text-align:center;font:600 12px var(--mono);color:var(--gr);letter-spacing:.2em;margin-top:4px}
+.path{margin:6px 0 4px}.path svg{width:100%;height:auto;display:block;overflow:visible}
+#pBase{fill:none;stroke:#1b2a50;stroke-width:7;stroke-linecap:round;stroke-dasharray:2 12}
+#pLit{fill:none;stroke:var(--gr);stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset 1.2s ease;filter:drop-shadow(0 0 8px #4ade80)}
+.nd circle{fill:#0f1830;stroke:#2b3d6b;stroke-width:3;transition:.5s}.nd text{fill:var(--mu);font:700 22px Outfit;text-anchor:middle;dominant-baseline:central}
+.nd.done circle{fill:#0e3a2a;stroke:var(--gr);filter:drop-shadow(0 0 8px #4ade80)}.nd.done text{fill:var(--gr)}
+.nd.cur circle{stroke:var(--am);animation:pl 1.4s ease-in-out infinite}.nd.cur text{fill:var(--am)}
+@keyframes pl{50%{stroke-width:7;filter:drop-shadow(0 0 10px #ffb84a)}}
+.view{padding-top:6px}.view.in{animation:rise .5s ease}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}}
+.tags{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px}
+.pill{font:600 12px var(--mono);border:1px solid #2d6a55;color:var(--gr);background:#0d2a24;border-radius:99px;padding:5px 12px}
+.pill.lv{border-color:#6b5320;color:var(--am);background:#2a2110}.cnt{margin-left:auto;color:var(--mu);font-size:13px}
+h1{font-size:clamp(26px,5.5vw,42px);line-height:1.15;text-align:center;margin:14px 0}h1 em{font-style:normal;color:var(--am)}
+h2.qt{font-size:clamp(20px,4vw,27px);margin:4px 0 12px}
+.win{max-width:580px;margin:0 auto 14px;background:#0f1830;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 10px 30px #0008}
+.wh{display:flex;align-items:center;gap:7px;padding:9px 14px;border-bottom:1px solid var(--line);background:#0c1429;font:12px var(--mono);color:#7d8fc0}
+.wh i{width:11px;height:11px;border-radius:50%}.wh span:last-child{margin-left:auto;font-size:11px}
+.ln{display:flex;gap:14px;padding:4px 14px;font:15px/1.5 var(--mono);white-space:pre;transition:.5s;border-left:3px solid transparent;overflow-x:auto}
+.ln .n{color:#4a5a86;min-width:14px}.ln.on{background:#4ade8018;border-left-color:var(--gr)}.ln.off{opacity:.35}
+i.k{color:#a78bfa;font-style:normal;font-weight:600}i.s{color:var(--am);font-style:normal}i.n{color:#6ee7a0;font-style:normal}i.b{color:var(--cy);font-style:normal;font-weight:600}i.f{color:#7dd3fc;font-style:normal}
+.blank{display:inline-block;min-width:70px;text-align:center;border-bottom:2px dashed var(--am);color:var(--am);animation:pl2 1.4s infinite}.blank.fill{border-bottom-color:var(--gr);background:#4ade8022;animation:none;padding:0 6px}
+@keyframes pl2{50%{background:#ffb84a22}}
+.ask{color:#c9d4f5;margin:6px 0 10px;font-size:17px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{display:flex;gap:10px;align-items:center;text-align:left;background:var(--c2);color:var(--tx);border:1px solid var(--line);border-radius:12px;padding:12px;font:600 14px var(--mono);cursor:pointer;transition:.2s}
+.opt:hover:not(:disabled){border-color:var(--cy);transform:translateY(-2px)}.opt b{display:grid;place-items:center;flex:none;min-width:26px;height:26px;border-radius:8px;background:#1a2748;color:var(--cy);font:700 13px Outfit}
+.opt.bad{border-color:var(--rd);background:#2a1220;opacity:.6;animation:sh .4s}.opt.good{border-color:var(--gr);background:#0e3a2a;box-shadow:0 0 18px #4ade8066}
+.opt:disabled{cursor:default}@keyframes sh{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.hint{margin-top:10px;border:1px solid #6b5320;background:#2a2110;color:#ffd998;border-radius:12px;padding:10px 14px;animation:rise .4s}
+.conds{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.cd{display:flex;align-items:center;gap:10px;border-radius:10px;padding:7px 12px;border:1px solid;animation:pop .35s;font-size:13px}
+.cd code{font-family:var(--mono)}.cd b{font-size:11px;letter-spacing:.1em;padding:2px 8px;border-radius:99px;color:#04130b}
+.c1{border-color:#2d6a55;background:#0d2a24}.c1 b{background:var(--gr)}.c0{border-color:#7a2d44;background:#2a1220}.c0 b{background:var(--rd)}
+.c2{border-color:#1d5a73;background:#0b2233}.c2 b{background:var(--cy)}.c3{border-color:#6b5320;background:#2a2110}.c3 b{background:var(--am)}
+@keyframes pop{from{transform:scale(.6);opacity:0}}
+.out{margin-top:12px;background:#050912;border:1px solid var(--line);border-radius:12px;padding:10px 14px;font:600 16px var(--mono);color:var(--gr)}
+.out small{display:block;color:var(--mu);font-size:11px;letter-spacing:.14em;margin-bottom:4px}#ot{white-space:pre-wrap}
+.why{margin-top:12px;border:1px solid #1d5a73;background:#0b2233;border-radius:12px;padding:12px 14px;line-height:1.5;animation:rise .4s}.why strong{color:var(--cy)}
+.btn{display:block;margin:14px auto 0;background:var(--am);color:#2a1a00;border:0;border-radius:99px;padding:12px 28px;font:800 16px Outfit;cursor:pointer;transition:.2s;animation:pop .4s}.btn:hover{transform:scale(1.05)}
+.btn:disabled{background:var(--gr);cursor:default;transform:none}.btn.alt{background:var(--c2);color:var(--tx);border:1px solid var(--line)}
+.nar{display:flex;gap:12px;align-items:center;margin-top:16px}
+.evo{flex:none;width:58px;height:58px;filter:drop-shadow(0 0 10px #4fd1ff88);animation:fl 3s ease-in-out infinite}@keyframes fl{50%{transform:translateY(-5px)}}
+.eye{animation:bl 4s infinite;transform-origin:center;transform-box:fill-box}@keyframes bl{94%,100%{transform:scaleY(1)}97%{transform:scaleY(.1)}}
+.sub{flex:1;background:#0a1020;border:1px solid var(--line);border-radius:12px;padding:12px 16px;text-align:center;font-size:16px;line-height:1.45;min-height:50px}
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px;margin:14px 0}
+.chip{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13px;font-weight:600;color:#cfd8f5}
+.chip .bar{height:4px;border-radius:9px;background:#26345c;margin-bottom:8px;overflow:hidden}.chip .bar i{display:block;height:100%;width:0;background:var(--cy);transition:width .6s}
+.chip.cur{border-color:var(--cy)}.chip.done .bar i{background:var(--gr)}.chip span{color:var(--mu);margin-right:5px}
+.ctl{display:flex;flex-wrap:wrap;gap:10px}
+.ctl button,.ctl select{background:var(--c2);color:var(--tx);border:1px solid var(--line);border-radius:99px;padding:12px 20px;font:600 15px Outfit;cursor:pointer}
+.ctl button.am{background:var(--am);color:#2a1a00;border-color:var(--am)}.ctl button.on{border-color:var(--cy);color:var(--cy)}
+.topics{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0}.topics span{border:1px solid var(--line);background:var(--c2);border-radius:99px;padding:6px 12px;font-size:13px;color:#c9d4f5}
+.meadow svg{width:100%;display:block;border-radius:14px;box-shadow:0 0 40px #4ade8033}
+.bl{transform-box:fill-box;transform-origin:50% 100%;animation:sway 2.4s ease-in-out infinite}@keyframes sway{50%{transform:rotate(6deg)}}
+.fl{transform-box:fill-box;transform-origin:50% 100%;animation:pop .6s backwards}
+.sun{animation:sun 2.4s ease-out}@keyframes sun{from{transform:translateY(70px);opacity:0}}
+.bf{animation:bf 8s ease-in-out infinite}.b2{animation-duration:11s;animation-direction:reverse}@keyframes bf{50%{transform:translate(120px,-14px)}}
+.res{display:flex;justify-content:center;align-items:center;gap:22px;flex-wrap:wrap;margin:14px 0 4px}
+.badge{width:110px;animation:pop .8s,fl 3s 1s infinite;filter:drop-shadow(0 0 16px #4ade8099)}
+.score{font-size:58px;font-weight:800;color:var(--gr);line-height:1}.score small{font-size:20px;color:var(--mu)}
+.dots{display:flex;gap:6px;margin-top:8px}.dots i{width:14px;height:14px;border-radius:50%;background:var(--am);animation:pop .4s backwards}.dots i.g{background:var(--gr);box-shadow:0 0 10px #4ade80}
+.xp{max-width:420px;margin:10px auto;text-align:center}.xp .tr{height:12px;background:#1a2748;border-radius:9px;overflow:hidden;margin-top:6px}.xp .tr i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cy),var(--gr));transition:width 1.8s ease}
+.tg{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin:12px 0}.tg div{display:flex;justify-content:space-between;gap:8px;border:1px solid var(--line);background:var(--c2);border-radius:10px;padding:8px 12px;font-size:14px}
+.tg .ok{border-color:#2d6a55}.tg .rv{border-color:#6b5320;color:#ffd998}
+.cf{position:absolute!important;top:-12px;width:9px;height:14px;border-radius:2px;animation:fall linear forwards;pointer-events:none;z-index:3}@keyframes fall{to{transform:translateY(1000px) rotate(720deg);opacity:.6}}
+.ban{text-align:center;font:800 13px Outfit;letter-spacing:.3em;color:var(--am);margin-top:6px}
+@media(max-width:560px){.opts{grid-template-columns:1fr}.ctl button,.ctl select{padding:10px 15px;font-size:14px}.sub{font-size:14px}.evo{width:46px;height:46px}}
+.lg{display:grid;grid-template-columns:1.1fr .9fr;gap:14px;align-items:start}.lg .win{max-width:none;margin:0 0 12px}
+@media(max-width:720px){.lg{grid-template-columns:1fr}}
+.mem{background:#0a1226;border:1px dashed #2b4a6b;border-radius:14px;padding:12px;min-height:150px;margin-top:10px}.lg .mem{margin-top:0}
+.mem small{color:var(--mu);letter-spacing:.14em;font-size:11px;display:block;margin-bottom:12px}
+#boxes{display:flex;flex-wrap:wrap;gap:16px;justify-content:center}
+.vb{text-align:center;animation:pop .5s}.vb.str{--c:#ffb84a}.vb.int{--c:#4fd1ff}.vb.float{--c:#4ade80}.vb.bool{--c:#a78bfa}
+.lab{display:inline-block;background:var(--c);color:#06101f;font:700 13px var(--mono);padding:2px 10px;border-radius:7px 7px 0 0}
+.bx{min-width:112px;height:72px;display:grid;place-items:center;padding:0 12px;border:2px solid var(--c);border-radius:4px 12px 12px 12px;background:linear-gradient(#ffffff0d,transparent);box-shadow:0 0 18px -3px var(--c)}
+.val{font:600 20px var(--mono);animation:drop .6s}.val s{color:var(--rd);opacity:.7}
+.vb.chg .bx{animation:flash .9s}.ty{margin-top:5px;font-size:11px;color:var(--c);letter-spacing:.06em}
+@keyframes drop{from{transform:translateY(-44px) scale(.6);opacity:0}}@keyframes flash{50%{background:#ffb84a33;transform:scale(1.08)}}
+#ot:empty::before{content:"nothing printed yet";color:#4a5a86;font-weight:400}.ol{animation:rise .4s}
+#cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;margin-top:12px}#cards:empty{display:none}
+.nm{border:1px solid;border-radius:12px;padding:12px;animation:pop .4s}.nm code{display:block;font:600 17px var(--mono);margin-bottom:6px}
+.nm b{font-size:11px;letter-spacing:.1em;padding:2px 8px;border-radius:99px;color:#04130b}.nm p{margin:8px 0 0;font-size:14px;color:#c9d4f5}
+.chip{cursor:pointer}.chip:hover{border-color:var(--cy)}#qa .win{margin-top:8px}#why .btn{margin-bottom:4px}
+.gate{position:absolute!important;inset:0;z-index:5;display:grid;place-items:center;text-align:center;background:#070b17ee;backdrop-filter:blur(4px);padding:20px}.gate p{color:var(--mu);margin:0 0 6px}.ctl select{max-width:100%}
+.brow{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:10px 0;animation:rise .4s}
+.nb{min-width:54px;height:54px;display:grid;place-items:center;padding:0 10px;border-radius:12px;font:700 22px var(--mono);background:#10264a;border:2px solid var(--cy);color:var(--cy);box-shadow:0 0 16px -3px var(--cy);animation:drop .6s backwards}
+.nb.rs{border-color:var(--gr);color:var(--gr);background:#0e3a2a;box-shadow:0 0 22px -2px var(--gr);transform:scale(1.1)}
+.op{font:800 26px var(--mono);color:var(--am);animation:pop .4s backwards}
+.dg{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:8px}.grp{display:flex;flex-wrap:wrap;gap:4px;width:92px;padding:8px;border:2px dashed #2b4a6b;border-radius:12px;justify-content:center;transition:.5s}
+.grp i{width:14px;height:14px;border-radius:50%;background:var(--cy);animation:pop .4s backwards}.grp.left i{background:var(--am)}
+.dg.q .grp:not(.left){border-color:var(--gr);box-shadow:0 0 16px -2px var(--gr)}.dg.r .grp.left{border-color:var(--am);box-shadow:0 0 16px -2px var(--am)}
+.dl{width:100%;text-align:center;color:#c9d4f5;font-size:14px;min-height:20px}
+</style></head><body>
+<div class="app">
+<section class="stage" id="stage">
+ <div class="logo"><svg width="34" height="34" viewBox="0 0 34 34"><rect x="2" y="18" width="8" height="14" rx="3" fill="#ffb84a"/><rect x="13" y="8" width="8" height="24" rx="3" fill="#4fd1ff"/><rect x="24" y="2" width="8" height="30" rx="3" fill="#ff6b9a"/></svg>EVOLV</div>
+ <div class="world">WORLD 1 · MEADOW · TOPIC 04 · NUMBERS &amp; CALCULATIONS</div>
+ <div class="gate" id="gate"><div><h1 style="margin:0 0 10px">Ready to enter the <em>Number Meadow</em>?</h1><p>🔊 Turn your volume up — EVO will narrate every scene.</p><button class="btn" id="go">▶ Start lesson with voice</button><button class="btn alt" id="go2">Start without voice</button></div></div>
+ <div class="view" id="view"></div>
+ <div class="nar"><svg class="evo" viewBox="0 0 60 60"><line x1="30" y1="4" x2="30" y2="12" stroke="#ffb84a" stroke-width="3"/><circle cx="30" cy="4" r="3.5" fill="#ffb84a"/><circle cx="30" cy="34" r="22" fill="#4fd1ff"/><rect x="14" y="24" width="32" height="20" rx="10" fill="#07102a"/><ellipse class="eye" cx="23" cy="34" rx="3.5" ry="4.5" fill="#4ade80"/><ellipse class="eye" cx="37" cy="34" rx="3.5" ry="4.5" fill="#4ade80"/></svg><div class="sub" id="sub"></div></div>
+</section>
+<div class="chips" id="chips"></div>
+<div class="ctl"><button class="am" id="bP">Pause</button><button id="bRp">Replay</button><button id="bV">Voice</button><button id="bM">Music</button><select id="vsel" aria-label="Voice"><option>Default voice</option></select><select id="asel" aria-label="Audio language"><option value="en">Audio: English</option><option value="ta">Audio: தமிழ் · Tamil</option></select>
+<select id="sel" aria-label="Subtitles"><option value="en">Subtitles: English</option><option value="ta">Subtitles: தமிழ் · Tamil</option><option value="off">Subtitles: Off</option></select></div>
+</div>
+<script>
+const $=s=>document.querySelector(s),esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+let run=0,paused=false,voiceOn=false,sub="en",nar=["",""],sc=0,qs=0,speaking=false,aud="en",VO=null,spk=0;
+const hi=l=>esc(l).replace(/("[^"]*")|\b(True|False)\b|\b(\d+(?:\.\d+)?)\b|\bprint\b/g,(m,a,b,n)=>a?`<i class=s>${m}</i>`:b?`<i class=b>${m}</i>`:n?`<i class=n>${m}</i>`:`<i class=f>${m}</i>`);
+const win=(c,f)=>`<div class="win"><div class="wh"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span>${f}</span><span>Python 3</span></div>${c.split("\n").map((l,k)=>`<div class="ln"><span class="n">${k+1}</span><code>${hi(l)}</code></div>`).join("")}</div>`;
+function meadow(){let g="",f="";for(let i=0;i<46;i++){const x=10+i*13+Math.random()*6,h=14+Math.random()*26,y=150+Math.random()*34;g+=`<path class="bl" d="M${x} ${y} q${(Math.random()-.5)*8} -${h/2} ${(Math.random()-.5)*10} -${h}" stroke="${i%3?"#4ade80":"#22c55e"}" stroke-width="2.5" fill="none" stroke-linecap="round" style="animation-delay:${Math.random()*2}s"/>`}
+ for(let i=0;i<14;i++){const x=30+i*42+Math.random()*16,y=135+Math.random()*40;f+=`<g class="fl" style="animation-delay:${.3+i*.12}s"><path d="M${x} ${y+16} V${y}" stroke="#2fa866" stroke-width="2"/><circle cx="${x}" cy="${y}" r="6" fill="${["#ffb84a","#ff6b9a","#4fd1ff","#ffffff"][i%4]}"/><circle cx="${x}" cy="${y}" r="2.5" fill="#fde68a"/></g>`}
+ return`<svg viewBox="0 0 600 190"><defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b1740"/><stop offset="1" stop-color="#14425a"/></linearGradient><radialGradient id="sg"><stop offset="0" stop-color="#ffe9a8"/><stop offset="1" stop-color="#ffb84a"/></radialGradient></defs><rect width="600" height="190" fill="url(#sk)"/><g class="sun"><circle cx="300" cy="104" r="46" fill="#ffb84a" opacity=".22"/><circle cx="300" cy="104" r="30" fill="url(#sg)"/></g><path d="M0 120 C100 80 200 130 300 105 S520 80 600 115 V190 H0Z" fill="#0f4a38"/><path d="M0 150 C120 110 240 160 360 135 S540 115 600 140 V190 H0Z" fill="#157a4a"/><path d="M0 172 C150 145 300 185 450 160 S560 150 600 160 V190 H0Z" fill="#1fa35f"/>${g}${f}<text class="bf" x="80" y="70" font-size="22">🦋</text><text class="bf b2" x="420" y="60" font-size="18">🦋</text></svg>`}
+
+const TY={str:"str · text",int:"int · whole number",float:"float · decimal",bool:"bool · True / False"},LB=["INVALID","VALID","RECAP"];
+const NM=["name",'"Maya"',"str"],AG=["age","19","int"];
+const E=(a,o,b,c)=>({clr:1,bk:[a,o,b,"=",c]});
+function bk(t){const r=document.createElement("div");r.className="brow";r.innerHTML=t.map((x,i)=>/^-?[\d.]+$/.test(x)?`<span class="nb${t[i-1]==="="?" rs":""}" style="animation-delay:${i*.18}s">${x}</span>`:`<span class="op" style="animation-delay:${i*.18}s">${esc(x)}</span>`).join("");$("#bk").appendChild(r);if(t.includes("="))sfx("drop")}
+function dots([n,g],h){const q=Math.floor(n/g),r=n%g,G=(c,k)=>`<div class="grp ${k}">${"<i></i>".repeat(c)}</div>`;let e=$("#dg");if(!e){e=document.createElement("div");e.id="dg";$("#bk").appendChild(e)}
+ e.className="dg "+(h||"");e.innerHTML=Array.from({length:q},()=>G(g,"")).join("")+(r?G(r,"left"):"")+`<div class="dl">${h==="q"?`${q} full groups of ${g} → quotient ${q}`:h==="r"?`${r} left over → remainder ${r}`:`${n} sweets to share`}</div>`}
+const SC=[
+{t:"Welcome to Number Meadow",m:1,mem:1,st:[
+["Welcome to Number Meadow! I’m EVO. Numbers are the building blocks that help us solve everyday problems, like counting items, sharing sweets, or working out a bill.","Number Meadow-க்கு வரவேற்கிறேன்! நான் EVO. எண்ணுவது, இனிப்பைப் பகிர்வது, பில் கணக்கிடுவது போன்ற அன்றாடப் பிரச்சனைகளுக்கு எண்களே அடிப்படை.",{bk:["3","+","4","=","7"]}],
+["Python has two main kinds of numbers. An int is a whole number, like seven. A float has a decimal point, like three point five.","Python-ல் இரண்டு முக்கிய எண் வகைகள்: int – முழு எண், 7 போல; float – தசம எண், 3.5 போல.",{set:[["apples","7","int"],["tea","3.5","float"]]}],
+["Python does the maths for us using symbols called operators. Today we’ll meet seven of them: add, subtract, multiply, divide, floor divide, modulo and power.","கணக்குகளை operators என்ற குறியீடுகள் மூலம் Python செய்யும். இன்று ஏழு operators: கூட்டல், கழித்தல், பெருக்கல், வகுத்தல், floor division, modulo, power.",{clr:1,bk:["+","-","*","/","//","%","**"]}]]},
+{t:"Addition and Subtraction",code:'print(10 + 5)\nprint(10 - 5)',st:[
+["Let’s start with addition. Line one adds ten and five using the plus sign.","கூட்டலில் தொடங்குவோம். முதல் வரி plus குறியால் 10 மற்றும் 5-ஐக் கூட்டுகிறது.",{hl:0,bk:["10","+","5"]}],
+["Python works it out and prints fifteen. Ten plus five makes fifteen.","Python கணக்கிட்டு 15-ஐ print செய்கிறது.",{hl:0,out:"15",...E("10","+","5","15")}],
+["Now subtraction. Line two takes five away from ten, using the minus sign.","இப்போது கழித்தல். இரண்டாம் வரி 10-லிருந்து 5-ஐ minus குறியால் கழிக்கிறது.",{hl:1,clr:1,bk:["10","-","5"]}],
+["The answer is five. Plus makes numbers bigger, and minus makes them smaller.","விடை 5. Plus எண்ணைப் பெரிதாக்கும்; minus சிறிதாக்கும்.",{hl:1,out:"5",...E("10","-","5","5")}],
+["Both answers are integers, because we started with whole numbers.","முழு எண்களுடன் தொடங்கியதால் இரண்டு விடைகளும் integers.",{hl:-1}]]},
+{t:"Multiplication and Division",code:'print(4 * 3)\nprint(12 / 4)',st:[
+["For multiplication we use the star symbol. Four times three means four, added three times.","பெருக்கலுக்கு star குறி. 4 times 3 என்றால் 4-ஐ மூன்று முறை கூட்டுவது.",{hl:0,bk:["4","*","3"]}],
+["Python prints twelve. The star is simply Python’s way of writing times.","Python 12-ஐ print செய்கிறது. Star என்பது 'times' என்பதன் Python வடிவம்.",{hl:0,out:"12",...E("4","*","3","12")}],
+["Division uses the forward slash. Twelve divided by four asks: how many fours fit into twelve?","வகுத்தலுக்கு slash குறி. 12 ÷ 4 என்றால் 12-ல் எத்தனை 4 உள்ளன?",{hl:1,clr:1,bk:["12","/","4"]}],
+["The answer is three, but Python prints three point zero. A slash always gives a float, even when the answer is a whole number.","விடை 3; ஆனால் Python 3.0 என்று print செய்கிறது. Slash எப்போதும் float தரும்.",{hl:1,out:"3.0",...E("12","/","4","3.0")}],
+["So remember: multiplying two ints gives an int, but a slash always gives a float.","நினைவில் வை: int × int = int; ஆனால் slash எப்போதும் float.",{hl:-1}]]},
+{t:"Floor Division and Modulo",code:'print(17 // 5)\nprint(17 % 5)',st:[
+["Imagine seventeen sweets shared into bags of five. How many full bags can we fill, and how many sweets are left?","17 இனிப்புகளை தலா 5 வீதம் பைகளில் போடுகிறோம். எத்தனை முழுப் பைகள்? எத்தனை மீதம்?",{hl:-1,dots:[17,5]}],
+["Double slash is floor division. It gives the number of full groups: three bags. This is called the quotient.","Double slash என்பது floor division. முழுக் குழுக்களின் எண்ணிக்கை: 3 பைகள். இது quotient.",{hl:0,out:"3",dots:[17,5],hot:"q"}],
+["The percent sign is modulo. It gives what’s left over after making full groups: two sweets. This is the remainder.","Percent குறி modulo. முழுக் குழுக்கள் செய்த பின் மீதம்: 2 இனிப்புகள். இது remainder.",{hl:1,out:"2",dots:[17,5],hot:"r"}],
+["So seventeen divided by five is three, remainder two. Double slash gives the three, and percent gives the two.","17 ÷ 5 = 3, மீதம் 2. Double slash 3-ஐயும், percent 2-ஐயும் தரும்.",{hl:-1,bk:["17","//","5","=","3"]}]]},
+{t:"Exponentiation",code:'print(2 ** 3)',st:[
+["Two stars together mean to the power of. Two to the power of three means: multiply two by itself, three times.","இரண்டு stars சேர்ந்தால் 'power'. 2 power 3 என்றால் 2-ஐ மூன்று முறை பெருக்குவது.",{hl:0,bk:["2","**","3"]}],
+["That’s two times two times two. Two times two is four, and four times two is eight.","அதாவது 2 × 2 × 2. 2 × 2 = 4; 4 × 2 = 8.",{hl:0,clr:1,bk:["2","*","2","*","2","=","8"]}],
+["Python prints eight. Powers grow very quickly!","Python 8-ஐ print செய்கிறது. Powers மிக வேகமாக வளரும்!",{hl:0,out:"8"}]]},
+{t:"Calculations with Variables",code:'price = 50\nquantity = 3\ntotal = price * quantity\nprint(total)',st:[
+["We can calculate with variables too. Here, price holds fifty.","Variables-உடனும் கணக்கிடலாம். price-ல் 50.",{hl:0,set:["price","50","int"]}],
+["And quantity holds three.","quantity-ல் 3.",{hl:1,set:["quantity","3","int"]}],
+["Line three multiplies price by quantity, and stores the answer in a new variable called total.","மூன்றாம் வரி price × quantity செய்து, விடையை total-ல் சேமிக்கிறது.",{hl:2,set:["total","150","int"],...E("50","*","3","150")}],
+["Printing total shows one hundred fifty. Python swaps each name for its value, then does the maths.","total-ஐ print செய்தால் 150. Python பெயர்களை மதிப்புகளாக மாற்றிக் கணக்கிடுகிறது.",{hl:3,out:"150"}],
+["Change price or quantity, and the total changes too. That’s why variables are so handy.","price அல்லது quantity-ஐ மாற்றினால் total தானாக மாறும். அதனால் தான் variables பயனுள்ளவை.",{hl:-1}]]},
+{t:"Order of Operations",code:'print(2 + 3 * 4)\nprint((2 + 3) * 4)',st:[
+["Python follows an order of operations, just like in maths. Multiplication happens before addition.","Python கணிதம் போலவே operations வரிசையைப் பின்பற்றும். கூட்டலுக்கு முன் பெருக்கல்.",{hl:0,bk:["2","+","3","*","4"]}],
+["So Python first does three times four, which is twelve, and then adds two. The answer is fourteen.","முதலில் 3 × 4 = 12, பிறகு 2-ஐக் கூட்டினால் 14.",{hl:0,out:"14",clr:1,bk:["3","*","4","=","12"]}],
+["Parentheses change the order. Anything inside brackets goes first.","Parentheses வரிசையை மாற்றும். Brackets உள்ளே இருப்பது முதலில்.",{hl:1,clr:1,bk:["(","2","+","3",")","*","4"]}],
+["Now two plus three is five, and five times four is twenty. Same numbers, different answer!","இப்போது 2 + 3 = 5; 5 × 4 = 20. அதே எண்கள், வேறு விடை!",{hl:1,out:"20",clr:1,bk:["2","+","3","=","5"]}],
+["Remember the order: brackets first, then powers, then multiply and divide, then add and subtract.","வரிசையை நினைவில் வை: brackets, powers, பெருக்கல்/வகுத்தல், பிறகு கூட்டல்/கழித்தல்.",{hl:-1,card:["Order of operations",2,"1 Brackets · 2 Powers · 3 × ÷ // % · 4 + −"]}]]},
+{t:"Quick Challenge",quiz:[
+{code:'print(20 - 4 * 3)',q:"Predict the output before EVO runs the code:",o:["48","8","12","24"],a:1,out:"8",h:"Which happens first: the minus or the times?",w:"Multiplication comes first: 4 * 3 = 12. Then 20 - 12 = 8.",en:"Quick challenge time! Predict the result of this calculation.",ta:"Quick challenge நேரம்! இந்தக் கணக்கின் விடையைக் கணி!"},
+{code:'print(9 / 3)',q:"What does Python print?",o:["3","3.0","9","6"],a:1,out:"3.0",h:"Remember: a slash always gives a float.",w:"9 divided by 3 is 3, but the slash operator always returns a float, so Python prints 3.0.",en:"Next one. Watch out for the slash!",ta:"அடுத்தது. Slash-ஐ கவனி!"},
+{q:"Which operator gives the remainder after division?",o:["//","%","**","/"],a:1,h:"Think of sweets left over after filling the bags.",w:"The percent sign (modulo) gives the remainder. Double slash gives the quotient.",en:"Last one in this round. Which operator gives the remainder?",ta:"இந்தச் சுற்றின் கடைசி கேள்வி. Remainder தரும் operator எது?"}]},
+{t:"Lesson Recap",m:1,st:[
+["Great work! Let’s recap every operator you learned today.","அருமை! இன்று கற்ற operators அனைத்தையும் நினைவுபடுத்துவோம்.",{}],
+["Numbers come as ints, which are whole, and floats, which have decimals.","எண்கள்: int – முழு; float – தசமம்.",{card:["int and float",2,"Whole numbers and decimals."]}],
+["Plus and minus add and subtract.","Plus, minus கூட்டி, கழிக்கும்.",{card:["+   −",2,"Add and subtract."]}],
+["Star multiplies, and slash divides, always giving a float.","Star பெருக்கும்; slash வகுக்கும், எப்போதும் float தரும்.",{card:["*   /",2,"Multiply; divide gives a float."]}],
+["Double slash gives the quotient, and percent gives the remainder.","Double slash quotient; percent remainder.",{card:["//   %",2,"17 // 5 is 3 · 17 % 5 is 2."]}],
+["Double star raises a number to a power.","Double star power தரும்.",{card:["**",2,"2 ** 3 is 8."]}],
+["And the order is brackets, powers, multiply and divide, then add and subtract.","வரிசை: brackets, powers, பெருக்கல்/வகுத்தல், கூட்டல்/கழித்தல்.",{card:["Order",2,"Use ( ) to be sure."]}]]},
+{t:"Practice Challenge",quiz:[
+{code:'boxes = 4\npencils = 5\nextra = 3\ntotal = boxes * pencils + extra\nprint(total)',q:"Predict the output:",o:["27","32","23","12"],a:2,out:"23",h:"Multiply first, then add the extra pencils.",w:"boxes * pencils is 20. Then adding extra (3) gives 23.",en:"Practice time! Four boxes with five pencils each, plus three extra. How many pencils?",ta:"Practice நேரம்! 4 பெட்டிகள், ஒவ்வொன்றிலும் 5 pencils, கூடுதலாக 3. மொத்தம் எத்தனை?"},
+{code:'print(2 ** 3 + 10 // 4)',q:"Last challenge! What is the result?",o:["10","4","8","20"],a:0,out:"10",h:"Powers first, then floor division, then add.",w:"2 ** 3 is 8. 10 // 4 is 2, because two full fours fit into ten. Then 8 + 2 = 10.",en:"Final challenge! This one mixes three operators. Take your time.",ta:"இறுதி சவால்! இதில் மூன்று operators கலந்துள்ளன. நிதானமாக யோசி."}]}];
+const CH=["Welcome","+ and −","× and ÷","// and %","Power","Variables","Order","Challenge","Recap","Practice"],TAN="பரவாயில்லை! Hint-ஐப் பார்த்து மீண்டும் முயற்சி செய்!";
+const sp=t=>t.replace(/Score2|score2/g,"score two").replace(/2score/g,"two score");
+const hasTa=()=>speechSynthesis.getVoices().some(v=>/^ta/i.test(v.lang));
+function pickVoice(l){const all=speechSynthesis.getVoices(),vs=all.filter(v=>v.lang.toLowerCase().startsWith(l));if(l==="ta")return vs[0];const c=VO&&all.find(v=>v.name===VO);return c||vs.find(v=>/google uk english female|natural|online|aria|jenny|sonia|libby|samantha/i.test(v.name))||vs.find(v=>/en[-_](GB|US)/i.test(v.lang))||vs[0]}
+function fillV(){if(!window.speechSynthesis)return;const vs=speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang));if(!vs.length)return;VO=null;const b=pickVoice("en");VO=b&&b.name;$("#vsel").innerHTML=vs.map(v=>`<option>${v.name}</option>`).join("");$("#vsel").value=VO}
+function duck(on){try{if(mg&&ac)mg.gain.setTargetAtTime(on?.012:.05,ac.currentTime,.15)}catch(e){}}
+function say(en,ta){nar=[en,ta];showSub();const tk=++spk;speaking=false;if(!window.speechSynthesis)return;speechSynthesis.cancel();if(!voiceOn)return;const tm=aud==="ta"&&hasTa(),u=new SpeechSynthesisUtterance(sp(tm?ta:en)),v=pickVoice(tm?"ta":"en");if(v){u.voice=v;u.lang=v.lang}else u.lang=tm?"ta-IN":"en-GB";u.rate=.92;speaking=true;duck(true);u.onend=u.onerror=()=>{if(tk===spk){speaking=false;duck(false)}};speechSynthesis.speak(u)}
+let sx;const SF={drop:[[420,0,.14,"triangle"],[300,.07,.22,"triangle"]],swap:[[300,0,.12],[500,.1,.12],[760,.2,.2]],tick:[[1300,0,.05,"square"]],good:[[523,0,.14],[659,.1,.14],[784,.2,.3]],bad:[[190,0,.28,"sawtooth"]],chime:[[660,0,.16],[880,.12,.28]],ping:[[880,0,.18]],fan:[[523,0,.2],[659,.15,.2],[784,.3,.2],[1047,.45,.6]]};
+function sfx(k){if(paused)return;try{sx=sx||new(window.AudioContext||window.webkitAudioContext)();if(sx.state==="suspended")sx.resume();for(const[f,s,d,ty]of SF[k]){const o=sx.createOscillator(),g=sx.createGain(),t=sx.currentTime+s;o.type=ty||"sine";o.frequency.value=f;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(k==="tick"||k==="bad"?.04:.09,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(sx.destination);o.start(t);o.stop(t+d+.05)}}catch(e){}}
+function showSub(){const e=$("#sub");e.style.visibility=sub==="off"?"hidden":"visible";e.textContent=sub==="ta"?nar[1]:nar[0]}
+async function wait(ms,id){let t=0;const min=voiceOn?1200:ms;while(t<min||(voiceOn&&speaking&&t<ms*2+6000)){await new Promise(r=>setTimeout(r,100));if(id!==run)return;if(!paused)t+=100}
+ if(voiceOn){await new Promise(r=>setTimeout(r,450))}}
+function chips(){$("#chips").innerHTML=CH.map((c,i)=>`<div class="chip ${i<sc?"done":i===sc?"cur":""}" onclick="play(${i})"><div class="bar"><i style="width:${i<sc?100:i===sc?40:0}%"></i></div><span>${i+1}</span>${c}</div>`).join("")}
+function setVar(n,v,t,id){let e=$("#vb_"+n);if(!e){$("#boxes").insertAdjacentHTML("beforeend",`<div class="vb ${t}" id="vb_${n}"><div class="lab">${n}</div><div class="bx"><span class="val">${hi(v)}</span></div><div class="ty">${TY[t]}</div></div>`);sfx("drop");return}
+ const val=e.querySelector(".val");sfx("swap");val.innerHTML=`<s>${val.innerHTML}</s>`;e.classList.add("chg");setTimeout(()=>{if(id===run){val.innerHTML=hi(v);e.classList.remove("chg");val.style.animation="none";void val.offsetWidth;val.style.animation=""}},900)}
+const out=t=>{sfx("tick");$("#ot").insertAdjacentHTML("beforeend",`<div class="ol">${esc(t)}</div>`)};
+function apply(a,id){if("hl" in a){const h=a.hl;document.querySelectorAll(".ln").forEach((l,k)=>l.className="ln"+(k===h?" on":h>=0&&k>h?" off":""))}
+ if(a.clr)$("#bk").innerHTML="";if(a.bk)bk(a.bk);if(a.dots)dots(a.dots,a.hot);if(a.set)(Array.isArray(a.set[0])?a.set:[a.set]).forEach(v=>setVar(...v,id));if(a.out!=null)out(a.out);
+ if(a.card)sfx(a.card[1]===0?"bad":a.card[1]===1?"good":"ping");if(a.card)$("#cards").insertAdjacentHTML("beforeend",`<div class="nm c${a.card[1]}"><code>${esc(a.card[0])}</code><b>${LB[a.card[1]]}</b><p>${a.card[2]}</p></div>`)}
+function render(i){const S=SC[i],v=$("#view");v.className="view";void v.offsetWidth;v.className="view in";
+ v.innerHTML=`<div class="tags"><span class="pill lv">Scene ${i+1} of ${SC.length}</span><span class="pill">${S.t}</span></div>`+(S.m?`<div class="meadow">${meadow()}</div>`:"")+(S.code?`<div class="lg"><div>${win(S.code,"numbers.py")}<div class="out"><small>▶ OUTPUT</small><div id="ot"></div></div></div><div class="mem"><small>NUMBER LAB</small><div id="boxes"></div><div id="bk"></div></div></div>`:S.mem?`<div class="mem"><small>NUMBER LAB</small><div id="boxes"></div><div id="bk"></div></div>`:"")+`<div id="cards"></div><div id="qa"></div>`}
+async function ask(q,id){say(q.en,q.ta);const qa=$("#qa");
+ qa.innerHTML=`${q.code?win(q.code,"challenge.py")+'<div class="out"><small>▶ OUTPUT</small><div id="ot"></div></div>':""}<div class="ask">${q.q}</div><div class="opts">${q.o.map((o,k)=>`<button class="opt" data-k="${k}"><b>${"ABCD"[k]}</b><span>${esc(o)}</span></button>`).join("")}</div><div class="hint" id="hint" hidden></div><div id="why"></div>`;
+ const tr=await new Promise(res=>{let t=0;qa.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{if(paused||id!==run)return;const k=+b.dataset.k;
+  if(k!==q.a){t++;sfx("bad");b.classList.add("bad");b.disabled=true;const h=$("#hint");h.hidden=false;h.innerHTML="💡 <strong>Hint:</strong> "+q.h;say("Not quite — read the hint and try again!",TAN);return}
+  qa.querySelectorAll(".opt").forEach(x=>x.disabled=true);b.classList.add("good");sfx("good");$("#hint").hidden=true;res(t)})});
+ if(id!==run)return false;if(!tr)qs++;say(tr?"You got it! Let’s see why.":"Correct! Let’s see why.","சரி! ஏன் என்று பார்ப்போம்.");
+ if(q.code){const L=document.querySelectorAll("#qa .ln");for(let k=0;k<L.length;k++){L.forEach((l,j)=>l.className="ln"+(j===k?" on":j>k?" off":""));await wait(800,id);if(id!==run)return false}out(q.out)}
+ $("#why").innerHTML=`<div class="why"><strong>Why?</strong> ${q.w}</div><button class="btn" id="cont">Continue →</button>`;
+ await new Promise(r=>$("#cont").onclick=r);return id===run}
+async function play(i){const id=++run,S=SC[i];sc=i;chips();render(i);sfx("chime");$("#stage").scrollIntoView({behavior:"smooth",block:"start"});
+ if(S.quiz){for(const q of S.quiz)if(!await ask(q,id))return}
+ else for(const[en,ta,a]of S.st){say(en,ta);apply(a||{},id);await wait(2500+en.split(" ").length*380,id);if(id!==run)return}
+ if(id!==run)return;i<SC.length-1?play(i+1):finish(id)}
+function finish(id){sc=SC.length;chips();sfx("fan");const xp=40+qs*20;
+ $("#view").innerHTML=`<div class="meadow">${meadow()}</div><div class="ban">✦ TOPIC 04 COMPLETE ✦</div><h1 style="margin:6px 0">Numbers <em>Unlocked!</em></h1><p style="text-align:center;font-size:18px;margin:4px 0">Challenge score: <b style="color:var(--gr)">${qs} / 5</b> on the first try · <b style="color:var(--am)">+${xp} XP</b></p><p style="text-align:center;color:var(--mu);margin:4px 0">You can calculate with ints and floats, all seven operators and the order of operations. Keep going — strings are next!</p><button class="btn" onclick="this.textContent='🔓 Topic 05 is ready!';this.disabled=true">Continue to Strings →</button><button class="btn alt" onclick="play(0)">Watch again</button>`;
+ say("You did it! You can now add, subtract, multiply, divide and use powers, and you know the order of operations. Next up: strings. See you there!","சபாஷ்! இனி எல்லா arithmetic operators-ம், operations வரிசையும் உனக்குத் தெரியும். அடுத்தது: Strings!");
+ const st=$("#stage");for(let i=0;i<40;i++){const c=document.createElement("i");c.className="cf";c.style.cssText=`left:${Math.random()*100}%;background:${["#4fd1ff","#ffb84a","#4ade80","#ff6b9a"][i%4]};animation-duration:${2.5+Math.random()*2.5}s;animation-delay:${Math.random()}s`;st.appendChild(c);setTimeout(()=>c.remove(),6500)}}
+$("#bRp").onclick=()=>{qs=0;if(window.speechSynthesis)speechSynthesis.cancel();play(0)};
+$("#bP").onclick=e=>{paused=!paused;document.body.classList.toggle("paused",paused);e.target.textContent=paused?"Resume":"Pause";if(window.speechSynthesis)paused?speechSynthesis.pause():speechSynthesis.resume()};
+$("#bV").onclick=e=>{voiceOn=!voiceOn;e.target.classList.toggle("on",voiceOn);if(voiceOn)say(...nar);else{speaking=false;spk++;duck(false);if(window.speechSynthesis)speechSynthesis.cancel()}};
+$("#sel").onchange=e=>{sub=e.target.value;showSub()};
+let ac,mOn=false,mg;
+$("#bM").onclick=e=>{mOn=!mOn;e.target.classList.toggle("on",mOn);try{if(!ac){ac=new(window.AudioContext||window.webkitAudioContext)();const m=mg=ac.createGain();m.gain.value=.05;m.connect(ac.destination);[196,247,294,392].forEach((f,k)=>{const o=ac.createOscillator(),g=ac.createGain(),l=ac.createOscillator(),lg=ac.createGain();o.frequency.value=f;g.gain.value=.25;l.frequency.value=.1+k*.07;lg.gain.value=.2;l.connect(lg);lg.connect(g.gain);o.connect(g);g.connect(m);o.start();l.start()})}mOn?ac.resume():ac.suspend()}catch(x){}};
+const stg=$("#stage");for(let i=0;i<14;i++){const f=document.createElement("i");f.className="ff";f.style.cssText=`left:${Math.random()*96}%;top:${Math.random()*92}%;animation-delay:${Math.random()*6}s;animation-duration:${5+Math.random()*5}s`;stg.appendChild(f)}
+$("#asel").onchange=e=>{aud=e.target.value;if(aud==="ta"&&!hasTa()){aud="en";e.target.value="en";say("Your device has no Tamil voice installed, so I’ll keep speaking English. Subtitles can still be in Tamil.","உங்கள் device-ல் Tamil voice இல்லை; English-ல் பேசுகிறேன்.");return}say(...nar)};
+$("#vsel").onchange=e=>{VO=e.target.value;say(...nar)};
+if(window.speechSynthesis){speechSynthesis.onvoiceschanged=fillV;fillV()}
+$("#go").onclick=()=>{voiceOn=true;$("#bV").classList.add("on");$("#gate").remove();play(0)};
+$("#go2").onclick=()=>{$("#gate").remove();play(0)};
+</script></body></html>

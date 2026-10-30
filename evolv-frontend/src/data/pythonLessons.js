@@ -4,6 +4,19 @@
 // EVOLV — PYTHON LEARNING CURRICULUM
 // 60 lessons | 8 worlds | Progressive difficulty
 //
+// Lesson types:
+// - video    : watch an animated explanation
+// - concept  : read-only theory (definitions, rules, syntax, key ideas)
+// - quiz     : check understanding with questions
+// - hands-on : write and run code
+//
+// CONTENT RULE:
+// - `explanation` is the "content to read". It contains ONLY concept
+//   material (definitions, rules, syntax, common mistakes).
+//   It never contains practice tasks, "try this" prompts, or quiz items.
+// - Practice lives in `instructions`, `starterCode`, `solutionCode`
+//   and `activities`. Quizzes live in `question` and `quizQuestions`.
+//
 // Compatibility preserved:
 // - Existing lesson IDs: 1–60
 // - Existing world names
@@ -104,7 +117,7 @@ const pythonLessons = [
     "Meet Python",
     "Python Meadow",
     "Understand programs and write your first Python instructions.",
-    `Python is a general-purpose programming language used in automation, web development, data analysis, and artificial intelligence. A program is a sequence of instructions. Python executes statements in order. The print() function displays values, parentheses contain its arguments, and quotation marks represent text. Python's readable syntax makes it suitable for beginners.`,
+    `Python is a general-purpose programming language used for automation, web development, data analysis, and artificial intelligence. A program is an ordered list of instructions, and each instruction is called a statement. Python runs statements from top to bottom, one at a time. The built-in print() function displays a value in the output. The value placed inside the parentheses is called an argument. Text values, called strings, must be written inside matching quotation marks, while numbers are written without quotes. Python source files commonly use the .py extension. Python's syntax is designed to be readable, which is why it is widely recommended for beginners.`,
     'print("Hello, EVOLV!")\nprint("I am learning Python.")\nprint(2 + 3)',
     "Hello, EVOLV!\nI am learning Python.\n5",
     "Which function displays a value?",
@@ -164,16 +177,16 @@ const pythonLessons = [
     "Printing Messages",
     "Python Meadow",
     "Display text, numbers, variables, and calculated values.",
-    `print() displays the values passed to it. Multiple arguments separated by commas are normally separated by spaces in the output. Separate print() calls produce separate lines by default. A numeric value such as 10 differs from the string "10": one is a number and the other is text.`,
+    `print() displays the values passed to it. When several arguments are separated by commas, print() places a single space between them in the output. Each print() call normally ends with a newline, so separate calls appear on separate lines. A number such as 10 and a string such as "10" look similar when printed, but they are different types: the number can be used in arithmetic, while the string is text. A print() call can display a literal value, a variable, or the result of an expression; Python evaluates the expression first and then prints the result. Strings can use single or double quotes, but the opening and closing quote must match.`,
     'print("Welcome to EVOLV")\nprint(10)\nname = "EVO"\nprint("Hello", name)\nprint("Score:", 4 + 6)',
     "Welcome to EVOLV\n10\nHello EVO\nScore: 10",
     "Which statement prints the numeric value 25?",
     ['print("25")', "print(25)", "display = 25", "echo(25)"],
     1,
     "Use print() with the number inside its parentheses.",
-    { videoUrl: "/videos/Printing Messages.html",
-      videoTitle: "Meet Python — Animated Introduction",
-      
+    {
+      videoUrl: "/videos/Printing Messages.html",
+      videoTitle: "Printing Messages — Video",
       instructions:
         "Print a welcome message, a learner's name, and a score calculated from two numbers.",
       starterCode:
@@ -183,12 +196,7 @@ const pythonLessons = [
       quizQuestions: [
         {
           question: 'What does print("EVOLV", 10) display?',
-          options: [
-            "EVOLV10",
-            "EVOLV 10",
-            '"EVOLV", 10',
-            "An error",
-          ],
+          options: ["EVOLV10", "EVOLV 10", '"EVOLV", 10', "An error"],
           answer: 1,
         },
         {
@@ -225,14 +233,15 @@ const pythonLessons = [
     "Variables",
     "Python Meadow",
     "Store and update information using meaningful variable names.",
-    `A variable name refers to a value. The assignment operator = assigns a value; it does not test equality. Variable names are case-sensitive and cannot begin with a digit. Use descriptive names such as student_name or score. Reassigning a variable changes the value used by later statements.`,
+    `A variable is a name that refers to a value stored in memory. The assignment operator = gives a name a value; it does not test equality. Python reads an assignment from right to left: the expression on the right is evaluated first, and the result is bound to the name on the left. Variable names are case-sensitive, so score and Score are different names. A name may contain letters, digits, and underscores, but it cannot start with a digit, cannot contain spaces, and cannot be a reserved keyword such as class. By convention, Python names use lowercase letters with underscores, such as student_name. Reassigning a name makes it refer to a new value, and later statements use the new value.`,
     'student_name = "EVO"\nscore = 10\nscore = score + 5\nprint(student_name)\nprint(score)',
     "EVO\n15",
     "Which operator assigns a value?",
     ["==", "=", "!=", ":"],
     1,
     "Assignment uses one equals sign.",
-    {
+    { videoUrl: "/videos/Variables.html",
+      videoTitle: "Videos — Video",
       instructions:
         "Create variables for a learner's name and points. Increase the points by five and display the updated values.",
       starterCode:
@@ -246,7 +255,8 @@ const pythonLessons = [
           answer: 1,
         },
         {
-          question: "What is the value of score after score = 10 and score = score + 5?",
+          question:
+            "What is the value of score after score = 10 and score = score + 5?",
           options: ["5", "10", "15", "105"],
           answer: 2,
         },
@@ -289,7 +299,7 @@ const pythonLessons = [
     "Numbers and Calculations",
     "Python Meadow",
     "Perform arithmetic with Python's numeric operators.",
-    `Python supports addition (+), subtraction (-), multiplication (*), division (/), floor division (//), remainder (%), and exponentiation (**). Ordinary division produces a division result, while floor division rounds down. The remainder operator is useful for divisibility checks. Parentheses can make calculation order explicit.`,
+    `Python supports addition (+), subtraction (-), multiplication (*), division (/), floor division (//), remainder (%), and exponentiation (**). Ordinary division with / always produces a float, even when the result is a whole number, so 10 / 2 gives 5.0. Floor division // divides and rounds the result down to the nearest whole number. The remainder operator % gives what is left after division, which makes it useful for testing divisibility: a number is even when number % 2 is 0. Python follows the usual order of operations: parentheses first, then exponentiation, then multiplication and division, then addition and subtraction. Parentheses can be added to make the intended order clear. Integers (int) are whole numbers and floats (float) contain a decimal point.`,
     "a = 12\nb = 5\nprint(a + b)\nprint(a / b)\nprint(a // b)\nprint(a % b)\nprint(2 ** 3)",
     "17\n2.4\n2\n2\n8",
     "Which operator calculates a remainder?",
@@ -298,7 +308,7 @@ const pythonLessons = [
     "It is the percent symbol.",
     {
       instructions:
-        "Build a bill calculator using a price and quantity. Display the total and the remainder when the total is divided by three.",
+        "Build a bill calculator using a price and quantity. Display the total and the remainder when the total is divided by 5.",
       starterCode:
         "price = 12\nquantity = 3\n\n# Calculate and print the total\n# Print total % 5",
       solutionCode:
@@ -338,7 +348,7 @@ const pythonLessons = [
     "Strings",
     "Python Meadow",
     "Create, combine, and inspect text values.",
-    `A string is text enclosed in matching quotation marks. The + operator joins strings, len() counts characters, and f-strings allow variable values to be inserted into text. Strings are immutable, so string methods return new strings instead of modifying the original string in place.`,
+    `A string (str) is a sequence of characters enclosed in matching single or double quotation marks. The + operator joins (concatenates) two strings, and the * operator repeats a string. The len() function returns the number of characters, including spaces. An f-string begins with the letter f before the opening quote and lets you insert values by placing variable names or expressions inside curly braces, as in f"Hello {name}". Strings are immutable, which means a string cannot be changed in place; operations on strings produce new strings. Joining a string and a number with + raises a TypeError, so the number must first be converted to text.`,
     'first = "Hello"\nsecond = "Python"\ngreeting = first + " " + second\nprint(greeting)\nprint(len(greeting))\nprint(f"Welcome to {second}!")',
     "Hello Python\n12\nWelcome to Python!",
     "Which value is a string?",
@@ -392,7 +402,7 @@ const pythonLessons = [
     "Getting User Input",
     "Python Meadow",
     "Collect information entered by the person running a program.",
-    `input() displays an optional prompt and waits for the user to enter information. Its result is a string, even when the user enters digits. Convert suitable text with int() or float() before arithmetic. Invalid numeric text raises ValueError unless the program handles it. Input-based programs require an execution environment that supports interactive input.`,
+    `The input() function shows an optional prompt message, pauses the program, and waits for the user to type a line and press Enter. It always returns a string, even when the user types digits. To do arithmetic, the text must be converted with int() for whole numbers or float() for decimals. If the text cannot be converted, for example int("hello"), Python raises a ValueError. A common pattern is to wrap input() inside a conversion call, such as int(input("Age: ")). Programs that use input() need an environment that supports interactive typing, such as a terminal or an editor with an input box.`,
     'name = input("Name: ")\nprint(f"Hello, {name}!")\nage = int(input("Age: "))\nprint(age + 1)',
     "The program greets the entered name and prints the entered age plus one.",
     "What type does input() return by default?",
@@ -410,7 +420,7 @@ const pythonLessons = [
       validation: "manual",
       quizQuestions: [
         {
-          question: 'If the user enters 19, what does input() initially return?',
+          question: "If the user enters 19, what does input() initially return?",
           options: ["19 as an integer", '"19" as a string', "19.0", "True"],
           answer: 1,
         },
@@ -435,7 +445,8 @@ const pythonLessons = [
           answer: 2,
         },
         {
-          question: "Why might a browser-based lesson need special support for input()?",
+          question:
+            "Why might a browser-based lesson need special support for input()?",
           options: [
             "It requires interactive input handling",
             "It only works with lists",
@@ -453,7 +464,7 @@ const pythonLessons = [
     "Converting Data Types",
     "Python Meadow",
     "Convert values and inspect their types.",
-    `Python values have types such as str, int, float, and bool. Use int() for suitable integer text, float() for decimal text, and str() to create text. Conversions can fail when the supplied value is unsuitable. type() can help inspect a value's type during learning.`,
+    `Every Python value has a type. The basic types are str (text), int (whole numbers), float (decimal numbers), and bool (True or False). Type conversion creates a value of a different type: int() converts suitable text or a float to an integer, float() converts to a decimal number, str() converts a value to text, and bool() converts a value to True or False. Converting a float with int() removes the fractional part rather than rounding. A conversion fails with ValueError when the value is unsuitable, for example int("3.5") or int("abc"). The type() function reports a value's type, and type(value).__name__ gives the short type name such as int.`,
     'age = int("19")\nprice = float("3.5")\nprint(age + 1)\nprint(price * 2)\nprint(type(age).__name__)',
     "20\n7.0\nint",
     "Which function converts suitable text to an integer?",
@@ -512,7 +523,7 @@ const pythonLessons = [
     "Booleans",
     "Python Meadow",
     "Represent truth using True and False.",
-    `A Boolean represents one of two truth values: True or False. Python Boolean literals are case-sensitive. Comparisons produce Boolean results. Boolean variables are useful for representing states such as is_ready or has_ticket. The string "True" is text, not the Boolean value True.`,
+    `A Boolean (bool) is a value with exactly two possibilities: True or False. Both literals are case-sensitive, so true and FALSE are not valid. Comparison operations produce Boolean results, for example 5 > 8 evaluates to False. Boolean variables usually represent a state or a yes/no fact, and names such as is_ready or has_ticket make that meaning clear. The string "True" is text, not the Boolean value True, and the two behave differently. Booleans are the foundation of decision-making, because conditions in if statements and loops are evaluated as True or False. The and, or, and not operators combine Boolean values.`,
     'is_ready = True\nhas_ticket = False\nprint(is_ready)\nprint(5 > 8)\nprint(type("True").__name__)',
     "True\nFalse\nstr",
     "Which is a valid Boolean literal?",
@@ -521,9 +532,9 @@ const pythonLessons = [
     "The first letter is uppercase.",
     {
       instructions:
-        "Create two Boolean variables and print a comparison that produces another Boolean result.",
+        "Create two Boolean variables, print both, and print a result that combines them with and.",
       starterCode:
-        "is_registered = True\nhas_completed_lesson = False\n\n# Print both values\n# Check whether the learner is registered",
+        "is_registered = True\nhas_completed_lesson = False\n\n# Print both values\n# Print whether both are True",
       solutionCode:
         "is_registered = True\nhas_completed_lesson = False\nprint(is_registered)\nprint(has_completed_lesson)\nprint(is_registered and has_completed_lesson)",
       quizQuestions: [
@@ -566,7 +577,7 @@ const pythonLessons = [
     "Comparisons",
     "Python Meadow",
     "Compare values and use the resulting Boolean values.",
-    `Comparison operators include ==, !=, >, <, >=, and <=. They test relationships and produce Boolean results. The assignment operator = is different from the equality operator ==. Boundary conditions matter: >= includes equality, while > does not.`,
+    `Comparison operators compare two values and produce a Boolean result. The operators are == (equal to), != (not equal to), > (greater than), < (less than), >= (greater than or equal to), and <= (less than or equal to). The single equals sign = assigns a value, while the double equals sign == tests equality, and confusing them is a very common mistake. Boundary values matter: >= includes the value itself, while > does not. Comparison operators work on numbers and also on strings, which are compared character by character. Comparisons can be stored in variables or used directly as conditions.`,
     "score = 82\nprint(score >= 50)\nprint(score == 100)\nprint(score != 0)",
     "True\nFalse\nTrue",
     "Which operator checks equality?",
@@ -577,7 +588,7 @@ const pythonLessons = [
       instructions:
         "Test whether a score passes, equals 100, and differs from zero. Include the boundary score 50.",
       starterCode:
-        "score = 50\n\n# Check whether score is at least 50\n# Check whether score equals 100",
+        "score = 50\n\n# Check whether score is at least 50\n# Check whether score equals 100\n# Check whether score differs from 0",
       solutionCode:
         "score = 50\nprint(score >= 50)\nprint(score == 100)\nprint(score != 0)",
       quizQuestions: [
@@ -620,7 +631,7 @@ const pythonLessons = [
     "Meadow Checkpoint",
     "Python Meadow",
     "Combine output, variables, strings, arithmetic, and comparisons.",
-    `Trace assignments in order, evaluate arithmetic, and examine comparison results. Variables may change during a program, so use their current values when predicting output. A good debugging habit is to trace each statement and verify the result with a small test.`,
+    `This checkpoint reviews the core ideas of the Meadow. print() displays values. A variable is a name bound to a value, and = assigns while == compares. Arithmetic operators calculate numbers, with / producing a float, // rounding down, and % giving the remainder. Strings are text, can be joined with +, and can be formatted with f-strings. input() returns a string that must be converted before arithmetic. Comparison operators produce Boolean values. To predict a program's output, follow each statement in order and keep track of the current value of every variable, because a variable's value changes whenever it is reassigned.`,
     'name = "EVO"\npoints = 5\npoints = points + 3\npassed = points >= 8\nprint(name, points)\nprint(passed)',
     "EVO 8\nTrue",
     "What does print(2 + 3) display?",
@@ -628,6 +639,8 @@ const pythonLessons = [
     1,
     "The plus operator adds numbers.",
     {
+      videoUrl: "/videos/Meadow%20Checkpoint.html",
+      videoTitle: "Meadow Checkpoint Video",
       type: "quiz",
       instructions:
         "Predict each output. Change points to 7, 8, and 9 and explain when passed changes.",
@@ -674,14 +687,15 @@ const pythonLessons = [
     "Making Decisions with if",
     "Logic Forest",
     "Run a block of code only when its condition is true.",
-    `An if statement evaluates a condition and executes its indented block when that condition is true. A colon begins the block, and indentation identifies the statements that belong to it. If the condition is false, Python skips the block and continues after it.`,
+    `A conditional statement lets a program choose whether to run some code. An if statement evaluates a condition, which is an expression that results in True or False. When the condition is True, the indented block beneath the if runs. When it is False, Python skips the block and continues with the next statement after it. The if line must end with a colon, and the statements that belong to the block must be indented consistently, usually with four spaces. Indentation is part of Python's syntax, and inconsistent indentation causes an IndentationError. Statements that are not indented run regardless of the condition.`,
     'temperature = 30\nif temperature > 25:\n    print("It is warm")\nprint("Weather check complete")',
     "It is warm\nWeather check complete",
     "Which keyword begins a conditional statement?",
     ["when", "if", "check", "case"],
     1,
     "It is a two-letter keyword.",
-    { videoUrl: "/videos/if%20condition.html",
+    {
+      videoUrl: "/videos/if%20condition.html",
       videoTitle: "Making Decisions with if — Video",
       instructions:
         "Change the temperature to 18 and add a separate condition that prints a jacket reminder below 20 degrees.",
@@ -721,7 +735,8 @@ const pythonLessons = [
           answer: 1,
         },
         {
-          question: "What happens when an if condition is false and there is no else?",
+          question:
+            "What happens when an if condition is false and there is no else?",
           options: [
             "Its block is skipped",
             "The program must crash",
@@ -734,84 +749,82 @@ const pythonLessons = [
     }
   ),
 
-lesson(
-  12,
-  "if and else",
-  "Logic Forest",
-  "Choose between two possible paths in a program.",
-  `An if/else statement selects one of two paths. Python checks the if condition. If it is true, the if block runs; otherwise, the else block runs. Both blocks require colons and consistent indentation. Use >= when the boundary value should be included.`,
-  'age = 16\nif age >= 18:\n    print("Adult")\nelse:\n    print("Minor")',
-  "Minor",
-  "When does the else block run?",
-  ["Always", "When the if condition is false", "Before if", "Only in loops"],
-  1,
-  "It handles the alternative path.",
-  {
-    type: "hands-on",
-
-    // Video
-    videoUrl: "/videos/ifelse%20condition.html",
-    videoTitle: "Python if and else — Video",
-
-    instructions:
-      "Write a pass/fail program for a score of 50 or more. Test scores 49, 50, and 51.",
-    starterCode:
-      'score = 45\nif score >= 50:\n    print("Pass")\nelse:\n    print("Try again")',
-    solutionCode:
-      'score = 45\nif score >= 50:\n    print("Pass")\nelse:\n    print("Try again")',
-    quizQuestions: [
-      {
-        question: "If age is 20, what does the example print?",
-        options: ["Adult", "Minor", "Both", "Nothing"],
-        answer: 0,
-      },
-      {
-        question: "What does else represent?",
-        options: [
-          "The alternative path",
-          "A loop",
-          "A variable",
-          "A function return",
-        ],
-        answer: 0,
-      },
-      {
-        question: "What does score >= 50 include?",
-        options: [
-          "Only values greater than 50",
-          "50 and values greater than 50",
-          "Only values below 50",
-          "Only zero",
-        ],
-        answer: 1,
-      },
-      {
-        question: "Which structure selects between two paths?",
-        options: ["if/else", "for/import", "class/def", "try/with"],
-        answer: 0,
-      },
-      {
-        question: "How many branches of a basic if/else run?",
-        options: ["Neither", "Both", "One", "Always three"],
-        answer: 2,
-      },
-    ],
-  }
-),
+  lesson(
+    12,
+    "if and else",
+    "Logic Forest",
+    "Choose between two possible paths in a program.",
+    `An if/else statement selects exactly one of two paths. Python checks the if condition first. If it is True, the if block runs and the else block is skipped. If it is False, the else block runs instead. The else keyword has no condition of its own; it simply covers every case the if condition did not. Both the if line and the else line end with a colon, and both blocks must be indented consistently. Because exactly one branch runs, if/else is the right structure when a program must always take one of two actions. Choosing between >= and > decides whether the boundary value belongs to the if branch or the else branch.`,
+    'age = 16\nif age >= 18:\n    print("Adult")\nelse:\n    print("Minor")',
+    "Minor",
+    "When does the else block run?",
+    ["Always", "When the if condition is false", "Before if", "Only in loops"],
+    1,
+    "It handles the alternative path.",
+    {
+      type: "hands-on",
+      videoUrl: "/videos/ifelse%20condition.html",
+      videoTitle: "Python if and else — Video",
+      instructions:
+        "Write a pass/fail program for a score of 50 or more. Test scores 49, 50, and 51.",
+      starterCode:
+        'score = 49\n\n# Print "Pass" if score is 50 or more\n# Otherwise print "Try again"',
+      solutionCode:
+        'score = 49\nif score >= 50:\n    print("Pass")\nelse:\n    print("Try again")',
+      quizQuestions: [
+        {
+          question: "If age is 20, what does the example print?",
+          options: ["Adult", "Minor", "Both", "Nothing"],
+          answer: 0,
+        },
+        {
+          question: "What does else represent?",
+          options: [
+            "The alternative path",
+            "A loop",
+            "A variable",
+            "A function return",
+          ],
+          answer: 0,
+        },
+        {
+          question: "What does score >= 50 include?",
+          options: [
+            "Only values greater than 50",
+            "50 and values greater than 50",
+            "Only values below 50",
+            "Only zero",
+          ],
+          answer: 1,
+        },
+        {
+          question: "Which structure selects between two paths?",
+          options: ["if/else", "for/import", "class/def", "try/with"],
+          answer: 0,
+        },
+        {
+          question: "How many branches of a basic if/else run?",
+          options: ["Neither", "Both", "One", "Always three"],
+          answer: 2,
+        },
+      ],
+    }
+  ),
 
   lesson(
     13,
     "elif Conditions",
     "Logic Forest",
     "Select among several outcomes using ordered conditions.",
-    `elif checks another condition when earlier conditions are false. Python evaluates a conditional chain from top to bottom and runs the first matching branch. Place thresholds in the appropriate order so a broad condition does not prevent a more specific branch from being reached. An else branch can handle all remaining cases.`,
+    `The elif keyword, short for "else if", adds another condition to a decision chain. Python evaluates an if/elif/else chain from top to bottom and runs only the first branch whose condition is True; all remaining branches are skipped. Because of this, the order of conditions matters: a broad condition placed too early can prevent a more specific one from ever being reached. A chain can contain any number of elif branches. The final else is optional and handles every case that no earlier condition matched. Use elif when the outcomes are mutually exclusive, and use separate if statements when several outcomes can happen together.`,
     'score = 75\nif score >= 90:\n    print("A")\nelif score >= 70:\n    print("B")\nelse:\n    print("C")',
     "B",
     "What does elif allow you to do?",
     ["Repeat a loop", "Check another condition", "Create a variable", "Read a file"],
     1,
     "It adds another conditional branch.",
-    { videoUrl: "/videos/elif%20condition.html",
+    {
+      videoUrl: "/videos/elif%20condition.html",
       videoTitle: "Python elif — Video",
       instructions:
         "Extend the grade program with A, B, C, and Fail outcomes. Test values near each grade boundary.",
@@ -864,16 +877,16 @@ lesson(
     "Logical Operators",
     "Logic Forest",
     "Combine conditions using and, or, and not.",
-    `and is true only when both operands are truthy. or is true when at least one operand is truthy. not reverses a truth value. Logical operators allow a program to represent rules involving several requirements. Parentheses can make more complicated conditions easier to understand.`,
-    'age = 20\nhas_id = True\nprint(age >= 18 and has_id)\nprint(age < 18 or not has_id)',
+    `Logical operators combine or reverse Boolean conditions. The and operator is True only when both sides are True. The or operator is True when at least one side is True, and False only when both sides are False. The not operator reverses a value, turning True into False and False into True. Python evaluates not first, then and, then or, and parentheses can be used to make the intended grouping obvious. Python uses short-circuit evaluation: with and, if the left side is False the right side is not evaluated, and with or, if the left side is True the right side is not evaluated. Logical operators let one condition express a rule with several requirements, such as being old enough and holding a valid ID.`,
+    "age = 20\nhas_id = True\nprint(age >= 18 and has_id)\nprint(age < 18 or not has_id)",
     "True\nFalse",
     "When is A and B true?",
     ["When either is true", "When both are true", "When both are false", "Always"],
     1,
     "and requires both conditions.",
-    { 
+    {
       videoUrl: "/videos/logical%20operators.html",
-      videoTitle: "Logical Operators",
+      videoTitle: "Logical Operators — Video",
       instructions:
         "Create a login rule requiring both a correct password flag and an active-account flag.",
       starterCode:
@@ -902,7 +915,8 @@ lesson(
           answer: 1,
         },
         {
-          question: "If correct_password is True but account_active is False, what is their and result?",
+          question:
+            "If correct_password is True but account_active is False, what is their and result?",
           options: ["True", "False", "1", "An error"],
           answer: 1,
         },
@@ -915,7 +929,7 @@ lesson(
     "Nested Conditions",
     "Logic Forest",
     "Place one conditional inside another conditional block.",
-    `A nested conditional is an if statement inside another conditional block. Indentation shows which condition owns each statement. Nested conditions can express dependent decisions, but excessive nesting can make code difficult to follow. Consider combining conditions or using an elif chain when it makes the logic clearer.`,
+    `A nested conditional is an if statement placed inside the block of another conditional. The inner condition is checked only when the outer condition allows its block to run. Indentation shows which condition owns each statement, and each additional level is indented further. Nested conditions are natural for dependent decisions, where the second question only makes sense after the first has been answered. However, deep nesting makes code hard to read. Two techniques can reduce nesting: combining related conditions with and, and using an elif chain when the outcomes are mutually exclusive.`,
     'logged_in = True\nis_admin = False\nif logged_in:\n    if is_admin:\n        print("Admin")\n    else:\n        print("Member")\nelse:\n    print("Please log in")',
     "Member",
     "What makes an if statement nested?",
@@ -927,8 +941,9 @@ lesson(
     ],
     1,
     "Look at where the second if appears.",
-    { videoUrl: "/videos/Nested%20Conditions.html",
-      videoTitle: "Nested Conditions",
+    {
+      videoUrl: "/videos/Nested%20Conditions.html",
+      videoTitle: "Nested Conditions — Video",
       instructions:
         "Check whether a user is logged in. If so, check whether they have completed a lesson. Print a different message for each situation.",
       starterCode:
@@ -985,15 +1000,16 @@ lesson(
     "Membership Operators",
     "Logic Forest",
     "Check whether a value exists inside a sequence.",
-    `The in operator checks whether a value appears in a string or collection. not in checks the opposite. Membership checks are useful for verifying whether a course appears in a list or whether a character occurs in text.`,
+    `Membership operators test whether a value appears inside a string or a collection. The in operator returns True when the value is found, and not in returns True when it is not found. For strings, in checks for a substring, so "Py" in "Python" is True. For lists, tuples, and sets, in checks whether an equal element exists. For dictionaries, in checks the keys. Membership tests are case-sensitive, so "py" in "Python" is False. Membership operators return Boolean values and are commonly used in conditions, for example to confirm that a course is available or that a character is a vowel.`,
     'language = "Python"\nprint("Py" in language)\nprint("Java" in language)\nprint("on" not in language)',
     "True\nFalse\nFalse",
     "Which operator checks membership?",
     ["has", "in", "contains", "belongs"],
     1,
     "It is an ordinary English word.",
-    { videoUrl: "/videos/Membership%20Operators.html",
-      videoTitle: "Nested Conditions",
+    {
+      videoUrl: "/videos/Membership%20Operators.html",
+      videoTitle: "Membership Operators — Video",
       instructions:
         "Create a list of available courses. Check whether Python and Java are present, then check whether SQL is absent.",
       starterCode:
@@ -1035,15 +1051,16 @@ lesson(
     "Conditional Expressions",
     "Logic Forest",
     "Choose one of two values using a compact conditional expression.",
-    `A conditional expression selects one of two values using the form value_if_true if condition else value_if_false. It suits simple choices such as assigning a status label. Use a regular if/else statement when each branch needs several statements or the logic is complicated.`,
+    `A conditional expression, sometimes called a ternary expression, selects one of two values in a single line. Its form is value_if_true if condition else value_if_false. Python evaluates the condition first and then produces only the matching value. Because it is an expression, it produces a value and can be assigned to a variable or used inside another expression. It works best for simple choices such as assigning a label. It cannot contain several statements, so a regular if/else statement is the better choice when a branch needs multiple steps or when the logic becomes hard to read.`,
     'age = 20\nstatus = "Adult" if age >= 18 else "Minor"\nprint(status)',
     "Adult",
     "Which keyword separates the alternative value?",
     ["elif", "else", "then", "switch"],
     1,
     "It introduces the alternative branch.",
-    { videoUrl: "/videos/Conditional%20Expressions.html",
-      videoTitle: "Nested Conditions",
+    {
+      videoUrl: "/videos/Conditional%20Expressions.html",
+      videoTitle: "Conditional Expressions — Video",
       instructions:
         "Create a conditional expression that labels a score as Pass or Fail.",
       starterCode:
@@ -1082,7 +1099,8 @@ lesson(
           answer: 0,
         },
         {
-          question: "How many alternative values does a conditional expression choose between?",
+          question:
+            "How many alternative values does a conditional expression choose between?",
           options: ["One", "Two", "Three", "Unlimited branches"],
           answer: 1,
         },
@@ -1095,15 +1113,16 @@ lesson(
     "Truthiness",
     "Logic Forest",
     "Understand how Python interprets values in conditions.",
-    `Python treats False, None, numeric zero, and empty collections such as "", [], and {} as false-like. Non-zero numbers and non-empty strings or collections are generally truthy. This behavior is useful for checking whether a value is supplied, but explicit comparisons can be clearer when the intended rule is specific.`,
+    `In a condition, Python does not require a Boolean; any value can be tested, and Python treats it as either truthy or falsy. The falsy values are False, None, the number zero (0 and 0.0), and empty collections or strings such as "", [], (), {}, and set(). Almost every other value is truthy, including non-zero numbers and non-empty strings and collections. The bool() function shows how Python interprets a value, so bool([]) is False and bool([0]) is True because the list is not empty. Truthiness gives a short way to test whether a value was supplied, as in if name:. When the intended rule is specific, such as a number being greater than zero, an explicit comparison is clearer.`,
     'name = "Python"\nitems = []\nif name:\n    print("Name supplied")\nif not items:\n    print("No items yet")',
     "Name supplied\nNo items yet",
     "Which value is false-like?",
     ['"hello"', "5", "[]", "[1]"],
     2,
     "An empty list is false-like.",
-    { videoUrl: "/videos/Python%20Truthiness.html",
-      videoTitle: "Python Truthiness",
+    {
+      videoUrl: "/videos/Python%20Truthiness.html",
+      videoTitle: "Python Truthiness — Video",
       instructions:
         "Test an empty string, a non-empty string, an empty list, and a list containing one item.",
       starterCode:
@@ -1132,8 +1151,14 @@ lesson(
           answer: 0,
         },
         {
-          question: "Which expression tests whether items is empty using truthiness?",
-          options: ["if not items:", "if items == 1:", "if items > 0:", "if empty(items):"],
+          question:
+            "Which expression tests whether items is empty using truthiness?",
+          options: [
+            "if not items:",
+            "if items == 1:",
+            "if items > 0:",
+            "if empty(items):",
+          ],
           answer: 0,
         },
       ],
@@ -1145,19 +1170,19 @@ lesson(
     "Decision Practice",
     "Logic Forest",
     "Build decisions that handle thresholds and boundary values correctly.",
-    `Reliable decision logic handles ordinary values and boundaries. “At least 50” means score >= 50. For several ranges, choose comparison operators carefully so every intended value belongs to the correct range. Test values just below, at, and just above each threshold.`,
+    `Reliable decision logic depends on choosing the correct comparison operator at each threshold. A phrase such as "at least 50" means score >= 50, "more than 50" means score > 50, "at most 28" means value <= 28, and "below 18" means value < 18. When a value must fall into one of several ranges, each possible value must belong to exactly one range, with no gaps and no overlaps. An if/elif/else chain achieves this because each branch is reached only if the earlier ones failed, so later conditions can rely on that fact. Boundary values, the values exactly at a threshold, are where mistakes usually occur, because they depend on whether the operator includes equality.`,
     'temperature = 24\nif temperature < 18:\n    print("Cool")\nelif temperature <= 28:\n    print("Comfortable")\nelse:\n    print("Hot")',
     "Comfortable",
     "Which condition checks whether a score is at least 50?",
     ["score > 50", "score >= 50", "score = 50", "score < 50"],
     1,
     "At least includes equality.",
-    { videoUrl: "/videos/Decision%20Practise.html",
-      videoTitle: "Decision Practise",
+    {
+      videoUrl: "/videos/Decision%20Practise.html",
+      videoTitle: "Decision Practice — Video",
       instructions:
         'Build a temperature alert: below 18 prints "Cool", 18 through 28 prints "Comfortable", and above 28 prints "Hot".',
-      starterCode:
-        "temperature = 18\n\n# Add an if/elif/else chain",
+      starterCode: "temperature = 18\n\n# Add an if/elif/else chain",
       solutionCode:
         'temperature = 18\nif temperature < 18:\n    print("Cool")\nelif temperature <= 28:\n    print("Comfortable")\nelse:\n    print("Hot")',
       quizQuestions: [
@@ -1167,13 +1192,18 @@ lesson(
           answer: 1,
         },
         {
-          question: 'What does the example print for temperature 18?',
+          question: "What does the example print for temperature 18?",
           options: ["Cool", "Comfortable", "Hot", "An error"],
           answer: 1,
         },
         {
           question: "Which condition describes a value strictly below 18?",
-          options: ["temperature < 18", "temperature >= 18", "temperature == 18", "temperature > 18"],
+          options: [
+            "temperature < 18",
+            "temperature >= 18",
+            "temperature == 18",
+            "temperature > 18",
+          ],
           answer: 0,
         },
         {
@@ -1200,15 +1230,16 @@ lesson(
     "Logic Forest Checkpoint",
     "Logic Forest",
     "Combine conditionals, logical operators, membership, and truthiness.",
-    `Evaluate each condition before choosing a branch. Remember that logical operators combine truth values, membership checks look for elements, and empty collections are false-like. Test several inputs to make sure the program follows the intended path.`,
+    `This checkpoint reviews the Forest. An if statement runs a block when its condition is True, if/else chooses between two paths, and elif adds further ordered branches where only the first match runs. The and operator needs both conditions True, or needs at least one, and not reverses a value. The in and not in operators test membership. Falsy values include False, None, zero, and empty strings and collections. A conditional expression chooses one of two values in a single line. To follow a decision, evaluate each condition in order and identify the first one that is True.`,
     'value = 12\nif value % 2 == 0 and value > 10:\n    print("Even and greater than ten")\nelse:\n    print("Other value")',
     "Even and greater than ten",
     "Which operator means logical AND?",
     ["or", "and", "not", "in"],
     1,
     "Both conditions must be true.",
-    { videoUrl: "/videos/LogicalForest%20Checkpoint.html",
-      videoTitle: "Decision Practise",
+    {
+      videoUrl: "/videos/LogicalForest%20Checkpoint.html",
+      videoTitle: "Logic Forest Checkpoint — Video",
       type: "quiz",
       instructions:
         "Test values 9, 10, 11, and 12. Explain why each value follows its branch.",
@@ -1256,7 +1287,7 @@ lesson(
     "Why Loops?",
     "Loop River",
     "Repeat instructions without copying the same code.",
-    `A loop repeats a block of instructions. A for loop commonly visits items in an iterable or values generated by range(). A while loop repeats while its condition remains true. Every loop should have a clear purpose and stopping behavior.`,
+    `A loop repeats a block of instructions so the same code does not have to be written many times. The repeated block is called the loop body, and each repetition is called an iteration. Python has two loop statements. A for loop visits each item of an iterable, such as a list, a string, or the values produced by range(). A while loop repeats as long as its condition remains True. Both end their header line with a colon and indent the body. Every loop needs a clear way to finish: a for loop ends when its items are exhausted, and a while loop ends when its condition becomes False.`,
     'for number in range(1, 4):\n    print("Practice", number)',
     "Practice 1\nPractice 2\nPractice 3",
     "What is the main purpose of a loop?",
@@ -1267,7 +1298,7 @@ lesson(
       instructions:
         "Print a practice reminder five times using a loop. Change the range and predict how many lines appear.",
       starterCode:
-        "for number in range(1, 6):\n    # Print a practice reminder",
+        "for number in range(1, 6):\n    # Print a practice reminder\n    pass",
       solutionCode:
         'for number in range(1, 6):\n    print("Keep learning!")',
       quizQuestions: [
@@ -1320,7 +1351,7 @@ lesson(
     "The for Loop",
     "Loop River",
     "Visit each item in a sequence using a for loop.",
-    `A for loop takes each item from an iterable, assigns it to the loop variable, and executes the indented body. Lists, strings, tuples, and ranges are common iterables. The loop variable receives a new value on each iteration.`,
+    `A for loop takes items one at a time from an iterable, assigns each item to the loop variable, and runs the indented body once for each item. The syntax is for variable in iterable: followed by the body. Lists, strings, tuples, sets, dictionaries, and ranges are all iterables. The loop variable receives a new value on each iteration and keeps its last value after the loop ends. The built-in enumerate() function produces pairs of an index and an item, so for index, item in enumerate(items, start=1) gives numbered items. The loop stops automatically after the last item, and an empty iterable runs the body zero times.`,
     'for fruit in ["apple", "mango", "grape"]:\n    print(fruit)',
     "apple\nmango\ngrape",
     "Which keyword creates this loop?",
@@ -1379,7 +1410,7 @@ lesson(
     "Using range()",
     "Loop River",
     "Generate integer sequences for loops.",
-    `range(stop) generates integers beginning at zero and stopping before stop. range(start, stop) sets a starting value, while range(start, stop, step) controls the interval. The stop value is excluded. A negative step can be used for counting down.`,
+    `The range() function generates a sequence of integers, which makes it the standard partner of the for loop. range(stop) starts at 0 and stops before stop. range(start, stop) begins at start. range(start, stop, step) moves by step each time. In every form the stop value is excluded, so range(1, 4) produces 1, 2, 3. The number of values in range(start, stop) is stop minus start. A negative step counts downward, and in that case start must be larger than stop, as in range(5, 0, -1). range() produces values on demand rather than building a full list, which keeps it memory-efficient.`,
     "for number in range(1, 4):\n    print(number)",
     "1\n2\n3",
     "What values does range(3) generate?",
@@ -1389,8 +1420,7 @@ lesson(
     {
       instructions:
         "Print even numbers from 2 through 10, then count backward from 5 to 1.",
-      starterCode:
-        "# Print 2, 4, 6, 8, 10\n\n# Print 5, 4, 3, 2, 1",
+      starterCode: "# Print 2, 4, 6, 8, 10\n\n# Print 5, 4, 3, 2, 1",
       solutionCode:
         "for number in range(2, 11, 2):\n    print(number)\nfor number in range(5, 0, -1):\n    print(number)",
       quizQuestions: [
@@ -1428,7 +1458,7 @@ lesson(
     "The while Loop",
     "Loop River",
     "Repeat while a condition remains true.",
-    `A while loop checks its condition before each iteration. If the condition is true, its body runs and the condition is checked again. Update the state controlling the loop so the condition can eventually become false. Otherwise, the loop may continue indefinitely.`,
+    `A while loop checks its condition before every iteration. If the condition is True, the body runs and the condition is checked again; when it becomes False, the loop ends and execution continues after it. If the condition is False the first time, the body never runs. A while loop is useful when the number of repetitions is not known in advance, such as repeating until the user enters valid data. A while loop needs three parts: a starting state, a condition, and an update inside the body that moves the state toward making the condition False. If the update is missing, the loop never ends, which is called an infinite loop.`,
     "count = 1\nwhile count <= 3:\n    print(count)\n    count += 1",
     "1\n2\n3",
     "What should a finite while loop eventually do?",
@@ -1439,7 +1469,7 @@ lesson(
       instructions:
         "Use a while loop to count from 1 to 5. Explain which statement makes the loop stop.",
       starterCode:
-        "count = 1\nwhile count <= 5:\n    # Print count\n    # Increase count",
+        "count = 1\nwhile count <= 5:\n    # Print count\n    # Increase count\n    pass",
       solutionCode:
         "count = 1\nwhile count <= 5:\n    print(count)\n    count += 1",
       quizQuestions: [
@@ -1497,8 +1527,8 @@ lesson(
     "break",
     "Loop River",
     "Exit the innermost loop before it finishes normally.",
-    `break immediately exits the innermost loop containing it. It is useful when a search finds its target or a stopping condition is reached. Execution continues after the loop. Unlike continue, break terminates the loop rather than skipping to another iteration.`,
-    'for number in range(5):\n    if number == 3:\n        break\n    print(number)',
+    `The break statement immediately exits the innermost loop that contains it. Any remaining iterations are skipped, and execution continues with the first statement after the loop. break is typically placed inside an if statement so the loop ends only when a particular condition is met. It is commonly used in searches, where the loop can stop as soon as the target is found, and in loops that wait for a stop signal. break affects only the loop it is directly inside; in nested loops it does not end the outer loop. It differs from continue, which skips only the current iteration and keeps the loop running.`,
+    "for number in range(5):\n    if number == 3:\n        break\n    print(number)",
     "0\n1\n2",
     "What does break do?",
     [
@@ -1566,7 +1596,7 @@ lesson(
     "continue",
     "Loop River",
     "Skip the remaining statements in the current iteration.",
-    `continue skips the remaining statements in the current iteration and moves to the next iteration of the innermost loop. It is useful when certain values should be ignored. The loop continues; continue does not terminate the entire loop.`,
+    `The continue statement skips the rest of the current iteration and jumps straight to the next iteration of the innermost loop. In a for loop, the loop moves on to the next item. In a while loop, the condition is checked again. Unlike break, continue does not end the loop; the loop keeps running. continue is usually placed inside an if statement and is useful when certain values should be ignored, such as skipping invalid data or unwanted numbers. Statements written after continue in the same iteration are not executed.`,
     "for number in range(4):\n    if number == 2:\n        continue\n    print(number)",
     "0\n1\n3",
     "What does continue do?",
@@ -1579,10 +1609,9 @@ lesson(
     1,
     "The loop moves on to its next value.",
     {
-      instructions:
-        "Print numbers from 1 to 10, skipping multiples of three.",
+      instructions: "Print numbers from 1 to 10, skipping multiples of three.",
       starterCode:
-        "for number in range(1, 11):\n    # Skip multiples of three\n    # Print other numbers",
+        "for number in range(1, 11):\n    # Skip multiples of three\n    # Print other numbers\n    pass",
       solutionCode:
         "for number in range(1, 11):\n    if number % 3 == 0:\n        continue\n    print(number)",
       quizQuestions: [
@@ -1625,7 +1654,7 @@ lesson(
     "Nested Loops",
     "Loop River",
     "Use a loop inside another loop to process combinations.",
-    `A nested loop is a loop inside another loop. The inner loop completes its iterations for each outer iteration. If the outer loop runs twice and the inner loop runs three times for each outer iteration, the inner body runs six times. Nested loops are useful for grids and combinations.`,
+    `A nested loop is a loop placed inside the body of another loop. The outer loop starts one iteration, then the inner loop runs completely, and only then does the outer loop move to its next iteration. The total number of inner iterations is the number of outer iterations multiplied by the number of inner iterations per outer pass. Each loop needs its own loop variable, and each level is indented one step further. Nested loops are used for grids and tables, where an outer loop represents rows and an inner loop represents columns, and for generating combinations of values. Because the work multiplies, deeply nested loops over large ranges can be slow.`,
     "for row in range(2):\n    for col in range(2):\n        print(row, col)",
     "0 0\n0 1\n1 0\n1 1",
     "How many times does the inner body run?",
@@ -1633,10 +1662,9 @@ lesson(
     2,
     "Multiply the number of outer and inner iterations.",
     {
-      instructions:
-        "Print a 3-by-3 coordinate grid using nested loops.",
+      instructions: "Print a 3-by-3 coordinate grid using nested loops.",
       starterCode:
-        "for row in range(3):\n    for col in range(3):\n        # Print row and col",
+        "for row in range(3):\n    for col in range(3):\n        # Print row and col\n        pass",
       solutionCode:
         "for row in range(3):\n    for col in range(3):\n        print(row, col)",
       quizQuestions: [
@@ -1651,7 +1679,8 @@ lesson(
           answer: 0,
         },
         {
-          question: "If the outer loop runs 3 times and the inner loop runs 4 times, how many inner iterations occur?",
+          question:
+            "If the outer loop runs 3 times and the inner loop runs 4 times, how many inner iterations occur?",
           options: ["7", "12", "4", "3"],
           answer: 1,
         },
@@ -1662,7 +1691,12 @@ lesson(
         },
         {
           question: "What is a common use for nested loops?",
-          options: ["Processing a grid", "Declaring a string only", "Importing a module only", "Converting a float only"],
+          options: [
+            "Processing a grid",
+            "Declaring a string only",
+            "Importing a module only",
+            "Converting a float only",
+          ],
           answer: 0,
         },
       ],
@@ -1674,16 +1708,11 @@ lesson(
     "Looping Through Strings",
     "Loop River",
     "Process each character in a string.",
-    `Strings are iterable, so a for loop can visit their characters in order. Each iteration assigns one character to the loop variable. This is useful for counting letters, checking characters, and transforming text. An empty string produces no iterations.`,
+    `A string is an ordered sequence of characters, so it is iterable. A for loop over a string assigns one character at a time to the loop variable, from the first character to the last, and the body runs once per character. Spaces and punctuation count as characters. An empty string produces zero iterations. Looping over strings is the basis of many text tasks, such as counting particular letters, checking whether each character meets a rule, and building a new string one character at a time. Because "A" and "a" are different characters, text is often converted with lower() or upper() before characters are compared.`,
     'for letter in "EVO":\n    print(letter)',
     "E\nV\nO",
     "What does a for loop over a string visit?",
-    [
-      "Only numbers",
-      "Characters in the string",
-      "Only spaces",
-      "File names",
-    ],
+    ["Only numbers", "Characters in the string", "Only spaces", "File names"],
     1,
     "Each item is one character.",
     {
@@ -1743,16 +1772,11 @@ lesson(
     "Loop Patterns",
     "Loop River",
     "Use counters and accumulators to solve repetitive problems.",
-    `A counter tracks how many times something happens. An accumulator stores a running result, such as a sum. Initialise the variable before the loop, update it during each iteration, and inspect it afterward. A numeric sum commonly starts at zero.`,
+    `Two patterns appear in many loops. A counter is a variable that tracks how many times something happens; it starts at 0 and increases by 1 each time the event occurs. An accumulator is a variable that builds up a running result, such as a sum, by combining each new value with the current total using a statement like total += number. Both patterns follow the same three steps: initialise the variable before the loop, update it inside the loop, and use the final value after the loop. A sum starts at 0 because 0 does not change the total, while a product starts at 1. If the variable is not initialised before the loop, Python raises an error, and if it is initialised inside the loop, it resets on every iteration.`,
     "total = 0\nfor number in range(1, 4):\n    total += number\nprint(total)",
     "6",
     "What is an accumulator used for?",
-    [
-      "Store a running result",
-      "Stop Python",
-      "Create a class",
-      "Read input only",
-    ],
+    ["Store a running result", "Stop Python", "Create a class", "Read input only"],
     0,
     "It updates a result repeatedly.",
     {
@@ -1812,7 +1836,7 @@ lesson(
     "Loop River Checkpoint",
     "Loop River",
     "Review for, while, range, break, continue, and accumulators.",
-    `for iterates over an iterable, while repeats as long as its condition remains true, and range() excludes its stop value. break exits the current loop, while continue skips to the next iteration. Accumulators must be initialised before they are updated.`,
+    `This checkpoint reviews the River. A for loop visits each item of an iterable, and a while loop repeats while its condition is True and must update its state to finish. range() generates integers and excludes its stop value. break exits the innermost loop, while continue skips to the next iteration. In nested loops, the inner loop completes for every outer iteration. A counter tracks how many times an event happens, and an accumulator builds a running result; both must be initialised before the loop starts.`,
     "total = 0\nfor number in range(1, 4):\n    total += number\nprint(total)",
     "6",
     "Which statement skips the current iteration?",
@@ -1862,7 +1886,7 @@ lesson(
     "Lists",
     "Data Kingdom",
     "Store multiple ordered values in one collection.",
-    `A list is an ordered, mutable collection. Lists use square brackets and commas between elements. They can contain different data types and can be changed after creation. Lists are useful for scores, names, tasks, and groups of values.`,
+    `A list is an ordered, mutable collection of items. Lists are written with square brackets and commas between the elements, such as [10, 20, 30]. "Ordered" means each item keeps its position, and "mutable" means the list can be changed after it is created by adding, replacing, or removing items. A list can hold values of different types and can contain duplicates. The len() function returns the number of items, and an empty list is written []. The append() method adds an item to the end. Lists are used wherever a group of related values must be kept together, such as scores, names, or tasks.`,
     'fruits = ["apple", "mango", "grape"]\nprint(fruits[0])\nprint(len(fruits))',
     "apple\n3",
     "Which brackets create a list?",
@@ -1911,7 +1935,7 @@ lesson(
     "List Indexing",
     "Data Kingdom",
     "Access individual list items using their positions.",
-    `Python uses zero-based indexing, so the first item is at index 0. Negative indexes count backward from the end, with -1 representing the last item. Accessing an invalid index raises IndexError.`,
+    `An index is the position of an item in a sequence, written in square brackets after the sequence, as in numbers[0]. Python uses zero-based indexing, so the first item is at index 0, the second at index 1, and the last at index len(numbers) - 1. Negative indexes count backward from the end: -1 is the last item, -2 is the second-to-last, and so on. Using an index that does not exist raises an IndexError. Indexing works on lists, tuples, and strings. Because lists are mutable, an index can also appear on the left of an assignment to replace the item at that position.`,
     "numbers = [10, 20, 30]\nprint(numbers[0])\nprint(numbers[1])\nprint(numbers[-1])",
     "10\n20\n30",
     "What is the index of the first list item?",
@@ -1938,12 +1962,7 @@ lesson(
         },
         {
           question: "What does numbers[-1] access?",
-          options: [
-            "The first item",
-            "The last item",
-            "The second item",
-            "No item",
-          ],
+          options: ["The first item", "The last item", "The second item", "No item"],
           answer: 1,
         },
         {
@@ -1970,7 +1989,7 @@ lesson(
     "Updating Lists",
     "Data Kingdom",
     "Add, replace, and remove list elements.",
-    `Lists are mutable. Assign to an index to replace an item. append() adds to the end, insert() adds at a chosen position, remove() removes the first matching value, and pop() removes and returns an item. Choose the method according to whether you know the value or its position.`,
+    `Because lists are mutable, their contents can be changed in place. Assigning to an index, as in scores[0] = 5, replaces the item at that position. The append(value) method adds an item to the end, and insert(index, value) adds an item at a chosen position. The remove(value) method deletes the first item equal to the value and raises ValueError if it is not found. The pop() method removes and returns the last item, and pop(index) removes the item at that index. Methods such as append(), remove(), and sort() change the list itself and return None. Choose remove() when the value is known and pop() when the position is known.`,
     "scores = [10, 20]\nscores.append(30)\nscores[0] = 5\nprint(scores)",
     "[5, 20, 30]",
     "Which method adds an item to the end of a list?",
@@ -2029,7 +2048,7 @@ lesson(
     "Tuples",
     "Data Kingdom",
     "Store ordered values in an immutable collection.",
-    `A tuple is an ordered collection that cannot be modified in place after creation. Tuples are commonly written with parentheses, although commas define the tuple. A one-item tuple requires a trailing comma. Tuples are useful for fixed groups of related values such as coordinates.`,
+    `A tuple is an ordered collection that cannot be changed after it is created, which is called being immutable. Tuples are usually written with parentheses, such as (3, 4), although it is the commas that actually define a tuple. A tuple containing one item needs a trailing comma, as in (5,), because (5) is just the number 5 in parentheses. Items are accessed by index exactly as in lists, but assigning to an index raises a TypeError. Tuples can be unpacked into separate variables, as in x, y = point. Tuples suit fixed groups of related values, such as coordinates or a date, where accidental changes should not be possible.`,
     "point = (3, 4)\nprint(point[0])\nprint(point[1])",
     "3\n4",
     "Can a tuple item be reassigned in place?",
@@ -2039,10 +2058,8 @@ lesson(
     {
       instructions:
         "Create a coordinate tuple. Access both values and explain why a tuple suits fixed data.",
-      starterCode:
-        "point = (3, 4)\n\n# Print both coordinate values",
-      solutionCode:
-        "point = (3, 4)\nprint(point[0])\nprint(point[1])",
+      starterCode: "point = (3, 4)\n\n# Print both coordinate values",
+      solutionCode: "point = (3, 4)\nprint(point[0])\nprint(point[1])",
       quizQuestions: [
         {
           question: "What is a key property of tuples?",
@@ -2088,7 +2105,7 @@ lesson(
     "Sets",
     "Data Kingdom",
     "Store unique values and compare collections.",
-    `A set stores distinct elements, removing duplicates. Sets do not support positional indexing. Union combines elements, intersection finds shared elements, and difference finds elements in one set but not another. Use set() to create an empty set; {} creates an empty dictionary.`,
+    `A set is an unordered collection of distinct elements. Adding a duplicate value has no effect, so each value is stored only once. Sets are written with curly braces, such as {1, 2, 3}, and an empty set must be created with set() because {} creates an empty dictionary. Because sets are unordered, they do not support indexing or slicing, and the order of printed elements is not guaranteed. Membership tests with in are fast. Sets support mathematical operations: union (| ) combines elements from both sets, intersection (&) keeps elements found in both, and difference (-) keeps elements found in the first set but not the second. Converting a list with set() is a quick way to remove duplicates.`,
     "values = {1, 2, 2, 3}\nprint(len(values))\nprint(2 in values)",
     "3\nTrue",
     "What is a key property of sets?",
@@ -2147,7 +2164,7 @@ lesson(
     "Dictionaries",
     "Data Kingdom",
     "Store and retrieve values using keys.",
-    `A dictionary maps keys to values. Curly braces contain key-value pairs separated by colons. Access a value using its key, or use get() when a missing key should return a fallback instead of raising KeyError. Dictionary keys must be hashable, and each key is unique.`,
+    `A dictionary (dict) is a collection that maps keys to values. It is written with curly braces containing key: value pairs separated by commas. Each key must be unique and hashable, which in practice means strings, numbers, and tuples are suitable keys while lists are not. A value is read with dictionary[key], and a missing key raises a KeyError. The get(key, default) method returns the default instead of raising an error when the key is missing. Assigning to a key, such as student["score"] = 90, adds the pair if the key is new or replaces the value if it exists. Looping over a dictionary visits its keys, and the items() method provides key and value together. Dictionaries keep the order in which keys were inserted.`,
     'person = {"name": "EVO", "age": 19}\nprint(person["name"])\nprint(person.get("city", "Unknown"))',
     "EVO\nUnknown",
     "What does a dictionary store?",
@@ -2169,7 +2186,12 @@ lesson(
       quizQuestions: [
         {
           question: "What does a dictionary map?",
-          options: ["Keys to values", "Characters to loops", "Only indexes to strings", "Files to folders only"],
+          options: [
+            "Keys to values",
+            "Characters to loops",
+            "Only indexes to strings",
+            "Files to folders only",
+          ],
           answer: 0,
         },
         {
@@ -2206,7 +2228,7 @@ lesson(
     "String Methods",
     "Data Kingdom",
     "Transform and inspect text using built-in string methods.",
-    `String methods provide common text operations. lower() and upper() change letter case, strip() removes surrounding whitespace, and replace() substitutes text. Methods return new strings because strings are immutable. Method calls can be chained when each operation returns a string.`,
+    `A method is a function that belongs to a value and is called with a dot, as in text.upper(). String methods perform common text operations. lower() and upper() change letter case, title() capitalises each word, strip() removes whitespace from both ends, and replace(old, new) substitutes text. Other useful methods include split(), which breaks a string into a list, startswith() and endswith(), which return Booleans, and find(), which returns the position of a substring or -1. Because strings are immutable, a method never changes the original; it returns a new string, so the result must be stored in a variable to keep it. Methods that return strings can be chained, as in text.strip().upper().`,
     'text = "  Python  "\nprint(text.strip().upper())\nprint(text.lower())\nprint(text.replace("Python", "EVOLV"))',
     "PYTHON\n  python  \n  EVOLV  ",
     "Which method removes surrounding whitespace?",
@@ -2260,7 +2282,7 @@ lesson(
     "Slicing",
     "Data Kingdom",
     "Extract a portion of a string or sequence.",
-    `Slicing uses sequence[start:stop:step]. The start index is included, but the stop index is excluded. Omitting start or stop uses the relevant default. Negative indexes count from the end, and a step controls which elements are selected.`,
+    `Slicing extracts part of a sequence using the form sequence[start:stop:step]. The start index is included, and the stop index is excluded, so "PYTHON"[1:4] gives "YTH". If start is omitted it defaults to the beginning, and if stop is omitted it defaults to the end, so [:2] means the first two items and [-2:] means the last two. Negative indexes count from the end. The optional step selects every nth item, and a step of -1 reverses the sequence. Slicing never raises an IndexError for out-of-range bounds; it simply returns what is available. Slicing works on strings, lists, and tuples, and always produces a new object of the same kind.`,
     'letters = "PYTHON"\nprint(letters[1:4])\nprint(letters[:2])\nprint(letters[-2:])',
     "YTH\nPY\nON",
     "Is the stop index included in a slice?",
@@ -2309,7 +2331,7 @@ lesson(
     "Comprehensions",
     "Data Kingdom",
     "Create a list from an iterable in a compact expression.",
-    `A list comprehension creates a list using an expression and a for clause, with an optional condition. It can replace a simple loop that builds a list. Keep comprehensions readable; use a regular loop when the logic becomes complex.`,
+    `A list comprehension builds a new list in a single expression. Its form is [expression for item in iterable], optionally followed by if condition to keep only some items. Python takes each item from the iterable, applies the expression, and collects the results into a list. The condition, when present, is checked first and filters items out. A comprehension is equivalent to a for loop that creates an empty list and appends to it, but it is shorter. Similar syntax exists for sets and dictionaries. Comprehensions are best for simple transformations and filters; when the logic needs several steps or nested conditions, a regular loop is easier to read.`,
     "squares = [number * number for number in range(4)]\nprint(squares)\nevens = [number for number in range(10) if number % 2 == 0]\nprint(evens)",
     "[0, 1, 4, 9]\n[0, 2, 4, 6, 8]",
     "What does a list comprehension create?",
@@ -2336,7 +2358,12 @@ lesson(
         },
         {
           question: "Which part filters items in a comprehension?",
-          options: ["An optional if clause", "The list name", "The brackets alone", "A print statement"],
+          options: [
+            "An optional if clause",
+            "The list name",
+            "The brackets alone",
+            "A print statement",
+          ],
           answer: 0,
         },
         {
@@ -2363,7 +2390,7 @@ lesson(
     "Data Kingdom Checkpoint",
     "Data Kingdom",
     "Choose the right collection and practise working with its values.",
-    `Lists are ordered and mutable; tuples are ordered and immutable; sets store unique elements; dictionaries map keys to values. Strings represent text and support indexing and slicing. Choose a data structure based on what needs to be stored and how it will be accessed or updated.`,
+    `This checkpoint compares the collections of the Kingdom. A list is ordered and mutable and is written with []. A tuple is ordered and immutable and is written with (). A set is unordered, stores only unique elements, and supports union, intersection, and difference. A dictionary maps unique keys to values. Strings are immutable sequences of characters that support indexing, slicing, and methods. Indexing starts at 0, negative indexes count from the end, and slices exclude the stop index. The right structure depends on what must be stored and how it will be accessed or updated.`,
     'student = {"name": "EVO", "score": 5}\nstudent["score"] += 3\nprint(student["name"])\nprint(student["score"])',
     "EVO\n8",
     "Which collection stores key-value pairs?",
@@ -2413,7 +2440,7 @@ lesson(
     "Creating Functions",
     "Function Mountains",
     "Group reusable instructions into named functions.",
-    `A function groups instructions so they can be called when needed. Define one using def, followed by its name, parentheses, and a colon. The function body is indented. Defining a function does not execute its body; calling it does. Small functions make programs easier to test and maintain.`,
+    `A function is a named block of code that performs a task and can be run whenever it is needed. A function is defined with the def keyword, followed by the function name, parentheses, and a colon, and its body is indented beneath. Defining a function does not run its body; the body runs only when the function is called by writing its name followed by parentheses, such as greet(). A function can be called any number of times. Functions remove repetition, give a name to a piece of logic, and make programs easier to test and maintain. By convention, function names use lowercase letters with underscores and describe the action performed.`,
     'def greet():\n    print("Hello!")\n\ngreet()\ngreet()',
     "Hello!\nHello!",
     "Which keyword defines a function?",
@@ -2472,7 +2499,7 @@ lesson(
     "Function Parameters",
     "Function Mountains",
     "Pass information into functions using parameters and arguments.",
-    `Parameters are names in a function definition. Arguments are the values passed when a function is called. A function can accept several parameters and produce different results for different arguments. Meaningful parameter names make the function's requirements clearer.`,
+    `Parameters let a function receive information. A parameter is a variable name listed in the parentheses of the function definition. An argument is the actual value supplied when the function is called. Arguments are matched to parameters by position, so the first argument goes to the first parameter. A function can have any number of parameters, and it must be called with the right number of arguments, otherwise Python raises a TypeError. Parameters exist only while the function runs. Meaningful parameter names, such as name and price, document what the function expects, and one function can produce different results for different arguments.`,
     'def greet(name, course):\n    print(f"Hello {name}, welcome to {course}!")\n\ngreet("EVO", "Python")\ngreet("Arun", "Data Science")',
     "Hello EVO, welcome to Python!\nHello Arun, welcome to Data Science!",
     "What is a parameter?",
@@ -2514,12 +2541,7 @@ lesson(
         },
         {
           question: 'What does greet("EVO", "Python") pass?',
-          options: [
-            "Two arguments",
-            "No arguments",
-            "A class",
-            "A file",
-          ],
+          options: ["Two arguments", "No arguments", "A class", "A file"],
           answer: 0,
         },
         {
@@ -2541,7 +2563,7 @@ lesson(
     "Returning Values",
     "Function Mountains",
     "Return a result that other parts of your program can use.",
-    `return sends a result back to the caller and ends the current function call. print() displays a value but does not return that displayed value for later calculation. Returned values can be stored, combined, or passed to another function. Without an explicit return, a function returns None.`,
+    `The return statement sends a value back to the code that called the function and immediately ends that function call. The returned value can be stored in a variable, used in a calculation, or passed to another function. This differs from print(), which only displays a value on the screen; a function that only prints gives the caller nothing to work with. A function with no return statement, or with a bare return, returns None, which represents "no value". A function can return several values at once as a tuple, such as return a, b. Statements written after a return in the same function call are never executed. Functions that return results are easier to reuse and test than functions that only print.`,
     "def add(a, b):\n    return a + b\n\nresult = add(2, 3)\nprint(result * 2)",
     "10",
     "Which keyword sends a value back from a function?",
@@ -2605,7 +2627,7 @@ lesson(
     "Default Arguments",
     "Function Mountains",
     "Give parameters fallback values when callers omit arguments.",
-    `A default argument supplies a value when a caller omits that argument. A supplied argument overrides the default. Defaults are useful for optional settings such as greetings. Avoid mutable list or dictionary defaults unless you deliberately manage their shared state.`,
+    `A default argument gives a parameter a fallback value, written in the definition as parameter=value. When the caller omits that argument, the default is used; when the caller supplies a value, it replaces the default. Parameters with defaults must come after parameters without defaults. Defaults make functions flexible, because common cases need fewer arguments while special cases can still override the behaviour. The default value is created once, when the function is defined, not on every call. For this reason a mutable default such as an empty list can be shared between calls and cause surprising results; the usual approach is to use None as the default and create the list inside the function.`,
     'def greet(name, greeting="Hello"):\n    print(f"{greeting}, {name}!")\n\ngreet("EVO")\ngreet("Arun", "Welcome")',
     "Hello, EVO!\nWelcome, Arun!",
     "When is a default argument used?",
@@ -2642,12 +2664,7 @@ lesson(
         },
         {
           question: 'What does greet("Arun", "Welcome") print?',
-          options: [
-            "Hello, Arun!",
-            "Welcome, Arun!",
-            "Arun, Welcome!",
-            "Nothing",
-          ],
+          options: ["Hello, Arun!", "Welcome, Arun!", "Arun, Welcome!", "Nothing"],
           answer: 1,
         },
         {
@@ -2674,7 +2691,7 @@ lesson(
     "Keyword Arguments",
     "Function Mountains",
     "Pass function arguments by parameter name.",
-    `Keyword arguments specify parameter names in a function call. They improve readability and allow arguments to be supplied in a different order from the function definition. The names must match the parameters. Positional arguments generally come before keyword arguments in a call.`,
+    `A keyword argument passes a value by naming the parameter in the call, in the form name=value. Because Python matches by name rather than position, keyword arguments can appear in any order, and they make calls easier to read, especially when a function has several parameters. The names used must match the parameter names in the definition, otherwise Python raises a TypeError. Positional and keyword arguments can be mixed, but positional arguments must come first. Providing the same parameter both by position and by keyword is an error. Keyword arguments also combine naturally with default arguments, letting a caller change just one optional setting.`,
     'def describe(name, age, course):\n    print(f"{name} is {age} and studies {course}.")\n\ndescribe(course="Python", name="EVO", age=1)',
     "EVO is 1 and studies Python.",
     "How does a keyword argument identify its parameter?",
@@ -2715,7 +2732,8 @@ lesson(
           answer: 0,
         },
         {
-          question: "Which argument order is generally required when mixing positional and keyword arguments?",
+          question:
+            "Which argument order is generally required when mixing positional and keyword arguments?",
           options: [
             "Positional before keyword",
             "Keyword before positional in all cases",
@@ -2743,7 +2761,7 @@ lesson(
     "Variable Scope",
     "Function Mountains",
     "Understand where variables can be accessed.",
-    `Scope describes where a name is accessible. A variable assigned inside a function is normally local to that function call. It does not automatically replace a same-named variable outside the function. Prefer parameters and return values over unnecessary global state.`,
+    `Scope is the region of a program where a name can be used. A variable created inside a function is local: it exists only while that function runs and cannot be used outside it. A variable created outside all functions is global and can be read from inside functions. Assigning to a name inside a function creates a new local variable, even when a global variable has the same name, so the global value is not changed. Python searches for a name in this order: local scope, enclosing function scope, global scope, and finally built-in names. The global keyword can make a function assign to a global variable, but relying on it makes code harder to follow. Passing values in as parameters and sending results out with return is the preferred design.`,
     'message = "Outside"\ndef show():\n    message = "Inside"\n    print(message)\n\nshow()\nprint(message)',
     "Inside\nOutside",
     "Where is a local variable normally accessible?",
@@ -2754,7 +2772,7 @@ lesson(
       instructions:
         "Create a local variable sharing a name with a global variable. Explain why the outside value remains unchanged.",
       starterCode:
-        'message = "Outside"\ndef show():\n    message = "Inside"\n    print(message)\n\nshow()\nprint(message)',
+        'message = "Outside"\n\ndef show():\n    # Create a local variable named message\n    pass\n\nshow()\nprint(message)',
       solutionCode:
         'message = "Outside"\ndef show():\n    message = "Inside"\n    print(message)\n\nshow()\nprint(message)',
       quizQuestions: [
@@ -2789,7 +2807,8 @@ lesson(
           answer: 0,
         },
         {
-          question: "Does assigning a local variable automatically change a global variable with the same name?",
+          question:
+            "Does assigning a local variable automatically change a global variable with the same name?",
           options: ["Yes", "No", "Only for strings", "Only in loops"],
           answer: 1,
         },
@@ -2802,7 +2821,7 @@ lesson(
     "Lambda Functions",
     "Function Mountains",
     "Create small anonymous functions using lambda.",
-    `A lambda expression creates a small anonymous function containing one expression. It is useful for simple transformations and short key functions. A lambda cannot contain ordinary multi-line statements. Use def when a function needs several steps, a descriptive name, or complex logic.`,
+    `A lambda expression creates a small anonymous function, meaning a function without a name. Its form is lambda parameters: expression. The function contains exactly one expression, and the value of that expression is returned automatically, so no return keyword is used. A lambda can be assigned to a variable and called like any function, but it is most often passed directly to another function that expects a function, such as the key argument of sorted(), min(), or max(). A lambda cannot contain statements such as assignments, loops, or multiple lines. When a function needs several steps, a descriptive name, or documentation, a regular def function is the better choice.`,
     'double = lambda number: number * 2\nprint(double(4))\n\nwords = ["pear", "watermelon", "fig"]\nprint(sorted(words, key=lambda word: len(word)))',
     "8\n['fig', 'pear', 'watermelon']",
     "Which keyword introduces a lambda expression?",
@@ -2819,12 +2838,7 @@ lesson(
       quizQuestions: [
         {
           question: "What does a lambda create?",
-          options: [
-            "An anonymous function",
-            "A class only",
-            "A file",
-            "A loop",
-          ],
+          options: ["An anonymous function", "A class only", "A file", "A loop"],
           answer: 0,
         },
         {
@@ -2871,7 +2885,7 @@ lesson(
     "Recursion",
     "Function Mountains",
     "Understand functions that call themselves.",
-    `Recursion occurs when a function calls itself to solve a smaller version of a problem. Every recursive solution needs a base case that stops further calls and a recursive step that moves toward the base case. Without a suitable stopping condition, recursion can continue until Python raises RecursionError.`,
+    `Recursion is a technique in which a function calls itself to solve a smaller version of the same problem. Every correct recursive function has two parts. The base case is a condition that can be answered directly and stops further calls. The recursive case calls the function again with a smaller or simpler input that moves toward the base case. Each call is placed on the call stack and waits for the call it made to finish. If the base case is never reached, calls keep stacking until Python raises a RecursionError. Recursion suits problems that naturally break into smaller copies of themselves, such as counting down, factorials, and tree structures, although a loop is often simpler for plain repetition.`,
     'def countdown(n):\n    if n == 0:\n        print("Go!")\n    else:\n        print(n)\n        countdown(n - 1)\n\ncountdown(3)',
     "3\n2\n1\nGo!",
     "What prevents recursion from continuing indefinitely?",
@@ -2940,7 +2954,7 @@ lesson(
     "Modules and Imports",
     "Function Mountains",
     "Reuse functions and constants from Python modules.",
-    `A module is an importable unit of Python code, commonly a Python file. import makes its names available. The standard-library math module provides functions such as sqrt() and ceil(), as well as constants such as pi. With import math, access these names using math.name.`,
+    `A module is a file of Python code that can be imported and reused. The standard library is a large set of modules that come with Python, such as math, random, and datetime. The statement import math makes the module's names available, and each name is accessed with dot notation, such as math.sqrt(16). The form from math import sqrt imports a single name that can then be used directly, and import math as m gives the module a shorter alias. The math module provides functions such as sqrt() for square roots, ceil() for rounding up, and floor() for rounding down, and constants such as pi. Imports are normally placed at the top of a file. Any Python file you write can also be imported as a module.`,
     "import math\nprint(math.sqrt(16))\nprint(math.ceil(3.2))\nprint(round(math.pi, 2))",
     "4.0\n4\n3.14",
     "Which keyword imports a module?",
@@ -2994,7 +3008,7 @@ lesson(
     "Function Mountains Checkpoint",
     "Function Mountains",
     "Combine functions, parameters, return values, and imports.",
-    `Functions make programs reusable and easier to test. Identify a function's inputs, operations, and return value. Test more than one call, including boundary values such as zero. Printing a value and returning a value serve different purposes.`,
+    `This checkpoint reviews the Mountains. A function is defined with def and runs only when called. Parameters are names in the definition, and arguments are the values supplied in a call, either by position or by keyword. Default arguments supply fallback values. return sends a result back to the caller, while print() only displays a value, and a function without return gives back None. Local variables exist only inside their function. A lambda is a one-expression anonymous function, and recursion needs a base case. Modules are imported with import and their names are reached with dot notation. To analyse a function, identify its inputs, what it does with them, and what it returns.`,
     "def square(number):\n    return number * number\n\nfor value in [2, 4, 6]:\n    print(square(value))",
     "4\n16\n36",
     "What does a function return if it has no return statement?",
@@ -3013,12 +3027,7 @@ lesson(
         },
         {
           question: "What is an argument?",
-          options: [
-            "A value passed to a function",
-            "A loop",
-            "A module",
-            "A file",
-          ],
+          options: ["A value passed to a function", "A loop", "A module", "A file"],
           answer: 0,
         },
         {
@@ -3049,7 +3058,7 @@ lesson(
     "Classes and Objects",
     "Object-Oriented Grove",
     "Model related data and behaviour using classes and objects.",
-    `A class defines a type of object, including attributes for data and methods for behaviour. An object is an instance created from a class. A class can describe a student record, while each Student object represents a particular student.`,
+    `Object-oriented programming organises code around objects that combine data and behaviour. A class is a blueprint that defines a kind of object. It is created with the class keyword, and by convention class names use CapitalizedWords. An object, also called an instance, is a particular item created from a class by calling the class like a function, such as Dog(). Many objects can be created from one class, and each is independent. Data stored in an object is called its attributes, and actions the object can perform are called methods. For example, a Student class can describe what every student has, while each Student object represents one specific student. The type() function reports the class of an object.`,
     "class Dog:\n    pass\n\npet = Dog()\nprint(type(pet).__name__)",
     "Dog",
     "What is an object?",
@@ -3118,7 +3127,7 @@ lesson(
     "The __init__ Method",
     "Object-Oriented Grove",
     "Initialize each object with its own attributes.",
-    `The __init__ method initializes a new instance. Its first parameter is conventionally self and refers to that instance. Assigning self.name = name stores a value on that object. Different instances can therefore hold different attributes.`,
+    `The __init__ method is a special method that Python calls automatically whenever a new instance is created. It is used to set up the object's starting attributes. Its first parameter is conventionally named self and refers to the instance being created; Python supplies it automatically, so it is not passed when creating the object. Writing self.name = name stores the value on that particular instance, so different instances can hold different data. The remaining parameters of __init__ become the arguments used when creating the object, as in Student("EVO", 90). Attributes are read with dot notation, such as first.name. Parameters and attributes are separate things: name is a temporary parameter, while self.name is stored on the object.`,
     'class Student:\n    def __init__(self, name, score):\n        self.name = name\n        self.score = score\n\nfirst = Student("EVO", 90)\nsecond = Student("Arun", 82)\nprint(first.name, first.score)\nprint(second.name, second.score)',
     "EVO 90\nArun 82",
     "What does self refer to in an instance method?",
@@ -3170,12 +3179,7 @@ lesson(
         },
         {
           question: "How is an instance commonly created?",
-          options: [
-            "Student(...)",
-            "new Student only",
-            "create Student",
-            "def Student",
-          ],
+          options: ["Student(...)", "new Student only", "create Student", "def Student"],
           answer: 0,
         },
       ],
@@ -3187,7 +3191,7 @@ lesson(
     "Instance Methods",
     "Object-Oriented Grove",
     "Define actions that can read or update an object's state.",
-    `An instance method is defined inside a class and works with an instance. Python passes the current instance as the first argument, conventionally named self, when the method is called through that object. Methods can read attributes, update state, and return useful information.`,
+    `An instance method is a function defined inside a class that works on one particular object. Its first parameter is self, which Python fills in automatically with the object the method is called on, so counter.increment() is treated as increment(counter). Inside a method, attributes are read and changed through self, as in self.value += 1. An object's attributes together make up its state, and methods are the controlled way to read or change that state. A method can return a value, such as show(), or change the object and return nothing, such as increment(). Methods are called with dot notation on an instance, and each instance keeps its own separate state.`,
     "class Counter:\n    def __init__(self):\n        self.value = 0\n\n    def increment(self):\n        self.value += 1\n\n    def show(self):\n        return self.value\n\ncounter = Counter()\ncounter.increment()\ncounter.increment()\nprint(counter.show())",
     "2",
     "Where are instance methods defined?",
@@ -3251,7 +3255,7 @@ lesson(
     "Inheritance",
     "Object-Oriented Grove",
     "Reuse and extend the behaviour of an existing class.",
-    `Inheritance allows a child class to derive behaviour and attributes from a parent class. The parent is named in parentheses after the child class name. A child can use inherited methods, add methods, or override an inherited method. Use inheritance when the relationship represents a specialised kind of the parent.`,
+    `Inheritance lets a new class reuse and extend an existing class. The existing class is called the parent, base, or superclass, and the new class is the child or subclass. The parent is named in parentheses after the child's name, as in class Dog(Animal). The child automatically receives the parent's attributes and methods. A child can add new methods and can override an inherited method by defining a method with the same name, in which case the child's version is used for the child's objects. The super() function gives access to the parent's version of a method, which is often used inside __init__. Inheritance models an "is a" relationship: a Dog is an Animal. It should be used for genuine specialisations, not simply to share code.`,
     'class Animal:\n    def speak(self):\n        print("Some sound")\n\nclass Dog(Animal):\n    def speak(self):\n        print("Woof!")\n\nDog().speak()',
     "Woof!",
     "What is inheritance used for?",
@@ -3325,7 +3329,7 @@ lesson(
     "Object-Oriented Grove Checkpoint",
     "Object-Oriented Grove",
     "Combine classes, instances, attributes, methods, and inheritance.",
-    `Classes organise related state and behaviour. Attributes describe object state, and methods define actions. __init__ initialises an instance, while self refers to that instance. Inheritance lets a child class reuse or override parent behaviour. Test multiple instances to confirm their data remains independent.`,
+    `This checkpoint reviews the Grove. A class is a blueprint, and an object is an instance created from it. Attributes store an object's data, and methods define its actions. The __init__ method runs when an instance is created and sets its initial attributes, while self refers to the current instance inside every instance method. Each instance keeps its own attribute values. Inheritance lets a child class reuse a parent class and override its methods, and super() reaches the parent's version. Object-oriented design groups related state and behaviour so a program mirrors the things it models.`,
     'class Greeter:\n    def __init__(self, name):\n        self.name = name\n\n    def greet(self):\n        return f"Hello, {self.name}!"\n\nprint(Greeter("EVO").greet())',
     "Hello, EVO!",
     "Which keyword defines a class?",
@@ -3339,12 +3343,7 @@ lesson(
       quizQuestions: [
         {
           question: "What is an object?",
-          options: [
-            "An instance of a class",
-            "A keyword",
-            "A loop",
-            "A comment",
-          ],
+          options: ["An instance of a class", "A keyword", "A loop", "A comment"],
           answer: 0,
         },
         {
@@ -3390,7 +3389,7 @@ lesson(
     "Reading Files",
     "Files and Tools",
     "Read text stored in a file.",
-    `open(path, mode, encoding="utf-8") opens a file. Read mode "r" opens an existing file. The with statement ensures the file is closed when the block finishes. read() reads the full content, readline() reads one line, and iteration can process a file line by line. Relative paths depend on the program's working directory.`,
+    `Files let a program read data that persists after the program ends. The open(path, mode, encoding="utf-8") function opens a file and returns a file object. The mode "r" opens an existing file for reading, and it is the default. The with statement, written with open(...) as file:, closes the file automatically when its block ends, even if an error occurs, so it is the recommended way to work with files. The read() method returns the whole content as one string, readline() returns one line, readlines() returns a list of lines, and looping over the file object visits one line at a time. Each line from a file ends with a newline character, which strip() can remove. A relative path is resolved from the program's working directory, and opening a file that does not exist raises FileNotFoundError.`,
     'with open("notes.txt", "r", encoding="utf-8") as file:\n    content = file.read()\n    print(content)',
     "Displays the contents of notes.txt when the file exists.",
     "Which mode is commonly used to read a file?",
@@ -3401,7 +3400,7 @@ lesson(
       instructions:
         "Create notes.txt in a Python environment that supports files. Write two lines and read them back.",
       starterCode:
-        'with open("notes.txt", "r", encoding="utf-8") as file:\n    print(file.read())',
+        'with open("notes.txt", "w", encoding="utf-8") as file:\n    file.write("Learn Python.\\nPractise daily.\\n")\n\n# Open notes.txt in read mode and print its content',
       solutionCode:
         'with open("notes.txt", "w", encoding="utf-8") as file:\n    file.write("Learn Python.\\nPractise daily.\\n")\n\nwith open("notes.txt", "r", encoding="utf-8") as file:\n    print(file.read(), end="")',
       validation: "manual",
@@ -3460,7 +3459,7 @@ lesson(
     "Writing Files",
     "Files and Tools",
     "Write and append text to files.",
-    `The write mode "w" creates a file or replaces existing contents, so use it carefully. Append mode "a" adds text to the end. The with statement closes the file correctly. write() does not automatically add a newline; include \\n when another line is needed.`,
+    `A file opened in write mode "w" is created if it does not exist, and if it already exists its previous contents are erased immediately, so this mode must be used carefully. Append mode "a" keeps the existing contents and adds new text at the end. Exclusive mode "x" creates a new file and raises an error if the file already exists. The write() method writes a string and returns the number of characters written; it does not add a newline automatically, so "\\n" must be included at the end of each line. Only strings can be written to a text file, so numbers must be converted with str() first. Using with open(...) ensures the data is saved and the file is closed when the block ends.`,
     'with open("notes.txt", "w", encoding="utf-8") as file:\n    file.write("Hello EVOLV!\\n")\n    file.write("Keep learning.\\n")\n\nwith open("notes.txt", "r", encoding="utf-8") as file:\n    print(file.read(), end="")',
     "Hello EVOLV!\nKeep learning.",
     "Which file mode can replace existing contents?",
@@ -3502,7 +3501,8 @@ lesson(
           answer: 0,
         },
         {
-          question: "Which mode should you choose when preserving existing text and adding more?",
+          question:
+            "Which mode should you choose when preserving existing text and adding more?",
           options: ["'w'", "'a'", "'r'", "'x'"],
           answer: 1,
         },
@@ -3515,7 +3515,7 @@ lesson(
     "Handling Exceptions",
     "Files and Tools",
     "Handle expected runtime errors with try and except.",
-    `An exception interrupts normal execution. Place code that may fail inside a try block and handle a matching exception type with except. Catch specific exceptions rather than hiding unrelated bugs with a bare except. An optional else block runs when no exception occurs, and finally can perform cleanup.`,
+    `An exception is an error that occurs while a program runs and interrupts its normal flow. Common exceptions include ValueError for an unsuitable value, TypeError for the wrong type, ZeroDivisionError, IndexError, KeyError, and FileNotFoundError. A try block contains code that might fail. An except block names the exception type to handle and runs only if that exception occurs. An optional else block runs when the try block finishes without an exception, and an optional finally block runs in every case and is used for cleanup. Handling a specific exception type is better than a bare except, because a bare except can hide unrelated bugs. Syntax errors are different: they are found before the program runs and cannot be handled with try.`,
     'try:\n    number = int("abc")\nexcept ValueError:\n    print("Please enter a whole number")\nelse:\n    print(number * 2)',
     "Please enter a whole number",
     "Which block handles a matching exception?",
@@ -3525,8 +3525,7 @@ lesson(
     {
       instructions:
         "Convert user-provided text to an integer and display a helpful message when conversion fails.",
-      starterCode:
-        'text = "abc"\n\n# Add try/except around int(text)',
+      starterCode: 'text = "abc"\n\n# Add try/except around int(text)',
       solutionCode:
         'text = "abc"\ntry:\n    number = int(text)\nexcept ValueError:\n    print("Please enter a whole number")\nelse:\n    print(number * 2)',
       quizQuestions: [
@@ -3579,7 +3578,7 @@ lesson(
     "Useful Built-in Functions",
     "Files and Tools",
     "Use built-in functions to inspect, summarise, and process values.",
-    `Python includes built-in functions for common tasks. len() counts items, sum() totals numbers, min() and max() find extreme values, sorted() returns a sorted list, and type() inspects a value. enumerate() provides an index and item while looping.`,
+    `Built-in functions are always available without importing anything. len() returns the number of items in a sequence or collection. sum() adds the numbers in an iterable, and min() and max() return the smallest and largest values. sorted() returns a new sorted list and leaves the original unchanged, with reverse=True giving descending order. round() rounds a number to a chosen number of decimals, and abs() returns the absolute value. type() reports a value's type, and enumerate() pairs each item with its index in a loop. zip() combines several iterables item by item. An average is calculated by dividing sum() by len(). Knowing the built-ins avoids writing loops for common tasks.`,
     "scores = [72, 90, 84]\nprint(len(scores))\nprint(sum(scores))\nprint(min(scores))\nprint(max(scores))\nprint(sorted(scores))",
     "3\n246\n72\n90\n[72, 84, 90]",
     "Which function returns the number of items in a sequence?",
@@ -3637,7 +3636,7 @@ lesson(
     "EVOLV Python Final Challenge",
     "EVOLV Citadel",
     "Combine Python fundamentals to solve a practical coding problem.",
-    `This challenge combines functions, loops, conditions, and collections. Initialise a total, visit each number, check whether it is even, add matching values, and return the result. Test an empty list, a list containing only odd numbers, and a list containing several even numbers. A good solution should work for different inputs, not only the supplied example.`,
+    `This challenge combines the main ideas of the course. A function is defined with def and receives its input through parameters. A for loop visits each item of a list. An if statement with the condition number % 2 == 0 identifies even numbers, because an even number leaves a remainder of 0 when divided by 2. An accumulator variable is initialised to 0 before the loop and updated with += inside it. The function ends with return, which sends the final total back to the caller. A well-designed function works for any input of the expected kind, including an empty list, which produces the starting total of 0 because the loop body never runs.`,
     "def total_even(numbers):\n    total = 0\n    for number in numbers:\n        if number % 2 == 0:\n            total += number\n    return total\n\nprint(total_even([1, 2, 3, 4, 5, 6]))",
     "12",
     "What is the total of the even numbers in [1, 2, 3, 4, 5, 6]?",

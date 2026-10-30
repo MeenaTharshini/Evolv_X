@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Meadow Checkpoint — EVOLV Adventure World</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#070b17;--card:#0b1226;--c2:#10192f;--line:#1e2d52;--cy:#4fd1ff;--am:#ffb84a;--gr:#4ade80;--rd:#ff6b81;--tx:#eef2ff;--mu:#8493b8;--mono:"JetBrains Mono",ui-monospace,Menlo,monospace;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;background:radial-gradient(1100px 560px at 50% -8%,#10204a,transparent 60%),var(--bg);color:var(--tx);font-family:Outfit,"Noto Sans Tamil",system-ui,sans-serif}
+body.paused *{animation-play-state:paused!important}
+.app{max-width:900px;margin:0 auto;padding:14px}
+.stage{position:relative;overflow:hidden;background:linear-gradient(180deg,#0c1329,#080d1d);border:1px solid var(--line);border-radius:22px;padding:20px 18px 18px}
+.stage::before{content:"";position:absolute;inset:0;background:linear-gradient(#4f8cff12 1px,transparent 1px) 0 0/34px 34px,linear-gradient(90deg,#4f8cff12 1px,transparent 1px) 0 0/34px 34px;pointer-events:none}
+.stage>*{position:relative}
+.ff{position:absolute!important;width:5px;height:5px;border-radius:50%;background:var(--gr);box-shadow:0 0 10px 3px #4ade8088;animation:ff 7s ease-in-out infinite;pointer-events:none}
+@keyframes ff{0%,100%{transform:translate(0,0);opacity:.15}50%{transform:translate(24px,-30px);opacity:1}}
+.logo{display:flex;justify-content:center;align-items:center;gap:12px;font-weight:800;letter-spacing:.28em;font-size:19px}
+.world{text-align:center;font:600 12px var(--mono);color:var(--gr);letter-spacing:.2em;margin-top:4px}
+.path{margin:6px 0 4px}.path svg{width:100%;height:auto;display:block;overflow:visible}
+#pBase{fill:none;stroke:#1b2a50;stroke-width:7;stroke-linecap:round;stroke-dasharray:2 12}
+#pLit{fill:none;stroke:var(--gr);stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset 1.2s ease;filter:drop-shadow(0 0 8px #4ade80)}
+.nd circle{fill:#0f1830;stroke:#2b3d6b;stroke-width:3;transition:.5s}.nd text{fill:var(--mu);font:700 22px Outfit;text-anchor:middle;dominant-baseline:central}
+.nd.done circle{fill:#0e3a2a;stroke:var(--gr);filter:drop-shadow(0 0 8px #4ade80)}.nd.done text{fill:var(--gr)}
+.nd.cur circle{stroke:var(--am);animation:pl 1.4s ease-in-out infinite}.nd.cur text{fill:var(--am)}
+@keyframes pl{50%{stroke-width:7;filter:drop-shadow(0 0 10px #ffb84a)}}
+.view{padding-top:6px}.view.in{animation:rise .5s ease}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}}
+.tags{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px}
+.pill{font:600 12px var(--mono);border:1px solid #2d6a55;color:var(--gr);background:#0d2a24;border-radius:99px;padding:5px 12px}
+.pill.lv{border-color:#6b5320;color:var(--am);background:#2a2110}.cnt{margin-left:auto;color:var(--mu);font-size:13px}
+h1{font-size:clamp(26px,5.5vw,42px);line-height:1.15;text-align:center;margin:14px 0}h1 em{font-style:normal;color:var(--am)}
+h2.qt{font-size:clamp(20px,4vw,27px);margin:4px 0 12px}
+.win{max-width:580px;margin:0 auto 14px;background:#0f1830;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 10px 30px #0008}
+.wh{display:flex;align-items:center;gap:7px;padding:9px 14px;border-bottom:1px solid var(--line);background:#0c1429;font:12px var(--mono);color:#7d8fc0}
+.wh i{width:11px;height:11px;border-radius:50%}.wh span:last-child{margin-left:auto;font-size:11px}
+.ln{display:flex;gap:14px;padding:4px 14px;font:15px/1.5 var(--mono);white-space:pre;transition:.5s;border-left:3px solid transparent;overflow-x:auto}
+.ln .n{color:#4a5a86;min-width:14px}.ln.on{background:#4ade8018;border-left-color:var(--gr)}.ln.off{opacity:.35}
+i.k{color:#a78bfa;font-style:normal;font-weight:600}i.s{color:var(--am);font-style:normal}i.n{color:#6ee7a0;font-style:normal}i.b{color:var(--cy);font-style:normal;font-weight:600}i.f{color:#7dd3fc;font-style:normal}
+.blank{display:inline-block;min-width:70px;text-align:center;border-bottom:2px dashed var(--am);color:var(--am);animation:pl2 1.4s infinite}.blank.fill{border-bottom-color:var(--gr);background:#4ade8022;animation:none;padding:0 6px}
+@keyframes pl2{50%{background:#ffb84a22}}
+.ask{color:#c9d4f5;margin:6px 0 10px;font-size:17px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{display:flex;gap:10px;align-items:center;text-align:left;background:var(--c2);color:var(--tx);border:1px solid var(--line);border-radius:12px;padding:12px;font:600 14px var(--mono);cursor:pointer;transition:.2s}
+.opt:hover:not(:disabled){border-color:var(--cy);transform:translateY(-2px)}.opt b{display:grid;place-items:center;flex:none;min-width:26px;height:26px;border-radius:8px;background:#1a2748;color:var(--cy);font:700 13px Outfit}
+.opt.bad{border-color:var(--rd);background:#2a1220;opacity:.6;animation:sh .4s}.opt.good{border-color:var(--gr);background:#0e3a2a;box-shadow:0 0 18px #4ade8066}
+.opt:disabled{cursor:default}@keyframes sh{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.hint{margin-top:10px;border:1px solid #6b5320;background:#2a2110;color:#ffd998;border-radius:12px;padding:10px 14px;animation:rise .4s}
+.conds{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.cd{display:flex;align-items:center;gap:10px;border-radius:10px;padding:7px 12px;border:1px solid;animation:pop .35s;font-size:13px}
+.cd code{font-family:var(--mono)}.cd b{font-size:11px;letter-spacing:.1em;padding:2px 8px;border-radius:99px;color:#04130b}
+.c1{border-color:#2d6a55;background:#0d2a24}.c1 b{background:var(--gr)}.c0{border-color:#7a2d44;background:#2a1220}.c0 b{background:var(--rd)}
+.c2{border-color:#1d5a73;background:#0b2233}.c2 b{background:var(--cy)}.c3{border-color:#6b5320;background:#2a2110}.c3 b{background:var(--am)}
+@keyframes pop{from{transform:scale(.6);opacity:0}}
+.out{margin-top:12px;background:#050912;border:1px solid var(--line);border-radius:12px;padding:10px 14px;font:600 16px var(--mono);color:var(--gr)}
+.out small{display:block;color:var(--mu);font-size:11px;letter-spacing:.14em;margin-bottom:4px}#ot{white-space:pre-wrap}
+.why{margin-top:12px;border:1px solid #1d5a73;background:#0b2233;border-radius:12px;padding:12px 14px;line-height:1.5;animation:rise .4s}.why strong{color:var(--cy)}
+.btn{display:block;margin:14px auto 0;background:var(--am);color:#2a1a00;border:0;border-radius:99px;padding:12px 28px;font:800 16px Outfit;cursor:pointer;transition:.2s;animation:pop .4s}.btn:hover{transform:scale(1.05)}
+.btn:disabled{background:var(--gr);cursor:default;transform:none}.btn.alt{background:var(--c2);color:var(--tx);border:1px solid var(--line)}
+.nar{display:flex;gap:12px;align-items:center;margin-top:16px}
+.evo{flex:none;width:58px;height:58px;filter:drop-shadow(0 0 10px #4fd1ff88);animation:fl 3s ease-in-out infinite}@keyframes fl{50%{transform:translateY(-5px)}}
+.eye{animation:bl 4s infinite;transform-origin:center;transform-box:fill-box}@keyframes bl{94%,100%{transform:scaleY(1)}97%{transform:scaleY(.1)}}
+.sub{flex:1;background:#0a1020;border:1px solid var(--line);border-radius:12px;padding:12px 16px;text-align:center;font-size:16px;line-height:1.45;min-height:50px}
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px;margin:14px 0}
+.chip{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13px;font-weight:600;color:#cfd8f5}
+.chip .bar{height:4px;border-radius:9px;background:#26345c;margin-bottom:8px;overflow:hidden}.chip .bar i{display:block;height:100%;width:0;background:var(--cy);transition:width .6s}
+.chip.cur{border-color:var(--cy)}.chip.done .bar i{background:var(--gr)}.chip span{color:var(--mu);margin-right:5px}
+.ctl{display:flex;flex-wrap:wrap;gap:10px}
+.ctl button,.ctl select{background:var(--c2);color:var(--tx);border:1px solid var(--line);border-radius:99px;padding:12px 20px;font:600 15px Outfit;cursor:pointer}
+.ctl button.am{background:var(--am);color:#2a1a00;border-color:var(--am)}.ctl button.on{border-color:var(--cy);color:var(--cy)}
+.topics{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0}.topics span{border:1px solid var(--line);background:var(--c2);border-radius:99px;padding:6px 12px;font-size:13px;color:#c9d4f5}
+.meadow svg{width:100%;display:block;border-radius:14px;box-shadow:0 0 40px #4ade8033}
+.bl{transform-box:fill-box;transform-origin:50% 100%;animation:sway 2.4s ease-in-out infinite}@keyframes sway{50%{transform:rotate(6deg)}}
+.fl{transform-box:fill-box;transform-origin:50% 100%;animation:pop .6s backwards}
+.sun{animation:sun 2.4s ease-out}@keyframes sun{from{transform:translateY(70px);opacity:0}}
+.bf{animation:bf 8s ease-in-out infinite}.b2{animation-duration:11s;animation-direction:reverse}@keyframes bf{50%{transform:translate(120px,-14px)}}
+.res{display:flex;justify-content:center;align-items:center;gap:22px;flex-wrap:wrap;margin:14px 0 4px}
+.badge{width:110px;animation:pop .8s,fl 3s 1s infinite;filter:drop-shadow(0 0 16px #4ade8099)}
+.score{font-size:58px;font-weight:800;color:var(--gr);line-height:1}.score small{font-size:20px;color:var(--mu)}
+.dots{display:flex;gap:6px;margin-top:8px}.dots i{width:14px;height:14px;border-radius:50%;background:var(--am);animation:pop .4s backwards}.dots i.g{background:var(--gr);box-shadow:0 0 10px #4ade80}
+.xp{max-width:420px;margin:10px auto;text-align:center}.xp .tr{height:12px;background:#1a2748;border-radius:9px;overflow:hidden;margin-top:6px}.xp .tr i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cy),var(--gr));transition:width 1.8s ease}
+.tg{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin:12px 0}.tg div{display:flex;justify-content:space-between;gap:8px;border:1px solid var(--line);background:var(--c2);border-radius:10px;padding:8px 12px;font-size:14px}
+.tg .ok{border-color:#2d6a55}.tg .rv{border-color:#6b5320;color:#ffd998}
+.cf{position:absolute!important;top:-12px;width:9px;height:14px;border-radius:2px;animation:fall linear forwards;pointer-events:none;z-index:3}@keyframes fall{to{transform:translateY(1000px) rotate(720deg);opacity:.6}}
+.ban{text-align:center;font:800 13px Outfit;letter-spacing:.3em;color:var(--am);margin-top:6px}
+@media(max-width:560px){.opts{grid-template-columns:1fr}.ctl button,.ctl select{padding:10px 15px;font-size:14px}.sub{font-size:14px}.evo{width:46px;height:46px}}
+</style></head><body>
+<div class="app">
+<section class="stage" id="stage">
+ <div class="logo"><svg width="34" height="34" viewBox="0 0 34 34"><rect x="2" y="18" width="8" height="14" rx="3" fill="#ffb84a"/><rect x="13" y="8" width="8" height="24" rx="3" fill="#4fd1ff"/><rect x="24" y="2" width="8" height="30" rx="3" fill="#ff6b9a"/></svg>EVOLV</div>
+ <div class="world">WORLD 1 · MEADOW · FINAL CHECKPOINT</div>
+ <div class="path"><svg viewBox="0 0 1000 120"><path id="pBase"/><path id="pLit"/><g id="nodes"></g></svg></div>
+ <div class="view" id="view"></div>
+ <div class="nar"><svg class="evo" viewBox="0 0 60 60"><line x1="30" y1="4" x2="30" y2="12" stroke="#ffb84a" stroke-width="3"/><circle cx="30" cy="4" r="3.5" fill="#ffb84a"/><circle cx="30" cy="34" r="22" fill="#4fd1ff"/><rect x="14" y="24" width="32" height="20" rx="10" fill="#07102a"/><ellipse class="eye" cx="23" cy="34" rx="3.5" ry="4.5" fill="#4ade80"/><ellipse class="eye" cx="37" cy="34" rx="3.5" ry="4.5" fill="#4ade80"/></svg><div class="sub" id="sub"></div></div>
+</section>
+<div class="chips" id="chips"></div>
+<div class="ctl"><button class="am" id="bP">Pause</button><button id="bRp">Replay</button><button id="bR">Restart</button><button id="bV">Voice</button><button id="bM">Music</button>
+<select id="sel" aria-label="Subtitles"><option value="en">Subtitles: English</option><option value="ta">Subtitles: தமிழ் · Tamil</option><option value="off">Subtitles: Off</option></select></div>
+</div>
+<script>
+const $=s=>document.querySelector(s),esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+let s=0,res=[],run=0,paused=false,voiceOn=false,sub="en",bv=["",""],part=0,tries=0,locked=false,nar=["",""];
+const hi=l=>esc(l).replace(/("[^"]*")|\b(if|elif|else|and|or|not|in)\b|\b(True|False)\b|\b(\d+)\b|BLANK(\d)|\b(?:print|input|int|float|str)\b/g,(m,a,k,b,n,bi)=>a?`<i class=s>${m}</i>`:k?`<i class=k>${m}</i>`:b?`<i class=b>${m}</i>`:n?`<i class=n>${m}</i>`:bi?`<b class="blank${bv[bi-1]?" fill":""}" id="b${bi}">${bv[bi-1]?hi(bv[bi-1]):"_____"}</b>`:`<i class=f>${m}</i>`);
+const win=(c,f)=>`<div class="win"><div class="wh"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span>${f}</span><span>Python 3</span></div>${c.split("\n").map((l,k)=>`<div class="ln"><span class="n">${k+1}</span><code>${hi(l)}</code></div>`).join("")}</div>`;
+const Q=[
+{tag:"Meet Python",lv:"Easy",t:"How Python Runs Code",code:'print("First")\nprint("Second")',q:"Python reads this program. What appears on screen?",o:["Second, then First","First, then Second","Only First","Only Second"],a:1,on:[0,1],c:[['line 1 runs: print("First")',2,"1ST"],['line 2 runs: print("Second")',2,"2ND"]],out:"First\nSecond",h:"Python reads from the top line down, one line at a time.",w:"Python runs line 1, then line 2, in order. Each print() puts its message on a new line.",en:"Challenge 1 — the meadow gate! How does Python run code?",ta:"Python code-ஐ மேலிருந்து கீழே வரி வரியாக run செய்யும். Screen-ல் என்ன வரும்?"},
+{tag:"Printing Messages",lv:"Easy",t:"Print a Greeting",code:'print("Hello, Python!")',q:"Predict the output:",o:["Hello, Python!",'"Hello, Python!"',"print(Hello, Python!)","Error"],a:0,on:[0],c:[["the text inside the quotes",2,"DISPLAYED"]],out:"Hello, Python!",h:"print() shows what is inside the quotes, but not the quote marks themselves.",w:"print() displays the text without the quotes. The quotes only tell Python that this is text.",en:"Challenge 2 — a friendly greeting. Predict the output!",ta:"print() திரையில் செய்தியைக் காட்டும். Output என்ன?"},
+{tag:"Variables",lv:"Easy",t:"Update the Score",code:'score = 10\nscore = score + 5\nprint(score)',q:"What number is printed?",o:["10","15","5","score"],a:1,on:[0,1,2],c:[["score = 10",2,"STORED"],["score = 10 + 5  →  15",2,"UPDATED"]],out:"15",h:"The second line uses the OLD value of score, adds 5, then stores the new value.",w:"score starts at 10. Then score = score + 5 means 10 + 5 = 15, and 15 replaces the old value.",en:"Challenge 3 — variables are like labelled boxes. Watch the value change!",ta:"Variable-ல் மதிப்பை update செய்யலாம். கடைசியில் என்ன இருக்கும்?"},
+{tag:"Numbers and Calculations",lv:"Medium",t:"Meadow Maths",code:'print(8 + 4 * 2)',q:"What does Python calculate?",o:["24","20","16","14"],a:2,on:[0],c:[["4 * 2 = 8",2,"FIRST"],["8 + 8 = 16",2,"THEN"]],out:"16",h:"Which happens first in maths: + or * ?",w:"Multiplication happens before addition: 4 * 2 = 8, then 8 + 8 = 16.",en:"Challenge 4 — calculation time. Which part goes first?",ta:"முதலில் எந்தக் கணக்கு நடக்கும்? யோசி!"},
+{tag:"Strings",lv:"Medium",t:"Text or Number?",code:'x = "25"\ny = 25',q:"Which statement is true?",o:["x is a number and y is text","Both x and y are text","x is text and y is a number","Both x and y are numbers"],a:2,on:[0,1],c:[['x = "25"',3,"TEXT"],["y = 25",2,"NUMBER"]],out:"x → text, y → number",h:"Look for quotation marks. They turn a value into text.",w:"Quotes make “25” a string (text). 25 without quotes is a number, so you can do maths with it.",en:"Challenge 5 — spot the string among the flowers!",ta:"Quotes உள்ளே இருந்தால் அது text. எது text, எது number?"},
+{tag:"Getting User Input",lv:"Medium",t:"Ask the Visitor",code:'name = input("Name: ")\nprint("Hi " + name)',q:"The learner types Mia and presses Enter. What is printed?",o:["Hi name","Hi Mia","Name: Mia","Hi + Mia"],a:1,on:[0,1],c:[['input() gives back "Mia"',3,"TEXT"],['"Hi " + name  →  "Hi Mia"',2,"JOINED"]],out:"Hi Mia",h:"input() hands back exactly what was typed, and + joins two pieces of text.",w:"input() stores Mia in name. Then + joins “Hi ” and “Mia”, so Python prints Hi Mia.",en:"Challenge 6 — a visitor types an answer. What happens?",ta:"input() பயனர் type செய்ததை எடுக்கும். என்ன print ஆகும்?"},
+{tag:"Converting Data Types",lv:"Tricky",t:"Why int()?",code:'age = int(input("Age: "))',q:"Why do we wrap input() with int()?",o:["input() gives text, so int() turns it into a whole number","int() makes the question appear on screen","input() only works when int() is used","int() saves the age to a file"],a:0,on:[0],c:[['input("Age: ") → "20"',3,"TEXT"],['int("20") → 20',2,"NUMBER"]],out:"age holds the number 20",h:"What type of value does input() always give back? Then why would you need a number?",w:"input() always returns text. int() converts text like “20” into the number 20, so you can calculate and compare with it.",en:"Challenge 7 — the magic of converting types.",ta:"input() எப்போதும் text தரும். int() என்ன செய்கிறது?"},
+{tag:"Booleans",lv:"Tricky",t:"Find the Error",code:'is_ready = true\nprint(is_ready)',q:"This code causes an error. What is the fix?",o:["Put quotes around is_ready","Change = to ==","Write True with a capital T","Remove the print line"],a:2,on:[0,1],c:[["true",0,"NOT PYTHON"],["True",1,"VALID"]],out:"True",h:"Python’s two Boolean values start with a capital letter.",w:"Python only understands True and False with a capital first letter. A lowercase true is just an unknown word.",en:"Challenge 8 — a bug in the meadow! Can you fix it?",ta:"இந்த code-ல் தவறு எங்கே? Boolean-ஐ சரியாக எழுது!"},
+{tag:"Comparisons",lv:"Tricky",t:"Compare the Numbers",code:'a = 10\nb = 7\nprint(a >= b)\nprint(a != b)\nprint(a < b)',q:"What are the three lines of output?",o:["True, True, False","True, False, False","False, True, True","True, True, True"],a:0,on:[0,1,2,3,4],c:[["a >= b   (10 >= 7)",1],["a != b   (10 != 7)",1],["a < b   (10 < 7)",0]],out:"True\nTrue\nFalse",h:"!= means “not equal to”. Test each comparison one at a time.",w:"10 >= 7 is True, 10 != 7 is True (they are different), and 10 < 7 is False.",en:"Challenge 9 — three comparisons, three answers.",ta:"Comparison-கள் True அல்லது False தரும். மூன்றையும் சோதி!"},
+{tag:"Final coding challenge",lv:"Boss",t:"Final Quest: Age Checker",code:'age = BLANK1(input("Age: "))\nprint(age BLANK2 18)',p:[{q:"Blank 1 — the learner types 20. Which function turns that text into a whole number?",o:["str","input","int","print"],a:2,h:"You need a whole number. Which conversion function makes an integer?"},{q:"Blank 2 — print True when the age is at least 18. Which comparison do we need?",o:[">","==","<",">="],a:3,h:"“At least 18” means 18 or more, so 18 itself must count."}],on:[0,1],c:[['input gives "20"',3,"TEXT"],['int("20") → 20',2,"NUMBER"],["20 >= 18",1]],out:"True",w:"int() turns the typed “20” into the number 20, and 20 >= 18 is True, so the program prints True. If the learner typed 16, it would print False.",en:"Final boss! Complete the age checker using input, conversion and comparison.",ta:"இறுதி சவால்! Input, conversion, comparison எல்லாம் சேர்ந்து."}];
+const TA={ok:"சூப்பர்! சரியான பதில். பாதை ஒளிர்கிறது!",no:"பரவாயில்லை! Hint-ஐப் பார்த்து மீண்டும் முயற்சி செய்!"};
+const TOP=["Meet Python","Printing Messages","Variables","Numbers & Calculations","Strings","Getting User Input","Converting Data Types","Booleans","Comparisons"],MAP=[[0],[1],[2],[3],[4],[5],[6],[7],[8],[5,6,8]];
+const CH=["Intro","Python","print()","Variables","Numbers","Strings","Input","Convert","Booleans","Compare","Final code","Reward"],LAB=["FALSE","TRUE"];
+const sleep=async ms=>{await new Promise(r=>setTimeout(r,ms));while(paused)await new Promise(r=>setTimeout(r,120))};
+function say(en,ta){nar=[en,ta];showSub();if(voiceOn&&window.speechSynthesis){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(en);u.lang=sub==="ta"?"ta-IN":"en-GB";speechSynthesis.speak(u)}}
+function showSub(){const e=$("#sub");e.style.visibility=sub==="off"?"hidden":"visible";e.textContent=sub==="ta"?nar[1]:nar[0]}
+function go(n,first){s=n;run++;locked=false;const v=$("#view");v.className="view";void v.offsetWidth;v.className="view in";n===0?intro():n===11?result():ques(n-1);chips();path();if(!first)$("#stage").scrollIntoView({behavior:"smooth",block:"start"})}
+function intro(){$("#view").innerHTML=`<div class="tags" style="justify-content:center"><span class="pill">Topics 01–09 · 10 challenges</span></div><h1>Meadow Checkpoint:<br><em>Prove Your Python Powers!</em></h1>${win('print("Welcome to the Meadow!")',"meadow.py")}<div class="topics">${TOP.map(t=>`<span>${t}</span>`).join("")}</div><button class="btn" onclick="go(1)">Start the Quest →</button>`;
+ say("Hi, I’m EVO! This is the last checkpoint of World 1. Answer each challenge to light up the meadow path and unlock World 2!","வணக்கம்! நான் EVO. World 1-ன் கடைசி checkpoint இது. ஒவ்வொரு சரியான பதிலும் meadow பாதையை ஒளிரச் செய்யும்!")}
+function opts(q){const p=q.p?q.p[part]:q;$("#ask").textContent=p.q||q.q;$("#opts").innerHTML=p.o.map((o,k)=>`<button class="opt" onclick="pick(${k})"><b>${"ABCD"[k]}</b><span>${esc(o)}</span></button>`).join("")}
+function ques(n){const q=Q[n];tries=0;part=0;bv=["",""];$("#view").innerHTML=`<div class="tags"><span class="pill lv">${q.lv}</span><span class="pill">${q.tag}</span><span class="cnt">Challenge ${n+1} of 10</span></div><h2 class="qt">${q.t}</h2>${win(q.code,"meadow.py")}<div class="ask" id="ask"></div><div class="opts" id="opts"></div><div class="hint" id="hint" hidden></div><div class="conds" id="conds"></div><div class="out" id="out" hidden><small>▶ OUTPUT</small><span id="ot"></span></div><div class="why" id="why" hidden></div><div id="nx"></div>`;opts(q);say(q.en,q.ta)}
+function fill(i,v){bv[i]=v;const b=$("#b"+(i+1));b.className="blank fill";b.innerHTML=hi(v)}
+async function pick(k){if(locked||paused)return;const n=s-1,q=Q[n],pt=q.p?q.p[part]:q,bs=document.querySelectorAll(".opt"),id=run;
+ if(k!==pt.a){tries++;bs[k].classList.add("bad");bs[k].disabled=true;const h=$("#hint");h.hidden=false;h.innerHTML="💡 <strong>Hint:</strong> "+(pt.h||q.h);say("Not quite — read the hint and try again!",TA.no);return}
+ locked=true;bs.forEach(b=>b.disabled=true);bs[k].classList.add("good");$("#hint").hidden=true;
+ if(q.p){fill(part,pt.o[pt.a]);if(part<q.p.length-1){say("Blank 1 fixed! Now the next blank.","சரி! இப்போது அடுத்த blank.");await sleep(900);if(id!==run)return;part++;opts(q);locked=false;chips();return}}
+ res[n]=res[n]||(tries?2:1);path();chips();say(tries?"You got it! The path glows brighter with every try.":"Correct! The meadow path lights up!",TA.ok);
+ document.querySelectorAll(".ln").forEach((l,i)=>l.classList.add(q.on.includes(i)?"on":"off"));await sleep(500);if(id!==run)return;
+ for(const[t,v,lb]of q.c){$("#conds").insertAdjacentHTML("beforeend",`<span class="cd c${v}"><code>${esc(t)}</code><b>${lb||LAB[v]}</b></span>`);await sleep(600);if(id!==run)return}
+ $("#out").hidden=false;for(const ch of q.out){$("#ot").textContent+=ch;await sleep(ch==="\n"?350:55);if(id!==run)return}
+ await sleep(300);const w=$("#why");w.hidden=false;w.innerHTML="<strong>Why?</strong> "+q.w;
+ $("#nx").innerHTML=`<button class="btn" onclick="go(${s+1})">${n===9?"Finish the Quest 🏁":"Next challenge →"}</button>`}
+function meadow(){let g="",f="";for(let i=0;i<46;i++){const x=10+i*13+Math.random()*6,h=14+Math.random()*26,y=150+Math.random()*34;g+=`<path class="bl" d="M${x} ${y} q${(Math.random()-.5)*8} -${h/2} ${(Math.random()-.5)*10} -${h}" stroke="${i%3?"#4ade80":"#22c55e"}" stroke-width="2.5" fill="none" stroke-linecap="round" style="animation-delay:${Math.random()*2}s"/>`}
+ for(let i=0;i<14;i++){const x=30+i*42+Math.random()*16,y=135+Math.random()*40;f+=`<g class="fl" style="animation-delay:${.3+i*.12}s"><path d="M${x} ${y+16} V${y}" stroke="#2fa866" stroke-width="2"/><circle cx="${x}" cy="${y}" r="6" fill="${["#ffb84a","#ff6b9a","#4fd1ff","#ffffff"][i%4]}"/><circle cx="${x}" cy="${y}" r="2.5" fill="#fde68a"/></g>`}
+ return`<svg viewBox="0 0 600 190"><defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b1740"/><stop offset="1" stop-color="#14425a"/></linearGradient><radialGradient id="sg"><stop offset="0" stop-color="#ffe9a8"/><stop offset="1" stop-color="#ffb84a"/></radialGradient></defs><rect width="600" height="190" fill="url(#sk)"/><g class="sun"><circle cx="300" cy="104" r="46" fill="#ffb84a" opacity=".22"/><circle cx="300" cy="104" r="30" fill="url(#sg)"/></g><path d="M0 120 C100 80 200 130 300 105 S520 80 600 115 V190 H0Z" fill="#0f4a38"/><path d="M0 150 C120 110 240 160 360 135 S540 115 600 140 V190 H0Z" fill="#157a4a"/><path d="M0 172 C150 145 300 185 450 160 S560 150 600 160 V190 H0Z" fill="#1fa35f"/>${g}${f}<text class="bf" x="80" y="70" font-size="22">🦋</text><text class="bf b2" x="420" y="60" font-size="18">🦋</text></svg>`}
+function result(){const f=res.filter(x=>x===1).length,r=10-f,xp=100+f*40+r*15,rank=f>=9?"Meadow Master":f>=7?"Meadow Ranger":f>=4?"Meadow Explorer":"Meadow Adventurer",
+ rv=TOP.map((t,i)=>({t,ok:MAP.every((m,q)=>!m.includes(i)||res[q]===1)})),miss=rv.filter(x=>!x.ok).map(x=>x.t);
+ const msg=f>=9?"Outstanding! You’ve mastered the Python basics.":f>=7?"Great work! Your Python foundations are strong.":f>=4?"Nice job finishing! A little revision will make these basics rock solid.":"You made it through — and that’s what counts. Every great coder learns by retrying!";
+ $("#view").innerHTML=`<div class="meadow">${meadow()}</div><div class="ban">✦ WORLD 1 · MEADOW COMPLETE ✦</div><h1 style="margin:6px 0">Quest <em>Completed!</em></h1><div class="res"><svg class="badge" viewBox="0 0 120 140"><defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4ade80"/><stop offset="1" stop-color="#0e7a4a"/></linearGradient></defs><path d="M60 6 L110 24 V70 C110 104 86 126 60 136 C34 126 10 104 10 70 V24 Z" fill="url(#bg)" stroke="#bff7d4" stroke-width="3"/><circle cx="60" cy="64" r="32" fill="#07102a"/><path d="M60 90 V62" stroke="#4ade80" stroke-width="5" stroke-linecap="round"/><path d="M60 66 C46 66 40 56 42 48 C54 48 60 56 60 66Z" fill="#4ade80"/><path d="M60 62 C72 62 80 54 78 44 C66 44 60 52 60 62Z" fill="#ffb84a"/></svg><div><div class="score"><span id="sc">0</span><small> / 10 first-try</small></div><div style="color:var(--am);font-weight:800;margin-top:4px">🏅 ${rank}</div><div class="dots">${res.map((x,i)=>`<i class="${x===1?"g":""}" style="animation-delay:${i*.1}s"></i>`).join("")}</div></div></div><div class="xp"><b style="color:var(--am);font-size:22px">+<span id="xp">0</span> XP</b><div class="tr"><i id="xb"></i></div></div><p style="text-align:center;font-size:18px;margin:10px 0 4px">${msg}</p><div class="tg">${rv.map(x=>`<div class="${x.ok?"ok":"rv"}"><span>${x.t}</span><span>${x.ok?"✓ Mastered":"↻ Revise"}</span></div>`).join("")}</div>${miss.length?`<p style="text-align:center;color:var(--mu);margin:0">EVO suggests revisiting: ${miss.join(" · ")}</p>`:""}<button class="btn" onclick="this.textContent='🔓 World 2 unlocked!';this.disabled=true;path(true)">Unlock World 2</button><button class="btn alt" onclick="restart()">Retake checkpoint</button>`;
+ say("Congratulations! You completed World 1, the Meadow. Python is now your superpower!","வாழ்த்துகள்! World 1 – Meadow முடிந்தது. Python இப்போது உன் superpower!");
+ const st=$("#stage");for(let i=0;i<40;i++){const c=document.createElement("i");c.className="cf";c.style.cssText=`left:${Math.random()*100}%;background:${["#4fd1ff","#ffb84a","#4ade80","#ff6b9a"][i%4]};animation-duration:${2.5+Math.random()*2.5}s;animation-delay:${Math.random()}s`;st.appendChild(c);setTimeout(()=>c.remove(),6500)}
+ let t=0;const iv=setInterval(()=>{t++;const a=$("#sc");if(!a)return clearInterval(iv);a.textContent=Math.min(f,t);$("#xp").textContent=Math.round(xp*Math.min(1,t/12));$("#xb").style.width=Math.min(100,xp/5)+"%";if(t>=12)clearInterval(iv)},140)}
+function chips(){const dn=i=>i===0?s>0:i<11?!!res[i-1]:s===11;
+ $("#chips").innerHTML=CH.map((c,i)=>`<div class="chip ${dn(i)?"done":i===s?"cur":""}"><div class="bar"><i style="width:${dn(i)?100:i===s?(i===10&&part?70:35):0}%"></i></div><span>${i+1}</span>${c}</div>`).join("")}
+const P=$("#pLit"),B=$("#pBase"),D="M30,62 C140,8 250,112 370,58 S600,8 720,60 S900,104 970,48";let L=0;
+function path(flash){const k=s===11?10:res.length-1,cur=s===11?-1:Math.min(res.length,10);P.style.strokeDashoffset=k<0?L:L-L*k/10;P.style.opacity=k<0?0:1;
+ document.querySelectorAll(".nd").forEach((g,i)=>g.setAttribute("class","nd"+(i<=k||(flash&&i===10)?" done":i===cur?" cur":"")))}
+function init(){B.setAttribute("d",D);P.setAttribute("d",D);L=P.getTotalLength();P.style.strokeDasharray=L;P.style.strokeDashoffset=L;
+ $("#nodes").innerHTML=Array.from({length:11},(_,i)=>{const p=P.getPointAtLength(L*i/10);return`<g class="nd"><circle cx="${p.x}" cy="${p.y}" r="22"/><text x="${p.x}" y="${p.y}">${i<10?i+1:"★"}</text></g>`}).join("");
+ const st=$("#stage");for(let i=0;i<14;i++){const f=document.createElement("i");f.className="ff";f.style.cssText=`left:${Math.random()*96}%;top:${Math.random()*92}%;animation-delay:${Math.random()*6}s;animation-duration:${5+Math.random()*5}s`;st.appendChild(f)}
+ go(0,true)}
+function restart(){res=[];if(window.speechSynthesis)speechSynthesis.cancel();go(0)}
+$("#bR").onclick=restart;$("#bRp").onclick=()=>go(s);
+$("#bP").onclick=e=>{paused=!paused;document.body.classList.toggle("paused",paused);e.target.textContent=paused?"Resume":"Pause";if(window.speechSynthesis)paused?speechSynthesis.pause():speechSynthesis.resume()};
+$("#bV").onclick=e=>{voiceOn=!voiceOn;e.target.classList.toggle("on",voiceOn);if(voiceOn)say(...nar);else if(window.speechSynthesis)speechSynthesis.cancel()};
+$("#sel").onchange=e=>{sub=e.target.value;showSub()};
+let ac,mOn=false;
+$("#bM").onclick=e=>{mOn=!mOn;e.target.classList.toggle("on",mOn);try{if(!ac){ac=new(window.AudioContext||window.webkitAudioContext)();const m=ac.createGain();m.gain.value=.05;m.connect(ac.destination);[196,247,294,392].forEach((f,k)=>{const o=ac.createOscillator(),g=ac.createGain(),l=ac.createOscillator(),lg=ac.createGain();o.frequency.value=f;g.gain.value=.25;l.frequency.value=.1+k*.07;lg.gain.value=.2;l.connect(lg);lg.connect(g.gain);o.connect(g);g.connect(m);o.start();l.start()})}mOn?ac.resume():ac.suspend()}catch(x){}};
+init();
+</script></body></html>

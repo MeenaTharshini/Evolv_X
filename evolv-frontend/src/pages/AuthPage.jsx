@@ -1,11 +1,11 @@
-
 import { useEffect, useState } from "react";
-import "./auth.css";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-
-const API_URL = (
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api"
-).replace(/\/+$/, "");
+import { supabase } from "../lib/supabaseClient";
+import {
+  saveUserProfile,
+  getUserProfile,
+} from "../lib/userService";
+import "./auth.css";
 
 const interestsList = [
   "Web Development",
@@ -43,6 +43,13 @@ const learningStyleMap = {
   "Guided projects": "mixed",
 };
 
+const hoursMap = {
+  "Less than 2 hours": 1,
+  "3–5 hours": 4,
+  "6–10 hours": 8,
+  "10+ hours": 10,
+};
+
 const icons = {
   "Web Development": "</>",
   Python: "Py",
@@ -54,13 +61,6 @@ const icons = {
   "App Development": "▣",
   "Cloud Computing": "☁",
   "Competitive Programming": "⚡",
-};
-
-const hoursMap = {
-  "Less than 2 hours": 1,
-  "3–5 hours": 4,
-  "6–10 hours": 8,
-  "10+ hours": 10,
 };
 
 const initialForm = {
@@ -76,19 +76,18 @@ const initialForm = {
   weeklyHours: "3–5 hours",
 };
 
-function saveSession(token, rememberMe, user) {
-  localStorage.removeItem("evolv_token");
-  sessionStorage.removeItem("evolv_token");
-  localStorage.removeItem("evolv_user");
-  sessionStorage.removeItem("evolv_user");
+function Field({ label, id, hint, children }) {
+  return (
+    <div className="ev-field">
+      <label className="ev-label" htmlFor={id}>
+        {label}
+      </label>
 
-  const storage = rememberMe ? localStorage : sessionStorage;
+      {children}
 
-  storage.setItem("evolv_token", token);
-
-  if (user) {
-    storage.setItem("evolv_user", JSON.stringify(user));
-  }
+      {hint && <small className="field-hint">{hint}</small>}
+    </div>
+  );
 }
 
 function Brand() {
@@ -106,20 +105,6 @@ function Brand() {
   );
 }
 
-function Field({ label, id, hint, children }) {
-  return (
-    <div className="ev-field">
-      <label className="ev-label" htmlFor={id}>
-        {label}
-      </label>
-
-      {children}
-
-      {hint && <small className="field-hint">{hint}</small>}
-    </div>
-  );
-}
-
 function Companion({ small = false }) {
   return (
     <div
@@ -127,14 +112,13 @@ function Companion({ small = false }) {
       role="img"
       aria-label="EVO, your EVOLV learning companion"
     >
-      <span className="companion-shadow" />
       <span className="companion-leaf leaf-left" />
       <span className="companion-leaf leaf-right" />
 
       <div className="companion-body">
         <div className="companion-face">
-          <span className="eye eye-left" />
-          <span className="eye eye-right" />
+          <span className="eye" />
+          <span className="eye" />
           <span className="cheek cheek-left" />
           <span className="cheek cheek-right" />
           <span className="smile" />
@@ -152,7 +136,6 @@ function AuthDecorations() {
     <div className="auth-decorations" aria-hidden="true">
       <div className="decor-cloud cloud-one" />
       <div className="decor-cloud cloud-two" />
-      <div className="decor-cloud cloud-three" />
 
       <div className="decor-chip code-chip">
         <span>&lt;/&gt;</span>
@@ -164,11 +147,8 @@ function AuthDecorations() {
         <small>IDEAS</small>
       </div>
 
-      <div className="decor-book">▤</div>
-
       <div className="decor-star star-one">✦</div>
       <div className="decor-star star-two">✧</div>
-      <div className="decor-star star-three">✳</div>
 
       <div className="decor-sign sign-code">
         Code <span>→</span>
@@ -181,13 +161,101 @@ function AuthDecorations() {
       <div className="decor-sign sign-grow">
         Grow <span>→</span>
       </div>
-
-      <div className="decor-island">
-        <span className="island-tree tree-one">🌳</span>
-        <span className="island-tree tree-two">🌲</span>
-      </div>
     </div>
   );
+}
+
+const onboardingSteps = [
+  {
+    key: "education",
+    title: "Where are you on your journey?",
+    subtitle: "This helps us personalize your learning path.",
+    type: "single",
+    options: [
+      ["School student", "🎒"],
+      ["College student", "🎓"],
+      ["Graduate", "📘"],
+      ["Working professional", "💼"],
+      ["Career switcher", "🔁"],
+      ["Other", "✨"],
+    ],
+  },
+  {
+    key: "skillLevel",
+    title: "What's your current skill level?",
+    subtitle: "Choose the level that best describes you right now.",
+    type: "single",
+    options: [
+      ["Beginner", "🌱"],
+      ["Intermediate", "🧭"],
+      ["Advanced", "⚡"],
+    ],
+  },
+  {
+    key: "interests",
+    title: "What are you curious about?",
+    subtitle: "Select all the topics you'd love to explore.",
+    type: "multi",
+    options: interestsList.map((item) => [item, icons[item]]),
+  },
+  {
+    key: "goals",
+    title: "What would you like to achieve?",
+    subtitle: "Choose the missions that matter most to you.",
+    type: "multi",
+    options: goalsList.map((item, index) => [
+      item,
+      ["✦", "⚑", "⌘", "↗", "✹", "◎"][index],
+    ]),
+  },
+  {
+    key: "learningStyle",
+    title: "How do you like to learn?",
+    subtitle: "Pick the learning styles that work best for you.",
+    type: "multi",
+    options: learningStyles.map((item, index) => [
+      item,
+      ["▶", "▤", "</>", "◇"][index],
+    ]),
+  },
+  {
+    key: "weeklyHours",
+    title: "How much time can you learn each week?",
+    subtitle: "We'll help you set a pace that feels right.",
+    type: "single",
+    options: [
+      ["Less than 2 hours", "☁"],
+      ["3–5 hours", "🌿"],
+      ["6–10 hours", "🚀"],
+      ["10+ hours", "🔥"],
+    ],
+  },
+];
+
+function getErrorMessage(error) {
+  const message = error?.message || "";
+
+  if (/invalid login credentials/i.test(message)) {
+    return "Incorrect email or password. Please try again.";
+  }
+
+  if (/user already registered/i.test(message)) {
+    return "An account already exists with this email. Please log in.";
+  }
+
+  if (/email not confirmed/i.test(message)) {
+    return "Please confirm your email using the link we sent you before logging in.";
+  }
+
+  if (/password should be at least/i.test(message)) {
+    return "Your password is too short. Please choose a stronger password.";
+  }
+
+  if (/failed to fetch|network request failed/i.test(message)) {
+    return "Unable to connect to Supabase. Check your internet connection and configuration.";
+  }
+
+  return message || "Something went wrong. Please try again.";
 }
 
 export default function AuthPage() {
@@ -198,7 +266,9 @@ export default function AuthPage() {
     location.pathname === "/login" ? "login" : "signup"
   );
 
-  const [step, setStep] = useState(1);
+  // Step 0: account details.
+  // Steps 1–6: onboarding questions.
+  const [step, setStep] = useState(0);
   const [form, setForm] = useState(initialForm);
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
@@ -206,16 +276,17 @@ export default function AuthPage() {
   const [message, setMessage] = useState("");
 
   const isSignup = mode === "signup";
+  const totalSignupSteps = onboardingSteps.length + 1;
+  const activeQuestion = step > 0 ? onboardingSteps[step - 1] : null;
 
-  // Keep the displayed form synchronized with the current route.
-  useEffect(() => {
-    const nextMode = location.pathname === "/login" ? "login" : "signup";
 
-    setMode(nextMode);
-    setStep(1);
-    setMessage("");
-    setShowPassword(false);
-  }, [location.pathname]);
+useEffect(() => {
+  setMode(location.pathname === "/login" ? "login" : "signup");
+  setStep(0);
+  setMessage(location.state?.authMessage || "");
+  setShowPassword(false);
+}, [location.pathname, location.state]);
+
 
   function updateField(event) {
     const { name, value } = event.target;
@@ -243,44 +314,112 @@ export default function AuthPage() {
     setMessage("");
   }
 
+  function chooseSingle(field, value) {
+    setForm((current) => ({
+      ...current,
+      [field]: value,
+    }));
+
+    setMessage("");
+  }
+
   function switchMode(nextMode) {
-    setStep(1);
+    setStep(0);
     setMessage("");
     setShowPassword(false);
+    setMode(nextMode);
 
     navigate(nextMode === "login" ? "/login" : "/signup");
+  }
+
+  function validateCredentials() {
+    const name = form.name.trim();
+    const email = form.email.trim();
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (name.length < 2) {
+      setMessage("Please enter a name with at least 2 characters.");
+      return false;
+    }
+
+    if (!emailPattern.test(email)) {
+      setMessage("Enter a valid email address.");
+      return false;
+    }
+
+    if (form.password.length < 8 || form.password.length > 72) {
+      setMessage("Use a password between 8 and 72 characters.");
+      return false;
+    }
+
+    if (form.password !== form.confirmPassword) {
+      setMessage("Your passwords don't match. Try again!");
+      return false;
+    }
+
+    return true;
+  }
+
+  function validateOnboarding() {
+    for (let index = 0; index < onboardingSteps.length; index += 1) {
+      const question = onboardingSteps[index];
+      const answer = form[question.key];
+
+      const missing =
+        question.type === "multi" ? answer.length === 0 : !answer;
+
+      if (missing) {
+        setStep(index + 1);
+        setMessage("Please complete this question to continue.");
+        return false;
+      }
+    }
+
+    return true;
   }
 
   function continueSignup(event) {
     event.preventDefault();
 
-    if (!form.name.trim() || !form.email.trim()) {
-      setMessage("Your adventure needs a name and email first.");
+    if (isLoading) return;
+
+    if (step === 0) {
+      if (validateCredentials()) {
+        setStep(1);
+        setMessage("");
+      }
+
       return;
     }
 
-    if (form.name.trim().length < 2) {
-      setMessage("Please enter a name with at least 2 characters.");
+    const question = onboardingSteps[step - 1];
+
+    if (!question) {
+      setMessage("This onboarding step is unavailable. Please try again.");
       return;
     }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
-      setMessage("Enter a valid email address.");
+    const answer = form[question.key];
+
+    const missing =
+      question.type === "multi" ? answer.length === 0 : !answer;
+
+    if (missing) {
+      setMessage(
+        question.type === "multi"
+          ? "Please select at least one option to continue."
+          : "Please choose an option to continue."
+      );
       return;
     }
 
-    if (form.password.length < 8 || form.password.length > 72) {
-      setMessage("Use a password between 8 and 72 characters.");
+    if (step < onboardingSteps.length) {
+      setStep((current) => current + 1);
+      setMessage("");
       return;
     }
 
-    if (form.password !== form.confirmPassword) {
-      setMessage("Your passwords don't match. Try again!");
-      return;
-    }
-
-    setStep(2);
-    setMessage("");
+    submitForm(event);
   }
 
   async function submitForm(event) {
@@ -288,46 +427,25 @@ export default function AuthPage() {
 
     if (isLoading) return;
 
-    if (!form.email.trim() || !form.password) {
-      setMessage("Enter your email and password to continue.");
-      return;
-    }
-
     if (isSignup) {
-      if (!form.name.trim() || form.name.trim().length < 2) {
+      if (step === 0) {
+        if (!validateCredentials()) return;
+
         setStep(1);
-        setMessage("Please enter a name with at least 2 characters.");
         return;
       }
 
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
-        setStep(1);
+      if (!validateOnboarding()) return;
+    } else {
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      if (!form.email.trim() || !form.password) {
+        setMessage("Enter your email and password to continue.");
+        return;
+      }
+
+      if (!emailPattern.test(form.email.trim())) {
         setMessage("Enter a valid email address.");
-        return;
-      }
-
-      if (form.password.length < 8 || form.password.length > 72) {
-        setStep(1);
-        setMessage("Use a password between 8 and 72 characters.");
-        return;
-      }
-
-      if (form.password !== form.confirmPassword) {
-        setStep(1);
-        setMessage("Your passwords don't match. Try again!");
-        return;
-      }
-
-      if (
-        !form.education ||
-        !form.skillLevel ||
-        form.interests.length === 0 ||
-        form.goals.length === 0 ||
-        form.learningStyle.length === 0
-      ) {
-        setMessage(
-          "Choose your education, skill level, interests, missions and learning style."
-        );
         return;
       }
     }
@@ -336,78 +454,211 @@ export default function AuthPage() {
     setMessage("");
 
     try {
-      const endpoint = isSignup
-        ? `${API_URL}/auth/signup`
-        : `${API_URL}/auth/login`;
+      let authData;
+      let authError;
 
-      const payload = isSignup
-        ? {
-            name: form.name.trim(),
-            email: form.email.trim(),
-            password: form.password,
-            confirmPassword: form.confirmPassword,
-            education: form.education,
-            skillLevel: form.skillLevel.toLowerCase(),
-            interests: form.interests,
-            goals: form.goals.join(", "),
-            learningStyle:
-              learningStyleMap[form.learningStyle[0]] || "mixed",
-            weeklyHours: hoursMap[form.weeklyHours] ?? 4,
-          }
-        : {
-            email: form.email.trim(),
-            password: form.password,
-          };
+      if (isSignup) {
+        const { data, error } = await supabase.auth.signUp({
+          email: form.email.trim().toLowerCase(),
+          password: form.password,
+          options: {
+            data: {
+              full_name: form.name.trim(),
+            },
+          },
+        });
 
-      const response = await fetch(`${API_URL}/auth/${isSignup ? "signup" : "login"}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+        authData = data;
+        authError = error;
 
-      const data = await response.json().catch(() => ({}));
+        if (authError) throw authError;
 
-      if (!response.ok) {
-        if (response.status === 409) {
-          throw new Error(
-            data.error ||
-              "An account already exists with this email. Try logging in."
-          );
+        const user = authData?.user;
+
+        if (!user) {
+          throw new Error("Supabase did not return a user. Please try again.");
         }
 
-        throw new Error(
-          data.error ||
-            data.message ||
-            `Authentication failed (${response.status}). Please check your details.`
+        // Supabase may require email confirmation before creating a session.
+        // Save the profile only when an authenticated session is available.
+
+if (!authData.session) {
+  navigate("/login", {
+    replace: true,
+    state: {
+      authMessage:
+        "Your account has been created. Check your email to confirm your account, then log in.",
+    },
+  });
+  return;
+}
+
+
+        const profile = {
+          id: user.id,
+          full_name: form.name.trim(),
+          education: form.education,
+          skill_level: form.skillLevel.toLowerCase(),
+          interests: form.interests,
+          goals: form.goals,
+          learning_style: form.learningStyle.map(
+            (style) => learningStyleMap[style]
+          ),
+          weekly_hours: hoursMap[form.weeklyHours] ?? 4,
+        };
+
+        await saveUserProfile(profile);
+
+        // Keep legacy UI compatibility while other pages migrate to Supabase.
+        const storage = rememberMe ? localStorage : sessionStorage;
+
+        const legacyUser = {
+          id: user.id,
+          name: form.name.trim(),
+          full_name: form.name.trim(),
+          email: user.email,
+          education: form.education,
+          skillLevel: form.skillLevel.toLowerCase(),
+          interests: form.interests,
+          goals: form.goals,
+          learningStyle: profile.learning_style,
+          weeklyHours: profile.weekly_hours,
+        };
+
+        localStorage.removeItem("evolv_user");
+        sessionStorage.removeItem("evolv_user");
+        localStorage.removeItem("evolv_token");
+        sessionStorage.removeItem("evolv_token");
+
+        storage.setItem("evolv_user", JSON.stringify(legacyUser));
+
+        // Navigate to the understanding questionnaire after signup
+        navigate("/understanding", { replace: true });
+        return;
+      } else {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: form.email.trim().toLowerCase(),
+          password: form.password,
+        });
+
+        authData = data;
+        authError = error;
+
+        if (authError) throw authError;
+
+        if (!authData?.user) {
+          throw new Error("Login succeeded, but no user was returned.");
+        }
+
+        const { data: profileData, error: profileError } =
+          await supabase
+            .from("profiles")
+            .select(
+              "id, full_name, education, skill_level, interests, goals, learning_style, weekly_hours"
+            )
+            .eq("id", authData.user.id)
+            .maybeSingle();
+
+        if (profileError) throw profileError;
+
+        const profile = profileData || {
+          id: authData.user.id,
+          full_name:
+            authData.user.user_metadata?.full_name ||
+            authData.user.email?.split("@")[0] ||
+            "Learner",
+          education: "",
+          skill_level: "beginner",
+          interests: [],
+          goals: [],
+          learning_style: ["mixed"],
+          weekly_hours: 4,
+        };
+
+        const legacyUser = {
+          ...profile,
+          id: authData.user.id,
+          name: profile.full_name,
+          email: authData.user.email,
+          skillLevel: profile.skill_level,
+          learningStyle: profile.learning_style,
+          weeklyHours: profile.weekly_hours,
+        };
+
+        localStorage.removeItem("evolv_user");
+        sessionStorage.removeItem("evolv_user");
+        localStorage.removeItem("evolv_token");
+        sessionStorage.removeItem("evolv_token");
+
+        const storage = rememberMe ? localStorage : sessionStorage;
+        storage.setItem("evolv_user", JSON.stringify(legacyUser));
+
+        // If this is an older account without a profile, create one.
+        if (!profileData) {
+          await saveUserProfile({
+            id: authData.user.id,
+            full_name: legacyUser.full_name,
+            education: profile.education,
+            skill_level: profile.skill_level,
+            interests: profile.interests,
+            goals: profile.goals,
+            learning_style: profile.learning_style,
+            weekly_hours: profile.weekly_hours,
+          });
+        }
+
+        // Returning users who have already answered onboarding go to dashboard;
+        // otherwise, route to understanding.
+        const hasCompletedOnboarding = Boolean(
+          profileData?.education ||
+            (Array.isArray(profileData?.interests) && profileData.interests.length > 0) ||
+            localStorage.getItem("evolv_onboarding")
         );
+
+        navigate(hasCompletedOnboarding ? "/dashboard" : "/understanding", { replace: true });
       }
-
-      if (!data.token) {
-        throw new Error(
-          "The server did not return an authentication token."
-        );
-      }
-
-      // Save only user information that the API actually returns.
-      saveSession(
-        data.token,
-        isSignup || rememberMe,
-        data.user || null
-      );
-
-      navigate("/dashboard", { replace: true });
     } catch (error) {
-      setMessage(
-        error instanceof TypeError
-          ? "Unable to connect. Make sure the EVOLV backend is running on port 5000."
-          : error.message || "Something went wrong. Please try again."
-      );
+      setMessage(getErrorMessage(error));
     } finally {
       setIsLoading(false);
     }
   }
+
+  async function handleForgotPassword() {
+    const email = form.email.trim().toLowerCase();
+
+    if (!email) {
+      setMessage("Enter your email address first to reset your password.");
+      return;
+    }
+
+    setIsLoading(true);
+    setMessage("");
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
+      if (error) throw error;
+
+      setMessage(
+        "If an account exists for that email, Supabase will send a password-reset link."
+      );
+    } catch (error) {
+      setMessage(getErrorMessage(error));
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  const signupTitle =
+    step === 0 ? "Create your account" : activeQuestion?.title;
+
+  const signupSubtitle =
+    step === 0
+      ? "Your learning journey starts here."
+      : activeQuestion?.subtitle;
 
   return (
     <main className="ev-auth">
@@ -417,9 +668,7 @@ export default function AuthPage() {
         <Brand />
 
         <div className="topbar-right">
-          <span>
-            {isSignup ? "Already on the journey?" : "New explorer?"}
-          </span>
+          <span>{isSignup ? "Already on the journey?" : "New explorer?"}</span>
 
           <button
             type="button"
@@ -467,8 +716,6 @@ export default function AuthPage() {
               <h2>
                 EVOLV<span>.</span>
               </h2>
-
-              <p>Your learning journey starts here!</p>
             </div>
 
             <div
@@ -496,29 +743,28 @@ export default function AuthPage() {
             </div>
 
             {isSignup && (
-              <div className="stepper">
-                <div className="step-line">
-                  <span className={step === 2 ? "complete" : ""} />
+              <div
+                className="onboarding-progress"
+                aria-label={`Step ${step + 1} of ${totalSignupSteps}`}
+              >
+                <div className="progress-track">
+                  <span
+                    style={{
+                      width: `${((step + 1) / totalSignupSteps) * 100}%`,
+                    }}
+                  />
                 </div>
 
-                <div
-                  className={`step-node node-one ${step >= 1 ? "active" : ""}`}
-                >
-                  1
-                </div>
+                <div className="progress-copy">
+                  <span>
+                    {step === 0
+                      ? "Account details"
+                      : `Question ${step} of ${onboardingSteps.length}`}
+                  </span>
 
-                <div
-                  className={`step-node node-two ${step === 2 ? "active" : ""}`}
-                >
-                  2
-                </div>
-
-                <div className="step-label label-one">
-                  Build your profile
-                </div>
-
-                <div className="step-label label-two">
-                  Choose your quests
+                  <span>
+                    {Math.round(((step + 1) / totalSignupSteps) * 100)}%
+                  </span>
                 </div>
               </div>
             )}
@@ -528,36 +774,26 @@ export default function AuthPage() {
                 <Companion small />
               </div>
 
-              <div>
-                <h3>
-                  {isSignup
-                    ? step === 1
-                      ? "Ready, player one?"
-                      : "Pick your adventure!"
-                    : "Welcome back!"}
-                </h3>
+              <h3>{isSignup ? signupTitle : "Welcome back!"}</h3>
 
-                <p>
-                  {isSignup
-                    ? step === 1
-                      ? "Let's create your learning profile."
-                      : "Choose what you want to explore."
-                    : "Your next level is waiting for you."}
-                </p>
-              </div>
+              <p>
+                {isSignup
+                  ? signupSubtitle
+                  : "Your next level is waiting for you."}
+              </p>
             </div>
 
             <form
-              onSubmit={
-                isSignup && step === 1 ? continueSignup : submitForm
-              }
+              onSubmit={isSignup ? continueSignup : submitForm}
+              noValidate
             >
-              {isSignup && step === 1 && (
+              {isSignup && step === 0 && (
                 <>
-                  <Field label="What should we call you?" id="name">
+                  <Field label="Full name" id="signup-name">
                     <input
-                      id="name"
+                      id="signup-name"
                       name="name"
+                      type="text"
                       autoComplete="name"
                       placeholder="Your name or nickname"
                       value={form.name}
@@ -602,8 +838,12 @@ export default function AuthPage() {
                       <button
                         type="button"
                         className="show-password"
-                        aria-label={showPassword ? "Hide password" : "Show password"}
-                        onClick={() => setShowPassword((current) => !current)}
+                        aria-label={
+                          showPassword ? "Hide password" : "Show password"
+                        }
+                        onClick={() =>
+                          setShowPassword((current) => !current)
+                        }
                       >
                         {showPassword ? "Hide" : "Show"}
                       </button>
@@ -617,185 +857,58 @@ export default function AuthPage() {
                         name="confirmPassword"
                         type={showPassword ? "text" : "password"}
                         autoComplete="new-password"
-                        placeholder="One more time"
+                        placeholder="Enter it again"
                         value={form.confirmPassword}
                         onChange={updateField}
                         minLength={8}
                         maxLength={72}
                         required
                       />
-
-                      <span className="input-lock" aria-hidden="true">
-                        ♙
-                      </span>
                     </div>
                   </Field>
-
-                  <button className="primary-button" type="submit">
-                    Build my profile <span>→</span>
-                  </button>
                 </>
               )}
 
-              {isSignup && step === 2 && (
-                <>
-                  <Field label="Choose your current world" id="education">
-                    <select
-                      id="education"
-                      name="education"
-                      value={form.education}
-                      onChange={updateField}
-                      required
-                    >
-                      <option value="">Where are you on your journey?</option>
-                      <option>School student</option>
-                      <option>College student</option>
-                      <option>Graduate</option>
-                      <option>Working professional</option>
-                      <option>Career switcher</option>
-                      <option>Other</option>
-                    </select>
-                  </Field>
+              {isSignup && step > 0 && activeQuestion && (
+                <div
+                  className={`question-options ${
+                    activeQuestion.key === "interests"
+                      ? "question-options-grid"
+                      : ""
+                  }`}
+                >
+                  {activeQuestion.options.map(([label, glyph]) => {
+                    const isMulti = activeQuestion.type === "multi";
 
-                  <div className="ev-field">
-                    <span className="ev-label">Choose your difficulty level</span>
+                    const selected = isMulti
+                      ? form[activeQuestion.key].includes(label)
+                      : form[activeQuestion.key] === label;
 
-                    <div className="level-grid">
-                      {[
-                        ["Beginner", "Fresh spawn", "🌱"],
-                        ["Intermediate", "Getting stronger", "🧭"],
-                        ["Advanced", "Boss-level ready", "⚡"],
-                      ].map(([value, description, icon]) => (
-                        <button
-                          type="button"
-                          key={value}
-                          aria-pressed={form.skillLevel === value}
-                          className={`level-card ${form.skillLevel === value ? "selected" : ""}`}
-                          onClick={() => {
-                            setForm((current) => ({
-                              ...current,
-                              skillLevel: value,
-                            }));
-                            setMessage("");
-                          }}
-                        >
-                          <span className="level-emoji">{icon}</span>
-                          <strong>{value}</strong>
-                          <small>{description}</small>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="ev-field">
-                    <span className="ev-label">
-                      Pick your worlds{" "}
-                      <small>Choose all that spark curiosity</small>
-                    </span>
-
-                    <div className="interest-grid">
-                      {interestsList.map((item) => (
-                        <button
-                          type="button"
-                          key={item}
-                          aria-pressed={form.interests.includes(item)}
-                          className={`interest-card ${form.interests.includes(item) ? "selected" : ""}`}
-                          onClick={() => toggleOption("interests", item)}
-                        >
-                          <span className="interest-glyph">{icons[item]}</span>
-                          <span>{item}</span>
-                          <i>{form.interests.includes(item) ? "✓" : "+"}</i>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="ev-field">
-                    <span className="ev-label">
-                      Choose your missions{" "}
-                      <small>What would make you proud?</small>
-                    </span>
-
-                    <div className="goal-list">
-                      {goalsList.map((item, index) => (
-                        <button
-                          type="button"
-                          key={item}
-                          aria-pressed={form.goals.includes(item)}
-                          className={`goal-option ${form.goals.includes(item) ? "selected" : ""}`}
-                          onClick={() => toggleOption("goals", item)}
-                        >
-                          <span className="goal-glyph">
-                            {["✦", "⚑", "⌘", "↗", "✹", "◎"][index]}
-                          </span>
-                          <span>{item}</span>
-                          <i>{form.goals.includes(item) ? "✓" : "+"}</i>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="ev-field">
-                    <span className="ev-label">
-                      Your preferred power-up{" "}
-                      <small>How do you like to learn?</small>
-                    </span>
-
-                    <div className="style-grid">
-                      {learningStyles.map((item, index) => (
-                        <button
-                          type="button"
-                          key={item}
-                          aria-pressed={form.learningStyle.includes(item)}
-                          className={`style-option ${form.learningStyle.includes(item) ? "selected" : ""}`}
-                          onClick={() => toggleOption("learningStyle", item)}
-                        >
-                          <span>{["▶", "▤", "</>", "◇"][index]}</span>
-                          {item}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <Field label="Weekly learning time" id="weekly-hours">
-                    <select
-                      id="weekly-hours"
-                      name="weeklyHours"
-                      value={form.weeklyHours}
-                      onChange={updateField}
-                    >
-                      <option>Less than 2 hours</option>
-                      <option>3–5 hours</option>
-                      <option>6–10 hours</option>
-                      <option>10+ hours</option>
-                    </select>
-                  </Field>
-
-                  <div className="form-actions">
-                    <button
-                      className="secondary-button"
-                      type="button"
-                      disabled={isLoading}
-                      onClick={() => {
-                        setStep(1);
-                        setMessage("");
-                      }}
-                    >
-                      ← Back
-                    </button>
-
-                    <button
-                      className="primary-button"
-                      type="submit"
-                      disabled={isLoading}
-                    >
-                      {isLoading ? "Creating profile..." : "Start my journey"}
-                      {!isLoading && <span>✦</span>}
-                    </button>
-                  </div>
-                </>
+                    return (
+                      <button
+                        type="button"
+                        key={label}
+                        className={`answer-option ${
+                          selected ? "selected" : ""
+                        }`}
+                        aria-pressed={selected}
+                        onClick={() =>
+                          isMulti
+                            ? toggleOption(activeQuestion.key, label)
+                            : chooseSingle(activeQuestion.key, label)
+                        }
+                      >
+                        <span className="answer-glyph">{glyph}</span>
+                        <span className="answer-label">{label}</span>
+                        <span className="answer-check">
+                          {selected ? "✓" : isMulti ? "+" : "○"}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
               )}
-              
+
               {!isSignup && (
                 <>
                   <Field label="Email address" id="login-email">
@@ -827,8 +940,12 @@ export default function AuthPage() {
                       <button
                         type="button"
                         className="show-password"
-                        aria-label={showPassword ? "Hide password" : "Show password"}
-                        onClick={() => setShowPassword((current) => !current)}
+                        aria-label={
+                          showPassword ? "Hide password" : "Show password"
+                        }
+                        onClick={() =>
+                          setShowPassword((current) => !current)
+                        }
                       >
                         {showPassword ? "Hide" : "Show"}
                       </button>
@@ -840,7 +957,9 @@ export default function AuthPage() {
                       <input
                         type="checkbox"
                         checked={rememberMe}
-                        onChange={(event) => setRememberMe(event.target.checked)}
+                        onChange={(event) =>
+                          setRememberMe(event.target.checked)
+                        }
                       />
                       Remember this explorer
                     </label>
@@ -848,41 +967,79 @@ export default function AuthPage() {
                     <button
                       type="button"
                       className="text-button"
-                      onClick={() =>
-                        setMessage("Password recovery isn't configured yet.")
-                      }
+                      disabled={isLoading}
+                      onClick={handleForgotPassword}
                     >
                       Forgot password?
                     </button>
                   </div>
+                </>
+              )}
+
+              {message && (
+                <p
+                  className="form-message"
+                  role="alert"
+                  aria-live="polite"
+                >
+                  {message}
+                </p>
+              )}
+
+              {isSignup ? (
+                <div className="form-actions">
+                  {step > 0 && (
+                    <button
+                      className="secondary-button"
+                      type="button"
+                      disabled={isLoading}
+                      onClick={() => {
+                        setStep((current) => Math.max(0, current - 1));
+                        setMessage("");
+                      }}
+                    >
+                      ← Back
+                    </button>
+                  )}
 
                   <button
                     className="primary-button"
                     type="submit"
                     disabled={isLoading}
                   >
-                    {isLoading ? "Signing you in..." : "Continue adventure"}
+                    {step === totalSignupSteps - 1
+                      ? isLoading
+                        ? "Creating profile..."
+                        : "Start my journey"
+                      : "Continue"}
+
                     {!isLoading && <span>→</span>}
                   </button>
+                </div>
+              ) : (
+                <button
+                  className="primary-button"
+                  type="submit"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Signing you in..." : "Continue adventure"}
 
-                  <div className="login-tip">
-                    <Companion small />
-
-                    <span>
-                      <strong>Your quest is still here.</strong>
-                      <br />
-                      Pick up where you left off.
-                    </span>
-                  </div>
-                </>
-              )}
-
-              {message && (
-                <p className="form-message" role="alert" aria-live="polite">
-                  {message}
-                </p>
+                  {!isLoading && <span>→</span>}
+                </button>
               )}
             </form>
+
+            {!isSignup && (
+              <div className="login-tip">
+                <Companion small />
+
+                <span>
+                  <strong>Your quest is still here.</strong>
+                  <br />
+                  Pick up where you left off.
+                </span>
+              </div>
+            )}
 
             <div className="card-switch">
               {isSignup
@@ -925,4 +1082,3 @@ export default function AuthPage() {
     </main>
   );
 }
-

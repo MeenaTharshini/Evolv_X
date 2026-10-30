@@ -1,5 +1,5 @@
+import { useEffect, useState } from "react";
 
-import { useState } from "react";
 import {
   BookOpen,
   LayoutDashboard,
@@ -8,10 +8,17 @@ import {
   LogOut,
   Menu,
   X,
-  UserRound,
   ChevronRight,
 } from "lucide-react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+
+import {
+  Link,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
+
+import { supabase } from "../lib/supabaseClient";
+import { getUserProfile } from "../lib/userService";
 import "../styles/navbar.css";
 
 const navigationItems = [
@@ -34,55 +41,147 @@ const navigationItems = [
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+  const [logoutError, setLogoutError] = useState("");
+  const [displayName, setDisplayName] = useState("Learner");
+
   const location = useLocation();
   const navigate = useNavigate();
 
-  let savedUser = {};
+  // --------------------------------------------------
+  // LOAD AUTHENTICATED USER PROFILE
+  // --------------------------------------------------
 
-  try {
-    savedUser = JSON.parse(
-      localStorage.getItem("evolv_user") ||
-        sessionStorage.getItem("evolv_user") ||
-        "{}"
-    );
-  } catch {
-    savedUser = {};
-  }
+  useEffect(() => {
+    let active = true;
 
-  const displayName =
-    savedUser.name ||
-    savedUser.fullName ||
-    savedUser.username ||
-    "Learner";
+    async function loadProfile() {
+      try {
+        const profile = await getUserProfile();
 
-  const initial = displayName.trim().charAt(0).toUpperCase() || "L";
+        if (!active) return;
 
-  const isActive = (path) => {
-  if (path === "/study/python") {
-    return location.pathname.startsWith("/study/python");
-  }
+        const name =
+          profile?.full_name?.trim() ||
+          profile?.email?.split("@")[0] ||
+          "Learner";
 
-  return location.pathname === path;
-};
+        setDisplayName(name);
+      } catch (error) {
+        if (!active) return;
 
-  const closeMenu = () => setMenuOpen(false);
+        console.error("Unable to load EVOLV profile:", error);
+        setDisplayName("Learner");
+      }
+    }
 
-  const handleLogout = () => {
-    closeMenu();
+    loadProfile();
 
-    [
-      "evolv_token",
-      "evolv_user",
-    ].forEach((key) => {
-      localStorage.removeItem(key);
-      sessionStorage.removeItem(key);
+    // Refresh the displayed name when authentication changes.
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (!active) return;
+
+      if (event === "SIGNED_OUT") {
+        setDisplayName("Learner");
+        return;
+      }
+
+      if (
+        event === "SIGNED_IN" ||
+        event === "USER_UPDATED" ||
+        event === "TOKEN_REFRESHED"
+      ) {
+        // Defer Supabase queries to avoid performing another
+        // Supabase operation inside the auth callback itself.
+        setTimeout(() => {
+          if (active) {
+            loadProfile();
+          }
+        }, 0);
+      }
     });
 
-    navigate("/login", { replace: true });
-  };
+    return () => {
+      active = false;
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  const initial =
+    displayName.trim().charAt(0).toUpperCase() || "L";
+
+  // --------------------------------------------------
+  // NAVIGATION
+  // --------------------------------------------------
+
+  function closeMenu() {
+    setMenuOpen(false);
+  }
+
+  function isActive(path) {
+    if (path === "/study/python") {
+      return location.pathname.startsWith("/study/python");
+    }
+
+    return location.pathname === path;
+  }
+
+  // --------------------------------------------------
+  // LOGOUT
+  // --------------------------------------------------
+
+  async function handleLogout() {
+    if (loggingOut) return;
+
+    setLoggingOut(true);
+    setLogoutError("");
+    closeMenu();
+
+    try {
+      const { error } = await supabase.auth.signOut();
+
+      if (error) {
+        throw error;
+      }
+
+      // Clear obsolete custom-backend authentication values.
+      // Do not clear XP, lesson progress, or app preferences.
+      try {
+        localStorage.removeItem("evolv_token");
+        localStorage.removeItem("evolv_user");
+
+        sessionStorage.removeItem("evolv_token");
+        sessionStorage.removeItem("evolv_user");
+      } catch (storageError) {
+        console.warn(
+          "Unable to clear legacy session values:",
+          storageError
+        );
+      }
+
+      setDisplayName("Learner");
+
+      navigate("/login", { replace: true });
+    } catch (error) {
+      console.error("EVOLV logout failed:", error);
+
+      setLogoutError(
+        error?.message || "Unable to log out. Please try again."
+      );
+    } finally {
+      setLoggingOut(false);
+    }
+  }
+
+  // --------------------------------------------------
+  // RENDER
+  // --------------------------------------------------
 
   return (
     <>
+      {/* Mobile backdrop */}
       {menuOpen && (
         <button
           type="button"
@@ -92,10 +191,14 @@ export default function Navbar() {
         />
       )}
 
+      {/* Sidebar */}
       <aside
-        className={`ev-navbar ${menuOpen ? "ev-navbar-open" : ""}`}
+        className={`ev-navbar ${
+          menuOpen ? "ev-navbar-open" : ""
+        }`}
         aria-label="EVOLV sidebar"
       >
+        {/* Brand */}
         <div className="ev-nav-brand-row">
           <Link
             to="/dashboard"
@@ -122,18 +225,30 @@ export default function Navbar() {
           </button>
         </div>
 
+        {/* Authenticated profile */}
         <div className="ev-nav-profile">
-          <span className="ev-nav-avatar">{initial}</span>
+          <span className="ev-nav-avatar">
+            {initial}
+          </span>
 
           <span className="ev-nav-profile-copy">
-            <strong>{displayName}</strong>
+            <strong title={displayName}>
+              {displayName}
+            </strong>
+
             <small>Your learning journey</small>
           </span>
         </div>
 
-        <div className="ev-nav-section-label">WORKSPACE</div>
+        {/* Navigation */}
+        <div className="ev-nav-section-label">
+          WORKSPACE
+        </div>
 
-        <nav className="ev-nav-links" aria-label="Main navigation">
+        <nav
+          className="ev-nav-links"
+          aria-label="Main navigation"
+        >
           {navigationItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.path);
@@ -163,21 +278,47 @@ export default function Navbar() {
           })}
         </nav>
 
+        {/* Bottom section */}
         <div className="ev-nav-bottom">
           <div className="ev-nav-encouragement">
-            <span className="ev-nav-encouragement-icon">✦</span>
+            <span className="ev-nav-encouragement-icon">
+              ✦
+            </span>
+
             <strong>Keep growing!</strong>
-            <p>Small steps lead to big achievements.</p>
+
+            <p>
+              Small steps lead to big achievements.
+            </p>
           </div>
 
+          {/* Logout */}
           <button
             type="button"
             className="ev-nav-logout"
             onClick={handleLogout}
+            disabled={loggingOut}
           >
             <LogOut size={18} />
-            <span>Log out</span>
+
+            <span>
+              {loggingOut ? "Signing out..." : "Log out"}
+            </span>
           </button>
+
+          {logoutError && (
+            <p
+              role="alert"
+              style={{
+                color: "#b42318",
+                fontSize: "0.8rem",
+                margin: "8px 0",
+                overflowWrap: "anywhere",
+              }}
+            >
+              {logoutError}
+            </p>
+          )}
 
           <div className="ev-nav-footer">
             <span>EVOLV</span>
@@ -186,14 +327,22 @@ export default function Navbar() {
         </div>
       </aside>
 
+      {/* Mobile menu toggle */}
       <button
         type="button"
         className="ev-nav-mobile-toggle"
         onClick={() => setMenuOpen((open) => !open)}
-        aria-label={menuOpen ? "Close navigation" : "Open navigation"}
+        aria-label={
+          menuOpen ? "Close navigation" : "Open navigation"
+        }
         aria-expanded={menuOpen}
+        aria-controls="ev-navbar"
       >
-        {menuOpen ? <X size={22} /> : <Menu size={22} />}
+        {menuOpen ? (
+          <X size={22} />
+        ) : (
+          <Menu size={22} />
+        )}
       </button>
     </>
   );

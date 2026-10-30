@@ -1,24 +1,39 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+
 import {
   Flame,
   Zap,
   Target,
   Trophy,
-  BookOpen,
-  Sparkles,
-  ArrowRight,
-  CheckCircle2,
-  CalendarDays,
+  Clock3,
+  TrendingUp,
   RefreshCw,
+  AlertCircle,
+  CheckCircle2,
 } from "lucide-react";
-import { Link } from "react-router-dom";
-import { pythonLessons } from "../data/pythonLessons";
+
+import { supabase } from "../lib/supabaseClient";
+import { getStreak } from "../services/api";
+import { getUserProfile } from "../lib/userService";
+
 import "../styles/rightbar.css";
 
-const API_BASE_URL = (
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api"
-).replace(/\/+$/, "");
-const initialStreak = {
+// --------------------------------------------------
+// CONSTANTS
+// --------------------------------------------------
+
+const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+const INDIA_TIME_ZONE = "Asia/Kolkata";
+
+const INITIAL_STATS = {
+  totalXP: 0,
   currentStreak: 0,
   longestStreak: 0,
   activeToday: false,
@@ -26,580 +41,865 @@ const initialStreak = {
   week: [],
 };
 
-const initialProgress = {
-  xp: 0,
-  completed: [],
-};
+// --------------------------------------------------
+// DATE HELPERS
+// --------------------------------------------------
 
 /**
- * Read a non-negative number from browser storage safely.
+ * Get today's date in India Standard Time.
+ * Returns YYYY-MM-DD regardless of the browser's timezone.
  */
-function readNumber(key, fallback = 0) {
-  try {
-    const rawValue = localStorage.getItem(key);
+function getIndiaDateString(date = new Date()) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: INDIA_TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(date);
 
-    if (rawValue === null || rawValue.trim() === "") {
-      return fallback;
-    }
+  const values = Object.fromEntries(
+    parts.map(({ type, value }) => [type, value])
+  );
 
-    const value = Number(rawValue);
-
-    return Number.isFinite(value) && value >= 0
-      ? value
-      : fallback;
-  } catch {
-    return fallback;
-  }
+  return `${values.year}-${values.month}-${values.day}`;
 }
 
 /**
- * Read the current EVOLV authentication token.
- * AuthPage saves the token as "evolv_token".
+ * Parse YYYY-MM-DD safely for calendar calculations.
+ * UTC is used only for date arithmetic.
  */
-function getAuthToken() {
-  try {
-    return (
-      localStorage.getItem("evolv_token") ||
-      sessionStorage.getItem("evolv_token") ||
-      localStorage.getItem("token") ||
-      sessionStorage.getItem("token") ||
-      ""
-    );
-  } catch {
+function parseDateKey(dateKey) {
+  if (typeof dateKey !== "string") {
+    return null;
+  }
+
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateKey);
+
+  if (!match) {
+    return null;
+  }
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+
+  const date = new Date(Date.UTC(year, month - 1, day));
+
+  if (
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() !== month - 1 ||
+    date.getUTCDate() !== day
+  ) {
+    return null;
+  }
+
+  return date;
+}
+
+function addDaysToDateKey(dateKey, amount) {
+  const date = parseDateKey(dateKey);
+
+  if (!date) {
     return "";
   }
+
+  date.setUTCDate(date.getUTCDate() + amount);
+
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(date.getUTCDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
 }
 
 /**
- * Safely read JSON responses.
+ * Returns the Monday–Sunday dates for the current India-time week.
  */
-async function readResponse(response) {
-  try {
-    return await response.json();
-  } catch {
-    return {};
-  }
-}
+function getWeekDates(todayKey = getIndiaDateString()) {
+  const today = parseDateKey(todayKey);
 
-/**
- * Read completed Python lessons from local storage.
- */
-function readCompletedLessons() {
-  try {
-    const saved = localStorage.getItem("evolv_python_completed");
-
-    if (!saved) {
-      return [];
-    }
-
-    const parsed = JSON.parse(saved);
-
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
+  if (!today) {
     return [];
   }
+
+  const mondayOffset = (today.getUTCDay() + 6) % 7;
+  const mondayKey = addDaysToDateKey(todayKey, -mondayOffset);
+
+  return DAYS.map((label, index) => {
+    const date = addDaysToDateKey(mondayKey, index);
+
+    return {
+      label,
+      date,
+      isToday: date === todayKey,
+      future: date > todayKey,
+    };
+  });
 }
 
-/**
- * Normalize streak data returned by the backend.
- */
-function normalizeStreak(data) {
+// --------------------------------------------------
+// DATA HELPERS
+// --------------------------------------------------
+
+function normalizeNumber(value) {
+  if (
+    value === null ||
+    value === undefined ||
+    value === ""
+  ) {
+    return 0;
+  }
+
+  const number = Number(value);
+
+  return Number.isFinite(number)
+    ? Math.max(0, number)
+    : 0;
+}
+
+function normalizeBoolean(value) {
+  if (typeof value === "boolean") {
+    return value;
+  }
+
+  if (typeof value === "number") {
+    return value > 0;
+  }
+
+  if (typeof value === "string") {
+    return ["true", "1", "yes", "active"].includes(
+      value.trim().toLowerCase()
+    );
+  }
+
+  return false;
+}
+
+function getInitialStats() {
   return {
-    currentStreak: Math.max(
-      0,
-      Number(data.currentStreak) || 0
-    ),
-    longestStreak: Math.max(
-      0,
-      Number(data.longestStreak) || 0
-    ),
-    activeToday: Boolean(data.activeToday),
-    today: data.today || "",
-    week: Array.isArray(data.week) ? data.week : [],
+    ...INITIAL_STATS,
+    today: getIndiaDateString(),
+    week: [],
   };
 }
 
+function normalizeStats(result = {}) {
+  const today = getIndiaDateString();
+
+  const totalXP = normalizeNumber(
+    result.totalXP ??
+      result.totalXp ??
+      result.total_xp ??
+      result.xp
+  );
+
+  const currentStreak = normalizeNumber(
+    result.currentStreak ??
+      result.current_streak ??
+      result.streak
+  );
+
+  const longestStreak = normalizeNumber(
+    result.longestStreak ??
+      result.longest_streak
+  );
+
+  const activeToday = normalizeBoolean(
+    result.activeToday ??
+      result.active_today ??
+      result.didActivityToday
+  );
+
+  const rawWeek = Array.isArray(result.week)
+    ? result.week
+    : [];
+
+  const week = rawWeek
+    .map((item) => {
+      if (!item || typeof item !== "object") {
+        return null;
+      }
+
+      const date = item.date ?? item.activity_date;
+
+      if (!parseDateKey(date)) {
+        return null;
+      }
+
+      const count = normalizeNumber(
+        item.count ??
+          item.activityCount ??
+          item.activity_count ??
+          item.total
+      );
+
+      const explicitlyActive =
+        item.active ??
+        item.completed ??
+        item.hasActivity ??
+        item.has_activity;
+
+      return {
+        date,
+        count,
+        active:
+          explicitlyActive === undefined
+            ? count > 0
+            : normalizeBoolean(explicitlyActive),
+      };
+    })
+    .filter(Boolean);
+
+  return {
+    totalXP,
+    currentStreak,
+    longestStreak,
+    activeToday,
+    today:
+      typeof result.today === "string" &&
+      parseDateKey(result.today)
+        ? result.today
+        : today,
+    week,
+  };
+}
+
+function getDisplayName(profile, user) {
+  const profileName =
+    typeof profile?.full_name === "string"
+      ? profile.full_name.trim()
+      : "";
+
+  const metadataName =
+    typeof user?.user_metadata?.full_name === "string"
+      ? user.user_metadata.full_name.trim()
+      : "";
+
+  const emailName = user?.email
+    ?.split("@")[0]
+    ?.trim();
+
+  return (
+    profileName ||
+    metadataName ||
+    emailName ||
+    "Learner"
+  );
+}
+
+function getErrorMessage(error) {
+  if (typeof error === "string" && error.trim()) {
+    return error;
+  }
+
+  if (error?.message) {
+    return error.message;
+  }
+
+  return "Unable to load your learning information. Please try again.";
+}
+
+// --------------------------------------------------
+// RIGHTBAR
+// --------------------------------------------------
+
 export default function Rightbar() {
-  const [progress, setProgress] = useState(initialProgress);
-  const [streakData, setStreakData] = useState(initialStreak);
-  const [streakLoading, setStreakLoading] = useState(true);
-  const [streakError, setStreakError] = useState("");
+  const [profileName, setProfileName] = useState("Learner");
 
-  /**
-   * Refresh XP and completed lessons.
-   *
-   * These keys must match the keys used by LessonPage.jsx.
-   */
-  const refreshProgress = useCallback(() => {
-    setProgress({
-      xp: readNumber("evolv_python_xp"),
-      completed: readCompletedLessons(),
-    });
-  }, []);
+  const [stats, setStats] = useState(getInitialStats);
 
-  /**
-   * Fetch the authenticated user's streak from the backend.
-   */
-  const refreshStreak = useCallback(async () => {
-    const token = getAuthToken();
+  const [loading, setLoading] = useState(true);
 
-    if (!token) {
-      setStreakData(initialStreak);
-      setStreakError("Please log in to view your learning streak.");
-      setStreakLoading(false);
-      return;
-    }
+  const [refreshing, setRefreshing] = useState(false);
 
-    setStreakLoading(true);
-    setStreakError("");
+  const [error, setError] = useState("");
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/streak`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-        },
-      });
+  const [userId, setUserId] = useState(null);
 
-      const data = await readResponse(response);
+  const requestIdRef = useRef(0);
 
-      if (!response.ok) {
-        if (response.status === 401 || response.status === 403) {
-          throw new Error(
-            "Your session may have expired. Please log in again."
-          );
+  const mountedRef = useRef(false);
+
+  const refreshingRef = useRef(false);
+
+  // --------------------------------------------------
+  // LOAD LEARNER DATA
+  // --------------------------------------------------
+
+  const loadRightbarData = useCallback(
+    async ({ showLoading = false } = {}) => {
+      const requestId = ++requestIdRef.current;
+
+      if (showLoading) {
+        setLoading(true);
+      }
+
+      setError("");
+
+      try {
+        const {
+          data: { user },
+          error: authError,
+        } = await supabase.auth.getUser();
+
+        if (authError) {
+          throw authError;
         }
 
-        throw new Error(
-          data.error ||
-            data.message ||
-            `Unable to load your learning streak (${response.status}).`
+        if (
+          !mountedRef.current ||
+          requestId !== requestIdRef.current
+        ) {
+          return;
+        }
+
+        // No authenticated user.
+        if (!user) {
+          setUserId(null);
+          setProfileName("Learner");
+          setStats(getInitialStats());
+          setError("");
+
+          return;
+        }
+
+        // Clear previous user's data immediately when accounts change.
+        setUserId((previousId) => {
+          if (previousId && previousId !== user.id) {
+            setProfileName("Learner");
+            setStats(getInitialStats());
+          }
+
+          return user.id;
+        });
+
+        // Load profile and streak independently.
+        const [profileResult, streakResult] =
+          await Promise.allSettled([
+            getUserProfile(),
+            getStreak(),
+          ]);
+
+        if (
+          !mountedRef.current ||
+          requestId !== requestIdRef.current
+        ) {
+          return;
+        }
+
+        // ----------------------------------------------
+        // PROFILE
+        // ----------------------------------------------
+
+        if (profileResult.status === "fulfilled") {
+          setProfileName(
+            getDisplayName(profileResult.value, user)
+          );
+        } else {
+          console.error(
+            "Unable to load learner profile:",
+            profileResult.reason
+          );
+
+          setProfileName(getDisplayName(null, user));
+        }
+
+        // ----------------------------------------------
+        // LEARNING STATISTICS
+        // ----------------------------------------------
+
+        if (streakResult.status === "fulfilled") {
+          setStats(normalizeStats(streakResult.value));
+          setError("");
+        } else {
+          console.error(
+            "Unable to load learning statistics:",
+            streakResult.reason
+          );
+
+          // Keep previously loaded statistics when a refresh fails.
+          setError(
+            "Your learning statistics couldn't be loaded. Please try refreshing."
+          );
+        }
+      } catch (loadError) {
+        if (
+          !mountedRef.current ||
+          requestId !== requestIdRef.current
+        ) {
+          return;
+        }
+
+        console.error(
+          "Rightbar loading failed:",
+          loadError
         );
+
+        setError(getErrorMessage(loadError));
+      } finally {
+        if (
+          mountedRef.current &&
+          requestId === requestIdRef.current
+        ) {
+          setLoading(false);
+          setRefreshing(false);
+          refreshingRef.current = false;
+        }
       }
+    },
+    []
+  );
 
-      setStreakData(normalizeStreak(data));
-    } catch (error) {
-      console.error("EVOLV streak fetch error:", error);
+  // --------------------------------------------------
+  // INITIAL LOAD AND AUTH LISTENER
+  // --------------------------------------------------
 
-      setStreakError(
-        error.message ||
-          "Could not connect to the streak service."
-      );
-    } finally {
-      setStreakLoading(false);
-    }
-  }, []);
-
-  /**
-   * Load data initially and refresh it when learning progress changes.
-   */
   useEffect(() => {
-    let mounted = true;
+    mountedRef.current = true;
 
-    const loadInitialData = async () => {
-      if (!mounted) return;
+    void loadRightbarData({ showLoading: true });
 
-      refreshProgress();
-      await refreshStreak();
-    };
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (!mountedRef.current) {
+          return;
+        }
 
-    loadInitialData();
+        if (event === "SIGNED_OUT") {
+          // Invalidate outstanding requests.
+          requestIdRef.current += 1;
 
-    const handleProgressUpdate = () => {
-      refreshProgress();
-      refreshStreak();
-    };
+          setUserId(null);
+          setProfileName("Learner");
+          setStats(getInitialStats());
+          setLoading(false);
+          setRefreshing(false);
+          refreshingRef.current = false;
+          setError("");
 
-    const handleFocus = () => {
-      refreshProgress();
-      refreshStreak();
-    };
+          return;
+        }
 
-    const handleStorage = (event) => {
-      // Refresh for relevant EVOLV storage changes, or when the
-      // browser reports a general storage update.
-      if (
-        !event ||
-        !event.key ||
-        [
-          "evolv_token",
-          "token",
-          "evolv_python_xp",
-          "evolv_python_completed",
-        ].includes(event.key)
-      ) {
-        refreshProgress();
-        refreshStreak();
+        if (
+          event === "SIGNED_IN" ||
+          event === "USER_UPDATED" ||
+          event === "TOKEN_REFRESHED"
+        ) {
+          // Avoid calling Supabase APIs directly inside its auth callback.
+          setTimeout(() => {
+            if (mountedRef.current) {
+              void loadRightbarData({
+                showLoading: true,
+              });
+            }
+          }, 0);
+        }
+
+        const nextUserId = session?.user?.id ?? null;
+
+        if (nextUserId !== userId) {
+          setUserId(nextUserId);
+          setProfileName("Learner");
+          setStats(getInitialStats());
+        }
       }
-    };
+    );
 
-    const handleVisibility = () => {
-      if (document.visibilityState === "visible") {
-        refreshProgress();
-        refreshStreak();
+    // ----------------------------------------------
+    // PROGRESS UPDATE EVENTS
+    // ----------------------------------------------
+
+    const handleProgressUpdated = () => {
+      if (mountedRef.current) {
+        void loadRightbarData();
       }
     };
 
     window.addEventListener(
-      "evolv-progress-updated",
-      handleProgressUpdate
+      "evolv:progress-updated",
+      handleProgressUpdated
     );
-    window.addEventListener("focus", handleFocus);
-    window.addEventListener("storage", handleStorage);
+
+    window.addEventListener(
+      "evolv:streak-updated",
+      handleProgressUpdated
+    );
+
+    window.addEventListener(
+      "evolv-progress-updated",
+      handleProgressUpdated
+    );
+
+    window.addEventListener(
+      "evolv-streak-updated",
+      handleProgressUpdated
+    );
+
+    // Refresh when the learner returns to the tab.
+    const handleVisibilityChange = () => {
+      if (
+        document.visibilityState === "visible" &&
+        mountedRef.current
+      ) {
+        void loadRightbarData();
+      }
+    };
+
     document.addEventListener(
       "visibilitychange",
-      handleVisibility
+      handleVisibilityChange
     );
 
     return () => {
-      mounted = false;
+      mountedRef.current = false;
+
+      requestIdRef.current += 1;
+
+      refreshingRef.current = false;
+
+      subscription.unsubscribe();
+
+      window.removeEventListener(
+        "evolv:progress-updated",
+        handleProgressUpdated
+      );
+
+      window.removeEventListener(
+        "evolv:streak-updated",
+        handleProgressUpdated
+      );
 
       window.removeEventListener(
         "evolv-progress-updated",
-        handleProgressUpdate
+        handleProgressUpdated
       );
-      window.removeEventListener("focus", handleFocus);
-      window.removeEventListener("storage", handleStorage);
+
+      window.removeEventListener(
+        "evolv-streak-updated",
+        handleProgressUpdated
+      );
+
       document.removeEventListener(
         "visibilitychange",
-        handleVisibility
+        handleVisibilityChange
       );
     };
-  }, [refreshProgress, refreshStreak]);
+  }, [loadRightbarData, userId]);
 
-  /**
-   * Python lesson progress calculations.
-   */
-  const totalLessons = pythonLessons.length;
+  // --------------------------------------------------
+  // REFRESH
+  // --------------------------------------------------
 
-  const completedCount = useMemo(() => {
-    const uniqueCompleted = new Set(
-      progress.completed.map(String)
+  const handleRefresh = useCallback(async () => {
+    if (refreshingRef.current) {
+      return;
+    }
+
+    refreshingRef.current = true;
+
+    setRefreshing(true);
+
+    await loadRightbarData();
+  }, [loadRightbarData]);
+
+  // --------------------------------------------------
+  // WEEKLY ACTIVITY
+  // --------------------------------------------------
+
+  const todayKey = getIndiaDateString();
+
+  const weekDates = useMemo(
+    () => getWeekDates(todayKey),
+    [todayKey, stats.today]
+  );
+
+  const weeklyActivity = useMemo(() => {
+    const activityByDate = new Map(
+      stats.week.map((item) => [item.date, item])
     );
 
-    return Math.min(uniqueCompleted.size, totalLessons);
-  }, [progress.completed, totalLessons]);
+    return weekDates.map((day) => {
+      const activity = activityByDate.get(day.date);
 
-  const completionPercent =
-    totalLessons > 0
-      ? Math.round((completedCount / totalLessons) * 100)
-      : 0;
+      return {
+        ...day,
+        active: day.isToday
+          ? stats.activeToday || Boolean(activity?.active)
+          : Boolean(activity?.active),
+      };
+    });
+  }, [weekDates, stats.week, stats.activeToday]);
 
-  const remainingLessons = Math.max(
-    0,
-    totalLessons - completedCount
-  );
+  // --------------------------------------------------
+  // DISPLAY HELPERS
+  // --------------------------------------------------
 
-  /**
-   * Streak display values.
-   */
-  const streak = streakData.currentStreak;
+  const firstName =
+    profileName.split(/\s+/)[0] || "Learner";
 
-  const streakProgress = Math.min(
-    100,
-    (streak / 5) * 100
-  );
-
-  const streakStatus = streakLoading
-    ? "Checking your progress..."
-    : streakError
-      ? "Streak unavailable"
-      : streakData.activeToday
-        ? "You've learned today!"
-        : "Keep your momentum going";
-
-  const streakMessage = streakLoading
-    ? "Loading your learning streak..."
-    : streakError
-      ? streakError
-      : streakData.activeToday
-        ? "Great work! Your learning activity is recorded for today."
-        : streak > 0
-          ? "Complete a lesson today to maintain your streak."
-          : "Complete your first lesson today to start your streak.";
+  // --------------------------------------------------
+  // RENDER
+  // --------------------------------------------------
 
   return (
     <aside
       className="ev-rightbar"
-      aria-label="Learning overview"
+      aria-label="Learning hub"
     >
-      {/* Sidebar heading */}
-      <div className="ev-rightbar-heading">
+      {/* HEADER */}
+      <div className="ev-rightbar-header">
         <div>
           <span className="ev-rightbar-eyebrow">
-            YOUR OVERVIEW
+            YOUR SPACE
           </span>
 
           <h2>Learning Hub</h2>
         </div>
 
-        <span
-          className="ev-rightbar-heading-icon"
-          aria-hidden="true"
+        <button
+          type="button"
+          className="ev-rightbar-refresh"
+          onClick={handleRefresh}
+          disabled={refreshing || loading}
+          aria-label="Refresh learning statistics"
+          title="Refresh statistics"
         >
-          <Sparkles size={19} />
-        </span>
+          <RefreshCw
+            size={17}
+            className={
+              refreshing
+                ? "ev-refresh-spinning"
+                : ""
+            }
+          />
+        </button>
       </div>
 
-      {/* Learning streak */}
-      <section
-        className="ev-rightbar-streak"
-        aria-labelledby="ev-streak-heading"
-      >
-        <div className="ev-rightbar-streak-top">
-          <span
-            className="ev-rightbar-streak-icon"
-            aria-hidden="true"
-          >
-            <Flame size={23} fill="currentColor" />
-          </span>
-
-          <span className="ev-rightbar-streak-label">
-            <strong id="ev-streak-heading">
-              Learning streak
-            </strong>
-
-            <small>{streakStatus}</small>
-          </span>
-
-          <button
-            type="button"
-            className="ev-rightbar-refresh"
-            onClick={refreshStreak}
-            disabled={streakLoading}
-            aria-label="Refresh learning streak"
-            title="Refresh streak"
-          >
-            <RefreshCw
-              size={15}
-              className={streakLoading ? "ev-spin" : ""}
-            />
-          </button>
+      {/* LEARNER GREETING */}
+      <section className="ev-rightbar-greeting">
+        <div className="ev-rightbar-greeting-icon">
+          <Target size={21} />
         </div>
 
-        <div className="ev-rightbar-streak-value">
-          <strong>
-            {streakLoading ? "…" : streak}
-          </strong>
+        <div>
+          <span>Keep moving forward</span>
 
-          <span>{streak === 1 ? "day" : "days"}</span>
+          <h3>
+            {profileName === "Learner"
+              ? "Your next level awaits!"
+              : `You've got this, ${firstName}!`}
+          </h3>
         </div>
+      </section>
 
+      {/* LOADING STATE */}
+      {loading && (
         <div
-          className="ev-rightbar-streak-track"
-          role="progressbar"
-          aria-label="Streak progress toward five days"
-          aria-valuemin={0}
-          aria-valuemax={5}
-          aria-valuenow={Math.min(streak, 5)}
-        >
-          <span
-            style={{
-              width: `${streakProgress}%`,
-            }}
-          />
-        </div>
-
-        <div className="ev-rightbar-streak-best">
-          <Trophy size={14} aria-hidden="true" />
-
-          <span>
-            Best streak: {streakData.longestStreak}{" "}
-            {streakData.longestStreak === 1
-              ? "day"
-              : "days"}
-          </span>
-        </div>
-
-        <p
-          className="ev-rightbar-streak-message"
+          className="ev-rightbar-state"
+          role="status"
           aria-live="polite"
         >
-          {streakMessage}
-        </p>
+          <span className="ev-rightbar-spinner" />
 
-        {/* Weekly activity */}
-        <div className="ev-rightbar-week">
-          <div className="ev-rightbar-week-heading">
-            <CalendarDays size={15} aria-hidden="true" />
-            <strong>This week</strong>
-          </div>
-
-          {streakData.week.length > 0 ? (
-            <div className="ev-rightbar-week-days">
-              {streakData.week.map((day, index) => (
-                <div
-                  key={
-                    day.date ||
-                    `${day.day || "day"}-${index}`
-                  }
-                  className={[
-                    "ev-rightbar-week-day",
-                    day.completed ? "is-completed" : "",
-                    day.isToday ? "is-today" : "",
-                    day.isFuture ? "is-future" : "",
-                  ]
-                    .filter(Boolean)
-                    .join(" ")}
-                  title={`${day.date || day.day || "Day"}: ${
-                    day.completed
-                      ? "Activity completed"
-                      : "No activity recorded"
-                  }`}
-                >
-                  <span>{day.day || "—"}</span>
-
-                  <span className="ev-rightbar-week-dot">
-                    {day.completed ? (
-                      <CheckCircle2
-                        size={16}
-                        aria-label="Activity completed"
-                      />
-                    ) : (
-                      <span className="ev-rightbar-week-empty" />
-                    )}
-                  </span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="ev-rightbar-week-empty-message">
-              {streakLoading
-                ? "Loading weekly activity..."
-                : streakError
-                  ? "Weekly activity is unavailable."
-                  : "Your weekly activity will appear here."}
-            </p>
-          )}
+          <p>Loading your learning stats...</p>
         </div>
-      </section>
+      )}
 
-      {/* XP and lesson progress */}
-      <section
-        className="ev-rightbar-section"
-        aria-labelledby="ev-progress-heading"
-      >
-        <div className="ev-rightbar-section-title">
-          <Target size={17} aria-hidden="true" />
-          <h3 id="ev-progress-heading">
-            Your progress
-          </h3>
-        </div>
-
-        {/* Total XP */}
-        <div className="ev-rightbar-xp-card">
-          <span
-            className="ev-rightbar-metric-icon ev-xp-icon"
-            aria-hidden="true"
-          >
-            <Zap size={20} fill="currentColor" />
-          </span>
-
-          <div className="ev-rightbar-metric-copy">
-            <span>Total XP</span>
-
-            <strong>
-              {progress.xp.toLocaleString()}
-            </strong>
-          </div>
-
-          <span className="ev-rightbar-metric-tag">
-            XP
-          </span>
-        </div>
-
-        {/* Python lesson completion */}
-        <div className="ev-rightbar-progress-card">
-          <div className="ev-rightbar-progress-top">
-            <span>Python lessons</span>
-
-            <strong>
-              {completedCount}/{totalLessons}
-            </strong>
-          </div>
-
-          <div
-            className="ev-rightbar-progress-track"
-            role="progressbar"
-            aria-label="Python lesson completion"
-            aria-valuemin={0}
-            aria-valuemax={totalLessons}
-            aria-valuenow={completedCount}
-          >
-            <span
-              style={{
-                width: `${completionPercent}%`,
-              }}
-            />
-          </div>
-
-          <div className="ev-rightbar-progress-bottom">
-            <span>
-              {completionPercent}% complete
-            </span>
-
-            <span>
-              {remainingLessons} left
-            </span>
-          </div>
-        </div>
-      </section>
-
-      {/* Motivation card */}
-      <section className="ev-rightbar-goal">
+      {/* ERROR STATE */}
+      {!loading && error && (
         <div
-          className="ev-rightbar-goal-icon"
-          aria-hidden="true"
+          className="ev-rightbar-error"
+          role="alert"
         >
-          <Trophy size={21} />
+          <AlertCircle size={18} />
+
+          <div>
+            <strong>Couldn't refresh stats</strong>
+
+            <p>{error}</p>
+
+            <button
+              type="button"
+              onClick={handleRefresh}
+              disabled={refreshing}
+            >
+              {refreshing ? "Retrying..." : "Try again"}
+            </button>
+          </div>
         </div>
+      )}
 
-        <div className="ev-rightbar-goal-copy">
-          <strong>One step at a time</strong>
+      {/* LEARNING STATISTICS */}
+      {!loading && (
+        <>
+          <section
+            className="ev-rightbar-stats"
+            aria-label="Learning statistics"
+          >
+            {/* TOTAL XP */}
+            <article className="ev-rightbar-stat ev-stat-xp">
+              <div className="ev-rightbar-stat-top">
+                <span className="ev-rightbar-stat-icon">
+                  <Zap size={19} />
+                </span>
 
-          <p>
-            Finish a lesson today to move closer to your goal.
-          </p>
-        </div>
-      </section>
+                <span className="ev-rightbar-stat-label">
+                  TOTAL XP
+                </span>
+              </div>
 
-      {/* Continue learning */}
-      <section
-        className="ev-rightbar-next"
-        aria-labelledby="ev-next-heading"
-      >
-        <div className="ev-rightbar-section-title">
-          <BookOpen size={17} aria-hidden="true" />
-          <h3 id="ev-next-heading">
-            Ready to learn?
-          </h3>
-        </div>
+              <strong>
+                {stats.totalXP.toLocaleString("en-IN")}
+              </strong>
 
-        <p>
-          Continue your Python journey and unlock the next lesson.
-        </p>
+              <small>Experience earned</small>
+            </article>
 
-        <Link
-          to="/study/python"
-          className="ev-rightbar-continue"
-        >
-          <span>Open Study Map</span>
+            {/* CURRENT STREAK */}
+            <article className="ev-rightbar-stat ev-stat-streak">
+              <div className="ev-rightbar-stat-top">
+                <span className="ev-rightbar-stat-icon">
+                  <Flame size={19} />
+                </span>
 
-          <ArrowRight
-            size={16}
-            aria-hidden="true"
-          />
-        </Link>
-      </section>
+                <span className="ev-rightbar-stat-label">
+                  STREAK
+                </span>
+              </div>
 
-      {/* Footer */}
-      <div className="ev-rightbar-quote">
-        <CheckCircle2 size={17} aria-hidden="true" />
+              <strong>{stats.currentStreak}</strong>
 
-        <p>
-          Consistency beats perfection. Every lesson counts.
-        </p>
+              <small>
+                {stats.currentStreak === 1
+                  ? "Day in a row"
+                  : "Days in a row"}
+              </small>
+            </article>
+          </section>
+
+          {/* WEEKLY ACTIVITY */}
+          <section className="ev-rightbar-card">
+            <div className="ev-rightbar-card-heading">
+              <div>
+                <span className="ev-rightbar-card-icon">
+                  <TrendingUp size={18} />
+                </span>
+
+                <h3>This week</h3>
+              </div>
+
+              {stats.activeToday && (
+                <span className="ev-rightbar-today-badge">
+                  <CheckCircle2 size={13} />
+                  Active today
+                </span>
+              )}
+            </div>
+
+            <p className="ev-rightbar-card-description">
+              Every small step counts.
+            </p>
+
+            <div
+              className="ev-rightbar-week"
+              aria-label="Weekly learning activity"
+            >
+              {weeklyActivity.map((day) => {
+                const status = day.active
+                  ? "Activity recorded"
+                  : day.future
+                    ? "Upcoming"
+                    : "No activity recorded";
+
+                return (
+                  <div
+                    key={day.date}
+                    className={[
+                      "ev-rightbar-week-day",
+                      day.active
+                        ? "ev-week-day-active"
+                        : "",
+                      day.isToday
+                        ? "ev-week-day-today"
+                        : "",
+                      day.future
+                        ? "ev-week-day-future"
+                        : "",
+                    ]
+                      .filter(Boolean)
+                      .join(" ")}
+                    title={`${day.label}: ${status}`}
+                    aria-label={`${day.label}: ${status}`}
+                  >
+                    <span className="ev-rightbar-week-dot">
+                      {day.active ? (
+                        <CheckCircle2 size={15} />
+                      ) : (
+                        <span className="ev-rightbar-week-empty" />
+                      )}
+                    </span>
+
+                    <span className="ev-rightbar-week-label">
+                      {day.label}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* LONGEST STREAK */}
+          <section className="ev-rightbar-record">
+            <div className="ev-rightbar-record-icon">
+              <Trophy size={21} />
+            </div>
+
+            <div className="ev-rightbar-record-copy">
+              <span>PERSONAL BEST</span>
+
+              <strong>
+                {stats.longestStreak}{" "}
+                {stats.longestStreak === 1
+                  ? "day"
+                  : "days"}
+              </strong>
+
+              <small>Your longest learning streak</small>
+            </div>
+          </section>
+
+          {/* DAILY REMINDER */}
+          <section className="ev-rightbar-reminder">
+            <div className="ev-rightbar-reminder-icon">
+              <Clock3 size={19} />
+            </div>
+
+            <div>
+              <strong>
+                {stats.activeToday
+                  ? "Great work today!"
+                  : "Your journey continues"}
+              </strong>
+
+              <p>
+                {stats.activeToday
+                  ? "You've shown up today. Keep building your momentum!"
+                  : "Complete a lesson or quiz today to build your learning habit."}
+              </p>
+            </div>
+          </section>
+        </>
+      )}
+
+      {/* FOOTER */}
+      <div className="ev-rightbar-footer">
+        <span className="ev-rightbar-footer-mark">
+          ✦
+        </span>
+
+        <p>Progress over perfection.</p>
       </div>
     </aside>
   );

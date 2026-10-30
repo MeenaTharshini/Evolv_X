@@ -7,7 +7,7 @@ import {
   CheckCircle2,
   Clock3,
   Flame,
-  Map,
+  Map as MapIcon,
   RefreshCw,
   Sparkles,
   Target,
@@ -19,12 +19,11 @@ import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Rightbar from "../components/Rightbar";
 import { pythonLessons } from "../data/pythonLessons";
+import { supabase } from "../lib/supabaseClient";
 import { getStreak } from "../services/api";
 import {
   STAGES,
-  getStageProgress,
   getCompletedStages,
-  isTopicComplete,
 } from "../utils/lessonProgress";
 
 import "../styles/my-progress.css";
@@ -33,40 +32,238 @@ const COURSE_ID = "python";
 const COURSE_NAME = "Python Foundations";
 const STUDY_MAP_LINK = `/study/${COURSE_ID}`;
 
-const xpKey = (courseId) => `evolv_${courseId}_xp`;
-const quizScoreKey = (courseId) =>
-  `evolv_${courseId}_quiz_scores`;
+const STAGE_XP = {
+  video: 10,
+  concept: 10,
+  "hands-on": 20,
+  hands_on: 20,
+  quiz: 20,
+};
 
-function readJSON(key, fallback = {}) {
-  try {
-    const value = localStorage.getItem(key);
+const INITIAL_STATE = {
+  loading: true,
+  error: "",
+  userId: null,
+  xp: 0,
+  streak: 0,
+  stageProgress: {},
+  quizScores: {},
+};
 
-    if (value === null) return fallback;
-
-    const parsed = JSON.parse(value);
-
-    return parsed ?? fallback;
-  } catch {
-    return fallback;
-  }
+function formatNumber(value) {
+  return new Intl.NumberFormat("en-IN").format(
+    Number.isFinite(Number(value)) ? Number(value) : 0
+  );
 }
 
-function readNumber(key, fallback = 0) {
-  try {
-    const value = localStorage.getItem(key);
+function normalizeStage(value) {
+  return String(value ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, "_");
+}
 
-    if (value === null || value.trim() === "") {
-      return fallback;
+function getStageLabel(stage) {
+  return String(stage)
+    .split(/[-_ ]+/)
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+function getFrontendLessonNumber(lesson) {
+  const numericId = Number(lesson?.id);
+
+  if (Number.isInteger(numericId) && numericId > 0) {
+    return numericId;
+  }
+
+  const slug = String(lesson?.slug ?? "");
+  const match = slug.match(/^python-lesson-([1-9]\d*)$/);
+
+  return match ? Number(match[1]) : null;
+}
+
+/**
+ * Maps database lesson IDs to frontend curriculum lesson numbers.
+ *
+ * The frontend uses lesson numbers, while lessons.id in Supabase is bigint.
+ * The mapping is built from each lesson's slug, not from assumptions that
+ * database IDs and frontend lesson numbers are identical.
+ */
+function buildDatabaseLessonMap(databaseLessons, frontendLessons) {
+  const databaseLessonMap = new Map();
+  const frontendNumbers = new Set(
+    frontendLessons
+      .map(getFrontendLessonNumber)
+      .filter((number) => number !== null)
+  );
+
+  for (const row of databaseLessons ?? []) {
+    const match = String(row.slug ?? "").match(
+      /^python-lesson-([1-9]\d*)$/
+    );
+
+    if (!match) continue;
+
+    const frontendLessonNumber = Number(match[1]);
+    const databaseLessonId = Number(row.id);
+
+    if (
+      !Number.isSafeInteger(databaseLessonId) ||
+      databaseLessonId <= 0 ||
+      !frontendNumbers.has(frontendLessonNumber)
+    ) {
+      continue;
     }
 
-    const number = Number(value);
-
-    return Number.isFinite(number) && number >= 0
-      ? number
-      : fallback;
-  } catch {
-    return fallback;
+    databaseLessonMap.set(databaseLessonId, frontendLessonNumber);
   }
+
+  return databaseLessonMap;
+}
+
+/**
+ * Converts lesson_stage_progress rows into the structure consumed by
+ * getCompletedStages().
+ *
+ * Only completed stages are marked as complete. The original STAGES values
+ * are retained as object keys so they match the utility's expectations.
+ */
+function buildStageProgress(stageRows, databaseLessonMap) {
+  const result = {};
+  const stageLookup = new Map(
+    STAGES.map((stage) => [normalizeStage(stage), stage])
+  );
+
+  for (const row of stageRows ?? []) {
+    if (row.completed !== true) continue;
+
+    const lessonNumber = databaseLessonMap.get(Number(row.lesson_id));
+    const normalizedStage = normalizeStage(row.stage);
+    const canonicalStage = stageLookup.get(normalizedStage);
+
+    if (lessonNumber == null || !canonicalStage) continue;
+
+    const lessonKey = String(lessonNumber);
+
+    if (!result[lessonKey]) {
+      result[lessonKey] = {};
+    }
+
+    result[lessonKey][canonicalStage] = {
+      completed: true,
+      completedAt: row.completed_at ?? null,
+    };
+  }
+
+  return result;
+}
+
+function isLessonComplete(stageProgress, lessonId) {
+  const completedStages = getCompletedStages(stageProgress, lessonId);
+
+  return (
+    STAGES.length > 0 &&
+    completedStages.length >= STAGES.length
+  );
+}
+
+/**
+ * quiz_attempts.score stores the number of correct answers, not necessarily
+ * a percentage. Convert score/total_questions to a percentage for display.
+ *
+ * The quiz_attempts table uses completed_at, not created_at.
+ */
+function buildQuizScores(attemptRows, databaseLessonMap, frontendLessons) {
+  const result = {};
+  const frontendLessonNumbers = new Set(
+    frontendLessons
+      .map(getFrontendLessonNumber)
+      .filter((number) => number !== null)
+  );
+
+  for (const row of attemptRows ?? []) {
+    let lessonNumber = null;
+
+    const rawLessonId = String(row.lesson_id ?? "").trim();
+
+    // Support attempts saved with the lesson slug, e.g. python-lesson-1.
+    const slugMatch = rawLessonId.match(
+      /^python-lesson-([1-9]\d*)$/
+    );
+
+    if (slugMatch) {
+      lessonNumber = Number(slugMatch[1]);
+    } else {
+      // The quiz_attempts.lesson_id column is TEXT. It may contain the
+      // numeric database lesson ID or a frontend lesson number.
+      const numericLessonId = Number(rawLessonId);
+
+      if (
+        Number.isSafeInteger(numericLessonId) &&
+        numericLessonId > 0
+      ) {
+        lessonNumber =
+          databaseLessonMap.get(numericLessonId) ??
+          (frontendLessonNumbers.has(numericLessonId)
+            ? numericLessonId
+            : null);
+      }
+    }
+
+    if (
+      lessonNumber == null ||
+      !frontendLessonNumbers.has(lessonNumber)
+    ) {
+      continue;
+    }
+
+    const correctAnswers = Number(row.score);
+    const totalQuestions = Number(row.total_questions);
+
+    if (
+      !Number.isFinite(correctAnswers) ||
+      !Number.isFinite(totalQuestions) ||
+      totalQuestions <= 0 ||
+      correctAnswers < 0 ||
+      correctAnswers > totalQuestions
+    ) {
+      continue;
+    }
+
+    const percentage = Math.round(
+      (correctAnswers / totalQuestions) * 100
+    );
+
+    const key = String(lessonNumber);
+
+    if (!result[key]) {
+      result[key] = {
+        attempts: 0,
+        latestScore: percentage,
+        latestCompletedAt: row.completed_at ?? null,
+        totalCorrect: 0,
+        totalQuestions: 0,
+        attemptHistory: [],
+      };
+    }
+
+    result[key].attempts += 1;
+    result[key].totalCorrect += correctAnswers;
+    result[key].totalQuestions += totalQuestions;
+
+    result[key].attemptHistory.push({
+      score: correctAnswers,
+      totalQuestions,
+      percentage,
+      attemptNumber: Number(row.attempt_number) || null,
+      xpEarned: Number(row.xp_earned) || 0,
+      completedAt: row.completed_at ?? null,
+    });
+  }
+
+  return result;
 }
 
 function getQuizResult(scores, lessonId) {
@@ -82,11 +279,7 @@ function getQuizResult(scores, lessonId) {
     };
   }
 
-  if (
-    !result ||
-    typeof result !== "object" ||
-    Array.isArray(result)
-  ) {
+  if (!result || typeof result !== "object" || Array.isArray(result)) {
     return {
       attempts: 0,
       score: null,
@@ -109,31 +302,22 @@ function getQuizResult(scores, lessonId) {
         : result.submittedAt
           ? 1
           : 0,
-    score,
+    score:
+      score !== null && Number.isFinite(score)
+        ? score
+        : null,
   };
-}
-
-function formatNumber(value) {
-  return new Intl.NumberFormat("en-IN").format(value);
-}
-
-function getLessonXP(lesson) {
-  const xp = Number(lesson.xp ?? 20);
-
-  return Number.isFinite(xp) && xp >= 0 ? xp : 20;
-}
-
-function getStageCount(progress, lessons) {
-  return lessons.reduce(
-    (total, lesson) =>
-      total + getCompletedStages(progress, lesson.id).length,
-    0
-  );
 }
 
 function getAverageQuizScore(scores, lessons) {
   const results = lessons
-    .map((lesson) => getQuizResult(scores, lesson.id))
+    .map((lesson) => {
+      const lessonNumber = getFrontendLessonNumber(lesson);
+
+      return lessonNumber == null
+        ? { attempts: 0, score: null }
+        : getQuizResult(scores, lessonNumber);
+    })
     .filter(
       (result) =>
         result.attempts > 0 &&
@@ -141,7 +325,7 @@ function getAverageQuizScore(scores, lessons) {
         Number.isFinite(result.score)
     );
 
-  if (!results.length) return null;
+  if (results.length === 0) return null;
 
   return Math.round(
     results.reduce((total, result) => total + result.score, 0) /
@@ -204,110 +388,314 @@ function getAchievements({
   ];
 }
 
-function getStageLabel(stage) {
-  if (typeof stage !== "string") {
-    return String(stage);
+function LoadingState() {
+  return (
+    <section className="mp-course-card" role="status" aria-live="polite">
+      <h2>Loading your progress...</h2>
+      <p>Retrieving your personal learning records.</p>
+    </section>
+  );
+}
+
+function ErrorState({ message, onRetry, loading }) {
+  return (
+    <section className="mp-course-card" role="alert">
+      <h2>Unable to load your progress</h2>
+      <p>{message}</p>
+
+      <button
+        type="button"
+        className="mp-refresh-button"
+        onClick={onRetry}
+        disabled={loading}
+      >
+        <RefreshCw
+          size={16}
+          className={loading ? "mp-spin" : ""}
+        />
+        {loading ? "Retrying..." : "Try again"}
+      </button>
+    </section>
+  );
+}
+
+/**
+ * Fetch quiz history exclusively from Supabase.
+ * localStorage is intentionally not used as a fallback because Supabase
+ * should be the source of truth for saved quiz attempts.
+ */
+async function fetchQuizAttempts(userId, databaseLessonMap, lessons) {
+  const { data, error } = await supabase
+    .from("quiz_attempts")
+    .select(
+      "id, lesson_id, score, total_questions, attempt_number, xp_earned, answers_json, completed_at"
+    )
+    .eq("user_id", userId)
+    .order("completed_at", { ascending: false });
+
+  if (error) {
+    throw error;
   }
 
-  return stage
-    .split(/[-_ ]+/)
-    .filter(Boolean)
-    .map((word) => word[0].toUpperCase() + word.slice(1))
-    .join(" ");
+  return buildQuizScores(
+    data ?? [],
+    databaseLessonMap,
+    lessons
+  );
 }
 
 export default function MyProgress() {
   const lessons = pythonLessons;
 
-  const [stageProgress, setStageProgress] = useState(() =>
-    getStageProgress(COURSE_ID)
-  );
-
-  const [xp, setXp] = useState(() =>
-    readNumber(xpKey(COURSE_ID))
-  );
-
-  const [quizScores, setQuizScores] = useState(() =>
-    readJSON(quizScoreKey(COURSE_ID), {})
-  );
-
-  const [streak, setStreak] = useState(() =>
-    readNumber(`evolv_${COURSE_ID}_streak`)
-  );
-
+  const [dashboard, setDashboard] = useState(INITIAL_STATE);
   const [loading, setLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(0);
 
-  const refreshProgress = useCallback(() => {
-    setStageProgress(getStageProgress(COURSE_ID));
-    setXp(readNumber(xpKey(COURSE_ID)));
-    setQuizScores(readJSON(quizScoreKey(COURSE_ID), {}));
-    setLastUpdated(Date.now());
-  }, []);
-
-  const refreshStreak = useCallback(async () => {
-    try {
-      const data = await getStreak();
-
-      const currentStreak = Math.max(
-        0,
-        Number(data?.currentStreak) || 0
-      );
-
-      setStreak(currentStreak);
-
-      try {
-        localStorage.setItem(
-          `evolv_${COURSE_ID}_streak`,
-          String(currentStreak)
-        );
-      } catch {
-        // Keep the API result available in component state.
-      }
-    } catch {
-      // Use the cached streak if the API is unavailable.
-    }
-  }, []);
-
-  const handleRefresh = useCallback(async () => {
+  const refreshProgress = useCallback(async () => {
     setLoading(true);
 
+    setDashboard((previous) => ({
+      ...previous,
+      loading: true,
+      error: "",
+    }));
+
     try {
-      refreshProgress();
-      await refreshStreak();
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
+
+      if (authError) throw authError;
+
+      if (!user) {
+        setDashboard({
+          ...INITIAL_STATE,
+          loading: false,
+          error: "Please log in to view your learning progress.",
+        });
+        return;
+      }
+
+      const [
+        lessonsResult,
+        statsResult,
+        stageResult,
+        streakResult,
+        quizScores,
+      ] = await Promise.all([
+        supabase
+          .from("lessons")
+          .select("id, slug")
+          .like("slug", "python-lesson-%"),
+
+        supabase
+          .from("user_stats")
+          .select(
+            "total_xp, current_streak, longest_streak, last_activity_date"
+          )
+          .eq("user_id", user.id)
+          .maybeSingle(),
+
+        supabase
+          .from("lesson_stage_progress")
+          .select("lesson_id, stage, completed, completed_at, updated_at")
+          .eq("user_id", user.id),
+
+        getStreak().catch((error) => {
+          console.warn(
+            "Streak API unavailable; using Supabase user statistics:",
+            error
+          );
+          return null;
+        }),
+
+        // Fetch attempts after building the database lesson map below.
+        Promise.resolve(null),
+      ]);
+
+      if (lessonsResult.error) throw lessonsResult.error;
+      if (statsResult.error) throw statsResult.error;
+      if (stageResult.error) throw stageResult.error;
+
+      const databaseLessonMap = buildDatabaseLessonMap(
+        lessonsResult.data ?? [],
+        lessons
+      );
+
+      const mappedQuizScores = await fetchQuizAttempts(
+        user.id,
+        databaseLessonMap,
+        lessons
+      );
+
+      const stats = statsResult.data;
+      const stageRows = stageResult.data ?? [];
+      const stageProgress = buildStageProgress(
+        stageRows,
+        databaseLessonMap
+      );
+
+      /*
+       * user_stats.total_xp is authoritative when the row exists.
+       * Deriving XP from completed stages is only a fallback if no stats row
+       * has been created yet; it does not overwrite the database.
+       */
+      const statsXP = Number(stats?.total_xp);
+
+      const progressXP = stageRows.reduce((total, row) => {
+        if (row.completed !== true) return total;
+
+        const stageXP = STAGE_XP[normalizeStage(row.stage)] ?? 0;
+        return total + stageXP;
+      }, 0);
+
+      const xp =
+        stats?.total_xp !== null &&
+        stats?.total_xp !== undefined &&
+        Number.isFinite(statsXP)
+          ? statsXP
+          : progressXP;
+
+      const apiStreak = Number(streakResult?.currentStreak);
+      const savedStreak = Number(stats?.current_streak);
+
+      const streak =
+        streakResult &&
+        Number.isFinite(apiStreak) &&
+        apiStreak >= 0
+          ? apiStreak
+          : Number.isFinite(savedStreak) && savedStreak >= 0
+            ? savedStreak
+            : 0;
+
+      setDashboard({
+        loading: false,
+        error: "",
+        userId: user.id,
+        xp,
+        streak,
+        stageProgress,
+        quizScores: mappedQuizScores,
+      });
+
+      setLastUpdated(Date.now());
+    } catch (error) {
+      console.error("Failed to load user progress:", error);
+
+      setDashboard((previous) => ({
+        ...previous,
+        loading: false,
+        error:
+          error?.message ||
+          "Something went wrong while loading your progress.",
+      }));
     } finally {
       setLoading(false);
     }
-  }, [refreshProgress, refreshStreak]);
+  }, [lessons]);
 
   useEffect(() => {
-    refreshProgress();
-    refreshStreak();
+    let active = true;
+    let refreshTimer;
 
-    const handleStorage = () => refreshProgress();
+    const runRefresh = () => {
+      if (active) {
+        void refreshProgress();
+      }
+    };
 
-    window.addEventListener("storage", handleStorage);
-    window.addEventListener("focus", handleStorage);
+    runRefresh();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (
+        [
+          "SIGNED_IN",
+          "SIGNED_OUT",
+          "TOKEN_REFRESHED",
+          "USER_UPDATED",
+        ].includes(event)
+      ) {
+        window.clearTimeout(refreshTimer);
+
+        refreshTimer = window.setTimeout(() => {
+          if (active) {
+            void refreshProgress();
+          }
+        }, 0);
+      }
+    });
+
+    const handleProgressUpdated = () => runRefresh();
+
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        runRefresh();
+      }
+    };
+
+    window.addEventListener(
+      "evolv:progress-updated",
+      handleProgressUpdated
+    );
+
     window.addEventListener(
       "evolv-progress-updated",
-      handleStorage
+      handleProgressUpdated
+    );
+
+    window.addEventListener(
+      "evolv:streak-updated",
+      handleProgressUpdated
+    );
+
+    document.addEventListener(
+      "visibilitychange",
+      handleVisibility
     );
 
     return () => {
-      window.removeEventListener("storage", handleStorage);
-      window.removeEventListener("focus", handleStorage);
+      active = false;
+      window.clearTimeout(refreshTimer);
+      subscription.unsubscribe();
+
+      window.removeEventListener(
+        "evolv:progress-updated",
+        handleProgressUpdated
+      );
+
       window.removeEventListener(
         "evolv-progress-updated",
-        handleStorage
+        handleProgressUpdated
+      );
+
+      window.removeEventListener(
+        "evolv:streak-updated",
+        handleProgressUpdated
+      );
+
+      document.removeEventListener(
+        "visibilitychange",
+        handleVisibility
       );
     };
-  }, [refreshProgress, refreshStreak]);
+  }, [refreshProgress]);
+
+  const stageProgress = dashboard.stageProgress;
+  const quizScores = dashboard.quizScores;
 
   const completedLessons = useMemo(
     () =>
-      lessons.filter((lesson) =>
-        isTopicComplete(stageProgress, lesson.id)
-      ),
+      lessons.filter((lesson) => {
+        const lessonNumber = getFrontendLessonNumber(lesson);
+
+        return (
+          lessonNumber !== null &&
+          isLessonComplete(stageProgress, lessonNumber)
+        );
+      }),
     [lessons, stageProgress, lastUpdated]
   );
 
@@ -319,38 +707,49 @@ export default function MyProgress() {
     : 0;
 
   const totalStages = totalLessons * STAGES.length;
-  const completedStages = getStageCount(stageProgress, lessons);
 
-  const displayedXP = Math.max(
-    xp,
-    completedLessons.reduce(
-      (total, lesson) => total + getLessonXP(lesson),
-      0
-    )
-  );
+  const completedStages = lessons.reduce((total, lesson) => {
+    const lessonNumber = getFrontendLessonNumber(lesson);
 
-  const quizAttempts = lessons.reduce(
-    (total, lesson) =>
-      total + getQuizResult(quizScores, lesson.id).attempts,
-    0
-  );
+    if (lessonNumber === null) return total;
+
+    return (
+      total +
+      getCompletedStages(stageProgress, lessonNumber).length
+    );
+  }, 0);
+
+  const quizAttempts = lessons.reduce((total, lesson) => {
+    const lessonNumber = getFrontendLessonNumber(lesson);
+
+    if (lessonNumber === null) return total;
+
+    return total + getQuizResult(quizScores, lessonNumber).attempts;
+  }, 0);
 
   const averageQuizScore = getAverageQuizScore(
     quizScores,
     lessons
   );
 
+  const displayedXP = dashboard.xp;
+
   const nextLesson =
-    lessons.find(
-      (lesson) => !isTopicComplete(stageProgress, lesson.id)
-    ) ?? null;
+    lessons.find((lesson) => {
+      const lessonNumber = getFrontendLessonNumber(lesson);
+
+      return (
+        lessonNumber !== null &&
+        !isLessonComplete(stageProgress, lessonNumber)
+      );
+    }) ?? null;
 
   const achievements = getAchievements({
     completedCount,
     totalLessons,
     xp: displayedXP,
     quizAttempts,
-    streak,
+    streak: dashboard.streak,
   });
 
   const unlockedAchievements = achievements.filter(
@@ -375,7 +774,7 @@ export default function MyProgress() {
           <button
             className="mp-refresh-button"
             type="button"
-            onClick={handleRefresh}
+            onClick={refreshProgress}
             disabled={loading}
           >
             <RefreshCw
@@ -387,397 +786,397 @@ export default function MyProgress() {
         </header>
 
         <div className="mp-content">
-          {/* Page heading */}
+          {dashboard.loading ? (
+            <LoadingState />
+          ) : dashboard.error ? (
+            <ErrorState
+              message={dashboard.error}
+              onRetry={refreshProgress}
+              loading={loading}
+            />
+          ) : (
+            <>
+              <section className="mp-page-heading">
+                <div className="mp-heading-copy">
+                  <span className="mp-eyebrow">
+                    <Sparkles size={15} />
+                    YOUR LEARNING ADVENTURE
+                  </span>
 
-          <section className="mp-page-heading">
-            <div className="mp-heading-copy">
-              <span className="mp-eyebrow">
-                <Sparkles size={15} />
-                YOUR LEARNING ADVENTURE
-              </span>
-
-              <h1>
-                My Progress<span>.</span>
-              </h1>
-
-              <p>
-                Every lesson completed is another step forward.
-                See how far you have travelled in EVOLV.
-              </p>
-            </div>
-
-            <div className="mp-heading-art" aria-hidden="true">
-              <span className="mp-heading-sprout">🌱</span>
-              <Sparkles
-                className="mp-heading-sparkle"
-                size={20}
-              />
-            </div>
-          </section>
-
-          {/* Active course */}
-
-          <section className="mp-course-card">
-            <div className="mp-course-heading">
-              <div className="mp-course-icon" aria-hidden="true">
-                <span>🌀</span>
-              </div>
-
-              <div className="mp-course-copy">
-                <span className="mp-section-eyebrow">
-                  YOUR ACTIVE COURSE
-                </span>
-
-                <h2>{COURSE_NAME}</h2>
-
-                <p>Code Forest · Learn, practise, and grow.</p>
-              </div>
-
-              <Link
-                to={STUDY_MAP_LINK}
-                className="mp-study-map-button"
-              >
-                <Map size={17} />
-                <span>Study map</span>
-              </Link>
-            </div>
-
-            <div className="mp-course-progress-heading">
-              <span>Overall course progress</span>
-              <strong>{progress}%</strong>
-            </div>
-
-            <div
-              className="mp-progress-track"
-              role="progressbar"
-              aria-label="Overall course progress"
-              aria-valuenow={progress}
-              aria-valuemin={0}
-              aria-valuemax={100}
-            >
-              <div
-                className="mp-progress-fill"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-
-            <div className="mp-course-meta">
-              <span>
-                <CheckCircle2 size={16} />
-                {completedCount} of {totalLessons} topics completed
-              </span>
-
-              <span>
-                <BookOpen size={16} />
-                {completedStages} of {totalStages} stages completed
-              </span>
-            </div>
-          </section>
-
-          {/* Learning statistics */}
-
-          <section
-            className="mp-stats-grid"
-            aria-label="Learning statistics"
-          >
-            <article className="mp-stat-card">
-              <div className="mp-stat-icon mp-stat-xp">
-                <Zap size={22} />
-              </div>
-
-              <div className="mp-stat-copy">
-                <span>Total XP</span>
-                <strong>{formatNumber(displayedXP)}</strong>
-                <small>Experience earned</small>
-              </div>
-            </article>
-
-            <article className="mp-stat-card">
-              <div className="mp-stat-icon mp-stat-topics">
-                <BookOpen size={22} />
-              </div>
-
-              <div className="mp-stat-copy">
-                <span>Topics completed</span>
-                <strong>
-                  {completedCount}/{totalLessons}
-                </strong>
-                <small>Your completed lessons</small>
-              </div>
-            </article>
-
-            <article className="mp-stat-card">
-              <div className="mp-stat-icon mp-stat-quiz">
-                <Target size={22} />
-              </div>
-
-              <div className="mp-stat-copy">
-                <span>Quiz average</span>
-                <strong>
-                  {averageQuizScore === null
-                    ? "—"
-                    : `${averageQuizScore}%`}
-                </strong>
-                <small>
-                  {quizAttempts}{" "}
-                  {quizAttempts === 1 ? "quiz attempt" : "quiz attempts"}
-                </small>
-              </div>
-            </article>
-
-            <article className="mp-stat-card">
-              <div className="mp-stat-icon mp-stat-streak">
-                <Flame size={22} />
-              </div>
-
-              <div className="mp-stat-copy">
-                <span>Learning streak</span>
-                <strong>
-                  {streak} {streak === 1 ? "day" : "days"}
-                </strong>
-                <small>Consecutive active days</small>
-              </div>
-            </article>
-          </section>
-
-          {/* Learning journey */}
-
-          <section className="mp-section">
-            <div className="mp-section-heading">
-              <div>
-                <span className="mp-section-eyebrow">
-                  EXPLORE YOUR JOURNEY
-                </span>
-
-                <h2>Your learning journey</h2>
-
-                <p>
-                  Every completed stage brings you closer to your goal.
-                </p>
-              </div>
-
-              <Link
-                to={STUDY_MAP_LINK}
-                className="mp-text-link"
-              >
-                View study map
-                <ArrowRight size={16} />
-              </Link>
-            </div>
-
-            <article className="mp-journey-card">
-              <div className="mp-journey-top">
-                <div className="mp-journey-icon">
-                  <BookOpen size={22} />
-                </div>
-
-                <div className="mp-journey-copy">
-                  <h3>{COURSE_NAME}</h3>
+                  <h1>
+                    My Progress<span>.</span>
+                  </h1>
 
                   <p>
-                    {courseComplete
-                      ? "You have completed every topic. Amazing work!"
-                      : nextLesson
-                        ? `Continue your journey with ${nextLesson.title}.`
-                        : "Your next learning adventure awaits."}
+                    Every lesson completed is another step forward.
+                    See how far you have travelled in EVOLV.
                   </p>
                 </div>
 
-                <div className="mp-journey-percentage">
+                <div className="mp-heading-art" aria-hidden="true">
+                  <span className="mp-heading-sprout">🌱</span>
+                  <Sparkles
+                    className="mp-heading-sparkle"
+                    size={20}
+                  />
+                </div>
+              </section>
+
+              <section className="mp-course-card">
+                <div className="mp-course-heading">
+                  <div className="mp-course-icon" aria-hidden="true">
+                    <span>🌀</span>
+                  </div>
+
+                  <div className="mp-course-copy">
+                    <span className="mp-section-eyebrow">
+                      YOUR ACTIVE COURSE
+                    </span>
+
+                    <h2>{COURSE_NAME}</h2>
+
+                    <p>
+                      Code Forest · Learn, practise, and grow.
+                    </p>
+                  </div>
+
+                  <Link
+                    to={STUDY_MAP_LINK}
+                    className="mp-study-map-button"
+                  >
+                    <MapIcon size={17} />
+                    <span>Study map</span>
+                  </Link>
+                </div>
+
+                <div className="mp-course-progress-heading">
+                  <span>Overall course progress</span>
                   <strong>{progress}%</strong>
-                  <span>complete</span>
                 </div>
-              </div>
 
-              <div
-                className="mp-progress-track mp-journey-track"
-                role="progressbar"
-                aria-label="Journey progress"
-                aria-valuenow={progress}
-                aria-valuemin={0}
-                aria-valuemax={100}
-              >
                 <div
-                  className="mp-progress-fill"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-
-              <div className="mp-journey-footer">
-                <span>
-                  <CheckCircle2 size={15} />
-                  {completedCount} topics completed
-                </span>
-
-                <span>
-                  {Math.max(totalLessons - completedCount, 0)} remaining
-                </span>
-              </div>
-
-              <div className="mp-stage-summary">
-                <div className="mp-stage-summary-heading">
-                  <span>Learning stages</span>
-                  <strong>
-                    {completedStages}/{totalStages}
-                  </strong>
+                  className="mp-progress-track"
+                  role="progressbar"
+                  aria-label="Overall course progress"
+                  aria-valuenow={progress}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                >
+                  <div
+                    className="mp-progress-fill"
+                    style={{ width: `${progress}%` }}
+                  />
                 </div>
 
-                <div className="mp-stage-dots">
-                  {STAGES.map((stage, index) => {
-                    const completedForStage = lessons.filter(
-                      (lesson) =>
-                        getCompletedStages(
-                          stageProgress,
-                          lesson.id
-                        ).includes(stage)
-                    ).length;
+                <div className="mp-course-meta">
+                  <span>
+                    <CheckCircle2 size={16} />
+                    {completedCount} of {totalLessons} topics completed
+                  </span>
 
-                    const stagePercentage = totalLessons
-                      ? (completedForStage / totalLessons) * 100
-                      : 0;
+                  <span>
+                    <BookOpen size={16} />
+                    {completedStages} of {totalStages} stages completed
+                  </span>
+                </div>
+              </section>
+
+              <section
+                className="mp-stats-grid"
+                aria-label="Learning statistics"
+              >
+                <article className="mp-stat-card">
+                  <div className="mp-stat-icon mp-stat-xp">
+                    <Zap size={22} />
+                  </div>
+
+                  <div className="mp-stat-copy">
+                    <span>Total XP</span>
+                    <strong>{formatNumber(displayedXP)}</strong>
+                    <small>Experience earned</small>
+                  </div>
+                </article>
+
+                <article className="mp-stat-card">
+                  <div className="mp-stat-icon mp-stat-topics">
+                    <BookOpen size={22} />
+                  </div>
+
+                  <div className="mp-stat-copy">
+                    <span>Topics completed</span>
+                    <strong>
+                      {completedCount}/{totalLessons}
+                    </strong>
+                    <small>Your completed lessons</small>
+                  </div>
+                </article>
+
+               
+
+                <article className="mp-stat-card">
+                  <div className="mp-stat-icon mp-stat-streak">
+                    <Flame size={22} />
+                  </div>
+
+                  <div className="mp-stat-copy">
+                    <span>Learning streak</span>
+                    <strong>
+                      {dashboard.streak}{" "}
+                      {dashboard.streak === 1 ? "day" : "days"}
+                    </strong>
+                    <small>Consecutive active days</small>
+                  </div>
+                </article>
+              </section>
+
+              <section className="mp-section">
+                <div className="mp-section-heading">
+                  <div>
+                    <span className="mp-section-eyebrow">
+                      EXPLORE YOUR JOURNEY
+                    </span>
+
+                    <h2>Your learning journey</h2>
+
+                    <p>
+                      Every completed stage brings you closer to your goal.
+                    </p>
+                  </div>
+
+                  <Link
+                    to={STUDY_MAP_LINK}
+                    className="mp-text-link"
+                  >
+                    View study map
+                    <ArrowRight size={16} />
+                  </Link>
+                </div>
+
+                <article className="mp-journey-card">
+                  <div className="mp-journey-top">
+                    <div className="mp-journey-icon">
+                      <BookOpen size={22} />
+                    </div>
+
+                    <div className="mp-journey-copy">
+                      <h3>{COURSE_NAME}</h3>
+
+                      <p>
+                        {courseComplete
+                          ? "You have completed every topic. Amazing work!"
+                          : nextLesson
+                            ? `Continue your journey with ${nextLesson.title}.`
+                            : "Your next learning adventure awaits."}
+                      </p>
+                    </div>
+
+                    <div className="mp-journey-percentage">
+                      <strong>{progress}%</strong>
+                      <span>complete</span>
+                    </div>
+                  </div>
+
+                  <div
+                    className="mp-progress-track mp-journey-track"
+                    role="progressbar"
+                    aria-label="Journey progress"
+                    aria-valuenow={progress}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                  >
+                    <div
+                      className="mp-progress-fill"
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+
+                  <div className="mp-journey-footer">
+                    <span>
+                      <CheckCircle2 size={15} />
+                      {completedCount} topics completed
+                    </span>
+
+                    <span>
+                      {Math.max(totalLessons - completedCount, 0)} remaining
+                    </span>
+                  </div>
+
+                  <div className="mp-stage-summary">
+                    <div className="mp-stage-summary-heading">
+                      <span>Learning stages</span>
+                      <strong>
+                        {completedStages}/{totalStages}
+                      </strong>
+                    </div>
+
+                    <div className="mp-stage-dots">
+                      {STAGES.map((stage, index) => {
+                        const completedForStage = lessons.filter(
+                          (lesson) => {
+                            const lessonNumber =
+                              getFrontendLessonNumber(lesson);
+
+                            return (
+                              lessonNumber !== null &&
+                              getCompletedStages(
+                                stageProgress,
+                                lessonNumber
+                              ).some(
+                                (completedStage) =>
+                                  normalizeStage(completedStage) ===
+                                  normalizeStage(stage)
+                              )
+                            );
+                          }
+                        ).length;
+
+                        const stagePercentage = totalLessons
+                          ? (completedForStage / totalLessons) * 100
+                          : 0;
+
+                        return (
+                          <div
+                            className="mp-stage-row"
+                            key={stage}
+                          >
+                            <span>{getStageLabel(stage)}</span>
+
+                            <div className="mp-stage-track">
+                              <div
+                                className={`mp-stage-fill mp-stage-fill-${index + 1}`}
+                                style={{
+                                  width: `${stagePercentage}%`,
+                                }}
+                              />
+                            </div>
+
+                            <strong>
+                              {completedForStage}/{totalLessons}
+                            </strong>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </article>
+              </section>
+
+              <section className="mp-section">
+                <div className="mp-section-heading">
+                  <div>
+                    <span className="mp-section-eyebrow">
+                      LITTLE WINS MATTER
+                    </span>
+
+                    <h2>Your achievements</h2>
+
+                    <p>
+                      Keep learning to unlock more milestones.
+                    </p>
+                  </div>
+
+                  <span className="mp-achievement-count">
+                    <Trophy size={16} />
+                    {unlockedAchievements}/{achievements.length} unlocked
+                  </span>
+                </div>
+
+                <div className="mp-achievement-grid">
+                  {achievements.map((achievement) => {
+                    const Icon = achievement.icon;
 
                     return (
-                      <div className="mp-stage-row" key={stage}>
-                        <span>{getStageLabel(stage)}</span>
-
-                        <div className="mp-stage-track">
-                          <div
-                            className={`mp-stage-fill mp-stage-fill-${index + 1}`}
-                            style={{
-                              width: `${stagePercentage}%`,
-                            }}
-                          />
+                      <article
+                        className={`mp-achievement-card ${
+                          achievement.unlocked
+                            ? "is-unlocked"
+                            : "is-locked"
+                        }`}
+                        key={achievement.id}
+                      >
+                        <div className="mp-achievement-icon">
+                          <Icon size={22} />
                         </div>
 
-                        <strong>
-                          {completedForStage}/{totalLessons}
-                        </strong>
-                      </div>
+                        <div className="mp-achievement-copy">
+                          <h3>{achievement.title}</h3>
+                          <p>{achievement.description}</p>
+
+                          <span>
+                            {achievement.unlocked
+                              ? "Unlocked"
+                              : "Keep learning"}
+                          </span>
+                        </div>
+
+                        {achievement.unlocked && (
+                          <CheckCircle2
+                            className="mp-achievement-check"
+                            size={18}
+                          />
+                        )}
+                      </article>
                     );
                   })}
                 </div>
-              </div>
-            </article>
-          </section>
+              </section>
 
-          {/* Achievements */}
+              <section className="mp-continue-card">
+                <div className="mp-continue-icon">
+                  {courseComplete ? (
+                    <Trophy size={25} />
+                  ) : (
+                    <Target size={25} />
+                  )}
+                </div>
 
-          <section className="mp-section">
-            <div className="mp-section-heading">
-              <div>
-                <span className="mp-section-eyebrow">
-                  LITTLE WINS MATTER
+                <div className="mp-continue-copy">
+                  <span className="mp-section-eyebrow">
+                    {courseComplete
+                      ? "ADVENTURE COMPLETED"
+                      : "YOUR NEXT STEP"}
+                  </span>
+
+                  <h2>
+                    {courseComplete
+                      ? "You conquered every topic!"
+                      : nextLesson
+                        ? `Continue with ${nextLesson.title}`
+                        : "Your adventure awaits"}
+                  </h2>
+
+                  <p>
+                    {courseComplete
+                      ? "Wonderful work! Revisit lessons to strengthen your skills."
+                      : "One small step today can make a big difference tomorrow."}
+                  </p>
+                </div>
+
+                <Link
+                  to={
+                    nextLesson
+                      ? `${STUDY_MAP_LINK}/lesson/${getFrontendLessonNumber(nextLesson)}`
+                      : STUDY_MAP_LINK
+                  }
+                  className="mp-continue-button"
+                >
+                  {courseComplete
+                    ? "Review course"
+                    : "Continue learning"}
+                  <ArrowRight size={17} />
+                </Link>
+              </section>
+
+              <footer className="mp-footer">
+                <span>EVOLV · Learn. Practise. Grow.</span>
+
+                <span>
+                  <Clock3 size={13} />
+                  Every step counts.
                 </span>
-
-                <h2>Your achievements</h2>
-
-                <p>
-                  Keep learning to unlock more milestones.
-                </p>
-              </div>
-
-              <span className="mp-achievement-count">
-                <Trophy size={16} />
-                {unlockedAchievements}/{achievements.length} unlocked
-              </span>
-            </div>
-
-            <div className="mp-achievement-grid">
-              {achievements.map((achievement) => {
-                const Icon = achievement.icon;
-
-                return (
-                  <article
-                    className={`mp-achievement-card ${
-                      achievement.unlocked
-                        ? "is-unlocked"
-                        : "is-locked"
-                    }`}
-                    key={achievement.id}
-                  >
-                    <div className="mp-achievement-icon">
-                      <Icon size={22} />
-                    </div>
-
-                    <div className="mp-achievement-copy">
-                      <h3>{achievement.title}</h3>
-                      <p>{achievement.description}</p>
-
-                      <span>
-                        {achievement.unlocked
-                          ? "Unlocked"
-                          : "Keep learning"}
-                      </span>
-                    </div>
-
-                    {achievement.unlocked && (
-                      <CheckCircle2
-                        className="mp-achievement-check"
-                        size={18}
-                      />
-                    )}
-                  </article>
-                );
-              })}
-            </div>
-          </section>
-
-          {/* Continue learning */}
-
-          <section className="mp-continue-card">
-            <div className="mp-continue-icon">
-              {courseComplete ? (
-                <Trophy size={25} />
-              ) : (
-                <Target size={25} />
-              )}
-            </div>
-
-            <div className="mp-continue-copy">
-              <span className="mp-section-eyebrow">
-                {courseComplete
-                  ? "ADVENTURE COMPLETED"
-                  : "YOUR NEXT STEP"}
-              </span>
-
-              <h2>
-                {courseComplete
-                  ? "You conquered every topic!"
-                  : nextLesson
-                    ? `Continue with ${nextLesson.title}`
-                    : "Your adventure awaits"}
-              </h2>
-
-              <p>
-                {courseComplete
-                  ? "Wonderful work! Revisit lessons to strengthen your skills."
-                  : "One small step today can make a big difference tomorrow."}
-              </p>
-            </div>
-
-            <Link
-              to={
-                nextLesson
-                  ? `${STUDY_MAP_LINK}/lesson/${nextLesson.id}`
-                  : STUDY_MAP_LINK
-              }
-              className="mp-continue-button"
-            >
-              {courseComplete ? "Review course" : "Continue learning"}
-              <ArrowRight size={17} />
-            </Link>
-          </section>
-
-          {/* Footer */}
-
-          <footer className="mp-footer">
-            <span>EVOLV · Learn. Practise. Grow.</span>
-
-            <span>
-              <Clock3 size={13} />
-              Every step counts.
-            </span>
-          </footer>
+              </footer>
+            </>
+          )}
         </div>
       </main>
 

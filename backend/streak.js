@@ -1,13 +1,21 @@
 
 import { Router } from "express";
-import db, { saveDatabase } from "./db.js";
+import { supabase } from "./db.js";
 import { requireAuth } from "./middleware/authMiddleware.js";
 
 const router = Router();
 
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+const ALLOWED_ACTIVITY_TYPES = new Set(["lesson", "quiz"]);
 
-// All streak dates use India Standard Time.
+// ==================================================
+// DATE HELPERS
+// ==================================================
+
+/**
+ * Return today's date in India Standard Time.
+ * Format: YYYY-MM-DD
+ */
 function getToday() {
   const parts = new Intl.DateTimeFormat("en-GB", {
     timeZone: "Asia/Kolkata",
@@ -23,6 +31,25 @@ function getToday() {
   return `${values.year}-${values.month}-${values.day}`;
 }
 
+/**
+ * Validate a real calendar date in YYYY-MM-DD format.
+ */
+function isValidDateString(value) {
+  if (typeof value !== "string" || !DATE_PATTERN.test(value)) {
+    return false;
+  }
+
+  const date = new Date(`${value}T00:00:00.000Z`);
+
+  return (
+    !Number.isNaN(date.getTime()) &&
+    date.toISOString().slice(0, 10) === value
+  );
+}
+
+/**
+ * Shift a YYYY-MM-DD date by a number of days using UTC arithmetic.
+ */
 function shiftDate(dateString, days) {
   const date = new Date(`${dateString}T00:00:00.000Z`);
 
@@ -31,30 +58,36 @@ function shiftDate(dateString, days) {
   return date.toISOString().slice(0, 10);
 }
 
-function getUserActivityDates(userId) {
-  const result = db.exec(
-    `SELECT DISTINCT activity_date
-     FROM learning_activity
-     WHERE user_id = ?
-     ORDER BY activity_date ASC`,
-    [userId]
-  );
+/**
+ * Safely convert a database number into a non-negative integer.
+ */
+function toNonNegativeInteger(value) {
+  const number = Number(value ?? 0);
 
-  if (!result.length) {
-    return [];
+  if (!Number.isFinite(number)) {
+    return 0;
   }
 
-  return result[0].values
-    .map(([date]) => date)
-    .filter(
-      (date) =>
-        typeof date === "string" &&
-        DATE_PATTERN.test(date)
-    );
+  return Math.max(0, Math.floor(number));
 }
 
+// ==================================================
+// STREAK CALCULATION
+// ==================================================
+
+/**
+ * Calculate current and longest streaks from unique activity dates.
+ *
+ * Current streak:
+ * - Includes today if the user was active today.
+ * - Otherwise continues from yesterday if the user was active yesterday.
+ * - Becomes zero if neither date has activity.
+ */
 function calculateStreaks(dates, today) {
-  const dateSet = new Set(dates);
+  const dateSet = new Set(
+    dates.filter(isValidDateString)
+  );
+
   const yesterday = shiftDate(today, -1);
 
   let cursor = dateSet.has(today)
@@ -74,7 +107,9 @@ function calculateStreaks(dates, today) {
   let runningStreak = 0;
   let previousDate = null;
 
-  for (const date of [...dateSet].sort()) {
+  const sortedDates = [...dateSet].sort();
+
+  for (const date of sortedDates) {
     if (previousDate === null) {
       runningStreak = 1;
     } else if (shiftDate(previousDate, 1) === date) {
@@ -83,31 +118,26 @@ function calculateStreaks(dates, today) {
       runningStreak = 1;
     }
 
-    longestStreak = Math.max(
-      longestStreak,
-      runningStreak
-    );
-
+    longestStreak = Math.max(longestStreak, runningStreak);
     previousDate = date;
   }
 
   return {
     currentStreak,
-    longestStreak: Math.max(
-      longestStreak,
-      currentStreak
-    ),
+    longestStreak: Math.max(longestStreak, currentStreak),
   };
 }
 
+// ==================================================
+// WEEKLY ACTIVITY
+// ==================================================
+
+/**
+ * Return activity for Monday through Sunday of the current week.
+ */
 function getWeeklyActivity(dates, today) {
-  const todayDate = new Date(
-    `${today}T00:00:00.000Z`
-  );
-
-  const mondayOffset =
-    (todayDate.getUTCDay() + 6) % 7;
-
+  const todayDate = new Date(`${today}T00:00:00.000Z`);
+  const mondayOffset = (todayDate.getUTCDay() + 6) % 7;
   const monday = shiftDate(today, -mondayOffset);
   const dateSet = new Set(dates);
 
@@ -131,52 +161,234 @@ function getWeeklyActivity(dates, today) {
   });
 }
 
-function getStreakData(userId) {
+// ==================================================
+// DATABASE HELPERS
+// ==================================================
+
+/**
+ * Fetch all distinct activity dates for a user.
+ *
+ * The learning_activity table is expected to contain:
+ * user_id, activity_date, activity_type, activity_ref.
+ */
+async function getUserActivityDates(userId) {
+  const { data, error } = await supabase
+    .from("learning_activity")
+    .select("activity_date")
+    .eq("user_id", userId)
+    .order("activity_date", { ascending: true });
+
+  if (error) {
+    throw error;
+  }
+
+  return [
+    ...new Set(
+      (data ?? [])
+        .map((row) => row.activity_date)
+        .filter(isValidDateString)
+    ),
+  ];
+}
+
+/**
+ * Fetch or initialize a user's statistics row.
+ *
+ * Assumptions:
+ * - user_stats.user_id is unique.
+ * - user_stats.user_id references auth.users(id).
+ */
+async function getOrCreateUserStats(userId) {
+  const { data: existingStats, error: readError } = await supabase
+    .from("user_stats")
+    .select(
+      "user_id, total_xp, current_streak, longest_streak, last_activity_date"
+    )
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (readError) {
+    throw readError;
+  }
+
+  if (existingStats) {
+    return existingStats;
+  }
+
+  const { data: newStats, error: insertError } = await supabase
+    .from("user_stats")
+    .insert({
+      user_id: userId,
+      total_xp: 0,
+      current_streak: 0,
+      longest_streak: 0,
+      last_activity_date: null,
+    })
+    .select(
+      "user_id, total_xp, current_streak, longest_streak, last_activity_date"
+    )
+    .single();
+
+  if (!insertError) {
+    return newStats;
+  }
+
+  // Another request may have initialized the row concurrently.
+  if (insertError.code === "23505") {
+    const { data: stats, error: retryError } = await supabase
+      .from("user_stats")
+      .select(
+        "user_id, total_xp, current_streak, longest_streak, last_activity_date"
+      )
+      .eq("user_id", userId)
+      .single();
+
+    if (retryError) {
+      throw retryError;
+    }
+
+    return stats;
+  }
+
+  throw insertError;
+}
+
+// ==================================================
+// UPDATE STREAK STATISTICS
+// ==================================================
+
+/**
+ * Recalculate streak statistics and persist them.
+ *
+ * XP is read from user_stats but not changed here.
+ * Award XP separately when a lesson or quiz is successfully completed.
+ */
+async function getStreakData(userId) {
   const today = getToday();
-  const dates = getUserActivityDates(userId);
 
-  const { currentStreak, longestStreak } =
-    calculateStreaks(dates, today);
+  const [dates, stats] = await Promise.all([
+    getUserActivityDates(userId),
+    getOrCreateUserStats(userId),
+  ]);
 
-  db.run(
-    "UPDATE users SET streak_days = ? WHERE id = ?",
-    [currentStreak, userId]
+  const {
+    currentStreak,
+    longestStreak: calculatedLongestStreak,
+  } = calculateStreaks(dates, today);
+
+  // Preserve the historical record if it exceeds the streak
+  // currently reconstructed from available activity dates.
+  const longestStreak = Math.max(
+    toNonNegativeInteger(stats.longest_streak),
+    calculatedLongestStreak,
+    currentStreak
   );
 
-  saveDatabase();
+  const lastActivityDate = dates.length
+    ? dates[dates.length - 1]
+    : null;
+
+  const { data: updatedStats, error: updateError } = await supabase
+    .from("user_stats")
+    .update({
+      current_streak: currentStreak,
+      longest_streak: longestStreak,
+      last_activity_date: lastActivityDate,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("user_id", userId)
+    .select(
+      "total_xp, current_streak, longest_streak, last_activity_date"
+    )
+    .single();
+
+  if (updateError) {
+    throw updateError;
+  }
 
   return {
-    currentStreak,
-    longestStreak,
+    success: true,
+
+    // Frontend-compatible fields.
+    totalXP: toNonNegativeInteger(updatedStats.total_xp),
+    totalXp: toNonNegativeInteger(updatedStats.total_xp),
+    currentStreak: toNonNegativeInteger(
+      updatedStats.current_streak
+    ),
+    longestStreak: toNonNegativeInteger(
+      updatedStats.longest_streak
+    ),
+
     activeToday: dates.includes(today),
     today,
+    lastActivityDate: updatedStats.last_activity_date ?? null,
     week: getWeeklyActivity(dates, today),
   };
 }
 
+// ==================================================
 // GET /api/streak
-router.get("/", requireAuth, (req, res) => {
+// ==================================================
+
+/**
+ * Return the authenticated user's learning statistics.
+ */
+router.get("/", requireAuth, async (req, res) => {
   try {
-    return res.json(
-      getStreakData(Number(req.user.id))
-    );
+    const userId = req.authUser?.id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        error: "Authenticated Supabase user was not found.",
+      });
+    }
+
+    const streak = await getStreakData(userId);
+
+    return res.status(200).json(streak);
   } catch (error) {
     console.error("Get streak error:", error);
 
     return res.status(500).json({
+      success: false,
       error: "Could not calculate learning streak.",
     });
   }
 });
 
+// ==================================================
 // POST /api/streak/activity
-router.post("/activity", requireAuth, (req, res) => {
+// ==================================================
+
+/**
+ * Record lesson or quiz activity for today.
+ *
+ * Request body:
+ * {
+ *   "activityType": "lesson",
+ *   "activityRef": "python-lesson-1"
+ * }
+ *
+ * The database should enforce uniqueness on:
+ * user_id, activity_date, activity_type, activity_ref.
+ */
+router.post("/activity", requireAuth, async (req, res) => {
   try {
-    const userId = Number(req.user.id);
+    const userId = req.authUser?.id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        error: "Authenticated Supabase user was not found.",
+      });
+    }
+
     const { activityType, activityRef } = req.body ?? {};
 
-    if (!["lesson", "quiz"].includes(activityType)) {
+    if (!ALLOWED_ACTIVITY_TYPES.has(activityType)) {
       return res.status(400).json({
+        success: false,
         error: "Activity type must be lesson or quiz.",
       });
     }
@@ -187,35 +399,45 @@ router.post("/activity", requireAuth, (req, res) => {
       activityRef.trim().length > 150
     ) {
       return res.status(400).json({
+        success: false,
         error: "A valid activity reference is required.",
       });
     }
 
     const today = getToday();
+    const cleanActivityRef = activityRef.trim();
 
-    db.run(
-      `INSERT OR IGNORE INTO learning_activity
-       (user_id, activity_date, activity_type, activity_ref)
-       VALUES (?, ?, ?, ?)`,
-      [
-        userId,
-        today,
-        activityType,
-        activityRef.trim(),
-      ]
-    );
+    const { error: insertError } = await supabase
+      .from("learning_activity")
+      .upsert(
+        {
+          user_id: userId,
+          activity_date: today,
+          activity_type: activityType,
+          activity_ref: cleanActivityRef,
+        },
+        {
+          onConflict:
+            "user_id,activity_date,activity_type,activity_ref",
+          ignoreDuplicates: true,
+        }
+      );
 
-    saveDatabase();
+    if (insertError) {
+      throw insertError;
+    }
 
-    // Return the updated streak immediately.
-    return res.json({
+    const streak = await getStreakData(userId);
+
+    return res.status(200).json({
+      ...streak,
       message: "Learning activity recorded.",
-      ...getStreakData(userId),
     });
   } catch (error) {
     console.error("Record activity error:", error);
 
     return res.status(500).json({
+      success: false,
       error: "Could not record learning activity.",
     });
   }

@@ -1,10 +1,9 @@
-
 /* ==========================================
-   EVOLV — CODE ADVENTURE AUTHENTICATION
-   src/styles/auth.css
+   EVOLV — COMPACT, WIDER AUTHENTICATION UI
+   Keep existing onboarding class names
    ========================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=DM+Sans:wght@400;500;600;700;800&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=DM+Sans:wght@400;500;600;700;800&display=swap");
 
 :root {
   --ev-ink: #24382e;
@@ -12,14 +11,14 @@
   --ev-green-dark: #28573f;
   --ev-muted: #7c8b7f;
   --ev-cream: #fbfaf3;
-  --ev-white: #fff;
+  --ev-white: #ffffff;
   --ev-border: #e7e9dc;
   --ev-lime: #dceca8;
   --ev-orange: #f4b778;
   --ev-yellow: #ffe7a8;
   --ev-blue: #dceef1;
   --ev-purple: #eae2f7;
-  --ev-shadow: 0 20px 65px rgba(40, 75, 50, .10);
+  --ev-shadow: 0 14px 42px rgba(40, 75, 50, 0.09);
 }
 
 .ev-auth,
@@ -30,14 +29,14 @@
 .ev-auth {
   position: relative;
   min-height: 100vh;
-  overflow: hidden;
+  overflow-x: hidden;
   isolation: isolate;
   color: var(--ev-ink);
   background:
     radial-gradient(ellipse at 4% 22%, #f1efd7 0, transparent 28%),
     radial-gradient(ellipse at 94% 72%, #e2f0de 0, transparent 32%),
     var(--ev-cream);
-  font-family: 'Nunito', sans-serif;
+  font-family: "Nunito", sans-serif;
 }
 
 .ev-auth button,
@@ -56,11 +55,13 @@
 }
 
 .ev-auth :focus-visible {
-  outline: 3px solid rgba(57, 120, 88, .35);
+  outline: 3px solid rgba(57, 120, 88, 0.3);
   outline-offset: 3px;
 }
 
-/* Background decorations */
+/* ==========================================
+   BACKGROUND DECORATIONS
+   ========================================== */
 
 .auth-decorations {
   position: absolute;
@@ -75,7 +76,7 @@
   width: 95px;
   height: 25px;
   border-radius: 30px;
-  background: rgba(255, 255, 255, .78);
+  background: rgba(255, 255, 255, 0.78);
 }
 
 .decor-cloud::before,
@@ -84,7 +85,7 @@
   bottom: 5px;
   border-radius: 50%;
   background: inherit;
-  content: '';
+  content: "";
 }
 
 .decor-cloud::before {
@@ -113,7 +114,7 @@
 .cloud-three {
   bottom: 10%;
   left: 40%;
-  transform: scale(.7);
+  transform: scale(0.7);
 }
 
 .decor-chip,
@@ -121,13 +122,13 @@
   position: absolute;
   display: grid;
   place-items: center;
-  padding: 10px 14px;
-  border: 1px solid rgba(75, 115, 78, .13);
-  border-radius: 13px;
+  padding: 9px 12px;
+  border: 1px solid rgba(75, 115, 78, 0.13);
+  border-radius: 12px;
   color: var(--ev-green-dark);
-  background: rgba(255, 255, 255, .85);
-  box-shadow: 0 7px 20px rgba(50, 80, 50, .07);
-  font-size: 11px;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 6px 16px rgba(50, 80, 50, 0.06);
+  font-size: 10px;
   font-weight: 900;
 }
 
@@ -157,7 +158,7 @@
 .decor-star {
   position: absolute;
   color: #e6ac50;
-  font-size: 24px;
+  font-size: 22px;
 }
 
 .star-one {
@@ -220,34 +221,36 @@
   font-size: 25px;
 }
 
-/* Navbar */
+/* ==========================================
+   NAVBAR
+   ========================================== */
 
 .ev-topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: min(1320px, calc(100% - 72px));
+  width: min(1440px, calc(100% - 64px));
   margin: 0 auto;
-  padding: 24px 0;
+  padding: 15px 0;
 }
 
 .ev-brand {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   text-decoration: none;
 }
 
 .brand-symbol {
   display: grid;
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   place-items: center;
-  border-radius: 14px;
+  border-radius: 12px;
   color: #fff;
   background: var(--ev-green);
-  box-shadow: 0 4px 0 #28563e;
-  font-size: 22px;
+  box-shadow: 0 3px 0 #28563e;
+  font-size: 20px;
   font-weight: 900;
 }
 
@@ -258,73 +261,76 @@
 }
 
 .brand-copy strong {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 900;
-  letter-spacing: -.7px;
+  letter-spacing: -0.6px;
 }
 
 .brand-copy span {
   color: var(--ev-muted);
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 900;
-  letter-spacing: 1.5px;
+  letter-spacing: 1.2px;
   text-transform: uppercase;
 }
 
 .topbar-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   color: var(--ev-muted);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
 }
 
 .text-button {
-  padding: 10px 17px;
+  padding: 8px 13px;
   border: 1px solid #dce6d8;
-  border-radius: 11px;
+  border-radius: 10px;
   color: var(--ev-green-dark);
-  background: white;
-  font-size: 12px;
+  background: #fff;
+  font-size: 11px;
   font-weight: 900;
-  transition: .2s ease;
+  transition: 0.2s ease;
 }
 
 .text-button:hover {
   border-color: var(--ev-green);
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
 
-/* Main two-column journey */
+/* ==========================================
+   MAIN LAYOUT
+   Wider form, reduced overall page height
+   ========================================== */
 
 .auth-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(410px, .84fr);
+  grid-template-columns: minmax(0, 0.94fr) minmax(500px, 1.06fr);
   align-items: center;
-  gap: clamp(35px, 6vw, 88px);
-  width: min(1240px, calc(100% - 72px));
-  margin: 25px auto 65px;
+  gap: clamp(28px, 3.5vw, 54px);
+  width: min(1440px, calc(100% - 64px));
+  margin: 0 auto 22px;
 }
 
 .adventure-copy {
   position: relative;
   min-width: 0;
-  padding: 10px 0;
+  padding: 8px 0;
 }
 
 .adventure-eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: 9px;
-  padding: 9px 14px;
+  gap: 8px;
+  padding: 8px 12px;
   border: 1px solid #dce7cb;
   border-radius: 40px;
   color: var(--ev-green-dark);
   background: #f0f5df;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 900;
-  letter-spacing: 1px;
+  letter-spacing: 0.8px;
 }
 
 .adventure-eyebrow::before {
@@ -332,17 +338,17 @@
   height: 7px;
   border-radius: 50%;
   background: #82af61;
-  box-shadow: 0 0 0 4px #dfedcd;
-  content: '';
+  box-shadow: 0 0 0 3px #dfedcd;
+  content: "";
 }
 
 .adventure-copy h1 {
-  max-width: 600px;
-  margin: 23px 0 16px;
-  font-size: clamp(42px, 5vw, 67px);
+  max-width: 630px;
+  margin: 20px 0 13px;
+  font-size: clamp(40px, 4.2vw, 63px);
   font-weight: 900;
   line-height: 1.04;
-  letter-spacing: -2.8px;
+  letter-spacing: -2.5px;
 }
 
 .adventure-copy h1 span {
@@ -357,10 +363,10 @@
   right: 0;
   bottom: 1px;
   left: 0;
-  height: 9px;
+  height: 8px;
   border-radius: 50%;
   background: var(--ev-lime);
-  content: '';
+  content: "";
   transform: rotate(-2deg);
 }
 
@@ -368,23 +374,25 @@
   max-width: 465px;
   margin: 0;
   color: #748276;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 14px;
-  line-height: 1.9;
+  font-family: "DM Sans", sans-serif;
+  font-size: 13px;
+  line-height: 1.75;
 }
 
-/* Journey illustration */
+/* ==========================================
+   ADVENTURE ILLUSTRATION
+   ========================================== */
 
 .adventure-mascot {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 295px;
-  margin: 28px 0 20px;
+  min-height: clamp(190px, 25vh, 270px);
+  margin: 23px 0 15px;
   overflow: hidden;
   border: 1px solid #e0e9d5;
-  border-radius: 29px;
+  border-radius: 25px;
   background:
     radial-gradient(ellipse at 50% 100%, #b9dba1 0, transparent 46%),
     radial-gradient(circle at 12% 22%, white 0 4%, transparent 4.5%),
@@ -393,10 +401,10 @@
 
 .adventure-mascot::before {
   position: absolute;
-  inset: 12px;
-  border: 1px dashed rgba(63, 111, 73, .22);
-  border-radius: 21px;
-  content: '';
+  inset: 10px;
+  border: 1px dashed rgba(63, 111, 73, 0.22);
+  border-radius: 18px;
+  content: "";
 }
 
 .adventure-mascot::after {
@@ -404,41 +412,41 @@
   bottom: 11%;
   left: 12%;
   width: 76%;
-  height: 22px;
+  height: 20px;
   border-radius: 50%;
-  background: rgba(49, 87, 49, .13);
+  background: rgba(49, 87, 49, 0.13);
   filter: blur(9px);
-  content: '';
+  content: "";
 }
 
 .companion {
   position: relative;
   z-index: 2;
   display: grid;
-  width: 87px;
-  height: 87px;
+  width: 78px;
+  height: 78px;
   flex-shrink: 0;
   place-items: center;
   border: 4px solid #f9fff0;
-  border-radius: 29px;
+  border-radius: 26px;
   background: #a8d970;
-  box-shadow: 0 7px 0 #6d9e4a, 0 13px 25px #315c3220;
+  box-shadow: 0 6px 0 #6d9e4a, 0 12px 22px #315c3220;
   animation: ev-float 4s ease-in-out infinite;
 }
 
 .companion-small {
-  width: 54px;
-  height: 54px;
+  width: 48px;
+  height: 48px;
   border-width: 3px;
-  border-radius: 19px;
-  box-shadow: 0 5px 0 #6d9e4a, 0 10px 20px #315c3220;
+  border-radius: 16px;
+  box-shadow: 0 4px 0 #6d9e4a, 0 8px 16px #315c3220;
 }
 
 .companion-shadow {
   position: absolute;
-  bottom: -17px;
+  bottom: -14px;
   width: 72%;
-  height: 9px;
+  height: 8px;
   border-radius: 50%;
   background: #345a3022;
   filter: blur(4px);
@@ -446,44 +454,44 @@
 
 .companion-leaf {
   position: absolute;
-  top: -12px;
-  width: 18px;
-  height: 25px;
+  top: -11px;
+  width: 16px;
+  height: 22px;
   border: 3px solid #f9fff0;
   border-radius: 100% 0 100% 0;
   background: #529861;
 }
 
 .leaf-left {
-  left: 19px;
+  left: 16px;
   transform: rotate(-25deg);
 }
 
 .leaf-right {
-  right: 18px;
-  transform: rotate(50deg) scale(.8);
+  right: 16px;
+  transform: rotate(50deg) scale(0.8);
 }
 
 .companion-body {
   position: absolute;
-  bottom: 6px;
-  width: 35px;
-  height: 17px;
+  bottom: 5px;
+  width: 31px;
+  height: 15px;
   border-radius: 13px 13px 16px 16px;
   background: #f2f7d5;
 }
 
 .companion-face {
   position: absolute;
-  top: 24px;
+  top: 21px;
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 13px;
 }
 
 .eye {
-  width: 6px;
-  height: 9px;
+  width: 5px;
+  height: 8px;
   border-radius: 50%;
   background: #27392b;
 }
@@ -495,27 +503,27 @@
 
 .cheek {
   position: absolute;
-  top: 15px;
-  width: 9px;
-  height: 6px;
+  top: 13px;
+  width: 8px;
+  height: 5px;
   border-radius: 50%;
   background: #ef9d8e;
 }
 
 .cheek-left {
-  left: -10px;
+  left: -9px;
 }
 
 .cheek-right {
-  right: -10px;
+  right: -9px;
 }
 
 .smile {
   position: absolute;
-  top: 15px;
+  top: 13px;
   left: 50%;
-  width: 12px;
-  height: 7px;
+  width: 11px;
+  height: 6px;
   border-bottom: 2px solid #27392b;
   border-radius: 0 0 10px 10px;
   transform: translateX(-50%);
@@ -525,7 +533,7 @@
   position: absolute;
   z-index: 3;
   color: #e7a949;
-  font-size: 25px;
+  font-size: 23px;
   animation: ev-twinkle 2.3s ease-in-out infinite;
 }
 
@@ -540,12 +548,11 @@
   animation-delay: -1s;
 }
 
-/* Make the second companion represent the other adventurer */
 .adventure-mascot > .companion:nth-of-type(2) {
-  margin-left: 24px;
+  margin-left: 20px;
   background: #f2bc80;
-  box-shadow: 0 7px 0 #cb8955, 0 13px 25px #315c3220;
-  animation-delay: -.8s;
+  box-shadow: 0 6px 0 #cb8955, 0 12px 22px #315c3220;
+  animation-delay: -0.8s;
 }
 
 .adventure-mascot > .companion:nth-of-type(2) .companion-leaf {
@@ -555,30 +562,32 @@
 .adventure-caption {
   position: absolute;
   z-index: 4;
-  right: 7%;
-  bottom: 9%;
-  padding: 10px 14px;
+  right: 6%;
+  bottom: 7%;
+  padding: 8px 11px;
   border: 1px solid #f0e4ba;
-  border-radius: 11px;
+  border-radius: 10px;
   color: #746039;
   background: #fff8dc;
   box-shadow: 0 5px 14px #715a2010;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 900;
   transform: rotate(3deg);
 }
 
 .adventure-caption::before {
-  content: '✦ ';
   color: #e2a341;
+  content: "✦ ";
 }
 
-/* Journey stages */
+/* ==========================================
+   JOURNEY STEPPER
+   ========================================== */
 
 .stepper {
   display: flex;
   align-items: center;
-  margin: 0 0 5px;
+  margin: 0 0 4px;
 }
 
 .step-line {
@@ -594,30 +603,30 @@
 
 .step-node {
   display: grid;
-  width: 33px;
-  height: 33px;
+  width: 30px;
+  height: 30px;
   flex-shrink: 0;
   place-items: center;
   border: 2px solid #e0e7d9;
   border-radius: 50%;
   color: #89968a;
   background: white;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 900;
-  transition: .2s ease;
+  transition: 0.2s ease;
 }
 
 .step-node.complete {
   border-color: var(--ev-green);
   color: white;
   background: var(--ev-green);
-  box-shadow: 0 0 0 4px #e4f0df;
+  box-shadow: 0 0 0 3px #e4f0df;
 }
 
 .step-label {
-  margin: 8px 0 0;
+  margin: 6px 0 0;
   color: #98a294;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 900;
   text-align: center;
 }
@@ -630,18 +639,25 @@
   color: #98a294;
 }
 
-/* Form card */
+/* ==========================================
+   FORM CARD
+   Main height and spacing improvements
+   ========================================== */
 
 .form-panel {
   min-width: 0;
+  width: 100%;
 }
 
 .form-card {
   position: relative;
-  padding: clamp(27px, 3vw, 42px);
-  border: 1px solid rgba(224, 230, 216, .95);
-  border-radius: 26px;
-  background: rgba(255, 255, 255, .96);
+  width: 100%;
+  max-width: 720px;
+  margin-left: auto;
+  padding: clamp(23px, 2.1vw, 31px);
+  border: 1px solid rgba(224, 230, 216, 0.95);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.97);
   box-shadow: var(--ev-shadow);
   backdrop-filter: blur(10px);
 }
@@ -649,50 +665,69 @@
 .form-card::before {
   position: absolute;
   top: -4px;
-  right: 32px;
-  left: 32px;
+  right: 28px;
+  left: 28px;
   height: 5px;
   border-radius: 5px 5px 0 0;
-  background: linear-gradient(90deg, #8fbd71, #f1c17e, #a8d8dc, #c4b1e8);
-  content: '';
+  background: linear-gradient(
+    90deg,
+    #8fbd71,
+    #f1c17e,
+    #a8d8dc,
+    #c4b1e8
+  );
+  content: "";
 }
 
 .form-brand-heading {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 21px;
-  font-size: 12px;
+  margin-bottom: 14px;
+  font-size: 11px;
   font-weight: 900;
-  letter-spacing: 1.5px;
+  letter-spacing: 1px;
 }
 
 .form-brand-spark {
   color: #e7ad49;
-  font-size: 20px;
+  font-size: 18px;
 }
+
+.form-brand-heading h2 {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+}
+
+.form-brand-heading h2 span {
+  color: var(--ev-green);
+}
+
+/* Login/signup tabs */
 
 .mode-switch {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 5px;
-  padding: 5px;
-  margin-bottom: 24px;
+  padding: 4px;
+  margin-bottom: 17px;
   border: 1px solid #e9ecdf;
-  border-radius: 14px;
+  border-radius: 13px;
   background: #f7f8f2;
 }
 
 .mode-switch button {
-  min-height: 42px;
-  padding: 9px;
+  min-height: 38px;
+  padding: 8px;
   border: 0;
-  border-radius: 10px;
+  border-radius: 9px;
   color: #7d8b7f;
   background: transparent;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 900;
-  transition: .2s ease;
+  transition: 0.2s ease;
 }
 
 .mode-switch button.active {
@@ -701,46 +736,85 @@
   box-shadow: 0 3px 10px #314d3412;
 }
 
+/* Progress bar */
+
+.onboarding-progress {
+  margin-bottom: 16px;
+}
+
+.progress-track {
+  width: 100%;
+  height: 5px;
+  overflow: hidden;
+  border-radius: 20px;
+  background: #e9ede2;
+}
+
+.progress-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--ev-green);
+  transition: width 0.3s ease;
+}
+
+.progress-copy {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 6px;
+  color: #899688;
+  font-size: 9px;
+  font-weight: 900;
+}
+
+/* Question title */
+
 .form-intro {
-  margin-bottom: 22px;
+  position: relative;
+  min-height: 0;
+  margin-bottom: 17px;
 }
 
 .form-intro h2 {
-  margin: 0 0 8px;
-  font-size: clamp(25px, 2.5vw, 32px);
+  max-width: 88%;
+  margin: 0 0 6px;
+  font-size: clamp(24px, 2vw, 30px);
   font-weight: 900;
-  letter-spacing: -1px;
-  line-height: 1.2;
+  line-height: 1.15;
+  letter-spacing: -0.7px;
 }
 
 .form-intro p {
+  max-width: 88%;
   margin: 0;
   color: var(--ev-muted);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 12px;
-  line-height: 1.8;
+  font-family: "DM Sans", sans-serif;
+  font-size: 11px;
+  line-height: 1.6;
 }
 
 .form-intro-mascot {
   float: right;
   display: grid;
-  width: 52px;
-  height: 52px;
+  width: 46px;
+  height: 46px;
   place-items: center;
-  margin: 0 0 10px 12px;
-  border-radius: 17px;
+  margin: 0 0 7px 10px;
+  border-radius: 14px;
   background: #eff5df;
-  font-size: 27px;
 }
 
-/* Form fields */
+/* ==========================================
+   INPUT FIELDS
+   ========================================== */
 
 .ev-field {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   min-width: 0;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .ev-label {
@@ -755,7 +829,7 @@
 
 .field-hint {
   color: #9ca89b;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
 }
 
@@ -765,16 +839,19 @@
   display: block;
   width: 100%;
   min-width: 0;
-  min-height: 47px;
-  padding: 12px 14px;
+  min-height: 43px;
+  padding: 10px 12px;
   border: 1px solid #e2e7dc;
-  border-radius: 11px;
+  border-radius: 10px;
   outline: none;
   color: var(--ev-ink);
   background: #fcfdf9;
   font-size: 12px;
   font-weight: 600;
-  transition: border-color .2s, box-shadow .2s, background .2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    background 0.2s;
 }
 
 .ev-field textarea {
@@ -798,7 +875,7 @@
 .ev-field textarea:focus {
   border-color: #79a980;
   background: white;
-  box-shadow: 0 0 0 4px #74a87b1c;
+  box-shadow: 0 0 0 3px #74a87b1c;
 }
 
 .password-wrap {
@@ -813,59 +890,249 @@
 
 .show-password {
   position: absolute;
-  right: 8px;
-  padding: 7px 9px;
+  right: 7px;
+  padding: 6px 8px;
   border: 0;
   border-radius: 7px;
   color: var(--ev-green);
   background: #edf4e7;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 900;
 }
 
-.input-lock {
-  color: #a0ac9d;
+/* ==========================================
+   ONBOARDING CHOICES
+   Smaller cards to reduce vertical scrolling
+   ========================================== */
+
+.question-options {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+  min-width: 0;
 }
 
-/* Buttons */
+.answer-option {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  min-width: 0;
+  min-height: 52px;
+  padding: 8px 12px;
+  border: 1px solid #e5e9de;
+  border-radius: 12px;
+  color: #58695b;
+  background: #fcfdf9;
+  text-align: left;
+  transition:
+    border-color 0.2s,
+    background 0.2s,
+    transform 0.2s;
+}
+
+.answer-option:hover {
+  border-color: #b5d3a6;
+  background: #f7faef;
+  transform: translateY(-1px);
+}
+
+.answer-option.selected {
+  border-color: #91bb7b;
+  color: var(--ev-green-dark);
+  background: #f0f7e7;
+  box-shadow: inset 0 0 0 1px #91bb7b;
+}
+
+.answer-glyph {
+  display: grid;
+  width: 33px;
+  height: 33px;
+  flex: 0 0 33px;
+  place-items: center;
+  border-radius: 10px;
+  background: #e8f0dc;
+  font-size: 16px;
+}
+
+.answer-label {
+  flex: 1;
+  min-width: 0;
+  font-family: "DM Sans", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.answer-check {
+  display: grid;
+  width: 19px;
+  height: 19px;
+  flex: 0 0 19px;
+  place-items: center;
+  border: 1px solid #c9d3c3;
+  border-radius: 50%;
+  color: #7e9680;
+  font-size: 10px;
+}
+
+.answer-option.selected .answer-check {
+  border-color: var(--ev-green);
+  color: white;
+  background: var(--ev-green);
+}
+
+/* Two-column options for interests and learning styles */
+
+.question-options-grid,
+.level-grid,
+.interest-grid,
+.style-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  min-width: 0;
+}
+
+.question-options-grid .answer-option,
+.level-grid .answer-option,
+.interest-grid .answer-option,
+.style-grid .answer-option {
+  min-height: 49px;
+  gap: 8px;
+  padding: 7px 9px;
+}
+
+.question-options-grid .answer-glyph,
+.level-grid .answer-glyph,
+.interest-grid .answer-glyph,
+.style-grid .answer-glyph {
+  width: 29px;
+  height: 29px;
+  flex-basis: 29px;
+  border-radius: 9px;
+  font-size: 14px;
+}
+
+.question-options-grid .answer-label,
+.level-grid .answer-label,
+.interest-grid .answer-label,
+.style-grid .answer-label {
+  font-size: 11px;
+}
+
+.question-options-grid .answer-check,
+.level-grid .answer-check,
+.interest-grid .answer-check,
+.style-grid .answer-check {
+  width: 17px;
+  height: 17px;
+  flex-basis: 17px;
+}
+
+/* Support existing level/interest/style card names */
+
+.level-card,
+.interest-card,
+.style-card {
+  min-width: 0;
+  border: 1px solid #e5e9de;
+  border-radius: 11px;
+  color: #58695b;
+  background: #fcfdf9;
+  transition: 0.2s ease;
+}
+
+.level-card {
+  padding: 10px 8px;
+  font-size: 11px;
+}
+
+.interest-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  font-size: 11px;
+}
+
+.style-card {
+  padding: 10px;
+  font-size: 11px;
+}
+
+.level-card:hover,
+.interest-card:hover,
+.style-card:hover {
+  border-color: #b5d3a6;
+  background: #f7faef;
+}
+
+.level-card.selected,
+.interest-card.selected,
+.style-card.selected {
+  border-color: #91bb7b;
+  color: var(--ev-green-dark);
+  background: #f0f7e7;
+  box-shadow: inset 0 0 0 1px #91bb7b;
+}
+
+.interest-glyph {
+  display: grid;
+  width: 29px;
+  height: 29px;
+  flex: 0 0 29px;
+  place-items: center;
+  border-radius: 9px;
+  background: #e8f0dc;
+}
+
+/* ==========================================
+   FORM BUTTONS
+   ========================================== */
 
 .primary-button,
 .secondary-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 9px;
-  width: 100%;
-  min-height: 49px;
-  padding: 12px 16px;
-  border-radius: 11px;
-  font-size: 12px;
+  gap: 8px;
+  min-width: 0;
+  min-height: 43px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 11px;
   font-weight: 900;
   text-align: center;
-  transition: transform .2s, box-shadow .2s, background .2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s,
+    background 0.2s;
 }
 
 .primary-button {
+  width: 100%;
   border: 1px solid var(--ev-green);
   color: white;
   background: var(--ev-green);
-  box-shadow: 0 4px 0 #28563e;
+  box-shadow: 0 3px 0 #28563e;
 }
 
-.primary-button:hover {
+.primary-button:hover:not(:disabled) {
   background: var(--ev-green-dark);
-  box-shadow: 0 6px 0 #28563e;
-  transform: translateY(-2px);
+  box-shadow: 0 4px 0 #28563e;
+  transform: translateY(-1px);
 }
 
-.primary-button:active {
+.primary-button:active:not(:disabled) {
   box-shadow: 0 1px 0 #28563e;
-  transform: translateY(3px);
+  transform: translateY(2px);
 }
 
-.primary-button:disabled {
+.primary-button:disabled,
+.secondary-button:disabled {
   cursor: not-allowed;
-  opacity: .6;
+  opacity: 0.6;
   transform: none;
 }
 
@@ -875,7 +1142,7 @@
   background: #f5f8ef;
 }
 
-.secondary-button:hover {
+.secondary-button:hover:not(:disabled) {
   border-color: #a9c99d;
   background: #edf5e4;
 }
@@ -883,7 +1150,7 @@
 .form-actions {
   display: flex;
   gap: 10px;
-  margin-top: 21px;
+  margin-top: 16px;
 }
 
 .form-actions > * {
@@ -891,131 +1158,16 @@
   min-width: 0;
 }
 
-/* Selectable coding paths */
-
-.level-grid,
-.interest-grid,
-.style-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 9px;
-}
-
-.level-card,
-.interest-card,
-.style-option,
-.goal-option {
-  min-width: 0;
-  border: 1px solid #e5e9de;
-  border-radius: 12px;
-  color: #58695b;
-  background: #fcfdf9;
-  transition: border-color .2s, background .2s, transform .2s;
-}
-
-.level-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 14px 8px;
-  font-size: 11px;
-  font-weight: 900;
-  text-align: center;
-}
-
-.level-emoji {
-  font-size: 25px;
-}
-
-.level-card:hover,
-.level-card.selected,
-.interest-card:hover,
-.interest-card.selected,
-.style-option:hover,
-.style-option.selected,
-.goal-option:hover,
-.goal-option.selected {
-  border-color: #91bb7b;
-  color: var(--ev-green-dark);
-  background: #f0f7e7;
-}
-
-.level-card.selected,
-.interest-card.selected,
-.style-option.selected,
-.goal-option.selected {
-  box-shadow: inset 0 0 0 1px #91bb7b;
-}
-
-.level-card:hover,
-.interest-card:hover,
-.style-option:hover,
-.goal-option:hover {
-  transform: translateY(-1px);
-}
-
-.interest-card {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  padding: 10px;
-  font-size: 11px;
-  font-weight: 800;
-  text-align: left;
-}
-
-.interest-glyph {
-  display: grid;
-  width: 32px;
-  height: 32px;
-  flex-shrink: 0;
-  place-items: center;
-  border-radius: 9px;
-  background: #e8f0dc;
-  font-size: 16px;
-}
-
-.goal-list {
-  display: grid;
-  gap: 8px;
-}
-
-.goal-option {
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  padding: 11px;
-  font-size: 11px;
-  font-weight: 800;
-  text-align: left;
-}
-
-.goal-glyph {
-  display: grid;
-  width: 34px;
-  height: 34px;
-  flex-shrink: 0;
-  place-items: center;
-  border-radius: 10px;
-  background: #f8edce;
-  font-size: 17px;
-}
-
-.style-option {
-  padding: 13px;
-  font-size: 11px;
-  font-weight: 800;
-}
-
-/* Login options */
+/* ==========================================
+   LOGIN OPTIONS
+   ========================================== */
 
 .login-options {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  margin: 2px 0 17px;
+  margin: 0 0 14px;
   color: #7b897d;
   font-size: 10px;
 }
@@ -1023,7 +1175,7 @@
 .remember-option {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
   cursor: pointer;
 }
 
@@ -1032,25 +1184,40 @@
 }
 
 .login-tip {
-  padding: 12px 14px;
-  margin: 15px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px;
+  margin: 13px 0;
   border: 1px dashed #dce5c9;
   border-radius: 11px;
   color: #77836b;
   background: #f7f9ed;
-  font-size: 11px;
-  line-height: 1.7;
+  font-size: 10px;
+  line-height: 1.6;
 }
 
+.login-tip .companion {
+  flex: 0 0 48px;
+}
+
+.login-tip strong {
+  color: var(--ev-green-dark);
+}
+
+/* ==========================================
+   ERROR MESSAGES AND FOOTER
+   ========================================== */
+
 .form-message {
-  padding: 12px 14px;
-  margin: 13px 0;
+  padding: 10px 12px;
+  margin: 11px 0;
   border: 1px solid #f0d0c7;
-  border-radius: 10px;
+  border-radius: 9px;
   color: #9a4e42;
   background: #fff3ee;
   font-size: 11px;
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 .form-message:empty {
@@ -1058,11 +1225,11 @@
 }
 
 .card-switch {
-  padding-top: 19px;
-  margin-top: 20px;
+  padding-top: 13px;
+  margin-top: 15px;
   border-top: 1px solid #edf0e7;
   color: #829084;
-  font-size: 11px;
+  font-size: 10px;
   text-align: center;
 }
 
@@ -1083,52 +1250,61 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
-  margin-top: 17px;
+  gap: 6px;
+  margin-top: 11px;
   color: #9aa497;
-  font-size: 10px;
+  font-size: 9px;
+  line-height: 1.5;
   text-align: center;
 }
 
-/* Alternate companion area */
+/* ==========================================
+   OPTIONAL ADVENTURE ELEMENTS
+   ========================================== */
 
 .right-adventure {
   position: relative;
-  padding: 24px;
+  padding: 20px;
   border: 1px solid #dfe8d5;
-  border-radius: 20px;
+  border-radius: 17px;
   background: #ffffffb3;
 }
 
 .right-message {
   color: #6d7e6e;
-  font-size: 12px;
-  line-height: 1.8;
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.right-message span {
+  color: #ef9d8e;
 }
 
 .right-mascot {
   display: inline-grid;
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   place-items: center;
-  border-radius: 14px;
+  border-radius: 12px;
   background: #e5f0d4;
-  font-size: 24px;
+  font-size: 22px;
 }
 
-/* Footer */
+/* ==========================================
+   PAGE FOOTER
+   ========================================== */
 
 .ev-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 18px;
-  width: min(1240px, calc(100% - 72px));
-  padding: 20px 0 26px;
+  gap: 15px;
+  width: min(1440px, calc(100% - 64px));
+  padding: 13px 0 18px;
   margin: 0 auto;
   border-top: 1px solid #6c87631c;
   color: #899588;
-  font-size: 10px;
+  font-size: 9px;
 }
 
 .ev-footer a {
@@ -1140,34 +1316,97 @@
   color: var(--ev-green);
 }
 
-/* Animation */
+/* ==========================================
+   ANIMATIONS
+   ========================================== */
 
 @keyframes ev-float {
-  0%, 100% { translate: 0 0; }
-  50% { translate: 0 -7px; }
-}
+  0%,
+  100% {
+    translate: 0 0;
+  }
 
-@keyframes ev-twinkle {
-  0%, 100% { opacity: .7; scale: .85; }
-  50% { opacity: 1; scale: 1.12; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .ev-auth *,
-  .ev-auth *::before,
-  .ev-auth *::after {
-    animation-duration: .01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: .01ms !important;
+  50% {
+    translate: 0 -6px;
   }
 }
 
-/* Tablet */
+@keyframes ev-twinkle {
+  0%,
+  100% {
+    opacity: 0.7;
+    scale: 0.85;
+  }
 
-@media (max-width: 980px) {
+  50% {
+    opacity: 1;
+    scale: 1.1;
+  }
+}
+
+/* ==========================================
+   DESKTOP HEIGHT OPTIMIZATION
+   Keep the form compact on typical laptop screens
+   ========================================== */
+
+@media (min-width: 1101px) and (min-height: 750px) {
+  .ev-topbar {
+    padding-top: 11px;
+    padding-bottom: 11px;
+  }
+
   .auth-layout {
-    grid-template-columns: minmax(0, .95fr) minmax(350px, 1.05fr);
-    gap: 28px;
+    margin-top: 0;
+    margin-bottom: 12px;
+  }
+
+  .form-card {
+    padding-top: 24px;
+    padding-bottom: 22px;
+  }
+
+  .form-brand-heading {
+    margin-bottom: 12px;
+  }
+
+  .mode-switch {
+    margin-bottom: 14px;
+  }
+
+  .onboarding-progress {
+    margin-bottom: 13px;
+  }
+
+  .form-intro {
+    margin-bottom: 14px;
+  }
+
+  .answer-option {
+    min-height: 49px;
+  }
+
+  .question-options {
+    gap: 7px;
+  }
+
+  .form-actions {
+    margin-top: 13px;
+  }
+
+  .ev-footer {
+    padding-top: 10px;
+    padding-bottom: 12px;
+  }
+}
+
+/* ==========================================
+   TABLETS AND SMALL LAPTOPS
+   ========================================== */
+
+@media (max-width: 1100px) {
+  .auth-layout {
+    grid-template-columns: minmax(0, 0.85fr) minmax(440px, 1.15fr);
+    gap: 25px;
     width: calc(100% - 44px);
   }
 
@@ -1177,112 +1416,269 @@
   }
 
   .adventure-copy h1 {
-    font-size: clamp(37px, 5vw, 52px);
+    font-size: clamp(36px, 4.4vw, 51px);
     letter-spacing: -2px;
   }
 
   .adventure-mascot {
-    min-height: 245px;
+    min-height: 210px;
   }
 
   .form-card {
-    padding: 26px 22px;
+    padding: 23px 21px;
   }
 }
 
-/* Mobile */
-
-@media (max-width: 720px) {
-  .ev-topbar {
+@media (max-width: 900px) {
+  .auth-layout {
+    grid-template-columns: minmax(0, 0.82fr) minmax(380px, 1.18fr);
+    gap: 20px;
     width: calc(100% - 32px);
-    padding: 17px 0;
+  }
+
+  .ev-topbar,
+  .ev-footer {
+    width: calc(100% - 32px);
+  }
+
+  .adventure-copy h1 {
+    font-size: clamp(33px, 4vw, 43px);
+    letter-spacing: -1.8px;
+  }
+
+  .adventure-copy > p {
+    font-size: 12px;
+  }
+
+  .adventure-eyebrow {
+    font-size: 8px;
+    letter-spacing: 0.5px;
+  }
+
+  .adventure-mascot {
+    min-height: 180px;
+    margin-top: 17px;
+  }
+
+  .form-card {
+    padding: 21px 18px;
+  }
+
+  .form-intro h2 {
+    font-size: 24px;
+  }
+
+  .question-options-grid,
+  .level-grid,
+  .interest-grid,
+  .style-grid {
+    gap: 7px;
+  }
+}
+
+/* ==========================================
+   MOBILE
+   ========================================== */
+
+@media (max-width: 680px) {
+  .ev-auth {
+    overflow-x: hidden;
+  }
+
+  .ev-topbar {
+    width: calc(100% - 28px);
+    padding: 13px 0;
   }
 
   .brand-symbol {
-    width: 39px;
-    height: 39px;
-    border-radius: 12px;
+    width: 37px;
+    height: 37px;
+    border-radius: 11px;
   }
 
   .brand-copy strong {
-    font-size: 17px;
+    font-size: 16px;
+  }
+
+  .brand-copy span {
+    font-size: 7px;
   }
 
   .topbar-right {
-    gap: 7px;
-    font-size: 10px;
+    gap: 6px;
+    font-size: 9px;
   }
 
   .text-button {
-    padding: 9px 11px;
+    padding: 8px 10px;
+    font-size: 10px;
   }
 
   .auth-layout {
     grid-template-columns: minmax(0, 1fr);
-    gap: 22px;
-    width: calc(100% - 32px);
-    margin: 10px auto 34px;
+    gap: 14px;
+    width: calc(100% - 28px);
+    margin: 5px auto 22px;
   }
 
   .adventure-copy {
-    padding-top: 3px;
+    padding-top: 0;
   }
 
   .adventure-copy h1 {
-    margin: 17px 0 11px;
-    font-size: clamp(36px, 9vw, 51px);
-    letter-spacing: -1.7px;
+    margin: 15px 0 9px;
+    font-size: clamp(35px, 9vw, 48px);
+    letter-spacing: -1.6px;
   }
 
   .adventure-copy > p {
-    font-size: 13px;
+    font-size: 12px;
   }
 
   .adventure-mascot {
-    min-height: 185px;
-    margin: 17px 0;
-    border-radius: 22px;
+    min-height: 135px;
+    margin: 14px 0;
+    border-radius: 19px;
   }
 
   .companion {
-    width: 65px;
-    height: 65px;
-    border-radius: 22px;
+    width: 61px;
+    height: 61px;
+    border-radius: 20px;
   }
 
   .companion-face {
-    top: 18px;
-    gap: 12px;
+    top: 17px;
+    gap: 11px;
   }
 
   .companion-body {
-    width: 29px;
-    height: 15px;
+    width: 27px;
+    height: 13px;
   }
 
   .companion-leaf {
-    top: -10px;
-    width: 14px;
-    height: 21px;
+    top: -9px;
+    width: 13px;
+    height: 19px;
   }
 
-  .leaf-left { left: 14px; }
-  .leaf-right { right: 14px; }
+  .leaf-left {
+    left: 12px;
+  }
+
+  .leaf-right {
+    right: 12px;
+  }
 
   .adventure-caption {
     right: 5%;
-    bottom: 7%;
-    padding: 7px 10px;
-    font-size: 9px;
+    bottom: 6%;
+    padding: 6px 8px;
+    font-size: 8px;
   }
 
   .form-card {
-    padding: 25px 21px;
-    border-radius: 22px;
+    max-width: none;
+    padding: 22px 17px;
+    border-radius: 20px;
+  }
+
+  .form-brand-heading {
+    margin-bottom: 12px;
+  }
+
+  .form-brand-heading h2 {
+    font-size: 18px;
+  }
+
+  .mode-switch {
+    margin-bottom: 14px;
+  }
+
+  .mode-switch button {
+    min-height: 37px;
+  }
+
+  .onboarding-progress {
+    margin-bottom: 13px;
+  }
+
+  .form-intro {
+    margin-bottom: 14px;
   }
 
   .form-intro h2 {
-    font-size: 27px;
+    font-size: 23px;
+  }
+
+  .form-intro p {
+    font-size: 10px;
+  }
+
+  .question-options {
+    gap: 7px;
+  }
+
+  .answer-option {
+    min-height: 48px;
+    padding: 7px 10px;
+  }
+
+  .answer-glyph {
+    width: 30px;
+    height: 30px;
+    flex-basis: 30px;
+    font-size: 14px;
+  }
+
+  .answer-label {
+    font-size: 11px;
+  }
+
+  .question-options-grid,
+  .level-grid,
+  .interest-grid,
+  .style-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .question-options-grid .answer-option,
+  .level-grid .answer-option,
+  .interest-grid .answer-option,
+  .style-grid .answer-option {
+    min-height: 45px;
+    padding: 6px 7px;
+  }
+
+  .question-options-grid .answer-label,
+  .level-grid .answer-label,
+  .interest-grid .answer-label,
+  .style-grid .answer-label {
+    font-size: 10px;
+  }
+
+  .ev-field {
+    margin-bottom: 10px;
+  }
+
+  .ev-field input,
+  .ev-field select,
+  .ev-field textarea {
+    min-height: 42px;
+  }
+
+  .form-actions {
+    gap: 8px;
+    margin-top: 13px;
+  }
+
+  .primary-button,
+  .secondary-button {
+    min-height: 42px;
+    padding: 9px 11px;
+    font-size: 10px;
   }
 
   .decor-chip,
@@ -1294,13 +1690,18 @@
   }
 
   .ev-footer {
-    width: calc(100% - 32px);
+    width: calc(100% - 28px);
     flex-wrap: wrap;
     justify-content: center;
-    gap: 10px 16px;
+    gap: 8px 13px;
+    padding: 12px 0 16px;
     text-align: center;
   }
 }
+
+/* ==========================================
+   SMALL PHONES
+   ========================================== */
 
 @media (max-width: 390px) {
   .topbar-right > span {
@@ -1308,41 +1709,155 @@
   }
 
   .auth-layout {
-    width: calc(100% - 24px);
+    width: calc(100% - 22px);
   }
 
   .form-card {
-    padding: 22px 15px;
+    padding: 19px 13px;
   }
 
+  .form-intro h2 {
+    font-size: 21px;
+  }
+
+  .form-intro-mascot {
+    width: 40px;
+    height: 40px;
+  }
+
+  .question-options-grid,
   .level-grid,
   .interest-grid,
   .style-grid {
-    gap: 7px;
-  }
-
-  .level-card {
-    padding: 11px 5px;
-    font-size: 10px;
-  }
-
-  .interest-card {
     gap: 6px;
-    padding: 8px;
-    font-size: 10px;
   }
 
-  .interest-glyph {
-    width: 27px;
-    height: 27px;
+  .question-options-grid .answer-option,
+  .level-grid .answer-option,
+  .interest-grid .answer-option,
+  .style-grid .answer-option {
+    gap: 6px;
+    padding: 6px;
+  }
+
+  .question-options-grid .answer-glyph,
+  .level-grid .answer-glyph,
+  .interest-grid .answer-glyph,
+  .style-grid .answer-glyph {
+    width: 25px;
+    height: 25px;
+    flex-basis: 25px;
+    font-size: 12px;
+  }
+
+  .question-options-grid .answer-label,
+  .level-grid .answer-label,
+  .interest-grid .answer-label,
+  .style-grid .answer-label {
+    font-size: 9px;
   }
 
   .form-actions {
-    gap: 7px;
+    gap: 6px;
   }
 
   .form-actions button {
-    padding: 10px 7px;
-    font-size: 10px;
+    padding: 9px 6px;
+    font-size: 9px;
+  }
+
+  .login-options {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+/* ==========================================
+   SHORT VIEWPORTS
+   Useful for laptop screens with limited height
+   ========================================== */
+
+@media (min-width: 681px) and (max-height: 800px) {
+  .ev-topbar {
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  .auth-layout {
+    margin-top: 0;
+    margin-bottom: 8px;
+  }
+
+  .adventure-copy h1 {
+    margin-top: 15px;
+    margin-bottom: 10px;
+  }
+
+  .adventure-mascot {
+    min-height: 155px;
+    margin-top: 15px;
+    margin-bottom: 10px;
+  }
+
+  .form-card {
+    padding-top: 19px;
+    padding-bottom: 17px;
+  }
+
+  .form-brand-heading {
+    margin-bottom: 10px;
+  }
+
+  .mode-switch {
+    margin-bottom: 11px;
+  }
+
+  .onboarding-progress {
+    margin-bottom: 10px;
+  }
+
+  .form-intro {
+    margin-bottom: 11px;
+  }
+
+  .form-intro h2 {
+    font-size: 24px;
+  }
+
+  .question-options {
+    gap: 6px;
+  }
+
+  .answer-option {
+    min-height: 44px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+
+  .answer-glyph {
+    width: 28px;
+    height: 28px;
+    flex-basis: 28px;
+  }
+
+  .form-actions {
+    margin-top: 10px;
+  }
+
+  .ev-footer {
+    padding-top: 8px;
+    padding-bottom: 9px;
+  }
+}
+
+/* Respect reduced-motion settings */
+
+@media (prefers-reduced-motion: reduce) {
+  .ev-auth *,
+  .ev-auth *::before,
+  .ev-auth *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
