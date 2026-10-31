@@ -4,6 +4,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -25,6 +26,7 @@ import {
   Trophy,
   Video,
   Volume2,
+  X,
   Zap,
 } from "lucide-react";
 
@@ -78,6 +80,12 @@ const STAGE_ICONS = {
   quiz: Trophy,
 };
 
+const ACTIVITY_LABELS = {
+  predict: "Predict the output",
+  debug: "Experiment",
+  practice: "Practice",
+};
+
 const xpKey = (courseId) => `evolv_${courseId}_xp`;
 const heartsKey = (courseId) => `evolv_${courseId}_hearts`;
 const quizScoreKey = (courseId) =>
@@ -91,6 +99,155 @@ const emptyStageProgress = () => ({
   "hands-on": {},
   quiz: {},
 });
+
+// ==================================================
+// PYTHON RUNNER (Pyodide in a Web Worker)
+// ==================================================
+
+/*
+ * Code runs in a separate Web Worker so an infinite loop cannot
+ * freeze the page. The worker is terminated after RUN_TIMEOUT_MS.
+ * If the runtime cannot be loaded (offline, blocked CDN), the page
+ * falls back to the simple print() preview.
+ */
+const PYODIDE_VERSION = "0.26.4";
+const PYODIDE_BASE = `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`;
+const LOAD_TIMEOUT_MS = 60000;
+const RUN_TIMEOUT_MS = 10000;
+
+const WORKER_SOURCE = `
+importScripts("${PYODIDE_BASE}pyodide.js");
+
+let pyodidePromise = null;
+
+function getPyodide() {
+  if (!pyodidePromise) {
+    pyodidePromise = loadPyodide({ indexURL: "${PYODIDE_BASE}" });
+  }
+  return pyodidePromise;
+}
+
+getPyodide().then(
+  function () {
+    self.postMessage({ type: "ready" });
+  },
+  function (error) {
+    self.postMessage({
+      type: "load-error",
+      message: String((error && error.message) || error),
+    });
+  }
+);
+
+self.onmessage = async function (event) {
+  const data = event.data || {};
+  const stdout = [];
+  const stderr = [];
+
+  try {
+    const pyodide = await getPyodide();
+    const queue = Array.isArray(data.stdin) ? data.stdin.slice() : [];
+
+    pyodide.setStdout({ raw: function (byte) { stdout.push(byte); } });
+    pyodide.setStderr({ raw: function (byte) { stderr.push(byte); } });
+    pyodide.setStdin({
+      stdin: function () {
+        return queue.length ? queue.shift() : undefined;
+      },
+    });
+
+    const globals = pyodide.globals.get("dict")();
+    let error = null;
+
+    try {
+      await pyodide.runPythonAsync(data.code, { globals: globals });
+    } catch (runError) {
+      error = String((runError && runError.message) || runError);
+    } finally {
+      globals.destroy();
+    }
+
+    const decoder = new TextDecoder();
+
+    self.postMessage({
+      type: "result",
+      id: data.id,
+      output: decoder.decode(new Uint8Array(stdout)),
+      errorOutput: decoder.decode(new Uint8Array(stderr)),
+      error: error,
+    });
+  } catch (fatal) {
+    self.postMessage({
+      type: "result",
+      id: data.id,
+      output: "",
+      errorOutput: "",
+      error: String((fatal && fatal.message) || fatal),
+    });
+  }
+};
+`;
+
+function cleanPythonError(message) {
+  const lines = String(message ?? "").split("\n");
+  const index = lines.findIndex((line) =>
+    line.includes('File "<exec>"')
+  );
+
+  if (index < 0) {
+    return lines.join("\n").trim();
+  }
+
+  return [
+    "Traceback (most recent call last):",
+    ...lines.slice(index),
+  ]
+    .join("\n")
+    .trim();
+}
+
+function normalizeOutput(value) {
+  return String(value ?? "")
+    .replace(/\r\n/g, "\n")
+    .split("\n")
+    .map((line) => line.replace(/\s+$/, ""))
+    .join("\n")
+    .trim();
+}
+
+/*
+ * Fallback only: understands simple print("text") lines.
+ */
+function previewSimplePrint(code) {
+  const output = [];
+
+  for (const rawLine of String(code).split(/\r?\n/)) {
+    const line = rawLine.trim();
+
+    if (!line || line.startsWith("#")) {
+      continue;
+    }
+
+    const match = line.match(
+      /^print\s*\(\s*(?:"([^"]*)"|'([^']*)'|(-?\d+(?:\.\d+)?))\s*\)\s*(?:#.*)?$/
+    );
+
+    if (!match) {
+      return {
+        output: output.join("\n"),
+        message:
+          "This fallback preview supports simple print() statements only.",
+      };
+    }
+
+    output.push(match[1] ?? match[2] ?? match[3]);
+  }
+
+  return {
+    output: output.join("\n"),
+    message: "Fallback preview only.",
+  };
+}
 
 // ==================================================
 // LOCAL STORAGE HELPERS
@@ -134,6 +291,14 @@ function readObject(key) {
     !Array.isArray(value)
     ? value
     : {};
+}
+
+function writeStorage(key, value) {
+  try {
+    localStorage.setItem(key, value);
+  } catch (error) {
+    console.error("Could not write to localStorage:", error);
+  }
 }
 
 function notifyProgressUpdated() {
@@ -212,7 +377,6 @@ function getQuestions(lesson) {
         question: lesson.question,
         options: lesson.options,
         answer: lesson.answer,
-        explanation: lesson.explanation,
       },
     ];
   }
@@ -236,6 +400,10 @@ function isValidQuestion(question) {
       Number(question.answer) >= 0 &&
       Number(question.answer) < question.options.length
   );
+}
+
+function hasAnswer(value) {
+  return value !== undefined && value !== null && value !== "";
 }
 
 // ==================================================
@@ -267,41 +435,201 @@ function getPractice(lesson) {
   };
 }
 
+// ==================================================
+// CONCEPT TEXT FORMATTING
+// ==================================================
+
 /*
- * This is a limited preview, not a Python interpreter.
+ * Lesson explanations are plain multi-line text. This turns them
+ * into headings, paragraphs, bullet lists and code blocks so they
+ * read clearly instead of collapsing into one paragraph.
+ *
+ * Rules:
+ * - Sections are separated by blank lines.
+ * - A short first line without final punctuation is a heading.
+ * - Lines starting with "- " are bullets.
+ * - Indented lines, Python statements and column-aligned lines
+ *   are shown as code.
  */
-function previewSimplePrint(code) {
-  const output = [];
+const CODE_STATEMENT =
+  /^(def|class|for|while|if|elif|else|try|except|finally|with)\b.*:\s*$/;
 
-  for (const rawLine of String(code).split(/\r?\n/)) {
-    const line = rawLine.trim();
+function isBulletLine(line) {
+  return /^\s*[-•] \S/.test(line);
+}
 
-    if (!line || line.startsWith("#")) {
-      continue;
+function isCodeLine(line) {
+  if (/^( {2,}|\t)\S/.test(line)) return true;
+  if (CODE_STATEMENT.test(line)) return true;
+  if (
+    /^(import|from)\s+\w+/.test(line) &&
+    line.length <= 36
+  ) {
+    return true;
+  }
+  // Whole line is a function call, such as print(2 + 3)
+  if (/^[A-Za-z_][\w.]*\(.*\)\s*$/.test(line)) return true;
+  // Simple assignment, such as score = score + 5
+  if (
+    /^[A-Za-z_][\w.]*(\[[^\]]*\])*\s*[+\-*]?=\s*[\w."'[\](){},+\-*/% :]{1,50}$/.test(
+      line
+    ) &&
+    !/[.]$/.test(line)
+  ) {
+    return true;
+  }
+  // Column-aligned lines, such as "+   addition     7 + 2 gives 9"
+  if (/^\S+ {2,}\S/.test(line) || /\S {3,}\S/.test(line)) {
+    return true;
+  }
+  // del statements
+  if (/^del\s+\S+$/.test(line)) return true;
+  return false;
+}
+
+function isHeadingLine(line) {
+  const text = line.trim();
+
+  return (
+    text.length > 0 &&
+    text.length <= 52 &&
+    !/[.,;)=]$/.test(text) &&
+    !text.includes("=") &&
+    !isBulletLine(line) &&
+    !isCodeLine(line)
+  );
+}
+
+function parseExplanation(text) {
+  const blocks = [];
+  const sections = String(text ?? "")
+    .replace(/\r\n/g, "\n")
+    .split(/\n\s*\n/);
+
+  for (const section of sections) {
+    const lines = section
+      .split("\n")
+      .filter((line) => line.trim() !== "");
+
+    if (!lines.length) continue;
+
+    let start = 0;
+
+    if (lines.length > 1 && isHeadingLine(lines[0])) {
+      blocks.push({
+        type: "heading",
+        text: lines[0].trim().replace(/:$/, ""),
+      });
+      start = 1;
     }
 
-    const match = line.match(
-      /^print\s*\(\s*(?:"([^"]*)"|'([^']*)'|(-?\d+(?:\.\d+)?))\s*\)\s*(?:#.*)?$/
-    );
+    let buffer = null;
 
-    if (!match) {
-      return {
-        output: output.join("\n"),
-        message:
-          "This preview supports simple print() statements only. It does not execute full Python.",
-      };
+    for (let index = start; index < lines.length; index += 1) {
+      const line = lines[index];
+
+      const kind = isBulletLine(line)
+        ? "list"
+        : isCodeLine(line)
+          ? "code"
+          : "text";
+
+      if (kind === "text") {
+        blocks.push({ type: "text", text: line });
+        buffer = null;
+        continue;
+      }
+
+      const value =
+        kind === "list"
+          ? line.replace(/^\s*[-•] /, "")
+          : line;
+
+      if (buffer && buffer.type === kind) {
+        buffer.lines.push(value);
+      } else {
+        buffer = { type: kind, lines: [value] };
+        blocks.push(buffer);
+      }
     }
-
-    output.push(
-      match[1] ?? match[2] ?? match[3]
-    );
   }
 
-  return {
-    output: output.join("\n"),
-    message:
-      "Preview only. This is not output from a full Python interpreter.",
-  };
+  return blocks;
+}
+
+const explanationStyles = {
+  heading: {
+    margin: "1.1rem 0 0.3rem",
+    fontSize: "1rem",
+    fontWeight: 700,
+  },
+  text: {
+    margin: "0.25rem 0",
+    lineHeight: 1.65,
+    whiteSpace: "pre-wrap",
+  },
+  list: {
+    margin: "0.35rem 0 0.35rem 1.2rem",
+    padding: 0,
+    lineHeight: 1.65,
+  },
+  code: {
+    margin: "0.5rem 0",
+    padding: "0.7rem 1rem",
+    borderRadius: "10px",
+    background: "rgba(127, 127, 127, 0.14)",
+    fontFamily:
+      "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+    fontSize: "0.9rem",
+    lineHeight: 1.55,
+    overflowX: "auto",
+    whiteSpace: "pre",
+  },
+};
+
+function ExplanationBody({ text }) {
+  const blocks = useMemo(
+    () => parseExplanation(text),
+    [text]
+  );
+
+  return (
+    <div className="concept-explanation">
+      {blocks.map((block, index) => {
+        if (block.type === "heading") {
+          return (
+            <h4 key={index} style={explanationStyles.heading}>
+              {block.text}
+            </h4>
+          );
+        }
+
+        if (block.type === "list") {
+          return (
+            <ul key={index} style={explanationStyles.list}>
+              {block.lines.map((item, itemIndex) => (
+                <li key={itemIndex}>{item}</li>
+              ))}
+            </ul>
+          );
+        }
+
+        if (block.type === "code") {
+          return (
+            <pre key={index} style={explanationStyles.code}>
+              <code>{block.lines.join("\n")}</code>
+            </pre>
+          );
+        }
+
+        return (
+          <p key={index} style={explanationStyles.text}>
+            {block.text}
+          </p>
+        );
+      })}
+    </div>
+  );
 }
 
 // ==================================================
@@ -355,9 +683,8 @@ function isStageComplete(progress, lessonId, stage) {
   }
 
   return Boolean(
-    progress?.[normalizedStage]?.[
-      String(lessonId)
-    ]?.completed
+    progress?.[normalizedStage]?.[String(lessonId)]
+      ?.completed
   );
 }
 
@@ -385,13 +712,8 @@ function isStageUnlocked(progress, lessonId, stage) {
     return true;
   }
 
-  return STAGES.slice(0, index).every(
-    (previousStage) =>
-      isStageComplete(
-        progress,
-        lessonId,
-        previousStage
-      )
+  return STAGES.slice(0, index).every((previousStage) =>
+    isStageComplete(progress, lessonId, previousStage)
   );
 }
 
@@ -399,11 +721,7 @@ function getNextIncompleteStage(progress, lessonId) {
   return (
     STAGES.find(
       (stage) =>
-        !isStageComplete(
-          progress,
-          lessonId,
-          stage
-        )
+        !isStageComplete(progress, lessonId, stage)
     ) ?? null
   );
 }
@@ -481,15 +799,13 @@ export default function LessonPage() {
 
     return (
       lessons.find(
-        (item) =>
-          String(item.id) === String(lessonId)
+        (item) => String(item.id) === String(lessonId)
       ) ?? null
     );
   }, [courseId, lessonId, lessons]);
 
   const lessonIndex = lessons.findIndex(
-    (item) =>
-      String(item.id) === String(lesson?.id)
+    (item) => String(item.id) === String(lesson?.id)
   );
 
   const nextLesson =
@@ -510,21 +826,16 @@ export default function LessonPage() {
   const [progressLoading, setProgressLoading] =
     useState(true);
 
-  const [progressError, setProgressError] =
-    useState("");
+  const [progressError, setProgressError] = useState("");
 
-  const [savingStage, setSavingStage] =
-    useState(false);
+  const [savingStage, setSavingStage] = useState(false);
 
   const [xp, setXp] = useState(() =>
     readNumber(xpKey(courseId))
   );
 
   const [hearts] = useState(() =>
-    readNumber(
-      heartsKey(courseId),
-      STARTING_HEARTS
-    )
+    readNumber(heartsKey(courseId), STARTING_HEARTS)
   );
 
   const [quizScores, setQuizScores] = useState(() =>
@@ -534,122 +845,186 @@ export default function LessonPage() {
   const [videoFinished, setVideoFinished] =
     useState(false);
 
-  const [practiceCode, setPracticeCode] =
-    useState("");
+  // Concept stage
+  const [quickAnswer, setQuickAnswer] = useState(null);
+  const [revealedActivities, setRevealedActivities] =
+    useState({});
 
+  // Hands-on stage
+  const [practiceCode, setPracticeCode] = useState("");
   const [practiceOutput, setPracticeOutput] =
     useState(null);
-
+  const [practiceError, setPracticeError] = useState("");
   const [practiceMessage, setPracticeMessage] =
     useState("");
+  const [runStatus, setRunStatus] = useState(null);
+  const [isRunning, setIsRunning] = useState(false);
+  const [programInput, setProgramInput] = useState("");
+  const [taskChecked, setTaskChecked] = useState(false);
+  const [showHint, setShowHint] = useState(false);
+  const [showSolution, setShowSolution] = useState(false);
 
-  const [taskChecked, setTaskChecked] =
-    useState(false);
-
-  const [showHint, setShowHint] =
-    useState(false);
-
+  // Quiz stage
   const [answers, setAnswers] = useState({});
   const [quizSubmitted, setQuizSubmitted] =
     useState(false);
 
-  const [currentScore, setCurrentScore] =
-    useState(null);
+  const [currentScore, setCurrentScore] = useState(null);
 
-  const [
-    showCompletionModal,
-    setShowCompletionModal,
-  ] = useState(false);
+  const [showCompletionModal, setShowCompletionModal] =
+    useState(false);
 
-  const [topicEarnedXP, setTopicEarnedXP] =
-    useState(0);
+  const [topicEarnedXP, setTopicEarnedXP] = useState(0);
 
   const [completionTotalXP, setCompletionTotalXP] =
     useState(0);
 
-  const [
-    completionContinueTo,
-    setCompletionContinueTo,
-  ] = useState("");
+  const [completionContinueTo, setCompletionContinueTo] =
+    useState("");
 
-  const [currentStreak, setCurrentStreak] =
-    useState(() =>
-      readNumber(streakKey(courseId))
-    );
+  const [currentStreak, setCurrentStreak] = useState(() =>
+    readNumber(streakKey(courseId))
+  );
 
-  const [activeToday, setActiveToday] =
-    useState(false);
+  const [activeToday, setActiveToday] = useState(false);
 
   const [streakLoading, setStreakLoading] =
     useState(false);
 
-  const [streakError, setStreakError] =
-    useState("");
+  const [streakError, setStreakError] = useState("");
 
-  const [saveError, setSaveError] =
-    useState("");
+  const [saveError, setSaveError] = useState("");
 
-  const practice = lesson
-    ? getPractice(lesson)
-    : null;
+  const practice = lesson ? getPractice(lesson) : null;
 
-  const questions = lesson
-    ? getQuestions(lesson)
-    : [];
+  const questions = lesson ? getQuestions(lesson) : [];
+
+  // ------------------------------------------------
+  // Python runner (worker lifecycle)
+  // ------------------------------------------------
+
+  const workerRef = useRef(null);
+  const readyRef = useRef(null);
+  const runIdRef = useRef(0);
+
+  const destroyWorker = useCallback(() => {
+    if (workerRef.current) {
+      workerRef.current.terminate();
+    }
+
+    workerRef.current = null;
+    readyRef.current = null;
+  }, []);
+
+  const ensureWorker = useCallback(() => {
+    if (readyRef.current) {
+      return readyRef.current;
+    }
+
+    const blob = new Blob([WORKER_SOURCE], {
+      type: "text/javascript",
+    });
+
+    const url = URL.createObjectURL(blob);
+    const worker = new Worker(url);
+
+    workerRef.current = worker;
+
+    const ready = new Promise((resolve, reject) => {
+      const timer = setTimeout(() => {
+        reject(
+          new Error(
+            "The Python runtime took too long to load."
+          )
+        );
+      }, LOAD_TIMEOUT_MS);
+
+      function onMessage(event) {
+        const message = event.data;
+
+        if (message?.type === "ready") {
+          clearTimeout(timer);
+          worker.removeEventListener("message", onMessage);
+          resolve(worker);
+        } else if (message?.type === "load-error") {
+          clearTimeout(timer);
+          worker.removeEventListener("message", onMessage);
+          reject(new Error(message.message));
+        }
+      }
+
+      worker.addEventListener("message", onMessage);
+
+      worker.addEventListener(
+        "error",
+        (event) => {
+          clearTimeout(timer);
+          reject(
+            new Error(
+              event.message ||
+                "The Python runtime could not start."
+            )
+          );
+        },
+        { once: true }
+      );
+    }).catch((error) => {
+      if (workerRef.current === worker) {
+        destroyWorker();
+      } else {
+        worker.terminate();
+      }
+
+      URL.revokeObjectURL(url);
+      throw error;
+    });
+
+    readyRef.current = ready;
+
+    return ready;
+  }, [destroyWorker]);
+
+  // Warm up the runtime when the learner opens Hands-on.
+  useEffect(() => {
+    if (type === "hands-on" && lesson) {
+      ensureWorker().catch(() => {});
+    }
+  }, [type, lesson, ensureWorker]);
+
+  // Stop the worker when leaving the page.
+  useEffect(() => destroyWorker, [destroyWorker]);
 
   // ------------------------------------------------
   // Derived progress
   // ------------------------------------------------
 
   const completedStages = lesson
-    ? getCompletedStages(
-        stageProgress,
-        lesson.id
-      )
+    ? getCompletedStages(stageProgress, lesson.id)
     : [];
 
   const currentStageCompleted = lesson
-    ? isStageComplete(
-        stageProgress,
-        lesson.id,
-        type
-      )
+    ? isStageComplete(stageProgress, lesson.id, type)
     : false;
 
   const currentStageUnlocked = lesson
-    ? isStageUnlocked(
-        stageProgress,
-        lesson.id,
-        type
-      )
+    ? isStageUnlocked(stageProgress, lesson.id, type)
     : false;
 
   const nextRequiredStage = lesson
-    ? getNextIncompleteStage(
-        stageProgress,
-        lesson.id
-      ) ?? "video"
+    ? getNextIncompleteStage(stageProgress, lesson.id) ??
+      "video"
     : "video";
 
   const topicCompleted = lesson
-    ? isTopicComplete(
-        stageProgress,
-        lesson.id
-      )
+    ? isTopicComplete(stageProgress, lesson.id)
     : false;
 
-  const completedCount = lessons.filter(
-    (item) =>
-      isTopicComplete(
-        stageProgress,
-        item.id
-      )
+  const completedCount = lessons.filter((item) =>
+    isTopicComplete(stageProgress, item.id)
   ).length;
 
   const courseProgress = lessons.length
-    ? Math.round(
-        (completedCount / lessons.length) * 100
-      )
+    ? Math.round((completedCount / lessons.length) * 100)
     : 0;
 
   const savedQuiz = quizScores[lessonKey];
@@ -689,12 +1064,7 @@ export default function LessonPage() {
       to: `/study/${courseId}`,
       label: "Back to Study Map",
     };
-  }, [
-    courseId,
-    lesson,
-    nextLesson,
-    stageProgress,
-  ]);
+  }, [courseId, lesson, nextLesson, stageProgress]);
 
   // ------------------------------------------------
   // Load and refresh stage progress
@@ -709,7 +1079,7 @@ export default function LessonPage() {
         return;
       }
 
-      // Only initial loading or a manual retry shows
+      // Only the initial load or a manual retry shows
       // the full-screen loader.
       if (showLoader) {
         setProgressLoading(true);
@@ -801,7 +1171,6 @@ export default function LessonPage() {
   }, [lesson]);
 
   // Background progress updates must not show the loader.
-  // Listen to one event only to prevent duplicate refreshes.
   useEffect(() => {
     const handleProgressUpdate = () => {
       void refreshProgress({ showLoader: false });
@@ -819,6 +1188,7 @@ export default function LessonPage() {
       );
     };
   }, [refreshProgress]);
+
   // ------------------------------------------------
   // Load XP and streak
   // ------------------------------------------------
@@ -828,43 +1198,25 @@ export default function LessonPage() {
 
     async function loadDashboard() {
       try {
-        const dashboard =
-          await getLearningDashboard();
+        const dashboard = await getLearningDashboard();
 
         if (cancelled) {
           return;
         }
 
-        const totalXP = Number(
-          dashboard?.totalXP ?? 0
-        );
-
+        const totalXP = Number(dashboard?.totalXP ?? 0);
         const streak = Number(
           dashboard?.currentStreak ?? 0
         );
 
-        if (
-          Number.isFinite(totalXP) &&
-          totalXP >= 0
-        ) {
+        if (Number.isFinite(totalXP) && totalXP >= 0) {
           setXp(totalXP);
-
-          localStorage.setItem(
-            xpKey(courseId),
-            String(totalXP)
-          );
+          writeStorage(xpKey(courseId), String(totalXP));
         }
 
-        if (
-          Number.isFinite(streak) &&
-          streak >= 0
-        ) {
+        if (Number.isFinite(streak) && streak >= 0) {
           setCurrentStreak(streak);
-
-          localStorage.setItem(
-            streakKey(courseId),
-            String(streak)
-          );
+          writeStorage(streakKey(courseId), String(streak));
         }
       } catch (error) {
         console.error(
@@ -887,30 +1239,36 @@ export default function LessonPage() {
   // ------------------------------------------------
 
   useEffect(() => {
+    // Invalidate any run that is still in progress.
+    runIdRef.current += 1;
+
     setVideoFinished(false);
 
+    setQuickAnswer(null);
+    setRevealedActivities({});
+
     setPracticeCode(
-      lesson
-        ? getPractice(lesson).starterCode
-        : ""
+      lesson ? getPractice(lesson).starterCode : ""
     );
 
     setPracticeOutput(null);
+    setPracticeError("");
     setPracticeMessage("");
+    setRunStatus(null);
+    setIsRunning(false);
+    setProgramInput("");
     setTaskChecked(false);
     setShowHint(false);
+    setShowSolution(false);
+
     setAnswers({});
     setQuizSubmitted(false);
     setCurrentScore(null);
+
     setStreakError("");
     setSaveError("");
     setShowCompletionModal(false);
-  }, [
-    courseId,
-    lessonId,
-    lesson,
-    requestedStage,
-  ]);
+  }, [courseId, lessonId, lesson, requestedStage]);
 
   // ------------------------------------------------
   // Save last viewed stage
@@ -921,24 +1279,16 @@ export default function LessonPage() {
       return;
     }
 
-    const destination =
-      `/study/${courseId}/lesson/${lesson.id}?stage=${type}`;
+    const destination = `/study/${courseId}/lesson/${lesson.id}?stage=${type}`;
 
-    try {
-      localStorage.setItem(
-        `evolv_${courseId}_last_viewed`,
-        JSON.stringify({
-          lessonId: lesson.id,
-          stage: type,
-          destination,
-        })
-      );
-    } catch (error) {
-      console.error(
-        "Could not save last-viewed stage:",
-        error
-      );
-    }
+    writeStorage(
+      `evolv_${courseId}_last_viewed`,
+      JSON.stringify({
+        lessonId: lesson.id,
+        stage: type,
+        destination,
+      })
+    );
   }, [courseId, lesson, type]);
 
   // ------------------------------------------------
@@ -953,20 +1303,146 @@ export default function LessonPage() {
   // Practice
   // ------------------------------------------------
 
-  function runPractice() {
+  function resetPracticeResult() {
+    setTaskChecked(false);
+    setPracticeOutput(null);
+    setPracticeError("");
+    setPracticeMessage("");
+    setRunStatus(null);
+  }
+
+  async function runPractice() {
+    if (isRunning) {
+      return;
+    }
+
     if (!practiceCode.trim()) {
       setPracticeOutput("");
+      setPracticeError("");
+      setRunStatus(null);
+      setPracticeMessage("Enter some code first.");
+      return;
+    }
+
+    const runId = runIdRef.current + 1;
+    runIdRef.current = runId;
+
+    setIsRunning(true);
+    setTaskChecked(false);
+    setPracticeOutput(null);
+    setPracticeError("");
+    setRunStatus(null);
+    setPracticeMessage(
+      "Running your code… the first run can take a few seconds while Python loads."
+    );
+
+    let worker;
+
+    try {
+      worker = await ensureWorker();
+    } catch (error) {
+      if (runIdRef.current !== runId) return;
+
+      const preview = previewSimplePrint(practiceCode);
+
+      setPracticeOutput(preview.output);
+      setRunStatus("fallback");
       setPracticeMessage(
-        "Enter some code first."
+        `The Python runtime could not be loaded (${error.message}). ${preview.message}`
+      );
+      setIsRunning(false);
+      return;
+    }
+
+    if (runIdRef.current !== runId) return;
+
+    const stdin = programInput
+      ? programInput.replace(/\r\n/g, "\n").split("\n")
+      : [];
+
+    const result = await new Promise((resolve) => {
+      const timer = setTimeout(() => {
+        worker.removeEventListener("message", onMessage);
+        destroyWorker();
+        resolve({ timedOut: true });
+      }, RUN_TIMEOUT_MS);
+
+      function onMessage(event) {
+        const message = event.data;
+
+        if (
+          message?.type === "result" &&
+          message.id === runId
+        ) {
+          clearTimeout(timer);
+          worker.removeEventListener("message", onMessage);
+          resolve(message);
+        }
+      }
+
+      worker.addEventListener("message", onMessage);
+
+      worker.postMessage({
+        id: runId,
+        code: practiceCode,
+        stdin,
+      });
+    });
+
+    if (runIdRef.current !== runId) return;
+
+    setIsRunning(false);
+
+    if (result.timedOut) {
+      setPracticeOutput("");
+      setRunStatus("error");
+      setPracticeMessage(
+        "Your program ran for more than 10 seconds and was stopped. Check for an infinite loop."
       );
       return;
     }
 
-    const result =
-      previewSimplePrint(practiceCode);
+    const output = result.output ?? "";
 
-    setPracticeOutput(result.output);
-    setPracticeMessage(result.message);
+    setPracticeOutput(output);
+
+    if (result.error) {
+      setPracticeError(cleanPythonError(result.error));
+      setRunStatus("error");
+      setPracticeMessage(
+        "Your code raised an error. Read the message below and fix the line it points to."
+      );
+      return;
+    }
+
+    const canCompare =
+      lesson?.validation !== "manual" &&
+      lesson?.expectedResult != null;
+
+    if (!canCompare) {
+      setRunStatus("ran");
+      setPracticeMessage(
+        "Your program finished. Compare your output with the expected result."
+      );
+      return;
+    }
+
+    const matched =
+      normalizeOutput(output) ===
+      normalizeOutput(lesson.expectedResult);
+
+    if (matched) {
+      setRunStatus("match");
+      setTaskChecked(true);
+      setPracticeMessage(
+        "Your output matches the expected result."
+      );
+    } else {
+      setRunStatus("mismatch");
+      setPracticeMessage(
+        "Your output is different from the expected result. Compare the two and try again."
+      );
+    }
   }
 
   function markPracticeReviewed() {
@@ -980,8 +1456,46 @@ export default function LessonPage() {
     setTaskChecked(true);
 
     setPracticeMessage(
-      "Practice marked as reviewed. The preview is not a full Python execution environment."
+      runStatus === "match"
+        ? "Your output matches the expected result."
+        : "Practice marked as reviewed."
     );
+  }
+
+  function handleEditorKeyDown(event) {
+    if (
+      (event.ctrlKey || event.metaKey) &&
+      event.key === "Enter"
+    ) {
+      event.preventDefault();
+      void runPractice();
+      return;
+    }
+
+    if (
+      event.key === "Tab" &&
+      !event.shiftKey &&
+      !event.ctrlKey &&
+      !event.metaKey &&
+      !event.altKey
+    ) {
+      event.preventDefault();
+
+      const element = event.target;
+      const { selectionStart, selectionEnd, value } =
+        element;
+
+      setPracticeCode(
+        `${value.slice(0, selectionStart)}    ${value.slice(selectionEnd)}`
+      );
+
+      resetPracticeResult();
+
+      requestAnimationFrame(() => {
+        element.selectionStart = selectionStart + 4;
+        element.selectionEnd = selectionStart + 4;
+      });
+    }
   }
 
   // ------------------------------------------------
@@ -995,11 +1509,8 @@ export default function LessonPage() {
       questions.length > 0 &&
       questions.every(isValidQuestion);
 
-    const allAnswered = questions.every(
-      (_, index) =>
-        answers[index] !== undefined &&
-        answers[index] !== null &&
-        answers[index] !== ""
+    const allAnswered = questions.every((_, index) =>
+      hasAnswer(answers[index])
     );
 
     if (!validQuestions || !allAnswered) {
@@ -1009,17 +1520,17 @@ export default function LessonPage() {
     const score = questions.reduce(
       (total, question, index) =>
         total +
-        (
-          Number(answers[index]) ===
-          Number(question.answer)
-            ? 1
-            : 0
-        ),
+        (Number(answers[index]) === Number(question.answer)
+          ? 1
+          : 0),
       0
     );
 
     const prevScores = readObject(quizScoreKey(courseId));
-    const existing = prevScores[lessonKey] || prevScores[String(lesson.id)] || {};
+    const existing =
+      prevScores[lessonKey] ||
+      prevScores[String(lesson.id)] ||
+      {};
     const attempts = (Number(existing.attempts) || 0) + 1;
 
     const result = {
@@ -1048,10 +1559,7 @@ export default function LessonPage() {
 
       notifyProgressUpdated();
     } catch (error) {
-      console.error(
-        "Could not save quiz score:",
-        error
-      );
+      console.error("Could not save quiz score:", error);
 
       setSaveError(
         "Your quiz result could not be saved locally."
@@ -1114,19 +1622,17 @@ export default function LessonPage() {
     setStreakError("");
 
     try {
-      const response =
-        await recordLearningActivity({
-          activityType: "lesson",
-          activityRef: `${courseId}-${lesson.id}-${type}`,
-        });
+      const response = await recordLearningActivity({
+        activityType: "lesson",
+        activityRef: `${courseId}-${lesson.id}-${type}`,
+      });
 
-      const streak =
-        normalizeStreakResponse(response);
+      const streak = normalizeStreakResponse(response);
 
       setCurrentStreak(streak.currentStreak);
       setActiveToday(streak.activeToday);
 
-      localStorage.setItem(
+      writeStorage(
         streakKey(courseId),
         String(streak.currentStreak)
       );
@@ -1165,9 +1671,9 @@ export default function LessonPage() {
 
     try {
       /*
-       * Save to Supabase.
-       * The progress service must map lesson.id correctly
-       * if the frontend and database use different IDs.
+       * Save to Supabase. The progress service must map
+       * lesson.id correctly if the frontend and database
+       * use different IDs.
        */
       await saveStageCompletion({
         lessonId: lesson.id,
@@ -1178,58 +1684,44 @@ export default function LessonPage() {
        * Reload from Supabase instead of assuming the save
        * succeeded merely because the request returned.
        */
-      const records =
-        await getLessonStageProgress(lesson.id);
+      const records = await getLessonStageProgress(
+        lesson.id
+      );
 
-      const updatedProgress =
-        buildStageProgress(
-          records,
-          lesson.id
-        );
+      const updatedProgress = buildStageProgress(
+        records,
+        lesson.id
+      );
 
       setStageProgress(updatedProgress);
 
       notifyProgressUpdated();
 
-      /*
-       * Activity tracking should not block stage completion.
-       */
+      // Activity tracking must not block stage completion.
       void recordStageActivity();
 
-      const nextStage =
-        getNextIncompleteStage(
-          updatedProgress,
-          lesson.id
-        );
+      const nextStage = getNextIncompleteStage(
+        updatedProgress,
+        lesson.id
+      );
 
-      const nowTopicCompleted =
-        isTopicComplete(
-          updatedProgress,
-          lesson.id
-        );
+      const nowTopicCompleted = isTopicComplete(
+        updatedProgress,
+        lesson.id
+      );
 
       if (nowTopicCompleted) {
         let totalXP = xp;
 
         try {
-          const dashboard =
-            await getLearningDashboard();
+          const dashboard = await getLearningDashboard();
 
-          const parsedXP = Number(
-            dashboard?.totalXP ?? 0
-          );
+          const parsedXP = Number(dashboard?.totalXP ?? 0);
 
-          if (
-            Number.isFinite(parsedXP) &&
-            parsedXP >= 0
-          ) {
+          if (Number.isFinite(parsedXP) && parsedXP >= 0) {
             totalXP = parsedXP;
             setXp(parsedXP);
-
-            localStorage.setItem(
-              xpKey(courseId),
-              String(parsedXP)
-            );
+            writeStorage(xpKey(courseId), String(parsedXP));
           }
         } catch (error) {
           console.error(
@@ -1248,8 +1740,7 @@ export default function LessonPage() {
         );
 
         const completionXP =
-          Number.isFinite(rawXP) &&
-          rawXP >= 0
+          Number.isFinite(rawXP) && rawXP >= 0
             ? rawXP
             : DEFAULT_COMPLETION_XP;
 
@@ -1297,9 +1788,7 @@ export default function LessonPage() {
     return (
       <main className="lesson-page lesson-not-found">
         <section className="lesson-card lesson-error-card">
-          <span className="lesson-locked-emoji">
-            🌱
-          </span>
+          <span className="lesson-locked-emoji">🌱</span>
 
           <p className="lesson-eyebrow">
             EVOLV ADVENTURE WORLD
@@ -1308,8 +1797,8 @@ export default function LessonPage() {
           <h1>Quest not found</h1>
 
           <p>
-            This lesson may have moved, or the course
-            does not exist.
+            This lesson may have moved, or the course does
+            not exist.
           </p>
 
           <Link
@@ -1325,12 +1814,12 @@ export default function LessonPage() {
   }
 
   // ==================================================
-// RENDER: LOADING
-// ==================================================
+  // RENDER: LOADING
+  // ==================================================
 
-if (progressLoading) {
-  return <EvolvLoader />;
-}
+  if (progressLoading) {
+    return <EvolvLoader />;
+  }
 
   // ==================================================
   // RENDER: PROGRESS ERROR
@@ -1342,9 +1831,7 @@ if (progressLoading) {
         className={`lesson-page course-${course.color || "green"}`}
       >
         <section className="lesson-card lesson-error-card">
-          <span className="lesson-locked-emoji">
-            🌱
-          </span>
+          <span className="lesson-locked-emoji">🌱</span>
 
           <h1>We couldn't load your progress</h1>
 
@@ -1354,8 +1841,8 @@ if (progressLoading) {
             type="button"
             className="lesson-primary-button"
             onClick={() =>
-  void refreshProgress({ showLoader: true })
-}
+              void refreshProgress({ showLoader: true })
+            }
           >
             Retry
             <RotateCcw size={17} />
@@ -1382,10 +1869,7 @@ if (progressLoading) {
         className={`lesson-page course-${course.color || "green"}`}
       >
         <header className="lesson-topbar">
-          <Link
-            to="/dashboard"
-            className="lesson-home-link"
-          >
+          <Link to="/dashboard" className="lesson-home-link">
             <House size={17} />
             Home
           </Link>
@@ -1395,9 +1879,7 @@ if (progressLoading) {
               {course.icon || "🐍"}
             </span>
 
-            <span>
-              {course.title || "Python journey"}
-            </span>
+            <span>{course.title || "Python journey"}</span>
           </div>
 
           <span className="lesson-topbar-xp">
@@ -1407,9 +1889,7 @@ if (progressLoading) {
         </header>
 
         <section className="lesson-card lesson-locked-card">
-          <span className="lesson-locked-emoji">
-            🔒
-          </span>
+          <span className="lesson-locked-emoji">🔒</span>
 
           <p className="lesson-eyebrow">
             ONE LEVEL AT A TIME
@@ -1430,8 +1910,7 @@ if (progressLoading) {
             className="lesson-primary-button"
             to={`/study/${courseId}/lesson/${lesson.id}?stage=${nextRequiredStage}`}
           >
-            Continue to{" "}
-            {STAGE_LABELS[nextRequiredStage]}
+            Continue to {STAGE_LABELS[nextRequiredStage]}
             <ArrowRight size={18} />
           </Link>
         </section>
@@ -1443,16 +1922,17 @@ if (progressLoading) {
   // RENDER: MAIN LESSON
   // ==================================================
 
-  const videoUrl =
-    lesson.videoUrl || lesson.video || "";
+  const videoUrl = lesson.videoUrl || lesson.video || "";
 
   const audioUrl = lesson.audioUrl || "";
 
-  const isHTMLLesson =
-    /\.html?($|[?#])/i.test(videoUrl);
+  // audioText defaults to the explanation in the lesson factory.
+  // Show it on the video stage only when it is a separate transcript.
+  const showAudioText =
+    Boolean(lesson.audioText) &&
+    lesson.audioText !== lesson.explanation;
 
-  const StageIcon =
-    STAGE_ICONS[type] || BookOpen;
+  const isHTMLLesson = /\.html?($|[?#])/i.test(videoUrl);
 
   const completionReady = canCompleteStage();
 
@@ -1460,16 +1940,29 @@ if (progressLoading) {
     questions.length > 0 &&
     questions.every(isValidQuestion);
 
-  const answeredCount = questions.filter(
-    (_, index) =>
-      answers[index] !== undefined &&
-      answers[index] !== null &&
-      answers[index] !== ""
+  const answeredCount = questions.filter((_, index) =>
+    hasAnswer(answers[index])
   ).length;
 
   const allQuestionsAnswered =
     questions.length > 0 &&
     answeredCount === questions.length;
+
+  const conceptActivities = (lesson.activities ?? []).filter(
+    (activity) => activity?.type !== "practice"
+  );
+
+  const usesInput = /\binput\s*\(/.test(practiceCode);
+
+  const quickCorrect =
+    quickAnswer !== null &&
+    Number(quickAnswer) === Number(lesson.answer);
+
+  const statusColors = {
+    match: "#16a34a",
+    mismatch: "#d97706",
+    error: "#dc2626",
+  };
 
   return (
     <main
@@ -1480,17 +1973,12 @@ if (progressLoading) {
           className="lesson-topbar-nav"
           aria-label="Learning navigation"
         >
-          <Link
-            to="/dashboard"
-            className="lesson-home-link"
-          >
+          <Link to="/dashboard" className="lesson-home-link">
             <House size={17} />
             <span>Home</span>
           </Link>
 
-          <span className="lesson-nav-divider">
-            /
-          </span>
+          <span className="lesson-nav-divider">/</span>
 
           <Link
             to={`/study/${courseId}`}
@@ -1506,9 +1994,7 @@ if (progressLoading) {
             {course.icon || "🐍"}
           </span>
 
-          <span>
-            {course.title || "Python journey"}
-          </span>
+          <span>{course.title || "Python journey"}</span>
         </div>
 
         <div className="lesson-topbar-status">
@@ -1569,24 +2055,19 @@ if (progressLoading) {
                 <span>YOUR LEARNING JOURNEY</span>
 
                 <span>
-                  Lesson {lessonIndex + 1} of{" "}
-                  {lessons.length}
+                  Lesson {lessonIndex + 1} of {lessons.length}
                 </span>
               </div>
 
               <div className="lesson-course-progress">
                 <div
                   className="lesson-course-progress-fill"
-                  style={{
-                    width: `${courseProgress}%`,
-                  }}
+                  style={{ width: `${courseProgress}%` }}
                 />
               </div>
 
               <div className="lesson-course-progress-meta">
-                <span>
-                  {completedCount} topics completed
-                </span>
+                <span>{completedCount} topics completed</span>
 
                 <strong>{courseProgress}%</strong>
               </div>
@@ -1608,19 +2089,17 @@ if (progressLoading) {
                   const Icon =
                     STAGE_ICONS[stage] || BookOpen;
 
-                  const completed =
-                    isStageComplete(
-                      stageProgress,
-                      lesson.id,
-                      stage
-                    );
+                  const completed = isStageComplete(
+                    stageProgress,
+                    lesson.id,
+                    stage
+                  );
 
-                  const unlocked =
-                    isStageUnlocked(
-                      stageProgress,
-                      lesson.id,
-                      stage
-                    );
+                  const unlocked = isStageUnlocked(
+                    stageProgress,
+                    lesson.id,
+                    stage
+                  );
 
                   return (
                     <Link
@@ -1636,9 +2115,7 @@ if (progressLoading) {
                         }
                       }}
                       aria-current={
-                        stage === type
-                          ? "step"
-                          : undefined
+                        stage === type ? "step" : undefined
                       }
                       aria-disabled={!unlocked}
                       className={[
@@ -1646,12 +2123,8 @@ if (progressLoading) {
                         stage === type
                           ? "is-current-stage"
                           : "",
-                        completed
-                          ? "is-stage-complete"
-                          : "",
-                        !unlocked
-                          ? "is-stage-locked"
-                          : "",
+                        completed ? "is-stage-complete" : "",
+                        !unlocked ? "is-stage-locked" : "",
                       ]
                         .filter(Boolean)
                         .join(" ")}
@@ -1664,9 +2137,7 @@ if (progressLoading) {
                         )}
                       </span>
 
-                      <span>
-                        {STAGE_LABELS[stage]}
-                      </span>
+                      <span>{STAGE_LABELS[stage]}</span>
                     </Link>
                   );
                 })}
@@ -1696,8 +2167,7 @@ if (progressLoading) {
                         className="lesson-html-frame"
                         src={videoUrl}
                         title={
-                          lesson.videoTitle ||
-                          lesson.title
+                          lesson.videoTitle || lesson.title
                         }
                         loading="lazy"
                         allowFullScreen
@@ -1707,13 +2177,13 @@ if (progressLoading) {
                         controls
                         preload="metadata"
                         poster={
-                          lesson.videoPoster ||
-                          undefined
+                          lesson.videoPoster || undefined
                         }
                         onEnded={finishVideo}
                       >
                         <source src={videoUrl} />
-                        Your browser does not support embedded video.
+                        Your browser does not support embedded
+                        video.
                       </video>
                     )}
                   </div>
@@ -1732,10 +2202,12 @@ if (progressLoading) {
                   </div>
                 )}
 
-                {lesson.audioText && (
+                {showAudioText && (
                   <div className="lesson-audio-text">
                     <Volume2 size={19} />
-                    <p>{lesson.audioText}</p>
+                    <p style={{ whiteSpace: "pre-wrap" }}>
+                      {lesson.audioText}
+                    </p>
                   </div>
                 )}
 
@@ -1744,16 +2216,12 @@ if (progressLoading) {
                     <Volume2 size={20} />
 
                     <div>
-                      <strong>
-                        Listen to the lesson
-                      </strong>
+                      <strong>Listen to the lesson</strong>
 
-                      <audio
-                        controls
-                        preload="none"
-                      >
+                      <audio controls preload="none">
                         <source src={audioUrl} />
-                        Your browser does not support audio playback.
+                        Your browser does not support audio
+                        playback.
                       </audio>
                     </div>
                   </div>
@@ -1848,10 +2316,16 @@ if (progressLoading) {
                     </span>
 
                     <div className="concept-idea-content">
-                      <p>
-                        {lesson.explanation ||
-                          "Review the example below to understand this concept."}
-                      </p>
+                      {lesson.explanation ? (
+                        <ExplanationBody
+                          text={lesson.explanation}
+                        />
+                      ) : (
+                        <p>
+                          Review the example below to
+                          understand this concept.
+                        </p>
+                      )}
                     </div>
                   </div>
                 </section>
@@ -1871,8 +2345,8 @@ if (progressLoading) {
                         <h3>See it in action</h3>
 
                         <p>
-                          Look at the code and understand
-                          how the concept works.
+                          Look at the code and understand how
+                          the concept works.
                         </p>
                       </div>
                     </div>
@@ -1884,9 +2358,7 @@ if (progressLoading) {
                         </span>
 
                         <div>
-                          <strong>
-                            Example walkthrough
-                          </strong>
+                          <strong>Example walkthrough</strong>
 
                           <p>
                             Read the code one line at a time.
@@ -1933,9 +2405,7 @@ if (progressLoading) {
 
                           <pre className="concept-output-code">
                             <code>
-                              {String(
-                                lesson.expectedOutput
-                              )}
+                              {String(lesson.expectedOutput)}
                             </code>
                           </pre>
                         </div>
@@ -1944,7 +2414,7 @@ if (progressLoading) {
                   </section>
                 )}
 
-                {lesson.activities?.length > 0 && (
+                {conceptActivities.length > 0 && (
                   <section className="concept-block">
                     <div className="concept-block-heading">
                       <span className="concept-section-number">
@@ -1959,15 +2429,15 @@ if (progressLoading) {
                         <h3>Explore the concept</h3>
 
                         <p>
-                          Use these short activities to
-                          connect the explanation with
-                          practical examples.
+                          Use these short activities to connect
+                          the explanation with practical
+                          examples.
                         </p>
                       </div>
                     </div>
 
                     <div className="concept-activity-list">
-                      {lesson.activities.map(
+                      {conceptActivities.map(
                         (activity, index) => (
                           <article
                             className="concept-activity-card"
@@ -1983,16 +2453,9 @@ if (progressLoading) {
                             <div className="concept-activity-body">
                               <div className="concept-activity-title">
                                 <h4>
-                                  {String(
-                                    activity.type ||
-                                      "Learning activity"
-                                  )
-                                    .replaceAll("-", " ")
-                                    .replace(
-                                      /\b\w/g,
-                                      (character) =>
-                                        character.toUpperCase()
-                                    )}
+                                  {ACTIVITY_LABELS[
+                                    activity.type
+                                  ] || "Learning activity"}
                                 </h4>
 
                                 <span>
@@ -2000,7 +2463,11 @@ if (progressLoading) {
                                 </span>
                               </div>
 
-                              <p>
+                              <p
+                                style={{
+                                  whiteSpace: "pre-wrap",
+                                }}
+                              >
                                 {activity.prompt ||
                                   "Review this example and think about how it relates to the concept."}
                               </p>
@@ -2008,27 +2475,47 @@ if (progressLoading) {
                               {activity.code && (
                                 <div className="concept-activity-code">
                                   <pre>
-                                    <code>
-                                      {activity.code}
-                                    </code>
+                                    <code>{activity.code}</code>
                                   </pre>
                                 </div>
                               )}
 
-                              {activity.expectedOutput != null && (
-                                <div className="concept-activity-result">
-                                  <CheckCircle2 size={16} />
+                              {activity.expectedOutput !=
+                                null &&
+                                (revealedActivities[index] ? (
+                                  <div className="concept-activity-result">
+                                    <CheckCircle2 size={16} />
 
-                                  <p>
-                                    <strong>
-                                      Expected output:
-                                    </strong>{" "}
-                                    {String(
-                                      activity.expectedOutput
-                                    )}
-                                  </p>
-                                </div>
-                              )}
+                                    <p
+                                      style={{
+                                        whiteSpace: "pre-wrap",
+                                      }}
+                                    >
+                                      <strong>
+                                        Expected output:
+                                      </strong>{" "}
+                                      {String(
+                                        activity.expectedOutput
+                                      )}
+                                    </p>
+                                  </div>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    className="lesson-secondary-button"
+                                    onClick={() =>
+                                      setRevealedActivities(
+                                        (previous) => ({
+                                          ...previous,
+                                          [index]: true,
+                                        })
+                                      )
+                                    }
+                                  >
+                                    <Terminal size={16} />
+                                    Reveal output
+                                  </button>
+                                ))}
                             </div>
                           </article>
                         )
@@ -2065,29 +2552,57 @@ if (progressLoading) {
 
                       <div className="concept-quick-options">
                         {lesson.options.map(
-                          (option, index) => (
-                            <div
-                              className="concept-quick-option"
-                              key={`${option}-${index}`}
-                            >
-                              <span className="concept-quick-option-letter">
-                                {String.fromCharCode(
-                                  65 + index
-                                )}
-                              </span>
+                          (option, index) => {
+                            const picked =
+                              quickAnswer === index;
 
-                              <span>{option}</span>
-                            </div>
-                          )
+                            return (
+                              <button
+                                type="button"
+                                className="concept-quick-option"
+                                key={`${option}-${index}`}
+                                onClick={() =>
+                                  setQuickAnswer(index)
+                                }
+                                aria-pressed={picked}
+                                style={{
+                                  cursor: "pointer",
+                                  textAlign: "left",
+                                  font: "inherit",
+                                  color: "inherit",
+                                  borderColor: picked
+                                    ? Number(lesson.answer) ===
+                                      index
+                                      ? "#16a34a"
+                                      : "#dc2626"
+                                    : undefined,
+                                }}
+                              >
+                                <span className="concept-quick-option-letter">
+                                  {String.fromCharCode(
+                                    65 + index
+                                  )}
+                                </span>
+
+                                <span>{option}</span>
+                              </button>
+                            );
+                          }
                         )}
                       </div>
 
-                      <div className="concept-quick-footer">
+                      <div
+                        className="concept-quick-footer"
+                        role="status"
+                      >
                         <Lightbulb size={17} />
 
                         <p>
-                          Think through your answer. You can
-                          test your knowledge in the Quiz stage.
+                          {quickAnswer === null
+                            ? "Choose an answer to check it. You can test yourself fully in the Quiz stage."
+                            : quickCorrect
+                              ? "Correct! Well done."
+                              : `Not quite. ${lesson.hint || "Re-read the explanation and try again."}`}
                         </p>
                       </div>
                     </section>
@@ -2119,7 +2634,7 @@ if (progressLoading) {
                   icon={Code2}
                   eyebrow="BUILD & EXPERIMENT"
                   title={practice.title}
-                  description="Edit the starter code, inspect the expected result, and review your solution."
+                  description="Follow the steps, run your code, and match the expected result."
                 />
 
                 <div className="lesson-challenge-card">
@@ -2129,7 +2644,9 @@ if (progressLoading) {
 
                   <h3>{lesson.title}</h3>
 
-                  <p>{practice.prompt}</p>
+                  <p style={{ whiteSpace: "pre-wrap" }}>
+                    {practice.prompt}
+                  </p>
 
                   {lesson.expectedResult != null && (
                     <div className="lesson-challenge-output">
@@ -2137,9 +2654,7 @@ if (progressLoading) {
 
                       <pre>
                         <code>
-                          {String(
-                            lesson.expectedResult
-                          )}
+                          {String(lesson.expectedResult)}
                         </code>
                       </pre>
                     </div>
@@ -2158,14 +2673,10 @@ if (progressLoading) {
                   className="lesson-code-editor"
                   value={practiceCode}
                   onChange={(event) => {
-                    setPracticeCode(
-                      event.target.value
-                    );
-
-                    setTaskChecked(false);
-                    setPracticeOutput(null);
-                    setPracticeMessage("");
+                    setPracticeCode(event.target.value);
+                    resetPracticeResult();
                   }}
+                  onKeyDown={handleEditorKeyDown}
                   spellCheck="false"
                   autoCapitalize="off"
                   autoComplete="off"
@@ -2173,30 +2684,51 @@ if (progressLoading) {
                   aria-describedby="lesson-runner-note"
                 />
 
+                {usesInput && (
+                  <>
+                    <label
+                      className="lesson-editor-label"
+                      htmlFor="lesson-program-input"
+                    >
+                      Program input (one line for each
+                      input() call)
+                    </label>
+
+                    <textarea
+                      id="lesson-program-input"
+                      className="lesson-code-editor"
+                      style={{ minHeight: "4.5rem" }}
+                      rows={3}
+                      value={programInput}
+                      placeholder={"EVO\n19"}
+                      onChange={(event) => {
+                        setProgramInput(event.target.value);
+                        resetPracticeResult();
+                      }}
+                      spellCheck="false"
+                    />
+                  </>
+                )}
+
                 <div className="lesson-editor-actions">
                   <button
                     type="button"
                     className="lesson-run-button"
-                    onClick={runPractice}
+                    onClick={() => void runPractice()}
+                    disabled={isRunning}
                   >
-                    <Play
-                      size={17}
-                      fill="currentColor"
-                    />
-                    Preview output
+                    <Play size={17} fill="currentColor" />
+                    {isRunning ? "Running…" : "Run code"}
                   </button>
 
                   <button
                     type="button"
                     className="lesson-reset-button"
                     onClick={() => {
-                      setPracticeCode(
-                        practice.starterCode
-                      );
-
-                      setPracticeOutput(null);
-                      setPracticeMessage("");
-                      setTaskChecked(false);
+                      runIdRef.current += 1;
+                      setIsRunning(false);
+                      setPracticeCode(practice.starterCode);
+                      resetPracticeResult();
                     }}
                   >
                     <RotateCcw size={16} />
@@ -2211,10 +2743,23 @@ if (progressLoading) {
                     }
                   >
                     <Lightbulb size={16} />
-                    {showHint
-                      ? "Hide hint"
-                      : "Show hint"}
+                    {showHint ? "Hide hint" : "Show hint"}
                   </button>
+
+                  {lesson.solutionCode && (
+                    <button
+                      type="button"
+                      className="lesson-secondary-button"
+                      onClick={() =>
+                        setShowSolution((value) => !value)
+                      }
+                    >
+                      <Code2 size={16} />
+                      {showSolution
+                        ? "Hide solution"
+                        : "Show solution"}
+                    </button>
+                  )}
                 </div>
 
                 <div
@@ -2224,9 +2769,10 @@ if (progressLoading) {
                   <Lightbulb size={18} />
 
                   <p>
-                    This preview recognises simple print()
-                    statements only. It does not execute
-                    arbitrary Python code.
+                    Your code runs in the browser using real
+                    Python. The first run can take a few
+                    seconds to load. Press Ctrl+Enter (or
+                    Cmd+Enter) to run, and Tab to indent.
                   </p>
                 </div>
 
@@ -2234,30 +2780,87 @@ if (progressLoading) {
                   <div className="lesson-hint-content">
                     <strong>Hint:</strong>{" "}
                     {practice.hint ||
-                      "Read the instructions and change the starter code one step at a time."}
+                      "Read the steps and change the starter code one step at a time."}
                   </div>
                 )}
 
-                {practiceOutput !== null && (
+                {showSolution && lesson.solutionCode && (
+                  <div className="lesson-live-output">
+                    <div className="lesson-output-heading">
+                      <Code2 size={17} />
+                      Reference solution
+                    </div>
+
+                    <pre>
+                      <code>{lesson.solutionCode}</code>
+                    </pre>
+                  </div>
+                )}
+
+                {(practiceOutput !== null ||
+                  practiceMessage) && (
                   <div
                     className="lesson-live-output"
                     aria-live="polite"
                   >
-                    <div className="lesson-output-heading">
-                      <Terminal size={17} />
-                      Preview output
-                    </div>
+                    {practiceOutput !== null && (
+                      <>
+                        <div className="lesson-output-heading">
+                          <Terminal size={17} />
+                          Your output
+                        </div>
 
-                    <pre>
-                      <code>
-                        {practiceOutput ||
-                          "(No output to display)"}
-                      </code>
-                    </pre>
+                        <pre>
+                          <code>
+                            {practiceOutput ||
+                              "(No output to display)"}
+                          </code>
+                        </pre>
+                      </>
+                    )}
 
-                    <p className="lesson-preview-message">
-                      {practiceMessage}
-                    </p>
+                    {practiceError && (
+                      <>
+                        <div
+                          className="lesson-output-heading"
+                          style={{ color: "#dc2626" }}
+                        >
+                          <X size={17} />
+                          Error
+                        </div>
+
+                        <pre>
+                          <code>{practiceError}</code>
+                        </pre>
+                      </>
+                    )}
+
+                    {runStatus === "mismatch" &&
+                      lesson.expectedResult != null && (
+                        <>
+                          <div className="lesson-output-heading">
+                            <Check size={17} />
+                            Expected output
+                          </div>
+
+                          <pre>
+                            <code>
+                              {String(lesson.expectedResult)}
+                            </code>
+                          </pre>
+                        </>
+                      )}
+
+                    {practiceMessage && (
+                      <p
+                        className="lesson-preview-message"
+                        style={{
+                          color: statusColors[runStatus],
+                        }}
+                      >
+                        {practiceMessage}
+                      </p>
+                    )}
                   </div>
                 )}
 
@@ -2270,7 +2873,9 @@ if (progressLoading) {
                   {taskChecked ? (
                     <>
                       <CheckCircle2 size={18} />
-                      Practice reviewed
+                      {runStatus === "match"
+                        ? "Output matches"
+                        : "Practice reviewed"}
                     </>
                   ) : (
                     <>
@@ -2324,21 +2929,98 @@ if (progressLoading) {
 
                       <p>
                         {Math.round(
-                          (
-                            (currentScore?.score || 0) /
+                          ((currentScore?.score || 0) /
                             Math.max(
                               currentScore?.maxScore || 1,
                               1
-                            )
-                          ) * 100
+                            )) *
+                            100
                         )}
                         % correct
                       </p>
 
                       <p>
-                        Review your result, then continue
-                        when you're ready.
+                        Review your answers below, then
+                        continue when you're ready.
                       </p>
+
+                      <div
+                        style={{
+                          textAlign: "left",
+                          marginTop: "1rem",
+                          display: "grid",
+                          gap: "0.75rem",
+                        }}
+                      >
+                        {questions.map(
+                          (question, questionIndex) => {
+                            const chosen = Number(
+                              answers[questionIndex]
+                            );
+
+                            const correct =
+                              chosen ===
+                              Number(question.answer);
+
+                            return (
+                              <div
+                                key={`${questionIndex}-${question.question}`}
+                                className="lesson-question-card"
+                              >
+                                <p
+                                  style={{
+                                    margin: 0,
+                                    fontWeight: 600,
+                                  }}
+                                >
+                                  {questionIndex + 1}.{" "}
+                                  {question.question}
+                                </p>
+
+                                <p
+                                  style={{
+                                    margin: "0.35rem 0 0",
+                                    color: correct
+                                      ? "#16a34a"
+                                      : "#dc2626",
+                                  }}
+                                >
+                                  {correct ? "✓" : "✗"} Your
+                                  answer:{" "}
+                                  {question.options[chosen]}
+                                </p>
+
+                                {!correct && (
+                                  <p
+                                    style={{
+                                      margin: "0.25rem 0 0",
+                                      color: "#16a34a",
+                                    }}
+                                  >
+                                    Correct answer:{" "}
+                                    {
+                                      question.options[
+                                        Number(question.answer)
+                                      ]
+                                    }
+                                  </p>
+                                )}
+
+                                {question.explanation && (
+                                  <p
+                                    style={{
+                                      margin: "0.25rem 0 0",
+                                      opacity: 0.8,
+                                    }}
+                                  >
+                                    {question.explanation}
+                                  </p>
+                                )}
+                              </div>
+                            );
+                          }
+                        )}
+                      </div>
 
                       <button
                         type="button"
@@ -2369,10 +3051,9 @@ if (progressLoading) {
                         <div
                           style={{
                             width: `${
-                              (
-                                answeredCount /
-                                questions.length
-                              ) * 100
+                              (answeredCount /
+                                questions.length) *
+                              100
                             }%`,
                           }}
                         />
@@ -2389,20 +3070,18 @@ if (progressLoading) {
                                 {questionIndex + 1}
                               </span>
 
-                              <span>
-                                {question.question}
-                              </span>
+                              <span>{question.question}</span>
                             </legend>
 
                             <div className="lesson-quiz-options">
                               {question.options.map(
-                                (
-                                  option,
-                                  optionIndex
-                                ) => (
+                                (option, optionIndex) => (
                                   <label
                                     className={[
                                       "lesson-quiz-option",
+                                      hasAnswer(
+                                        answers[questionIndex]
+                                      ) &&
                                       Number(
                                         answers[questionIndex]
                                       ) === optionIndex
@@ -2418,6 +3097,9 @@ if (progressLoading) {
                                       name={`question-${questionIndex}`}
                                       value={optionIndex}
                                       checked={
+                                        hasAnswer(
+                                          answers[questionIndex]
+                                        ) &&
                                         Number(
                                           answers[questionIndex]
                                         ) === optionIndex
@@ -2459,23 +3141,21 @@ if (progressLoading) {
 
                       {!allQuestionsAnswered && (
                         <p className="lesson-completion-note">
-                          Answer every question to submit
-                          your quiz.
+                          Answer every question to submit your
+                          quiz.
                         </p>
                       )}
                     </form>
                   )
                 ) : (
                   <div className="lesson-empty-quiz">
-                    <h3>
-                      Quiz questions need attention
-                    </h3>
+                    <h3>Quiz questions need attention</h3>
 
                     <p>
-                      Each question needs a question string,
-                      an options array, and a valid
-                      zero-based answer index. Check this
-                      lesson in pythonLessons.js.
+                      Each question needs a question string, an
+                      options array, and a valid zero-based
+                      answer index. Check this lesson in
+                      pythonLessons.js.
                     </p>
                   </div>
                 )}
@@ -2484,8 +3164,7 @@ if (progressLoading) {
                   <p className="lesson-saved-score">
                     Previous score:{" "}
                     <strong>
-                      {savedQuiz.score}/
-                      {savedQuiz.maxScore}
+                      {savedQuiz.score}/{savedQuiz.maxScore}
                     </strong>
                   </p>
                 )}
@@ -2526,9 +3205,7 @@ if (progressLoading) {
                 <button
                   type="button"
                   className="lesson-primary-button"
-                  onClick={() =>
-                    void completeStage()
-                  }
+                  onClick={() => void completeStage()}
                   disabled={
                     !completionReady ||
                     savingStage ||
@@ -2547,22 +3224,21 @@ if (progressLoading) {
               )}
             </footer>
 
-            {!currentStageCompleted &&
-              !completionReady && (
-                <p className="lesson-completion-note">
-                  {type === "video" &&
-                    "Mark the video as watched or reviewed first."}
+            {!currentStageCompleted && !completionReady && (
+              <p className="lesson-completion-note">
+                {type === "video" &&
+                  "Mark the video as watched or reviewed first."}
 
-                  {type === "concept" &&
-                    "Read through the explanation, then complete this stage."}
+                {type === "concept" &&
+                  "Read through the explanation, then complete this stage."}
 
-                  {type === "hands-on" &&
-                    "Review your practice before completing this stage."}
+                {type === "hands-on" &&
+                  "Run your code and match the expected result, or review your practice, before completing this stage."}
 
-                  {type === "quiz" &&
-                    "Answer all quiz questions and submit your answers first."}
-                </p>
-              )}
+                {type === "quiz" &&
+                  "Answer all quiz questions and submit your answers first."}
+              </p>
+            )}
 
             {currentStageCompleted && (
               <div className="lesson-completed-note">
@@ -2580,9 +3256,7 @@ if (progressLoading) {
 
         <aside className="lesson-sidebar">
           <section className="lesson-companion">
-            <div className="lesson-companion-avatar">
-              🦊
-            </div>
+            <div className="lesson-companion-avatar">🦊</div>
 
             <span className="lesson-companion-label">
               YOUR COMPANION
@@ -2597,7 +3271,7 @@ if (progressLoading) {
                   ? "Understand the idea before moving to practice."
                   : type === "quiz"
                     ? "Think carefully and check every option."
-                    : "Experiment with the code and review the task."}
+                    : "Experiment with the code and match the expected result."}
             </p>
           </section>
 
@@ -2608,9 +3282,7 @@ if (progressLoading) {
             </div>
 
             <div className="lesson-progress-numbers">
-              <strong>
-                {completedStages.length}/4
-              </strong>
+              <strong>{completedStages.length}/4</strong>
 
               <span>stages completed</span>
             </div>
@@ -2664,9 +3336,7 @@ if (progressLoading) {
 
                   <span>
                     <Zap size={15} />
-                    {nextLesson.xp ??
-                      DEFAULT_COMPLETION_XP}{" "}
-                    XP
+                    {nextLesson.xp ?? DEFAULT_COMPLETION_XP} XP
                   </span>
                 </div>
               </>
@@ -2737,8 +3407,7 @@ if (progressLoading) {
         streakError={streakError}
         onContinue={() => {
           const destination =
-            completionContinueTo ||
-            `/study/${courseId}`;
+            completionContinueTo || `/study/${courseId}`;
 
           setShowCompletionModal(false);
           navigate(destination);

@@ -3383,3 +3383,150 @@
     min-height: 1000px;
   }
 }
+/* =========================================
+   EVOLV — CONCEPT STAGE
+========================================= */
+
+.concept-content {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  animation: conceptFadeIn 0.35s ease;
+}
+
+.concept-section-header {
+  margin-bottom: 28px;
+}
+
+.concept-eyebrow {
+  display: inline-block;
+  margin-bottom: 12px;
+  color: #56856c;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.concept-section-header h2 {
+  margin: 0 0 10px;
+  color: #20392e;
+  font-size: clamp(25px, 3vw, 34px);
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.concept-section-header > p {
+  max-width: 650px;
+  margin: 0;
+  color: #718078;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.concept-card {
+  padding: 30px;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #e5ede7;
+  border-radius: 20px;
+  box-shadow: 0 5px 20px rgba(36, 69, 48, 0.04);
+}
+
+.concept-card-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 28px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid #edf1ed;
+}
+
+.concept-section-number {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  color: #ffffff;
+  background: #477b5c;
+  border-radius: 13px;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.concept-label {
+  display: block;
+  margin-bottom: 7px;
+  color: #62816c;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.3px;
+}
+
+.concept-card-heading h3 {
+  margin: 0;
+  color: #263b30;
+  font-size: 23px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.concept-explanation {
+  color: #4e5e54;
+  font-size: 15px;
+  line-height: 1.95;
+  overflow-wrap: anywhere;
+}
+
+.concept-explanation p {
+  margin: 0 0 20px;
+}
+
+.concept-explanation p:last-child {
+  margin-bottom: 0;
+}
+
+@keyframes conceptFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 640px) {
+  .concept-section-header {
+    margin-bottom: 20px;
+  }
+
+  .concept-card {
+    padding: 21px 18px;
+    border-radius: 16px;
+  }
+
+  .concept-card-heading {
+    gap: 12px;
+    margin-bottom: 22px;
+    padding-bottom: 18px;
+  }
+
+  .concept-section-number {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+  }
+
+  .concept-card-heading h3 {
+    font-size: 20px;
+  }
+
+  .concept-explanation {
+    font-size: 14px;
+    line-height: 1.85;
+  }
+}
