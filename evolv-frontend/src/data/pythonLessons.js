@@ -660,7 +660,8 @@ print(f"Welcome to {second}!")`,
 
     "Text is enclosed in matching quotation marks.",
 
-    {
+    { videoUrl: "/videos/Strings.html",
+      videoTitle: "Strings — Video",
       instructions: `Task: Build and measure a sentence from two variables.
 
 Steps:

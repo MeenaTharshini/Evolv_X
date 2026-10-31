@@ -1,79 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
-import {
-  saveUserProfile,
-  getUserProfile,
-} from "../lib/userService";
 import "./auth.css";
 
-const interestsList = [
-  "Web Development",
-  "Python",
-  "Java",
-  "Artificial Intelligence",
-  "Data Science",
-  "UI/UX Design",
-  "Cybersecurity",
-  "App Development",
-  "Cloud Computing",
-  "Competitive Programming",
-];
-
-const goalsList = [
-  "Build real-world projects",
-  "Prepare for placements",
-  "Learn a new skill",
-  "Improve my existing skills",
-  "Earn certifications",
-  "Explore career options",
-];
-
-const learningStyles = [
-  "Video lessons",
-  "Reading and notes",
-  "Hands-on coding",
-  "Guided projects",
-];
-
-const learningStyleMap = {
-  "Video lessons": "visual",
-  "Reading and notes": "reading",
-  "Hands-on coding": "hands-on",
-  "Guided projects": "mixed",
-};
-
-const hoursMap = {
-  "Less than 2 hours": 1,
-  "3–5 hours": 4,
-  "6–10 hours": 8,
-  "10+ hours": 10,
-};
-
-const icons = {
-  "Web Development": "</>",
-  Python: "Py",
-  Java: "J",
-  "Artificial Intelligence": "✳",
-  "Data Science": "⌁",
-  "UI/UX Design": "◈",
-  Cybersecurity: "⬡",
-  "App Development": "▣",
-  "Cloud Computing": "☁",
-  "Competitive Programming": "⚡",
-};
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const initialForm = {
   name: "",
   email: "",
   password: "",
   confirmPassword: "",
-  education: "",
-  skillLevel: "",
-  interests: [],
-  goals: [],
-  learningStyle: [],
-  weeklyHours: "3–5 hours",
 };
 
 function Field({ label, id, hint, children }) {
@@ -165,73 +101,6 @@ function AuthDecorations() {
   );
 }
 
-const onboardingSteps = [
-  {
-    key: "education",
-    title: "Where are you on your journey?",
-    subtitle: "This helps us personalize your learning path.",
-    type: "single",
-    options: [
-      ["School student", "🎒"],
-      ["College student", "🎓"],
-      ["Graduate", "📘"],
-      ["Working professional", "💼"],
-      ["Career switcher", "🔁"],
-      ["Other", "✨"],
-    ],
-  },
-  {
-    key: "skillLevel",
-    title: "What's your current skill level?",
-    subtitle: "Choose the level that best describes you right now.",
-    type: "single",
-    options: [
-      ["Beginner", "🌱"],
-      ["Intermediate", "🧭"],
-      ["Advanced", "⚡"],
-    ],
-  },
-  {
-    key: "interests",
-    title: "What are you curious about?",
-    subtitle: "Select all the topics you'd love to explore.",
-    type: "multi",
-    options: interestsList.map((item) => [item, icons[item]]),
-  },
-  {
-    key: "goals",
-    title: "What would you like to achieve?",
-    subtitle: "Choose the missions that matter most to you.",
-    type: "multi",
-    options: goalsList.map((item, index) => [
-      item,
-      ["✦", "⚑", "⌘", "↗", "✹", "◎"][index],
-    ]),
-  },
-  {
-    key: "learningStyle",
-    title: "How do you like to learn?",
-    subtitle: "Pick the learning styles that work best for you.",
-    type: "multi",
-    options: learningStyles.map((item, index) => [
-      item,
-      ["▶", "▤", "</>", "◇"][index],
-    ]),
-  },
-  {
-    key: "weeklyHours",
-    title: "How much time can you learn each week?",
-    subtitle: "We'll help you set a pace that feels right.",
-    type: "single",
-    options: [
-      ["Less than 2 hours", "☁"],
-      ["3–5 hours", "🌿"],
-      ["6–10 hours", "🚀"],
-      ["10+ hours", "🔥"],
-    ],
-  },
-];
-
 function getErrorMessage(error) {
   const message = error?.message || "";
 
@@ -239,7 +108,7 @@ function getErrorMessage(error) {
     return "Incorrect email or password. Please try again.";
   }
 
-  if (/user already registered/i.test(message)) {
+  if (/user already registered|already been registered/i.test(message)) {
     return "An account already exists with this email. Please log in.";
   }
 
@@ -251,11 +120,28 @@ function getErrorMessage(error) {
     return "Your password is too short. Please choose a stronger password.";
   }
 
+  if (/rate limit|too many requests|security purposes/i.test(message)) {
+    return "Too many attempts. Please wait a minute and try again.";
+  }
+
   if (/failed to fetch|network request failed/i.test(message)) {
-    return "Unable to connect to Supabase. Check your internet connection and configuration.";
+    return "Unable to connect. Check your internet connection and try again.";
   }
 
   return message || "Something went wrong. Please try again.";
+}
+
+// Decides where a signed-in user should go next.
+async function getPostLoginPath(userId) {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("onboarding_completed")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (error) throw error;
+
+  return data?.onboarding_completed ? "/dashboard" : "/understanding";
 }
 
 export default function AuthPage() {
@@ -265,28 +151,43 @@ export default function AuthPage() {
   const [mode, setMode] = useState(
     location.pathname === "/login" ? "login" : "signup"
   );
-
-  // Step 0: account details.
-  // Steps 1–6: onboarding questions.
-  const [step, setStep] = useState(0);
   const [form, setForm] = useState(initialForm);
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState(location.state?.authMessage || "");
 
   const isSignup = mode === "signup";
-  const totalSignupSteps = onboardingSteps.length + 1;
-  const activeQuestion = step > 0 ? onboardingSteps[step - 1] : null;
 
+  // Keep the mode in sync with the URL.
+  useEffect(() => {
+    setMode(location.pathname === "/login" ? "login" : "signup");
+    setMessage(location.state?.authMessage || "");
+    setShowPassword(false);
+  }, [location.pathname, location.state]);
 
-useEffect(() => {
-  setMode(location.pathname === "/login" ? "login" : "signup");
-  setStep(0);
-  setMessage(location.state?.authMessage || "");
-  setShowPassword(false);
-}, [location.pathname, location.state]);
+  // If the user already has a session, skip the auth page.
+  useEffect(() => {
+    let cancelled = false;
 
+    async function redirectIfSignedIn() {
+      try {
+        const { data } = await supabase.auth.getSession();
+        const user = data?.session?.user;
+        if (!user || cancelled) return;
+
+        const path = await getPostLoginPath(user.id);
+        if (!cancelled) navigate(path, { replace: true });
+      } catch {
+        // Stay on the auth page if anything goes wrong.
+      }
+    }
+
+    redirectIfSignedIn();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [navigate]);
 
   function updateField(event) {
     const { name, value } = event.target;
@@ -299,32 +200,9 @@ useEffect(() => {
     setMessage("");
   }
 
-  function toggleOption(field, option) {
-    setForm((current) => {
-      const selected = current[field];
-
-      return {
-        ...current,
-        [field]: selected.includes(option)
-          ? selected.filter((item) => item !== option)
-          : [...selected, option],
-      };
-    });
-
-    setMessage("");
-  }
-
-  function chooseSingle(field, value) {
-    setForm((current) => ({
-      ...current,
-      [field]: value,
-    }));
-
-    setMessage("");
-  }
-
   function switchMode(nextMode) {
-    setStep(0);
+    if (nextMode === mode) return;
+
     setMessage("");
     setShowPassword(false);
     setMode(nextMode);
@@ -332,17 +210,13 @@ useEffect(() => {
     navigate(nextMode === "login" ? "/login" : "/signup");
   }
 
-  function validateCredentials() {
-    const name = form.name.trim();
-    const email = form.email.trim();
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (name.length < 2) {
+  function validateSignup() {
+    if (form.name.trim().length < 2) {
       setMessage("Please enter a name with at least 2 characters.");
       return false;
     }
 
-    if (!emailPattern.test(email)) {
+    if (!EMAIL_PATTERN.test(form.email.trim())) {
       setMessage("Enter a valid email address.");
       return false;
     }
@@ -360,66 +234,74 @@ useEffect(() => {
     return true;
   }
 
-  function validateOnboarding() {
-    for (let index = 0; index < onboardingSteps.length; index += 1) {
-      const question = onboardingSteps[index];
-      const answer = form[question.key];
+  function validateLogin() {
+    if (!form.email.trim() || !form.password) {
+      setMessage("Enter your email and password to continue.");
+      return false;
+    }
 
-      const missing =
-        question.type === "multi" ? answer.length === 0 : !answer;
-
-      if (missing) {
-        setStep(index + 1);
-        setMessage("Please complete this question to continue.");
-        return false;
-      }
+    if (!EMAIL_PATTERN.test(form.email.trim())) {
+      setMessage("Enter a valid email address.");
+      return false;
     }
 
     return true;
   }
 
-  function continueSignup(event) {
-    event.preventDefault();
+  async function handleSignup() {
+    const email = form.email.trim().toLowerCase();
 
-    if (isLoading) return;
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password: form.password,
+      options: {
+        data: { full_name: form.name.trim() },
+        emailRedirectTo: `${window.location.origin}/login`,
+      },
+    });
 
-    if (step === 0) {
-      if (validateCredentials()) {
-        setStep(1);
-        setMessage("");
-      }
+    if (error) throw error;
 
+    if (!data?.user) {
+      throw new Error("Signup could not be completed. Please try again.");
+    }
+
+    // For an email that is already registered, Supabase returns a user
+    // with an empty identities array instead of an error.
+    if (Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+      throw new Error("User already registered");
+    }
+
+    // Email confirmation is on: no session yet, so send them to log in.
+    if (!data.session) {
+      navigate("/login", {
+        replace: true,
+        state: {
+          authMessage:
+            "Account created! Check your email to confirm it, then log in.",
+        },
+      });
       return;
     }
 
-    const question = onboardingSteps[step - 1];
+    // Session exists: continue straight to onboarding.
+    navigate("/understanding", { replace: true });
+  }
 
-    if (!question) {
-      setMessage("This onboarding step is unavailable. Please try again.");
-      return;
+  async function handleLogin() {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: form.email.trim().toLowerCase(),
+      password: form.password,
+    });
+
+    if (error) throw error;
+
+    if (!data?.user) {
+      throw new Error("Login succeeded, but no user was returned.");
     }
 
-    const answer = form[question.key];
-
-    const missing =
-      question.type === "multi" ? answer.length === 0 : !answer;
-
-    if (missing) {
-      setMessage(
-        question.type === "multi"
-          ? "Please select at least one option to continue."
-          : "Please choose an option to continue."
-      );
-      return;
-    }
-
-    if (step < onboardingSteps.length) {
-      setStep((current) => current + 1);
-      setMessage("");
-      return;
-    }
-
-    submitForm(event);
+    const path = await getPostLoginPath(data.user.id);
+    navigate(path, { replace: true });
   }
 
   async function submitForm(event) {
@@ -427,195 +309,16 @@ useEffect(() => {
 
     if (isLoading) return;
 
-    if (isSignup) {
-      if (step === 0) {
-        if (!validateCredentials()) return;
-
-        setStep(1);
-        return;
-      }
-
-      if (!validateOnboarding()) return;
-    } else {
-      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-      if (!form.email.trim() || !form.password) {
-        setMessage("Enter your email and password to continue.");
-        return;
-      }
-
-      if (!emailPattern.test(form.email.trim())) {
-        setMessage("Enter a valid email address.");
-        return;
-      }
-    }
+    if (isSignup ? !validateSignup() : !validateLogin()) return;
 
     setIsLoading(true);
     setMessage("");
 
     try {
-      let authData;
-      let authError;
-
       if (isSignup) {
-        const { data, error } = await supabase.auth.signUp({
-          email: form.email.trim().toLowerCase(),
-          password: form.password,
-          options: {
-            data: {
-              full_name: form.name.trim(),
-            },
-          },
-        });
-
-        authData = data;
-        authError = error;
-
-        if (authError) throw authError;
-
-        const user = authData?.user;
-
-        if (!user) {
-          throw new Error("Supabase did not return a user. Please try again.");
-        }
-
-        // Supabase may require email confirmation before creating a session.
-        // Save the profile only when an authenticated session is available.
-
-if (!authData.session) {
-  navigate("/login", {
-    replace: true,
-    state: {
-      authMessage:
-        "Your account has been created. Check your email to confirm your account, then log in.",
-    },
-  });
-  return;
-}
-
-
-        const profile = {
-          id: user.id,
-          full_name: form.name.trim(),
-          education: form.education,
-          skill_level: form.skillLevel.toLowerCase(),
-          interests: form.interests,
-          goals: form.goals,
-          learning_style: form.learningStyle.map(
-            (style) => learningStyleMap[style]
-          ),
-          weekly_hours: hoursMap[form.weeklyHours] ?? 4,
-        };
-
-        await saveUserProfile(profile);
-
-        // Keep legacy UI compatibility while other pages migrate to Supabase.
-        const storage = rememberMe ? localStorage : sessionStorage;
-
-        const legacyUser = {
-          id: user.id,
-          name: form.name.trim(),
-          full_name: form.name.trim(),
-          email: user.email,
-          education: form.education,
-          skillLevel: form.skillLevel.toLowerCase(),
-          interests: form.interests,
-          goals: form.goals,
-          learningStyle: profile.learning_style,
-          weeklyHours: profile.weekly_hours,
-        };
-
-        localStorage.removeItem("evolv_user");
-        sessionStorage.removeItem("evolv_user");
-        localStorage.removeItem("evolv_token");
-        sessionStorage.removeItem("evolv_token");
-
-        storage.setItem("evolv_user", JSON.stringify(legacyUser));
-
-        // Navigate to the understanding questionnaire after signup
-        navigate("/understanding", { replace: true });
-        return;
+        await handleSignup();
       } else {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: form.email.trim().toLowerCase(),
-          password: form.password,
-        });
-
-        authData = data;
-        authError = error;
-
-        if (authError) throw authError;
-
-        if (!authData?.user) {
-          throw new Error("Login succeeded, but no user was returned.");
-        }
-
-        const { data: profileData, error: profileError } =
-          await supabase
-            .from("profiles")
-            .select(
-              "id, full_name, education, skill_level, interests, goals, learning_style, weekly_hours"
-            )
-            .eq("id", authData.user.id)
-            .maybeSingle();
-
-        if (profileError) throw profileError;
-
-        const profile = profileData || {
-          id: authData.user.id,
-          full_name:
-            authData.user.user_metadata?.full_name ||
-            authData.user.email?.split("@")[0] ||
-            "Learner",
-          education: "",
-          skill_level: "beginner",
-          interests: [],
-          goals: [],
-          learning_style: ["mixed"],
-          weekly_hours: 4,
-        };
-
-        const legacyUser = {
-          ...profile,
-          id: authData.user.id,
-          name: profile.full_name,
-          email: authData.user.email,
-          skillLevel: profile.skill_level,
-          learningStyle: profile.learning_style,
-          weeklyHours: profile.weekly_hours,
-        };
-
-        localStorage.removeItem("evolv_user");
-        sessionStorage.removeItem("evolv_user");
-        localStorage.removeItem("evolv_token");
-        sessionStorage.removeItem("evolv_token");
-
-        const storage = rememberMe ? localStorage : sessionStorage;
-        storage.setItem("evolv_user", JSON.stringify(legacyUser));
-
-        // If this is an older account without a profile, create one.
-        if (!profileData) {
-          await saveUserProfile({
-            id: authData.user.id,
-            full_name: legacyUser.full_name,
-            education: profile.education,
-            skill_level: profile.skill_level,
-            interests: profile.interests,
-            goals: profile.goals,
-            learning_style: profile.learning_style,
-            weekly_hours: profile.weekly_hours,
-          });
-        }
-
-        // Returning users who have already answered onboarding go to dashboard;
-        // otherwise, route to understanding.
-        const hasCompletedOnboarding = Boolean(
-          profileData?.education ||
-            (Array.isArray(profileData?.interests) && profileData.interests.length > 0) ||
-            localStorage.getItem("evolv_onboarding")
-        );
-
-        navigate(hasCompletedOnboarding ? "/dashboard" : "/understanding", { replace: true });
+        await handleLogin();
       }
     } catch (error) {
       setMessage(getErrorMessage(error));
@@ -627,7 +330,7 @@ if (!authData.session) {
   async function handleForgotPassword() {
     const email = form.email.trim().toLowerCase();
 
-    if (!email) {
+    if (!email || !EMAIL_PATTERN.test(email)) {
       setMessage("Enter your email address first to reset your password.");
       return;
     }
@@ -643,7 +346,7 @@ if (!authData.session) {
       if (error) throw error;
 
       setMessage(
-        "If an account exists for that email, Supabase will send a password-reset link."
+        "If an account exists for that email, a password-reset link is on its way."
       );
     } catch (error) {
       setMessage(getErrorMessage(error));
@@ -651,14 +354,6 @@ if (!authData.session) {
       setIsLoading(false);
     }
   }
-
-  const signupTitle =
-    step === 0 ? "Create your account" : activeQuestion?.title;
-
-  const signupSubtitle =
-    step === 0
-      ? "Your learning journey starts here."
-      : activeQuestion?.subtitle;
 
   return (
     <main className="ev-auth">
@@ -742,52 +437,22 @@ if (!authData.session) {
               </button>
             </div>
 
-            {isSignup && (
-              <div
-                className="onboarding-progress"
-                aria-label={`Step ${step + 1} of ${totalSignupSteps}`}
-              >
-                <div className="progress-track">
-                  <span
-                    style={{
-                      width: `${((step + 1) / totalSignupSteps) * 100}%`,
-                    }}
-                  />
-                </div>
-
-                <div className="progress-copy">
-                  <span>
-                    {step === 0
-                      ? "Account details"
-                      : `Question ${step} of ${onboardingSteps.length}`}
-                  </span>
-
-                  <span>
-                    {Math.round(((step + 1) / totalSignupSteps) * 100)}%
-                  </span>
-                </div>
-              </div>
-            )}
-
             <div className="form-intro">
               <div className="form-intro-mascot">
                 <Companion small />
               </div>
 
-              <h3>{isSignup ? signupTitle : "Welcome back!"}</h3>
+              <h3>{isSignup ? "Create your account" : "Welcome back!"}</h3>
 
               <p>
                 {isSignup
-                  ? signupSubtitle
+                  ? "Your learning journey starts here."
                   : "Your next level is waiting for you."}
               </p>
             </div>
 
-            <form
-              onSubmit={isSignup ? continueSignup : submitForm}
-              noValidate
-            >
-              {isSignup && step === 0 && (
+            <form onSubmit={submitForm} noValidate>
+              {isSignup ? (
                 <>
                   <Field label="Full name" id="signup-name">
                     <input
@@ -867,49 +532,7 @@ if (!authData.session) {
                     </div>
                   </Field>
                 </>
-              )}
-
-              {isSignup && step > 0 && activeQuestion && (
-                <div
-                  className={`question-options ${
-                    activeQuestion.key === "interests"
-                      ? "question-options-grid"
-                      : ""
-                  }`}
-                >
-                  {activeQuestion.options.map(([label, glyph]) => {
-                    const isMulti = activeQuestion.type === "multi";
-
-                    const selected = isMulti
-                      ? form[activeQuestion.key].includes(label)
-                      : form[activeQuestion.key] === label;
-
-                    return (
-                      <button
-                        type="button"
-                        key={label}
-                        className={`answer-option ${
-                          selected ? "selected" : ""
-                        }`}
-                        aria-pressed={selected}
-                        onClick={() =>
-                          isMulti
-                            ? toggleOption(activeQuestion.key, label)
-                            : chooseSingle(activeQuestion.key, label)
-                        }
-                      >
-                        <span className="answer-glyph">{glyph}</span>
-                        <span className="answer-label">{label}</span>
-                        <span className="answer-check">
-                          {selected ? "✓" : isMulti ? "+" : "○"}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-
-              {!isSignup && (
+              ) : (
                 <>
                   <Field label="Email address" id="login-email">
                     <input
@@ -953,17 +576,6 @@ if (!authData.session) {
                   </Field>
 
                   <div className="login-options">
-                    <label className="remember-option">
-                      <input
-                        type="checkbox"
-                        checked={rememberMe}
-                        onChange={(event) =>
-                          setRememberMe(event.target.checked)
-                        }
-                      />
-                      Remember this explorer
-                    </label>
-
                     <button
                       type="button"
                       className="text-button"
@@ -986,47 +598,21 @@ if (!authData.session) {
                 </p>
               )}
 
-              {isSignup ? (
-                <div className="form-actions">
-                  {step > 0 && (
-                    <button
-                      className="secondary-button"
-                      type="button"
-                      disabled={isLoading}
-                      onClick={() => {
-                        setStep((current) => Math.max(0, current - 1));
-                        setMessage("");
-                      }}
-                    >
-                      ← Back
-                    </button>
-                  )}
+              <button
+                className="primary-button"
+                type="submit"
+                disabled={isLoading}
+              >
+                {isSignup
+                  ? isLoading
+                    ? "Creating account..."
+                    : "Create account"
+                  : isLoading
+                    ? "Signing you in..."
+                    : "Continue adventure"}
 
-                  <button
-                    className="primary-button"
-                    type="submit"
-                    disabled={isLoading}
-                  >
-                    {step === totalSignupSteps - 1
-                      ? isLoading
-                        ? "Creating profile..."
-                        : "Start my journey"
-                      : "Continue"}
-
-                    {!isLoading && <span>→</span>}
-                  </button>
-                </div>
-              ) : (
-                <button
-                  className="primary-button"
-                  type="submit"
-                  disabled={isLoading}
-                >
-                  {isLoading ? "Signing you in..." : "Continue adventure"}
-
-                  {!isLoading && <span>→</span>}
-                </button>
-              )}
+                {!isLoading && <span>→</span>}
+              </button>
             </form>
 
             {!isSignup && (

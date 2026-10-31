@@ -1,4 +1,3 @@
-
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ArrowRight,
@@ -32,6 +31,8 @@ import "../styles/my-progress.css";
 const COURSE_ID = "python";
 const COURSE_NAME = "Python Foundations";
 const STUDY_MAP_LINK = `/study/${COURSE_ID}`;
+
+const LOADER_MESSAGE = "Loading your journey...";
 
 const STAGE_XP = {
   video: 10,
@@ -389,15 +390,6 @@ function getAchievements({
   ];
 }
 
-function LoadingState() {
-  return (
-    <section className="mp-course-card" role="status" aria-live="polite">
-      <h2>Loading your progress...</h2>
-      <p>Retrieving your personal learning records.</p>
-    </section>
-  );
-}
-
 function ErrorState({ message, onRetry, loading }) {
   return (
     <section className="mp-course-card" role="alert">
@@ -455,9 +447,12 @@ export default function MyProgress() {
   const refreshProgress = useCallback(async () => {
     setLoading(true);
 
+    // The full-page loader is only for the first load. Later refreshes
+    // (refresh button, tab focus, progress events) keep the page visible
+    // and only spin the refresh button.
     setDashboard((previous) => ({
       ...previous,
-      loading: true,
+      loading: previous.userId ? false : true,
       error: "",
     }));
 
@@ -483,7 +478,6 @@ export default function MyProgress() {
         statsResult,
         stageResult,
         streakResult,
-        quizScores,
       ] = await Promise.all([
         supabase
           .from("lessons")
@@ -510,9 +504,6 @@ export default function MyProgress() {
           );
           return null;
         }),
-
-        // Fetch attempts after building the database lesson map below.
-        Promise.resolve(null),
       ]);
 
       if (lessonsResult.error) throw lessonsResult.error;
@@ -788,7 +779,7 @@ export default function MyProgress() {
 
         <div className="mp-content">
           {dashboard.loading ? (
-            <LoadingState />
+            <EvolvLoader message={LOADER_MESSAGE} />
           ) : dashboard.error ? (
             <ErrorState
               message={dashboard.error}
@@ -911,8 +902,6 @@ export default function MyProgress() {
                     <small>Your completed lessons</small>
                   </div>
                 </article>
-
-               
 
                 <article className="mp-stat-card">
                   <div className="mp-stat-icon mp-stat-streak">

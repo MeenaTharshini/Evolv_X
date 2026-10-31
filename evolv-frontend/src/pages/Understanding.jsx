@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { saveUserProfile } from "../lib/userService";
+import { supabase } from "../lib/supabaseClient";
 import "./understanding.css";
 
 const STORAGE_KEY = "evolv_onboarding_draft";
@@ -59,69 +59,6 @@ const LEVEL_OPTIONS = [
   },
 ];
 
-const INTEREST_OPTIONS = [
-  {
-    icon: "</>",
-    title: "Web Development",
-    description: "Build websites and web apps",
-    color: "mint",
-  },
-  {
-    icon: "Py",
-    title: "Python",
-    description: "Code, automate and create",
-    color: "peach",
-  },
-  {
-    icon: "J",
-    title: "Java",
-    description: "Master object-oriented coding",
-    color: "lavender",
-  },
-  {
-    icon: "✳",
-    title: "Artificial Intelligence",
-    description: "Explore intelligent systems",
-    color: "blue",
-  },
-  {
-    icon: "⌁",
-    title: "Data Science",
-    description: "Discover insights from data",
-    color: "yellow",
-  },
-  {
-    icon: "◈",
-    title: "UI/UX Design",
-    description: "Design delightful experiences",
-    color: "pink",
-  },
-  {
-    icon: "⬡",
-    title: "Cybersecurity",
-    description: "Learn digital defense",
-    color: "lavender",
-  },
-  {
-    icon: "▣",
-    title: "App Development",
-    description: "Create mobile applications",
-    color: "mint",
-  },
-  {
-    icon: "☁",
-    title: "Cloud Computing",
-    description: "Understand cloud technology",
-    color: "blue",
-  },
-  {
-    icon: "⚡",
-    title: "Competitive Programming",
-    description: "Sharpen your problem-solving",
-    color: "yellow",
-  },
-];
-
 const GOAL_OPTIONS = [
   {
     icon: "🚀",
@@ -155,33 +92,6 @@ const GOAL_OPTIONS = [
   },
 ];
 
-const LEARNING_OPTIONS = [
-  {
-    icon: "▶",
-    title: "Video lessons",
-    description: "Watch and understand",
-    value: "visual",
-  },
-  {
-    icon: "▤",
-    title: "Reading and notes",
-    description: "Learn at my own pace",
-    value: "reading",
-  },
-  {
-    icon: "</>",
-    title: "Hands-on coding",
-    description: "Learn by doing",
-    value: "hands-on",
-  },
-  {
-    icon: "◇",
-    title: "Guided projects",
-    description: "Build step by step",
-    value: "mixed",
-  },
-];
-
 const HOURS_OPTIONS = [
   {
     icon: "☕",
@@ -209,46 +119,15 @@ const HOURS_OPTIONS = [
   },
 ];
 
-const COURSE_OPTIONS = [
-  {
-    icon: "🐍",
-    title: "Python for Everyone",
-    description: "Start coding with Python, from the basics.",
-    category: "Python",
-    color: "mint",
-  },
-  {
-    icon: "🌐",
-    title: "Web Development",
-    description: "Learn HTML, CSS and JavaScript.",
-    category: "Web Development",
-    color: "blue",
-  },
-  {
-    icon: "☕",
-    title: "Java Foundations",
-    description: "Explore Java and object-oriented programming.",
-    category: "Java",
-    color: "peach",
-  },
-  {
-    icon: "🤖",
-    title: "AI Explorer",
-    description: "Discover artificial intelligence fundamentals.",
-    category: "Artificial Intelligence",
-    color: "lavender",
-  },
-];
-
 const INITIAL_PROFILE = {
   education: "",
   skillLevel: "",
-  interests: [],
   goals: [],
-  learningStyle: "",
   weeklyHours: "3–5 hours",
-  preferredCourse: "",
 };
+
+// Python is the only course available for now.
+const CURRENT_TRACK = ["Python"];
 
 const STEPS = [
   {
@@ -257,23 +136,13 @@ const STEPS = [
     highlight: "who are you?",
     description:
       "Everyone starts somewhere. Tell us a little about where you are in your journey.",
-    field: "education",
   },
   {
     eyebrow: "YOUR CURRENT LEVEL",
     title: "What's your",
     highlight: "starting level?",
     description:
-      "We'll shape your learning path around what you already know.",
-    field: "skillLevel",
-  },
-  {
-    eyebrow: "FOLLOW YOUR CURIOSITY",
-    title: "What would you",
-    highlight: "love to explore?",
-    description:
-      "Choose every subject that sparks your curiosity. You can explore more worlds later.",
-    field: "interests",
+      "We'll shape your Python path around what you already know.",
   },
   {
     eyebrow: "YOUR BIGGER PICTURE",
@@ -281,15 +150,6 @@ const STEPS = [
     highlight: "next big goal?",
     description:
       "Tell us what you're working towards. Your goals will help guide your quests.",
-    field: "goals",
-  },
-  {
-    eyebrow: "YOUR LEARNING SUPERPOWER",
-    title: "How do you",
-    highlight: "learn best?",
-    description:
-      "Choose the way you enjoy learning. You can select more than one.",
-    field: "learningStyle",
   },
   {
     eyebrow: "MAKE IT YOUR OWN",
@@ -297,17 +157,10 @@ const STEPS = [
     highlight: "you set aside?",
     description:
       "A realistic routine beats a perfect plan. Pick a pace that works for you.",
-    field: "weeklyHours",
-  },
-  {
-    eyebrow: "CHOOSE YOUR FIRST QUEST",
-    title: "Where should",
-    highlight: "we begin?",
-    description:
-      "Pick your first course. This is your starting point, not a permanent decision.",
-    field: "preferredCourse",
   },
 ];
+
+const REVIEW_STEP = STEPS.length;
 
 function readSavedProfile() {
   try {
@@ -320,12 +173,18 @@ function readSavedProfile() {
     const parsed = JSON.parse(saved);
 
     return {
-      ...INITIAL_PROFILE,
-      ...parsed,
-      interests: Array.isArray(parsed.interests)
-        ? parsed.interests
+      education:
+        typeof parsed.education === "string" ? parsed.education : "",
+      skillLevel:
+        typeof parsed.skillLevel === "string" ? parsed.skillLevel : "",
+      goals: Array.isArray(parsed.goals)
+        ? parsed.goals.filter((goal) => typeof goal === "string")
         : [],
-      goals: Array.isArray(parsed.goals) ? parsed.goals : [],
+      weeklyHours: HOURS_OPTIONS.some(
+        (option) => option.title === parsed.weeklyHours
+      )
+        ? parsed.weeklyHours
+        : INITIAL_PROFILE.weeklyHours,
     };
   } catch {
     return INITIAL_PROFILE;
@@ -442,6 +301,30 @@ function OptionCard({
   );
 }
 
+function ReviewRow({ icon, label, value, onEdit }) {
+  return (
+    <div className="understanding-review-row">
+      <span className="understanding-review-icon">{icon}</span>
+
+      <div className="understanding-review-copy">
+        <small>{label}</small>
+        <strong>{value || "Not selected"}</strong>
+      </div>
+
+      {onEdit && (
+        <button
+          type="button"
+          className="understanding-edit-button"
+          onClick={onEdit}
+          aria-label={`Edit ${label.toLowerCase()}`}
+        >
+          Edit
+        </button>
+      )}
+    </div>
+  );
+}
+
 export default function Understanding() {
   const navigate = useNavigate();
 
@@ -451,17 +334,42 @@ export default function Understanding() {
   const [saving, setSaving] = useState(false);
 
   const totalSteps = STEPS.length + 1;
-  const isReview = step === STEPS.length;
+  const isReview = step === REVIEW_STEP;
   const currentStep = STEPS[step];
 
-  const selectedCourse = useMemo(
-    () =>
-      COURSE_OPTIONS.find(
-        (course) => course.title === profile.preferredCourse
-      ),
-    [profile.preferredCourse]
-  );
+  // Returning users who already finished onboarding skip this page.
+  useEffect(() => {
+    let cancelled = false;
 
+    async function checkOnboarding() {
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const user = sessionData?.session?.user;
+
+        if (!user) return;
+
+        const { data } = await supabase
+          .from("profiles")
+          .select("onboarding_completed")
+          .eq("id", user.id)
+          .maybeSingle();
+
+        if (!cancelled && data?.onboarding_completed) {
+          navigate("/dashboard", { replace: true });
+        }
+      } catch {
+        // Stay on this page if the check fails.
+      }
+    }
+
+    checkOnboarding();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [navigate]);
+
+  // Keep a local draft so a refresh doesn't lose answers.
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
@@ -494,6 +402,11 @@ export default function Understanding() {
     setError("");
   }
 
+  function goToStep(nextStep) {
+    setStep(nextStep);
+    setError("");
+  }
+
   function validateCurrentStep() {
     if (step === 0 && !profile.education) {
       return "Choose the option that best describes you.";
@@ -503,24 +416,12 @@ export default function Understanding() {
       return "Choose your current skill level to continue.";
     }
 
-    if (step === 2 && profile.interests.length === 0) {
-      return "Choose at least one subject you're interested in.";
-    }
-
-    if (step === 3 && profile.goals.length === 0) {
+    if (step === 2 && profile.goals.length === 0) {
       return "Choose at least one goal for your learning journey.";
     }
 
-    if (step === 4 && !profile.learningStyle) {
-      return "Choose a learning style to continue.";
-    }
-
-    if (step === 5 && !profile.weeklyHours) {
+    if (step === 3 && !profile.weeklyHours) {
       return "Choose how much time you can dedicate each week.";
-    }
-
-    if (step === 6 && !profile.preferredCourse) {
-      return "Choose a course for your first quest.";
     }
 
     return "";
@@ -534,69 +435,90 @@ export default function Understanding() {
       return;
     }
 
-    setError("");
-    setStep((current) => Math.min(current + 1, STEPS.length));
+    goToStep(Math.min(step + 1, REVIEW_STEP));
   }
 
   function handleBack() {
-    setError("");
-    setStep((current) => Math.max(current - 1, 0));
+    goToStep(Math.max(step - 1, 0));
   }
 
   async function handleFinish() {
     if (saving) return;
 
+    // Safety net in case someone reaches review with missing answers.
+    if (
+      !profile.education ||
+      !profile.skillLevel ||
+      profile.goals.length === 0 ||
+      !profile.weeklyHours
+    ) {
+      setError("Please answer every question before finishing.");
+      return;
+    }
+
     setSaving(true);
     setError("");
 
-    const completedProfile = {
-      ...profile,
-      completed: true,
-      completedAt: new Date().toISOString(),
-    };
-
     try {
-      localStorage.setItem(
-        "evolv_onboarding",
-        JSON.stringify(completedProfile)
-      );
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
 
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(completedProfile));
-
-      // Persist profile to Supabase
-      try {
-        await saveUserProfile({
-          education: profile.education,
-          skillLevel: profile.skillLevel?.toLowerCase(),
-          interests: profile.interests,
-          goals: profile.goals,
-          learningStyle: profile.learningStyle,
-          weeklyHours: profile.weeklyHours,
+      if (userError || !user) {
+        navigate("/login", {
+          replace: true,
+          state: { authMessage: "Please log in to continue." },
         });
-      } catch (dbError) {
-        console.warn("Could not save profile to Supabase:", dbError);
+        return;
       }
 
-      const token =
-        localStorage.getItem("evolv_token") ||
-        sessionStorage.getItem("evolv_token");
+      const weeklyHours =
+        HOURS_OPTIONS.find((option) => option.title === profile.weeklyHours)
+          ?.value ?? 4;
 
-      const storage = localStorage.getItem("evolv_token")
-        ? localStorage
-        : sessionStorage;
+      // profiles.full_name is NOT NULL. Keep an existing saved name, and
+      // otherwise fall back so a null is never sent.
+      const { data: existing } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("id", user.id)
+        .maybeSingle();
 
-      if (token) {
-        storage.setItem(
-          "evolv_onboarding",
-          JSON.stringify(completedProfile)
-        );
+      const fullName =
+        existing?.full_name?.trim() ||
+        user.user_metadata?.full_name?.trim() ||
+        user.user_metadata?.name?.trim() ||
+        user.email?.split("@")[0] ||
+        "Learner";
+
+      const { error: saveError } = await supabase.from("profiles").upsert(
+        {
+          id: user.id,
+          full_name: fullName,
+          education: profile.education,
+          skill_level: profile.skillLevel.toLowerCase(),
+          interests: CURRENT_TRACK,
+          goals: profile.goals,
+          weekly_hours: weeklyHours,
+          onboarding_completed: true,
+        },
+        { onConflict: "id" }
+      );
+
+      if (saveError) throw saveError;
+
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch {
+        // No action needed.
       }
 
       navigate("/dashboard", { replace: true });
-    } catch {
-      setError(
-        "We couldn't save your learning profile. Please try again."
-      );
+    } catch (saveError) {
+      console.error("Could not save onboarding profile:", saveError);
+
+      setError("We couldn't save your learning profile. Please try again.");
       setSaving(false);
     }
   }
@@ -614,8 +536,6 @@ export default function Understanding() {
 
     try {
       localStorage.removeItem(STORAGE_KEY);
-      localStorage.removeItem("evolv_onboarding");
-      sessionStorage.removeItem("evolv_onboarding");
     } catch {
       // No action needed.
     }
@@ -631,9 +551,7 @@ export default function Understanding() {
                 key={option.title}
                 {...option}
                 selected={profile.education === option.title}
-                onClick={() =>
-                  updateField("education", option.title)
-                }
+                onClick={() => updateField("education", option.title)}
               />
             ))}
           </div>
@@ -650,9 +568,7 @@ export default function Understanding() {
                   profile.skillLevel === option.title ? "selected" : ""
                 }`}
                 aria-pressed={profile.skillLevel === option.title}
-                onClick={() =>
-                  updateField("skillLevel", option.title)
-                }
+                onClick={() => updateField("skillLevel", option.title)}
               >
                 <span className="understanding-level-icon">
                   {option.icon}
@@ -671,35 +587,6 @@ export default function Understanding() {
 
       case 2:
         return (
-          <>
-            <div className="understanding-selection-note">
-              <span>✦</span>
-              Select all the worlds you want to explore.
-            </div>
-
-            <div className="understanding-interest-grid">
-              {INTEREST_OPTIONS.map((option) => (
-                <OptionCard
-                  key={option.title}
-                  {...option}
-                  multi
-                  selected={profile.interests.includes(option.title)}
-                  onClick={() =>
-                    toggleMultiple("interests", option.title)
-                  }
-                />
-              ))}
-            </div>
-
-            <p className="understanding-selection-count">
-              {profile.interests.length}{" "}
-              {profile.interests.length === 1 ? "world" : "worlds"} selected
-            </p>
-          </>
-        );
-
-      case 3:
-        return (
           <div className="understanding-option-list">
             {GOAL_OPTIONS.map((option) => (
               <OptionCard
@@ -713,41 +600,7 @@ export default function Understanding() {
           </div>
         );
 
-      case 4:
-        return (
-          <div className="understanding-learning-grid">
-            {LEARNING_OPTIONS.map((option) => (
-              <button
-                key={option.title}
-                type="button"
-                className={`understanding-learning-card ${
-                  profile.learningStyle === option.value
-                    ? "selected"
-                    : ""
-                }`}
-                aria-pressed={
-                  profile.learningStyle === option.value
-                }
-                onClick={() =>
-                  updateField("learningStyle", option.value)
-                }
-              >
-                <span className="understanding-learning-icon">
-                  {option.icon}
-                </span>
-
-                <strong>{option.title}</strong>
-                <small>{option.description}</small>
-
-                <span className="understanding-radio">
-                  {profile.learningStyle === option.value ? "✓" : ""}
-                </span>
-              </button>
-            ))}
-          </div>
-        );
-
-      case 5:
+      case 3:
         return (
           <div className="understanding-option-list">
             {HOURS_OPTIONS.map((option) => (
@@ -755,46 +608,8 @@ export default function Understanding() {
                 key={option.title}
                 {...option}
                 selected={profile.weeklyHours === option.title}
-                onClick={() =>
-                  updateField("weeklyHours", option.title)
-                }
+                onClick={() => updateField("weeklyHours", option.title)}
               />
-            ))}
-          </div>
-        );
-
-      case 6:
-        return (
-          <div className="understanding-course-grid">
-            {COURSE_OPTIONS.map((course) => (
-              <button
-                key={course.title}
-                type="button"
-                className={`understanding-course-card ${course.color} ${
-                  profile.preferredCourse === course.title
-                    ? "selected"
-                    : ""
-                }`}
-                aria-pressed={
-                  profile.preferredCourse === course.title
-                }
-                onClick={() =>
-                  updateField("preferredCourse", course.title)
-                }
-              >
-                <span className="understanding-course-icon">
-                  {course.icon}
-                </span>
-
-                <span className="understanding-course-copy">
-                  <strong>{course.title}</strong>
-                  <small>{course.description}</small>
-                </span>
-
-                <span className="understanding-course-check">
-                  {profile.preferredCourse === course.title ? "✓" : "+"}
-                </span>
-              </button>
             ))}
           </div>
         );
@@ -805,11 +620,6 @@ export default function Understanding() {
   }
 
   function renderReview() {
-    const learningStyleTitle =
-      LEARNING_OPTIONS.find(
-        (option) => option.value === profile.learningStyle
-      )?.title || "Not selected";
-
     return (
       <div className="understanding-review">
         <div className="understanding-review-banner">
@@ -829,70 +639,34 @@ export default function Understanding() {
             icon="🎒"
             label="YOUR BACKGROUND"
             value={profile.education}
-            onEdit={() => {
-              setStep(0);
-              setError("");
-            }}
+            onEdit={() => goToStep(0)}
           />
 
           <ReviewRow
             icon="⚡"
             label="YOUR SKILL LEVEL"
             value={profile.skillLevel}
-            onEdit={() => {
-              setStep(1);
-              setError("");
-            }}
-          />
-
-          <ReviewRow
-            icon="🌍"
-            label="YOUR WORLDS"
-            value={profile.interests.join(", ")}
-            onEdit={() => {
-              setStep(2);
-              setError("");
-            }}
+            onEdit={() => goToStep(1)}
           />
 
           <ReviewRow
             icon="🎯"
             label="YOUR GOALS"
             value={profile.goals.join(", ")}
-            onEdit={() => {
-              setStep(3);
-              setError("");
-            }}
-          />
-
-          <ReviewRow
-            icon="📖"
-            label="YOUR LEARNING STYLE"
-            value={learningStyleTitle}
-            onEdit={() => {
-              setStep(4);
-              setError("");
-            }}
+            onEdit={() => goToStep(2)}
           />
 
           <ReviewRow
             icon="⏰"
             label="YOUR WEEKLY ROUTINE"
             value={profile.weeklyHours}
-            onEdit={() => {
-              setStep(5);
-              setError("");
-            }}
+            onEdit={() => goToStep(3)}
           />
 
           <ReviewRow
-            icon="🚀"
+            icon="🐍"
             label="YOUR FIRST QUEST"
-            value={selectedCourse?.title || "Not selected"}
-            onEdit={() => {
-              setStep(6);
-              setError("");
-            }}
+            value="Python for Everyone"
           />
         </div>
 
@@ -921,13 +695,9 @@ export default function Understanding() {
         <span className="understanding-decor-star star-b">✧</span>
         <span className="understanding-decor-star star-c">✳</span>
 
-        <span className="understanding-floating-tag tag-a">
-          Learn ✦
-        </span>
+        <span className="understanding-floating-tag tag-a">Learn ✦</span>
 
-        <span className="understanding-floating-tag tag-b">
-          Grow ↗
-        </span>
+        <span className="understanding-floating-tag tag-b">Grow ↗</span>
 
         <div className="understanding-island">
           <span>🌳</span>
@@ -950,60 +720,7 @@ export default function Understanding() {
       </header>
 
       <section className="understanding-layout">
-        <aside className="understanding-side">
-          <span className="understanding-eyebrow">
-            LET'S GET TO KNOW YOU
-          </span>
-
-          <h1>
-            Your path.
-            <br />
-            Your pace.
-            <br />
-            Your <span>potential.</span>
-          </h1>
-
-          <p className="understanding-side-description">
-            A few little questions will help us create a learning
-            experience that feels like yours.
-          </p>
-
-          <div className="understanding-illustration">
-            <div className="understanding-illustration-sun" />
-
-            <div className="understanding-hill hill-back" />
-            <div className="understanding-hill hill-front" />
-
-            <div className="understanding-path" />
-
-            <div className="understanding-illustration-companion">
-              <Companion />
-            </div>
-
-            <span className="understanding-illustration-star illustration-star-one">
-              ✦
-            </span>
-
-            <span className="understanding-illustration-star illustration-star-two">
-              ✧
-            </span>
-
-            <span className="understanding-illustration-label">
-              Your next chapter starts here!
-            </span>
-          </div>
-
-          <div className="understanding-side-tip">
-            <span className="understanding-side-tip-icon">✦</span>
-
-            <p>
-              <strong>There's no perfect learner.</strong>
-              <br />
-              Just a curious mind and a willingness to begin.
-            </p>
-          </div>
-        </aside>
-
+        
         <section className="understanding-main">
           <div className="understanding-card">
             <div className="understanding-card-top">
@@ -1016,7 +733,9 @@ export default function Understanding() {
 
             <div className="understanding-heading">
               <span className="understanding-question-eyebrow">
-                {isReview ? "READY FOR YOUR NEXT CHAPTER?" : currentStep.eyebrow}
+                {isReview
+                  ? "READY FOR YOUR NEXT CHAPTER?"
+                  : currentStep.eyebrow}
               </span>
 
               <h2>
@@ -1079,9 +798,7 @@ export default function Understanding() {
                     ? "Let's start learning"
                     : "Continue"}
 
-                {!saving && (
-                  <span>{isReview ? "✦" : "→"}</span>
-                )}
+                {!saving && <span>{isReview ? "✦" : "→"}</span>}
               </button>
             </div>
 
@@ -1102,27 +819,5 @@ export default function Understanding() {
         <span>LEARN · BUILD · GROW</span>
       </footer>
     </main>
-  );
-}
-
-function ReviewRow({ icon, label, value, onEdit }) {
-  return (
-    <div className="understanding-review-row">
-      <span className="understanding-review-icon">{icon}</span>
-
-      <div className="understanding-review-copy">
-        <small>{label}</small>
-        <strong>{value || "Not selected"}</strong>
-      </div>
-
-      <button
-        type="button"
-        className="understanding-edit-button"
-        onClick={onEdit}
-        aria-label={`Edit ${label.toLowerCase()}`}
-      >
-        Edit
-      </button>
-    </div>
   );
 }

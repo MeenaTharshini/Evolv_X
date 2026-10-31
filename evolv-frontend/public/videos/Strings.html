@@ -1,0 +1,777 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>EVOLV Strings Lesson</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700&family=Noto+Sans+Tamil:wght@500;600&display=swap">
+<style>
+/* Layout: one dark stage card (logo, code + output, string visual, headline, subtitle), chapter tabs, control bar.
+   Single dark look by choice, matching the EVOLV lesson screenshot. */
+:root{
+  --bg:#070c1b; --panel:#0d1430; --panel2:#111a3b; --line:#1d2a55; --ink:#e9edfb; --mute:#7a89b4;
+  --cyan:#4fd1ff; --amber:#ffb547; --green:#4ade80; --pink:#ff5f8d; --purple:#b69cff; --red:#ff6b6b;
+  --display:'Plus Jakarta Sans','Segoe UI',system-ui,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+  --tamil:'Noto Sans Tamil','Plus Jakarta Sans',system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{min-height:100%}
+body{
+  margin:0; background:var(--bg); color:var(--ink); font-family:var(--display); font-size:15px;
+  padding-block:14px 28px;
+  padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px));
+  background-image:linear-gradient(rgba(79,209,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(79,209,255,.045) 1px,transparent 1px);
+  background-size:40px 40px;
+}
+button,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.app{max-width:1060px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+
+/* stage */
+.stage{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:22px;padding:18px clamp(12px,3vw,28px) 16px;
+  background:radial-gradient(120% 80% at 50% 0%,#0f1838 0%,#0a1024 60%,#080d1f 100%);
+  display:flex;flex-direction:column;align-items:center;gap:14px;min-height:640px}
+.stage>*{position:relative;z-index:1;min-width:0;max-width:100%}
+.meadow{position:absolute!important;left:0;right:0;bottom:0;width:100%;height:150px;z-index:0!important;pointer-events:none;opacity:.9}
+.brand{display:flex;align-items:center;gap:12px;font-weight:800;letter-spacing:.28em;font-size:15px}
+.work{width:100%;max-width:940px;display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:12px}
+@media(max-width:720px){.work{grid-template-columns:minmax(0,1fr)}}
+.win{background:#0e1531;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.bar{display:flex;align-items:center;gap:7px;padding:9px 14px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:11px;color:#8fa0d0}
+.bar i{width:11px;height:11px;border-radius:50%;display:block}
+.bar .r{background:#ff5f57}.bar .y{background:#febc2e}.bar .g{background:#28c840}
+.bar span{margin-left:8px}.bar em{margin-left:auto;font-style:normal;color:var(--mute)}
+.body{padding:10px 0;font-family:var(--mono);font-size:clamp(13px,1.9vw,17px);min-height:128px}
+.ln{display:flex;gap:16px;padding:4px 16px;border-left:3px solid transparent;transition:background .35s,border-color .35s;white-space:pre-wrap;word-break:break-word}
+.ln b.n{color:#4b5a8a;font-weight:500;min-width:1.1em;text-align:right}
+.ln.on{background:rgba(79,209,255,.12);border-left-color:var(--cyan)}
+.ln.fresh{animation:slide .5s both}
+.kw{color:var(--purple)}.nm{color:var(--green)}.fn{color:var(--cyan)}.cm{color:#5d6c9a}.st{color:var(--amber)}
+.qt{font-weight:700;color:#ffd48a;text-shadow:0 0 10px rgba(255,181,71,.55)}
+.hq .qt{animation:glow 1s ease-in-out infinite alternate}
+.outbody{padding:10px 16px;min-height:128px;font-family:var(--mono);font-size:clamp(13px,1.9vw,17px)}
+.ol{padding:4px 0;white-space:pre-wrap;word-break:break-word;color:#d9fbe6}
+.ol.new{animation:slide .5s both}
+.ol.q{color:var(--amber);animation:pulse 1.2s infinite}
+.ol.err{color:var(--red)}
+.ol::before{content:'› ';color:var(--green)}
+.ol.err::before{content:'✕ ';color:var(--red)}
+.idle{color:var(--mute);font-size:13px}
+
+.viz{width:100%;max-width:940px;min-height:118px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:14px;overflow-x:auto;padding:14px 6px 22px}
+.row{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+.col{display:flex;flex-direction:column;align-items:center;gap:12px}
+.sbox{position:relative;display:inline-flex;align-items:center;gap:5px;padding:20px 12px 12px;border:2px solid rgba(74,222,128,.55);border-radius:16px;background:rgba(74,222,128,.07);animation:pop .5s both}
+.sbox.sm{padding:16px 8px 8px;gap:3px}.sbox.sm .cb{width:clamp(18px,3vw,30px);height:clamp(24px,3.8vw,38px);font-size:clamp(11px,1.8vw,18px)}
+.sbox .tag{position:absolute;top:-10px;left:14px;background:#0b2a1d;color:var(--green);font:700 10px var(--mono);padding:2px 8px;border-radius:99px;border:1px solid rgba(74,222,128,.5)}
+.qm{font:800 clamp(28px,5vw,44px)/1 var(--mono);color:var(--amber);text-shadow:0 0 16px rgba(255,181,71,.5);animation:glow 1.1s ease-in-out infinite alternate}
+.cb{position:relative;width:clamp(26px,4.6vw,48px);height:clamp(34px,5.8vw,58px);display:grid;place-items:center;border:2px solid var(--cyan);border-radius:10px;background:#0d1a3d;font:700 clamp(15px,2.8vw,26px) var(--mono);animation:drop .45s both;animation-delay:calc(var(--i)*70ms)}
+.cb.sp{border-style:dashed;color:var(--mute);font-size:12px}
+.cb.hl{background:var(--amber);color:#1a1200;border-color:var(--amber);box-shadow:0 0 22px rgba(255,181,71,.6);transform:translateY(-6px)}
+.cb.ghost{border-color:var(--red);border-style:dashed;color:var(--red);background:rgba(255,107,107,.08)}
+.ix{position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);font:700 12px var(--mono);color:var(--cyan)}
+.ix.ct{color:var(--amber);animation:pop .3s both;animation-delay:calc(var(--i)*320ms + 200ms)}
+.cap{font-size:12px;color:var(--mute);text-align:center;margin-top:2px}
+.op{font:800 clamp(24px,4vw,36px) var(--mono);color:var(--cyan);animation:pop .4s both}
+.vname{padding:10px 16px;border-radius:12px;border:2px solid var(--cyan);background:rgba(79,209,255,.08);font:700 15px var(--mono);color:var(--cyan);animation:pop .4s both;display:flex;flex-direction:column;align-items:center;gap:2px}
+.vname small{font:600 10px var(--display);color:var(--mute);letter-spacing:.08em;text-transform:uppercase}
+.arrow{font:800 26px var(--mono);color:var(--amber);animation:pop .4s both}
+.pill{padding:10px 16px;border-radius:12px;font:700 clamp(13px,2vw,17px) var(--mono);border:1.5px solid var(--line);background:#0e1633;animation:pop .45s both;animation-delay:calc(var(--i,0)*120ms)}
+.pill.g{border-color:rgba(74,222,128,.6);color:var(--green)}.pill.c{border-color:rgba(79,209,255,.6);color:var(--cyan)}.pill.a{border-color:rgba(255,181,71,.6);color:var(--amber)}.pill.r{border-color:rgba(255,107,107,.7);color:var(--red)}
+.pill.dim{opacity:.4;filter:saturate(.4)}
+.pill small{display:block;font:600 11px var(--display);color:var(--mute);margin-top:3px}
+.bubble{max-width:260px;padding:12px 14px;border-radius:14px;border:1.5px solid rgba(255,107,107,.6);background:rgba(255,107,107,.08);color:#ffc1c1;font-size:13.5px;animation:pop .5s both}
+.float{animation:bob 3s ease-in-out infinite}
+
+.head{text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
+.chip{font:700 12px var(--mono);color:var(--green);border:1px solid rgba(74,222,128,.55);background:rgba(74,222,128,.07);padding:6px 14px;border-radius:99px;animation:pop .5s both}
+h1{margin:0;font-weight:800;letter-spacing:-.02em;line-height:1.12;font-size:clamp(26px,5vw,46px);text-wrap:balance}
+h1 a{color:var(--amber);text-decoration:none}
+
+.subbox{width:100%;max-width:880px;display:flex;align-items:center;gap:12px;padding:10px 16px;border:1px solid var(--line);border-radius:14px;background:rgba(6,10,24,.78);backdrop-filter:blur(3px);min-height:74px}
+.subbox .evo{flex:0 0 58px;width:58px;height:58px}
+#sub{flex:1;min-width:0;text-align:center;line-height:1.45}
+#sub .ta{font:600 clamp(15px,2.2vw,20px)/1.5 var(--tamil)}
+#sub .en{font:500 clamp(13px,1.8vw,16px)/1.45 var(--display);color:#b9c4e8}
+#sub .ta+.en{margin-top:4px;color:var(--mute);font-size:clamp(12px,1.6vw,14px)}
+
+/* interaction panel */
+.askwrap{width:100%;max-width:880px;border:1.5px solid rgba(255,181,71,.55);background:rgba(255,181,71,.06);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;animation:pop .4s both}
+.askwrap .lab{font:800 11px var(--mono);letter-spacing:.14em;color:var(--amber)}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px}
+.opt{padding:11px 14px;border-radius:12px;border:1.5px solid var(--line);background:#0d1531;cursor:pointer;text-align:left;font:600 14px var(--mono);transition:border-color .2s,transform .15s,background .2s}
+.opt:hover:not(:disabled){border-color:var(--cyan);transform:translateY(-2px)}
+.opt.ok{border-color:var(--green);background:rgba(74,222,128,.14);color:var(--green)}
+.opt.no{border-color:var(--red);background:rgba(255,107,107,.1);color:var(--red)}
+.fb{font-size:14px;line-height:1.5;min-height:1.5em}
+.fb.ok{color:var(--green)}.fb.no{color:#ffb4b4}.fb.hint{color:var(--cyan)}
+.fb .ta{font-family:var(--tamil);display:block;margin-top:2px}
+.askrow{display:flex;gap:8px;flex-wrap:wrap}
+.mini{padding:8px 14px;border-radius:99px;border:1px solid var(--line);background:#0e1633;cursor:pointer;font-weight:700;font-size:13px}
+.mini:hover{border-color:var(--cyan)}
+.mini.go{background:var(--amber);color:#1a1200;border-color:var(--amber)}
+.tasks{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;line-height:1.45}
+.tasks code{font-family:var(--mono);color:var(--amber)}
+.start{padding:14px 28px;border-radius:99px;border:0;background:var(--amber);color:#1a1200;font-weight:800;font-size:17px;cursor:pointer;box-shadow:0 0 0 6px rgba(255,181,71,.18);animation:pulse 2s infinite}
+
+/* tabs + controls */
+.tabs{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.tab{position:relative;text-align:left;padding:12px 14px 12px;border-radius:12px;border:1px solid var(--line);background:var(--panel);cursor:pointer;font-weight:700;font-size:14px;overflow:hidden;color:#cdd6f4;transition:border-color .2s}
+.tab::before{content:'';display:block;height:4px;border-radius:4px;background:#1b2750;margin-bottom:9px}
+.tab i{position:absolute;left:14px;top:12px;height:4px;border-radius:4px;background:var(--cyan);width:calc((100% - 28px)*var(--p,0))}
+.tab span{color:var(--mute);margin-right:6px;font-weight:600}
+.tab.cur{border-color:var(--cyan);box-shadow:0 0 0 1px rgba(79,209,255,.35) inset}
+.tab.done i{background:var(--green)}
+.ctrls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{padding:11px 20px;border-radius:99px;border:1px solid var(--line);background:var(--panel2);cursor:pointer;font-weight:700;font-size:15px;transition:border-color .2s}
+.btn:hover{border-color:var(--cyan)}
+.btn.main{background:var(--amber);color:#1a1200;border-color:var(--amber);min-width:92px}
+.btn[aria-pressed="false"]{opacity:.55}
+.sel{padding:11px 14px;border-radius:99px;border:1px solid var(--line);background:var(--panel2);font-weight:600;max-width:100%;min-width:0}
+.sel.v{border-color:var(--cyan);flex:1 1 240px}
+.prog{height:4px;border-radius:4px;background:#16204a;overflow:hidden;width:100%}
+.prog b{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--green))}
+
+@keyframes pop{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:none}}
+@keyframes drop{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
+@keyframes slide{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:none}}
+@keyframes glow{from{opacity:.75}to{opacity:1}}
+@keyframes pulse{50%{opacity:.55}}
+@keyframes bob{50%{transform:translateY(-8px)}}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+.evo .eye{transform-box:fill-box;transform-origin:center;animation:blink 4s infinite}
+.evo .ant{animation:glow .9s ease-in-out infinite alternate}
+.evo.talk .mouth{animation:pulse .35s infinite}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}}
+</style>
+
+<div class="app">
+  <section class="stage" id="stage" aria-label="EVOLV lesson stage">
+    <svg class="meadow" viewBox="0 0 1000 150" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 95 Q150 40 320 85 T640 80 T1000 70 V150 H0Z" fill="#0f3a2a" opacity=".55"/>
+      <path d="M0 120 Q200 70 420 112 T800 105 T1000 100 V150 H0Z" fill="#14573a" opacity=".6"/>
+      <path d="M0 138 Q250 108 520 132 T1000 126 V150 H0Z" fill="#1a7a47" opacity=".55"/>
+      <g fill="#ffb547" opacity=".85"><circle cx="90" cy="132" r="2.5"/><circle cx="300" cy="128" r="2.5"/><circle cx="640" cy="136" r="2.5"/><circle cx="880" cy="130" r="2.5"/></g>
+      <g fill="#ff5f8d" opacity=".8"><circle cx="190" cy="138" r="2.2"/><circle cx="470" cy="134" r="2.2"/><circle cx="760" cy="139" r="2.2"/></g>
+    </svg>
+    <div class="brand" aria-label="EVOLV">
+      <svg width="38" height="34" viewBox="0 0 38 34" aria-hidden="true"><rect x="1" y="18" width="9" height="14" rx="3" fill="#ffb547"/><rect x="14" y="8" width="9" height="24" rx="3" fill="#4fd1ff"/><rect x="27" y="1" width="9" height="31" rx="3" fill="#ff5f8d"/></svg>
+      EVOLV
+    </div>
+    <div class="work">
+      <div class="win"><div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i><span id="fname">strings.py</span><em>Python 3</em></div><div class="body" id="code"></div></div>
+      <div class="win"><div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i><span>output</span><em>console</em></div><div class="outbody" id="out" aria-live="polite"></div></div>
+    </div>
+    <div class="viz" id="viz" aria-live="polite"></div>
+    <div class="head"><span class="chip" id="chip"></span><h1 id="title"></h1><button class="start" id="start">▶ Start lesson</button></div>
+    <div class="askwrap" id="ask" hidden></div>
+    <div class="subbox">
+      <svg class="evo" id="evo" viewBox="0 0 80 80" aria-label="EVO, your guide">
+        <line x1="40" y1="7" x2="40" y2="17" stroke="#ffb547" stroke-width="3"/><circle class="ant" cx="40" cy="6" r="4.5" fill="#ffb547"/>
+        <rect x="13" y="16" width="54" height="42" rx="15" fill="#14204a" stroke="#4fd1ff" stroke-width="2.5"/>
+        <rect x="19" y="22" width="42" height="30" rx="10" fill="#0a1230"/>
+        <circle class="eye" cx="31" cy="35" r="4.5" fill="#4fd1ff"/><circle class="eye" cx="49" cy="35" r="4.5" fill="#4fd1ff"/>
+        <path class="mouth" id="mouth" d="M31 45 Q40 52 49 45" stroke="#4ade80" fill="none" stroke-width="3" stroke-linecap="round"/>
+        <rect x="24" y="60" width="32" height="15" rx="6" fill="#14204a" stroke="#ffb547" stroke-width="2"/><circle cx="40" cy="67.5" r="3" fill="#ffb547"/>
+      </svg>
+      <div id="sub"></div>
+    </div>
+  </section>
+  <div class="prog" aria-hidden="true"><b id="gprog"></b></div>
+  <nav class="tabs" id="tabs" aria-label="Lesson chapters"></nav>
+  <div class="ctrls">
+    <button class="btn main" id="bPause">Pause</button>
+    <button class="btn" id="bScene">Replay scene</button>
+    <button class="btn" id="bRestart">Restart</button>
+    <button class="btn" id="bVoice" aria-pressed="true">Voice</button>
+    <button class="btn" id="bMusic" aria-pressed="false">Music</button>
+    <select class="sel" id="selSub" aria-label="Subtitles">
+      <option value="ta">Subtitles: தமிழ் · Tamil</option>
+      <option value="en">Subtitles: English</option>
+      <option value="both">Subtitles: Tamil + English</option>
+      <option value="off">Subtitles: Off</option>
+    </select>
+    <select class="sel v" id="selVoice" aria-label="Narration voice"><option value="">Default voice</option></select>
+  </div>
+</div>
+<script>
+/* ---------- Lesson data, scenes 1-6 ---------- */
+const SCENES = [];
+
+SCENES.push({
+  tab: 'Welcome', chip: 'Text = String', title: 'Welcome to <a>String Meadow</a>!', file: 'welcome.py',
+  code: ['# A string is text', 'word = "Hello"'],
+  steps: [
+    { mood: 'smile', line: -1, viz: { t: 'hello' },
+      en: "Hi! I'm EVO, your guide. Welcome to String Meadow! Today we will learn all about strings.",
+      ta: 'வணக்கம்! நான் EVO. String Meadow-க்கு வரவேற்கிறேன்! இன்னைக்கு Strings பத்தி கத்துக்கலாம்.' },
+    { mood: 'wow', line: -1, viz: { t: 'cards' },
+      en: 'A string is simply text. A name, a message, or even a single word. They are all strings.',
+      ta: "String-ன்னா வெறும் text தான். ஒரு பேரு, ஒரு message, ஒரு வார்த்தை, எல்லாமே strings தான்." },
+    { mood: 'smile', line: 1, viz: { t: 'box', text: 'Hello' },
+      en: 'Think of a string as a small container. Every letter sits inside it, one after another.',
+      ta: 'String-ஐ ஒரு சின்ன container மாதிரி நினைச்சுக்கோங்க. ஒவ்வொரு எழுத்தும் அதுக்குள்ள வரிசையா இருக்கும்.' }
+  ]
+});
+
+SCENES.push({
+  tab: 'Create', chip: 'Quotes make strings', title: 'Creating <a>Strings</a>', file: 'create.py',
+  code: ['name = "Maya"', "message = 'Hello, Python!'"],
+  steps: [
+    { mood: 'smile', line: 0, hq: true, viz: { t: 'box', text: 'Maya', cap: 'Double quotes  " "' },
+      en: 'To create a string, put your text inside quotation marks. Here, Maya is inside double quotes.',
+      ta: 'String உருவாக்க, text-ஐ quotation marks-க்குள்ள போடணும். இங்க Maya, double quotes-க்குள்ள இருக்கு.' },
+    { mood: 'smile', line: 1, hq: true, viz: { t: 'box', text: 'Hello, Python!', q: "'", cap: "Single quotes  ' '" },
+      en: 'Single quotes work too. Hello, Python! is inside single quotes. Just open and close with the same kind.',
+      ta: "Single quotes-உம் வேலை செய்யும். Hello, Python! single quotes-க்குள்ள இருக்கு. தொடங்குற quote-உம் முடிக்கிற quote-உம் ஒரே மாதிரி இருக்கணும்." },
+    { mood: 'think', line: [0, 1], hq: true, viz: { t: 'quotes' },
+      en: 'The quotes are not part of the text. They simply tell Python: this is text, not a command.',
+      ta: "Quotes text-ஓட பகுதி இல்ல. 'இது text, command இல்ல'ன்னு Python-க்கு சொல்றது தான் அவங்க வேலை." }
+  ]
+});
+
+SCENES.push({
+  tab: 'Print', chip: 'print() shows text', title: 'Printing <a>Strings</a>', file: 'print.py',
+  code: ['print("Welcome to EVOLV!")'],
+  steps: [
+    { mood: 'smile', line: 0, out: [], viz: { t: 'box', text: 'Welcome to EVOLV!', cls: 'sm' },
+      en: 'The print function shows things on the screen. Put your string inside the brackets.',
+      ta: 'print function, screen-ல ஒண்ணை காட்டும். String-ஐ brackets-க்குள்ள போடுங்க.' },
+    { mood: 'wow', line: 0, out: ['Welcome to EVOLV!'], viz: { t: 'box', text: 'Welcome to EVOLV!', noq: true, cls: 'sm', cap: 'Output: the text only, no quotation marks' },
+      en: 'Now look at the output panel. Python shows the exact text, without the quotation marks.',
+      ta: 'இப்போ output panel-ஐ பாருங்க. Quotation marks இல்லாம, text அப்படியே வருது.' }
+  ]
+});
+
+SCENES.push({
+  tab: 'Variables', chip: 'Name → Value', title: 'Strings in <a>Variables</a>', file: 'variables.py',
+  code: ['first_name = "Maya"', 'print(first_name)'],
+  steps: [
+    { mood: 'smile', line: 0, out: [], viz: { t: 'var', name: 'first_name', text: 'Maya' },
+      en: 'Line one stores the string in a variable called first underscore name. A variable is a labeled box that remembers a value.',
+      ta: 'முதல் வரி, first_name-ங்கிற variable-ல string-ஐ சேமிக்குது. Variable-ன்னா ஒரு value-ஐ ஞாபகம் வச்சுக்கிற label ஒட்டின பெட்டி.' },
+    { mood: 'wow', line: 1, out: ['Maya'], viz: { t: 'var', name: 'first_name', text: 'Maya', print: true },
+      en: 'Line two prints the variable. No quotes this time, because we want the text stored inside the box.',
+      ta: 'இரண்டாவது வரி variable-ஐ print பண்ணுது. இங்க quotes இல்ல, ஏன்னா பெட்டிக்குள்ள இருக்கிற text தான் நமக்கு வேணும்.' },
+    { mood: 'think', line: 1, viz: { t: 'compare' },
+      en: 'Careful! With quotes, Python would print the word first underscore name itself, not Maya.',
+      ta: 'கவனம்! Quotes போட்டா, Maya வராது. first_name-ங்கிற வார்த்தையே print ஆகும்.' }
+  ]
+});
+
+SCENES.push({
+  tab: 'Join', chip: '+ joins text', title: '<a>Joining</a> Strings', file: 'join.py',
+  code: ['first = "Hello"', 'second = "World"', 'print(first + " " + second)'],
+  steps: [
+    { mood: 'smile', line: 0, out: [], viz: { t: 'var', name: 'first', text: 'Hello' },
+      en: 'First, the variable first holds the string Hello.',
+      ta: 'முதல்ல, first variable-ல Hello சேமிக்கப்படுது.' },
+    { mood: 'smile', line: 1, viz: { t: 'var', name: 'second', text: 'World' },
+      en: 'Then second holds World.',
+      ta: 'அடுத்து, second variable-ல World இருக்கு.' },
+    { mood: 'wow', line: 2, viz: { t: 'join', a: 'Hello', b: 'World', space: false, plain: true },
+      en: 'The plus sign joins strings together. Programmers call this concatenation.',
+      ta: 'Plus குறி strings-ஐ ஒண்ணா சேர்க்கும். இதை concatenation-ன்னு சொல்லுவாங்க.' },
+    { mood: 'smile', line: 2, out: ['Hello World'], viz: { t: 'join', a: 'Hello', b: 'World', space: true },
+      en: "We also join a string with one space in the middle, so the words don't stick together. The result is Hello World.",
+      ta: 'நடுவுல ஒரு space உள்ள string-ஐயும் சேர்க்கிறோம், அப்போ தான் வார்த்தைகள் ஒட்டாது. Result: Hello World.' },
+    { mood: 'think', line: 3, code: ['first = "Hello"', 'second = "World"', 'print(first + " " + second)', 'print(first + second)'],
+      viz: { t: 'join', a: 'Hello', b: 'World', space: false, plain: true },
+      ask: {
+        q: { en: 'Predict! What will the new line print(first + second) show?', ta: 'யோசிங்க! புது வரி print(first + second) என்ன காட்டும்?' },
+        opts: ['Hello World', 'HelloWorld', 'Hello + World', 'An error'], ok: 1,
+        hint: { en: 'Plus joins exactly what it is given. Is there a space string in this line?', ta: 'Plus கொடுத்ததை அப்படியே சேர்க்கும். இந்த வரியில space string இருக்கா?' },
+        wrong: {
+          0: { en: 'Close! But this line has no space string, so nothing sits between the words.', ta: 'கிட்ட வந்துட்டீங்க! ஆனா இந்த வரியில space இல்ல, அதனால வார்த்தைகளுக்கு நடுவுல எதுவும் வராது.' },
+          2: { en: 'The plus sign is not printed. It only joins the two strings.', ta: 'Plus குறி print ஆகாது. அது இரண்டு strings-ஐ சேர்க்க மட்டும் தான்.' },
+          3: { en: 'No error here. Joining two strings with + is perfectly fine.', ta: 'இங்க error வராது. இரண்டு strings-ஐ + வச்சு சேர்க்கிறது சரியான வழி தான்.' }
+        },
+        explain: { en: 'Right! Python joins exactly what you give it. No space string, so you get HelloWorld.', ta: 'சரி! நீங்க கொடுத்ததை மட்டுமே Python சேர்க்கும். Space இல்லாததால HelloWorld வரும்.' },
+        before: { out: ['Hello World', '?'], line: 3 },
+        after: { out: ['Hello World', 'HelloWorld'], line: 3 }
+      } }
+  ]
+});
+
+SCENES.push({
+  tab: 'Repeat', chip: '* repeats text', title: '<a>Repeating</a> Strings', file: 'repeat.py',
+  code: ['print("Hi! " * 3)'],
+  steps: [
+    { mood: 'smile', line: 0, out: [], viz: { t: 'repeat', text: 'Hi! ', n: 3, result: false },
+      en: 'The star sign repeats a string. Here we take Hi with a space, and repeat it three times.',
+      ta: 'Star குறி ஒரு string-ஐ திரும்பத் திரும்ப எழுதும். இங்க "Hi! " string-ஐ மூணு தடவை repeat பண்றோம்.' },
+    { mood: 'wow', line: 0, out: ['Hi! Hi! Hi! '], viz: { t: 'repeat', text: 'Hi! ', n: 3, result: true },
+      en: 'Each copy ends with a space, so the three Hi words stay neatly apart in the output.',
+      ta: 'ஒவ்வொரு copy-யும் space-ஓட முடியுது, அதனால மூணு Hi-உம் output-ல தனித்தனியா தெரியுது.' },
+    { mood: 'think', line: 1, code: ['print("Hi! " * 3)', 'print("Ha" * 2)'], out: ['Hi! Hi! Hi! '], viz: { t: 'repeat', text: 'Ha', n: 2, result: false },
+      ask: {
+        q: { en: 'Mini challenge! What will print("Ha" * 2) show?', ta: 'சின்ன challenge! print("Ha" * 2) என்ன காட்டும்?' },
+        opts: ['HaHa', 'Ha 2', 'Ha Ha', 'An error'], ok: 0,
+        hint: { en: 'This time there is no space inside the string. Repeat "Ha" two times, right next to each other.', ta: 'இந்த தடவை string-க்குள்ள space இல்ல. "Ha"-வை ரெண்டு தடவை பக்கத்து பக்கத்துல எழுதுங்க.' },
+        wrong: {
+          1: { en: 'The number is not printed. It only says how many times to repeat.', ta: 'Number print ஆகாது. எத்தனை தடவை repeat பண்ணணும்ன்னு மட்டும் தான் சொல்லுது.' },
+          2: { en: 'There is no space inside "Ha", so the copies touch each other.', ta: '"Ha"-க்குள்ள space இல்ல, அதனால copies ஒட்டிக்கிட்டு வரும்.' },
+          3: { en: 'No error. A string times a whole number is allowed.', ta: 'Error வராது. String-ஐ ஒரு முழு எண்ணால பெருக்கலாம்.' }
+        },
+        explain: { en: 'Yes! "Ha" repeated two times gives HaHa.', ta: 'ஆமா! "Ha" ரெண்டு தடவை repeat ஆனா HaHa கிடைக்கும்.' },
+        before: { out: ['Hi! Hi! Hi! ', '?'], line: 1 },
+        after: { out: ['Hi! Hi! Hi! ', 'HaHa'], line: 1 }
+      } }
+  ]
+});
+/* ---------- Lesson data, scenes 7-11 ---------- */
+SCENES.push({
+  tab: 'Length', chip: 'len() counts characters', title: 'String <a>Length</a>', file: 'length.py',
+  code: ['print(len("Python"))'],
+  steps: [
+    { mood: 'smile', line: 0, out: [], viz: { t: 'box', text: 'Python' },
+      en: 'len is short for length. It counts how many characters are inside a string.',
+      ta: 'len-ன்னா length. ஒரு string-க்குள்ள எத்தனை characters இருக்குன்னு எண்ணும்.' },
+    { mood: 'wow', line: 0, out: ['6'], viz: { t: 'box', text: 'Python', count: true },
+      en: 'P, y, t, h, o, n. That is six characters, so len gives us 6.',
+      ta: 'P, y, t, h, o, n. மொத்தம் ஆறு characters, அதனால len நமக்கு 6 தரும்.' },
+    { mood: 'think', line: 1, code: ['print(len("Python"))', 'print(len("Hi there"))'], out: ['6', '8'], viz: { t: 'box', text: 'Hi there', count: true },
+      en: 'Spaces count as characters too. Hi there has eight: two letters, one space, and five more letters.',
+      ta: 'Space-உம் ஒரு character தான். Hi there-ல எட்டு characters: ரெண்டு எழுத்து, ஒரு space, அப்புறம் அஞ்சு எழுத்து.' }
+  ]
+});
+
+SCENES.push({
+  tab: 'Index', chip: 'Index starts at 0', title: 'Accessing <a>Characters</a>', file: 'index.py',
+  code: ['word = "PYTHON"', 'print(word[0])', 'print(word[2])'],
+  steps: [
+    { mood: 'smile', line: 0, out: [], viz: { t: 'box', text: 'PYTHON' },
+      en: 'The variable word holds the string PYTHON.',
+      ta: 'word variable-ல PYTHON-ங்கிற string இருக்கு.' },
+    { mood: 'wow', line: 0, viz: { t: 'box', text: 'PYTHON', idx: true },
+      en: 'Every character has a position number called an index. Here is the surprise: counting starts at zero, not one.',
+      ta: 'ஒவ்வொரு character-க்கும் index-ன்னு ஒரு position number இருக்கு. ஆச்சரியம் என்னன்னா, எண்ணுறது 1-ல இல்ல, 0-ல இருந்து தொடங்கும்.' },
+    { mood: 'smile', line: 1, out: ['P'], viz: { t: 'box', text: 'PYTHON', idx: true, hl: 0 },
+      en: 'word in square brackets with zero gives the first character, which is P.',
+      ta: 'word[0] முதல் character-ஐ தரும். அது P.' },
+    { mood: 'smile', line: 2, out: ['P', 'T'], viz: { t: 'box', text: 'PYTHON', idx: true, hl: 2 },
+      en: 'And word with two gives T. Count with me: zero is P, one is Y, two is T.',
+      ta: 'word[2] T-ஐ தரும். என்கூட எண்ணுங்க: 0 P, 1 Y, 2 T.' },
+    { mood: 'think', line: 3, code: ['word = "PYTHON"', 'print(word[0])', 'print(word[2])', 'print(word[1])'], viz: { t: 'box', text: 'PYTHON', idx: true },
+      ask: {
+        q: { en: 'Predict! What will print(word[1]) show?', ta: 'யோசிங்க! print(word[1]) என்ன காட்டும்?' },
+        opts: ['P', 'Y', 'T', 'An error'], ok: 1,
+        hint: { en: 'Index 0 is P. Move one step to the right.', ta: 'Index 0 P. ஒரு படி வலது பக்கம் போங்க.' },
+        wrong: {
+          0: { en: 'P sits at index 0. Index 1 is the next letter.', ta: 'P இருக்கிறது index 0-ல. Index 1 அடுத்த எழுத்து.' },
+          2: { en: 'T sits at index 2, which we printed earlier.', ta: 'T இருக்கிறது index 2-ல, அதை ஏற்கனவே print பண்ணிட்டோம்.' },
+          3: { en: 'No error. Index 1 exists in a string with six characters.', ta: 'Error வராது. ஆறு characters உள்ள string-ல index 1 இருக்கு.' }
+        },
+        explain: { en: 'Correct! Index 1 is the second letter, Y.', ta: 'சரி! Index 1 இரண்டாவது எழுத்து, Y.' },
+        before: { out: ['P', 'T', '?'], line: 3, viz: { t: 'box', text: 'PYTHON', idx: true } },
+        after: { out: ['P', 'T', 'Y'], line: 3, viz: { t: 'box', text: 'PYTHON', idx: true, hl: 1 } }
+      } }
+  ]
+});
+
+SCENES.push({
+  tab: 'Mistake', chip: 'Spot the bug', title: 'Spot the <a>Mistake</a>', file: 'bug.py',
+  code: ['name = Maya', 'print(name)'],
+  steps: [
+    { mood: 'think', line: -1, out: [], viz: { t: 'mistake1', reveal: false },
+      en: 'Time to be a bug detective! Look at this code very carefully. Something is missing.',
+      ta: 'இப்போ bug detective ஆகலாம்! இந்த code-ஐ கவனமா பாருங்க. ஏதோ ஒண்ணு missing.' },
+    { mood: 'think', line: 0, viz: { t: 'mistake1', reveal: false },
+      ask: {
+        q: { en: 'What is wrong with this code?', ta: 'இந்த code-ல என்ன தப்பு?' },
+        opts: ['Maya needs quotation marks', 'print is spelled wrong', 'name is not allowed as a variable', 'Nothing, it is fine'], ok: 0,
+        hint: { en: 'Is Maya text here? Compare it with name = "Maya".', ta: 'இங்க Maya ஒரு text-ஆ? name = "Maya"-வோட ஒப்பிட்டு பாருங்க.' },
+        wrong: {
+          1: { en: 'print is spelled correctly. Look at the first line instead.', ta: 'print சரியாத்தான் எழுதியிருக்கு. முதல் வரியை பாருங்க.' },
+          2: { en: 'name is a fine variable name. The problem is the value on its right.', ta: 'name ஒரு சரியான variable பேரு. தப்பு அதோட வலது பக்கம் இருக்கிற value-ல.' },
+          3: { en: 'Not quite. Python would stop with an error on line 1.', ta: 'இல்ல. Line 1-லேயே Python error காட்டி நின்னுடும்.' }
+        },
+        explain: { en: 'Yes! Without quotes, Python thinks Maya is a variable name, and it has never heard of it.', ta: 'ஆமா! Quotes இல்லாட்டி, Maya ஒரு variable பேருன்னு Python நினைக்கும். ஆனா அதுக்கு அப்படி ஒண்ணு தெரியாது.' },
+        before: { out: [], line: 0, viz: { t: 'mistake1', reveal: false } },
+        after: { out: [{ err: "NameError: name 'Maya' is not defined" }], line: 0, viz: { t: 'mistake1', reveal: true } }
+      } },
+    { mood: 'wow', line: 0, code: ['name = "Maya"', 'print(name)'], out: ['Maya'], viz: { t: 'box', text: 'Maya' },
+      en: 'The fix is easy. Put Maya inside quotation marks, and now Python treats it as text.',
+      ta: 'சரி பண்றது ரொம்ப easy. Maya-வை quotation marks-க்குள்ள போடுங்க. இப்போ Python அதை text-ஆ எடுத்துக்கும்.' },
+    { mood: 'think', line: 1, code: ['word = "PYTHON"', 'print(word[6])'], viz: { t: 'mistake2', reveal: false },
+      ask: {
+        q: { en: 'Bug hunt number two! PYTHON has six letters. What happens when we ask for word[6]?', ta: 'ரெண்டாவது bug hunt! PYTHON-ல ஆறு எழுத்து. word[6] கேட்டா என்ன ஆகும்?' },
+        opts: ['It prints N', 'It prints nothing', 'An error: the index is out of range', 'It prints P'], ok: 2,
+        hint: { en: 'Count the indexes: 0, 1, 2, 3, 4, 5. Is there a 6?', ta: 'Index-களை எண்ணுங்க: 0, 1, 2, 3, 4, 5. 6 இருக்கா?' },
+        wrong: {
+          0: { en: 'N is the last letter, but it sits at index 5, not 6.', ta: 'N கடைசி எழுத்து, ஆனா அது index 5-ல இருக்கு, 6-ல இல்ல.' },
+          1: { en: 'Python never stays silent here. It stops and tells you about the problem.', ta: 'இங்க Python அமைதியா இருக்காது. Problem-ஐ சொல்லி நின்னுடும்.' },
+          3: { en: 'P is at index 0. Python does not wrap around to the start.', ta: 'P இருக்கிறது index 0-ல. Python திரும்ப ஆரம்பத்துக்கு போகாது.' }
+        },
+        explain: { en: 'Right! The indexes only go from 0 to 5, so index 6 does not exist.', ta: 'சரி! Indexes 0-ல இருந்து 5 வரை தான். அதனால index 6 இல்ல.' },
+        before: { out: [], line: 1, viz: { t: 'mistake2', reveal: false } },
+        after: { out: [{ err: 'IndexError: string index out of range' }], line: 1, viz: { t: 'mistake2', reveal: true } }
+      } },
+    { mood: 'smile', line: 1, code: ['word = "PYTHON"', 'print(word[5])'], out: ['N'], viz: { t: 'box', text: 'PYTHON', idx: true, hl: 5 },
+      en: 'Remember: the last index is always the length minus one. Six letters, so the last index is five.',
+      ta: 'ஞாபகம் வச்சுக்கோங்க: கடைசி index எப்பவும் length - 1. ஆறு எழுத்து, அதனால கடைசி index 5.' }
+  ]
+});
+
+SCENES.push({
+  tab: 'Challenge', chip: 'Predict the output', title: 'Quick <a>Challenge</a>', file: 'challenge.py',
+  code: ['first = "Py"', 'second = "Fun"', 'word = first + second', 'print(word)', 'print(len(word))'],
+  steps: [
+    { mood: 'smile', line: [0, 1, 2], out: [], viz: { t: 'join', a: 'Py', b: 'Fun', space: false, plain: true },
+      en: 'Final challenge! We store two strings, then join them into a new variable called word.',
+      ta: 'கடைசி challenge! ரெண்டு strings-ஐ சேமிச்சு, word-ங்கிற புது variable-ல சேர்க்கிறோம்.' },
+    { mood: 'think', line: [3, 4], out: ['?', '?'], viz: { t: 'join', a: 'Py', b: 'Fun', space: false, plain: true },
+      ask: {
+        q: { en: 'Predict both lines of output, in order.', ta: 'ரெண்டு output வரிகளையும் வரிசையா யோசிச்சு சொல்லுங்க.' },
+        opts: ['PyFun, then 5', 'Py Fun, then 6', 'PyFun, then 6', 'Py + Fun, then 5'], ok: 0,
+        hint: { en: 'Join the strings first, with no space. Then count every letter of the result.', ta: 'முதல்ல space இல்லாம strings-ஐ சேருங்க. அப்புறம் result-ல எல்லா எழுத்தையும் எண்ணுங்க.' },
+        wrong: {
+          1: { en: 'We never added a space, so it is PyFun. That makes 5 characters, not 6.', ta: 'நாம space சேர்க்கல, அதனால PyFun. அதுல 5 characters, 6 இல்ல.' },
+          2: { en: 'PyFun is right, but count again: P, y, F, u, n is 5.', ta: 'PyFun சரி, ஆனா திரும்ப எண்ணுங்க: P, y, F, u, n = 5.' },
+          3: { en: 'The plus sign joins the strings. It is never printed.', ta: 'Plus குறி strings-ஐ சேர்க்கும். அது print ஆகாது.' }
+        },
+        explain: { en: 'Perfect! Py plus Fun is PyFun, and PyFun has 5 characters.', ta: 'அருமை! Py + Fun = PyFun, அதுல 5 characters.' },
+        before: { out: ['?', '?'], line: [3, 4] },
+        after: { out: ['PyFun', '5'], line: [3, 4], viz: { t: 'box', text: 'PyFun', count: true } }
+      } }
+  ]
+});
+
+SCENES.push({
+  tab: 'Wrap-up', chip: 'You did it!', title: 'Strings <a>Recap</a>', file: 'recap.py',
+  code: ['name = "Maya"', 'print("Hi, " + name)', 'print("Ha" * 3)', 'print(len(name))', 'print(name[0])'],
+  steps: [
+    { mood: 'smile', line: 0, out: [], viz: { t: 'sum', on: 2 },
+      en: 'Great job! Strings are text inside quotation marks, single or double. Here we keep one in a variable.',
+      ta: 'சூப்பர்! Strings-ன்னா single அல்லது double quotes-க்குள்ள இருக்கிற text. இங்க அதை ஒரு variable-ல வச்சிருக்கோம்.' },
+    { mood: 'smile', line: 1, out: ['Hi, Maya'], viz: { t: 'sum', on: 3 },
+      en: 'Plus joins strings together. This is concatenation.',
+      ta: 'Plus strings-ஐ சேர்க்கும். இதுதான் concatenation.' },
+    { mood: 'smile', line: 2, out: ['Hi, Maya', 'HaHaHa'], viz: { t: 'sum', on: 4 },
+      en: 'Star repeats a string as many times as you ask.',
+      ta: 'Star, நீங்க சொல்ற எண்ணிக்கை அளவுக்கு string-ஐ repeat பண்ணும்.' },
+    { mood: 'smile', line: 3, out: ['Hi, Maya', 'HaHaHa', '4'], viz: { t: 'sum', on: 5 },
+      en: 'The len function counts the characters. Maya has four.',
+      ta: 'len function characters-ஐ எண்ணும். Maya-ல நாலு.' },
+    { mood: 'wow', line: 4, out: ['Hi, Maya', 'HaHaHa', '4', 'M'], viz: { t: 'sum', on: 6 },
+      en: 'And square brackets with an index pick one character. Remember, index zero is the first one.',
+      ta: 'Square brackets-ல index போட்டா ஒரு character கிடைக்கும். ஞாபகம் இருக்கட்டும், index 0 தான் முதல் எழுத்து.' },
+    { mood: 'wow', line: -1, viz: { t: 'sum', on: 6 }, practice: {
+        tasks: [
+          { en: 'Make a variable called <code>my_name</code> with your own name inside quotes.', ta: 'உங்க பேரை quotes-க்குள்ள போட்டு <code>my_name</code> variable உருவாக்குங்க.' },
+          { en: 'Print <code>"Hello, "</code> joined with <code>my_name</code>.', ta: '<code>"Hello, "</code>-ஐ <code>my_name</code>-ஓட சேர்த்து print பண்ணுங்க.' },
+          { en: 'Print the length of <code>my_name</code>.', ta: '<code>my_name</code>-ன் length-ஐ print பண்ணுங்க.' }
+        ],
+        hint: { en: 'Use the plus sign for the join and len() for the length.', ta: 'Join பண்ண plus குறியும், length-க்கு len()-உம் பயன்படுத்துங்க.' },
+        solution: { code: ['my_name = "Maya"', 'print("Hello, " + my_name)', 'print(len(my_name))'], out: ['Hello, Maya', '4'] },
+        finish: { en: 'Well done! You now know the basics of strings. Keep going, your next topic is waiting in Adventure World!', ta: 'அருமை! Strings-ஓட அடிப்படை உங்களுக்கு தெரிஞ்சுடுச்சு. தொடர்ந்து போங்க, அடுத்த topic Adventure World-ல காத்திருக்கு!' }
+      },
+      en: 'Your turn! Create a variable with your own name. Print Hello joined with it, then print its length. Try it in your head, then peek at a sample solution.',
+      ta: 'இப்போ உங்க முறை! உங்க பேரோட ஒரு variable உருவாக்குங்க. Hello-வை அதோட சேர்த்து print பண்ணுங்க, அப்புறம் அதன் length-ஐ print பண்ணுங்க. மனசுல try பண்ணிட்டு, sample solution-ஐ பாருங்க.' }
+  ]
+});
+/* ---------- Player engine ---------- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const S = { si: 0, ti: 0, el: 0, dur: 1, started: false, paused: true, waiting: false, ended: false,
+  voice: true, sub: 'ta', code: [], codeKey: '', out: [], prevOut: [], speechDone: true, utt: null, cur: null, curSub: null };
+const TOTAL = SCENES.reduce((n, s) => n + s.steps.length, 0);
+
+/* syntax highlighting */
+function hi(line) {
+  const re = /("[^"]*"|'[^']*')|(#.*$)|\b(\d+)\b|\b(print|len)\b/g;
+  let o = '', last = 0, m;
+  while ((m = re.exec(line))) {
+    o += esc(line.slice(last, m.index));
+    if (m[1]) { const q = m[1][0]; o += `<span class="st"><b class="qt">${q}</b>${esc(m[1].slice(1, -1))}<b class="qt">${q}</b></span>`; }
+    else if (m[2]) o += `<span class="cm">${esc(m[2])}</span>`;
+    else if (m[3]) o += `<span class="nm">${m[3]}</span>`;
+    else o += `<span class="fn">${m[4]}</span>`;
+    last = re.lastIndex;
+  }
+  return o + esc(line.slice(last));
+}
+function renderCode(line, hq) {
+  const act = [].concat(line === undefined ? -1 : line);
+  const key = S.code.join('\n'), prev = S.codeKey ? S.codeKey.split('\n') : [];
+  $('code').classList.toggle('hq', !!hq);
+  if (key === S.codeKey) {
+    [...$('code').children].forEach((el, i) => el.classList.toggle('on', act.includes(i)));
+    return;
+  }
+  $('code').innerHTML = S.code.map((l, i) =>
+    `<div class="ln${act.includes(i) ? ' on' : ''}${prev[i] !== l ? ' fresh' : ''}"><b class="n">${i + 1}</b><span>${hi(l)}</span></div>`).join('');
+  S.codeKey = key;
+}
+function renderOut() {
+  const o = S.out;
+  $('out').innerHTML = o.length ? o.map((x, i) => {
+    const isNew = S.prevOut[i] === undefined || JSON.stringify(S.prevOut[i]) !== JSON.stringify(x);
+    if (typeof x === 'object') return `<div class="ol err${isNew ? ' new' : ''}">${esc(x.err)}</div>`;
+    return `<div class="ol${x === '?' ? ' q' : ''}${isNew ? ' new' : ''}">${x === '?' ? '? ? ?' : esc(x)}</div>`;
+  }).join('') : '<div class="idle">Output will appear here…</div>';
+  S.prevOut = o.slice();
+}
+
+/* visuals */
+function chars(text, o = {}) {
+  return [...text].map((c, i) => {
+    const sp = c === ' ';
+    return `<span class="cb${sp ? ' sp' : ''}${o.hl === i ? ' hl' : ''}" style="--i:${i}">${sp ? '␣' : esc(c)}` +
+      (o.idx ? `<small class="ix">${i}</small>` : '') + (o.count ? `<small class="ix ct" style="--i:${i}">${i + 1}</small>` : '') + '</span>';
+  }).join('');
+}
+function sbox(text, o = {}) {
+  const q = o.q || '"', Q = o.noq ? '' : `<b class="qm">${q}</b>`;
+  return `<div class="sbox${o.cls ? ' ' + o.cls : ''}"><span class="tag">str</span>${Q}${chars(text, o)}${Q}</div>`;
+}
+const cap = c => c ? `<div class="cap">${esc(c)}</div>` : '';
+const evoBig = () => $('evo').outerHTML.replace(/ id="[^"]*"/g, '').replace(/class="evo[^"]*"/, 'class="evo float" style="width:112px;height:112px"');
+function viz(v) {
+  const sm = { cls: 'sm' };
+  switch (v.t) {
+    case 'hello': return `<div class="row">${evoBig()}<div class="col">${sbox('Hello, I am EVO!', sm)}${cap('Welcome to String Meadow')}</div></div>`;
+    case 'cards': return ['Maya', 'Hello!', 'Python'].map((w, i) => `<div class="col float" style="animation-delay:${i * .4}s">${sbox(w, { cls: 'sm' })}${cap(['a name', 'a message', 'a word'][i])}</div>`).join('');
+    case 'box': return `<div class="col">${sbox(v.text, v)}${cap(v.cap)}</div>`;
+    case 'quotes': return `<div class="row"><div class="col">${sbox('Maya')}${cap('With quotes: Python sees text')}</div><div class="col"><div class="pill c">Maya<small>Without quotes: Python looks for a name</small></div></div></div>`;
+    case 'var': return `<div class="row"><div class="vname"><small>variable</small>${esc(v.name)}</div><span class="arrow">→</span>${sbox(v.text, sm)}${v.print ? `<span class="arrow">→</span><div class="pill g" style="--i:2">${esc(v.text)}<small>printed</small></div>` : ''}</div>`;
+    case 'compare': return `<div class="col"><div class="row"><div class="pill c">print(first_name)</div><span class="arrow">→</span><div class="pill g">Maya</div></div><div class="row"><div class="pill a">print("first_name")</div><span class="arrow">→</span><div class="pill r">first_name</div></div></div>`;
+    case 'join': {
+      const res = v.space ? v.a + ' ' + v.b : v.a + v.b;
+      return `<div class="col"><div class="row">${sbox(v.a, sm)}<span class="op">+</span>${v.space ? sbox(' ', sm) + '<span class="op">+</span>' : ''}${sbox(v.b, sm)}<span class="op">=</span>${sbox(res, sm)}</div>${cap(v.space ? 'A string with one space joins the words' : 'No space between them')}</div>`;
+    }
+    case 'repeat': {
+      const copies = Array.from({ length: v.n }, () => sbox(v.text, sm)).join('<span class="op">+</span>');
+      return `<div class="col"><div class="row">${sbox(v.text, sm)}<span class="op">×</span><div class="pill a">${v.n}</div></div>` +
+        (v.result ? `<div class="row">${copies}</div>${cap('Same as joining ' + v.n + ' copies')}` : '') + '</div>';
+    }
+    case 'mistake1': return `<div class="row"><div class="pill r">name = <u>Maya</u><small>no quotation marks</small></div><span class="arrow">→</span>` +
+      (v.reveal ? `<div class="bubble">Maya? Without quotes I think it is a variable name, and I have never heard of it!</div>` : `<div class="pill a">What is wrong here?</div>`) + '</div>';
+    case 'mistake2': return `<div class="col"><div class="row">${sbox('PYTHON', { idx: true })}<span class="cb ghost" style="--i:7">?<small class="ix" style="color:var(--red)">6</small></span></div>` +
+      (v.reveal ? `<div class="bubble" style="margin-top:14px">There is no index 6. The last index is 5.</div>` : cap('Is there a slot number 6?')) + '</div>';
+    case 'sum': {
+      const it = [['" "', 'quotes', 'make a string', 'g'], ['name', 'variable', 'stores text', 'c'], ['+', 'join', 'concatenation', 'a'], ['*', 'repeat', 'copy a string', 'g'], ['len()', 'length', 'counts characters', 'c'], ['[0]', 'index', 'starts at 0', 'a']];
+      return `<div class="row">${it.map((x, i) => `<div class="pill ${x[3]}${i >= v.on ? ' dim' : ''}" style="--i:${i}">${esc(x[0])}<small>${x[1]}: ${x[2]}</small></div>`).join('')}</div>`;
+    }
+  }
+  return '';
+}
+
+/* EVO mood */
+const MOUTH = { smile: 'M31 45 Q40 52 49 45', wow: 'M36 44 Q40 54 44 44', think: 'M33 47 L47 47' };
+const setMood = m => $('mouth').setAttribute('d', MOUTH[m] || MOUTH.smile);
+
+/* subtitles + language helpers */
+function lang(o) {
+  const m = S.sub;
+  if (m === 'ta') return o.ta;
+  if (m === 'en' || m === 'off') return o.en;
+  return `${o.en}<span class="ta">${o.ta}</span>`;
+}
+function renderSub() {
+  const o = S.curSub;
+  if (!o) return;
+  const m = S.sub;
+  $('sub').innerHTML = m === 'off' ? '' : m === 'ta' ? `<div class="ta">${o.ta}</div>`
+    : m === 'en' ? `<div class="en">${o.en}</div>` : `<div class="ta">${o.ta}</div><div class="en">${o.en}</div>`;
+}
+const setSub = o => { S.curSub = o; renderSub(); };
+
+/* narration */
+const synth = 'speechSynthesis' in window ? window.speechSynthesis : null;
+let voices = [];
+function loadVoices() {
+  if (!synth) return;
+  voices = synth.getVoices().filter(v => /^(en|ta)/i.test(v.lang));
+  const sel = $('selVoice'), keep = sel.value;
+  sel.innerHTML = voices.length ? voices.map((v, i) => `<option value="${i}">${esc(v.name)} (${esc(v.lang)})</option>`).join('') : '<option value="">Default voice</option>';
+  if (voices.length) {
+    let pick = voices.findIndex(v => /UK English Female/i.test(v.name));
+    if (pick < 0) pick = voices.findIndex(v => /^en-GB/i.test(v.lang));
+    if (pick < 0) pick = voices.findIndex(v => /^en/i.test(v.lang));
+    sel.value = keep && voices[keep] ? keep : String(Math.max(0, pick));
+  }
+}
+if (synth) { loadVoices(); synth.onvoiceschanged = loadVoices; }
+const plain = h => h.replace(/<[^>]+>/g, '').replace(/"/g, '');
+function stopSpeech() { if (synth) synth.cancel(); S.utt = null; S.speechDone = true; $('evo').classList.remove('talk'); }
+function speak(o) {
+  S.cur = o; stopSpeech();
+  if (!synth || !S.voice || !S.started || S.paused) return;
+  const v = voices[+$('selVoice').value];
+  const ta = v && /^ta/i.test(v.lang);
+  const u = new SpeechSynthesisUtterance(plain(ta ? o.ta : o.en));
+  if (v) { u.voice = v; u.lang = v.lang; } else u.lang = 'en-GB';
+  u.rate = 0.95;
+  const done = () => { if (S.utt === u) { S.speechDone = true; $('evo').classList.remove('talk'); } };
+  u.onend = done; u.onerror = done;
+  S.utt = u; S.speechDone = false; $('evo').classList.add('talk');
+  synth.speak(u);
+}
+
+/* scenes + steps */
+function enterScene(si) {
+  const sc = SCENES[si];
+  S.si = si; S.code = sc.code; S.codeKey = ''; S.out = []; S.prevOut = [];
+  $('chip').textContent = sc.chip; $('title').innerHTML = sc.title; $('fname').textContent = sc.file;
+  $('chip').style.animation = 'none'; void $('chip').offsetWidth; $('chip').style.animation = '';
+}
+function apply(st) {
+  if (st.code) S.code = st.code;
+  if (st.out) S.out = st.out;
+  renderCode(st.line, st.hq); renderOut();
+  $('viz').innerHTML = viz(st.viz || {});
+  setMood(st.mood);
+}
+function goStep(si, ti) {
+  if (si !== S.si || ti === 0 || S.ended) enterScene(si);
+  S.ended = false; S.ti = ti;
+  const st = SCENES[si].steps[ti];
+  S.el = 0; S.dur = 2400 + (st.en || (st.ask && st.ask.q.en) || '').length * 68; S.waiting = false; S.post = false;
+  $('ask').hidden = true; $('ask').innerHTML = '';
+  apply(st);
+  if (st.ask) { showAsk(st); S.waiting = true; setSub(st.ask.q); speak(st.ask.q); }
+  else if (st.practice) { showPractice(st); S.waiting = true; setSub(st); speak(st); }
+  else { setSub(st); speak(st); }
+  updateTabs();
+}
+function next() {
+  const sc = SCENES[S.si];
+  if (S.ti + 1 < sc.steps.length) goStep(S.si, S.ti + 1);
+  else if (S.si + 1 < SCENES.length) goStep(S.si + 1, 0);
+}
+
+/* predict / hint / feedback */
+function showAsk(st) {
+  const a = st.ask, box = $('ask');
+  const b = a.before; if (b) { if (b.out) { S.out = b.out; renderOut(); } if (b.viz) $('viz').innerHTML = viz(b.viz); }
+  box.hidden = false;
+  box.innerHTML = `<div class="lab">PREDICT THE ANSWER</div><div class="fb" style="color:var(--ink);font-weight:700">${lang(a.q)}</div>
+    <div class="opts">${a.opts.map((o, i) => `<button class="opt" data-i="${i}">${esc(o)}</button>`).join('')}</div>
+    <div class="fb" id="afb" aria-live="polite"></div>
+    <div class="askrow"><button class="mini" id="aHint">Show hint</button><button class="mini go" id="aNext" hidden>Continue →</button></div>`;
+  const fb = $('afb');
+  box.querySelector('#aHint').onclick = () => { fb.className = 'fb hint'; fb.innerHTML = 'Hint: ' + lang(a.hint); };
+  box.querySelector('#aNext').onclick = () => { stopSpeech(); next(); };
+  box.querySelectorAll('.opt').forEach(btn => btn.onclick = () => {
+    const i = +btn.dataset.i;
+    if (i === a.ok) {
+      box.querySelectorAll('.opt').forEach(x => x.disabled = true);
+      btn.classList.add('ok');
+      fb.className = 'fb ok'; fb.innerHTML = lang(a.explain);
+      const af = a.after; if (af) { if (af.out) S.out = af.out; renderCode(af.line, false); renderOut(); if (af.viz) $('viz').innerHTML = viz(af.viz); }
+      setMood('wow'); setSub(a.explain); speak(a.explain);
+      S.waiting = false; S.post = true; S.el = 0; S.dur = 3000 + a.explain.en.length * 68;
+      box.querySelector('#aNext').hidden = false; box.querySelector('#aHint').hidden = true;
+    } else {
+      btn.classList.add('no'); btn.disabled = true; setMood('think');
+      const w = (a.wrong && a.wrong[i]) || { en: 'Not quite. Try again!', ta: 'இல்ல. திரும்ப try பண்ணுங்க!' };
+      fb.className = 'fb no'; fb.innerHTML = lang(w);
+    }
+  });
+}
+
+/* final practice */
+function showPractice(st) {
+  const p = st.practice, box = $('ask');
+  box.hidden = false;
+  box.innerHTML = `<div class="lab">QUICK PRACTICE</div><ol class="tasks">${p.tasks.map(t => `<li>${lang(t)}</li>`).join('')}</ol>
+    <div class="fb" id="afb" aria-live="polite"></div>
+    <div class="askrow"><button class="mini" id="pHint">Show hint</button><button class="mini go" id="pSol">Show sample solution</button><button class="mini go" id="pNext" hidden>Next topic →</button><button class="mini" id="pAgain" hidden>Replay lesson</button></div>`;
+  const fb = $('afb');
+  box.querySelector('#pHint').onclick = () => { fb.className = 'fb hint'; fb.innerHTML = 'Hint: ' + lang(p.hint); };
+  box.querySelector('#pSol').onclick = () => {
+    S.code = p.solution.code; S.out = p.solution.out; renderCode(-1, false); renderOut();
+    $('viz').innerHTML = viz({ t: 'box', text: 'Maya', count: true, cap: 'my_name = "Maya" has 4 characters' });
+    fb.className = 'fb ok'; fb.innerHTML = lang(p.finish); setMood('wow'); setSub(p.finish); speak(p.finish);
+    box.querySelector('#pHint').hidden = true; box.querySelector('#pSol').hidden = true;
+    box.querySelector('#pNext').hidden = false; box.querySelector('#pAgain').hidden = false;
+    S.ended = true; S.done = true; updateTabs();
+  };
+  box.querySelector('#pNext').onclick = () => {
+    fb.className = 'fb ok'; fb.textContent = 'Head back to EVOLV Adventure World and open the next topic. See you there!';
+  };
+  box.querySelector('#pAgain').onclick = () => { S.done = false; begin(); goStep(0, 0); };
+}
+
+/* tabs + progress */
+function buildTabs() {
+  $('tabs').innerHTML = SCENES.map((s, i) => `<button class="tab" data-i="${i}"><i></i><span>${i + 1}</span>${s.tab}</button>`).join('');
+  $('tabs').querySelectorAll('.tab').forEach(b => b.onclick = () => { begin(); goStep(+b.dataset.i, 0); });
+}
+function updateTabs() {
+  const frac = S.waiting ? 0 : Math.min(1, S.el / S.dur);
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    const n = SCENES[i].steps.length;
+    let p = i < S.si ? 1 : i > S.si ? 0 : (S.ti + frac) / n;
+    if (S.done) p = 1;
+    t.style.setProperty('--p', p);
+    t.classList.toggle('cur', i === S.si); t.classList.toggle('done', p >= 1);
+  });
+  let before = 0; for (let i = 0; i < S.si; i++) before += SCENES[i].steps.length;
+  $('gprog').style.width = (S.done ? 100 : (before + S.ti + frac) / TOTAL * 100) + '%';
+}
+
+/* controls */
+function begin() {
+  if (S.started && !S.paused) return;
+  S.started = true; S.paused = false; $('start').hidden = true; $('bPause').textContent = 'Pause';
+  if (S.cur) speak(S.cur);
+}
+$('start').onclick = begin;
+$('bPause').onclick = () => {
+  if (!S.started || S.paused) { begin(); return; }
+  S.paused = true; stopSpeech(); $('bPause').textContent = 'Play';
+};
+$('bScene').onclick = () => { begin(); goStep(S.si, 0); };
+$('bRestart').onclick = () => { S.done = false; begin(); goStep(0, 0); };
+$('bVoice').onclick = () => {
+  S.voice = !S.voice; $('bVoice').setAttribute('aria-pressed', S.voice);
+  if (S.voice) speak(S.cur); else stopSpeech();
+};
+$('selSub').onchange = e => { S.sub = e.target.value; renderSub(); };
+$('selVoice').onchange = () => { if (S.cur) speak(S.cur); };
+
+/* ambient music */
+let ac = null, mTimer = null, mGain = null;
+function playChord(i) {
+  const chords = [[261.6, 329.6, 392], [220, 277.2, 329.6], [174.6, 220, 261.6], [196, 246.9, 293.7]];
+  chords[i % 4].forEach(f => {
+    const o = ac.createOscillator(), g = ac.createGain(), t = ac.currentTime;
+    o.type = 'sine'; o.frequency.value = f;
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.5, t + 1.2); g.gain.linearRampToValueAtTime(0, t + 4.2);
+    o.connect(g); g.connect(mGain); o.start(); o.stop(t + 4.3);
+  });
+}
+$('bMusic').onclick = () => {
+  const on = $('bMusic').getAttribute('aria-pressed') !== 'true';
+  $('bMusic').setAttribute('aria-pressed', on);
+  try {
+    if (on) {
+      ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+      if (ac.resume) ac.resume();
+      mGain = ac.createGain(); mGain.gain.value = 0.05; mGain.connect(ac.destination);
+      let i = 0; playChord(i++); mTimer = setInterval(() => playChord(i++), 3800);
+    } else { clearInterval(mTimer); if (mGain) mGain.disconnect(); }
+  } catch (e) { $('bMusic').setAttribute('aria-pressed', 'false'); }
+};
+
+/* main loop */
+let last = 0;
+function tick(t) {
+  const dt = Math.min(100, t - last); last = t;
+  if (S.started && !S.paused && !S.waiting && !S.ended) {
+    S.el += dt;
+    const spoken = !S.voice || !synth || S.speechDone || S.el > S.dur + 9000;
+    if (S.el >= S.dur && spoken && !(S.si === SCENES.length - 1 && S.ti === SCENES[S.si].steps.length - 1)) next();
+  }
+  updateTabs();
+  requestAnimationFrame(tick);
+}
+buildTabs();
+goStep(0, 0);
+$('bPause').textContent = 'Play';
+requestAnimationFrame(tick);
+</script>
+
+</body></html>
