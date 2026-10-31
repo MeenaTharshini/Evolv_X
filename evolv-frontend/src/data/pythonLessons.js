@@ -2976,7 +2976,8 @@ Common mistakes
 
     "The stop value is excluded.",
 
-    {
+    { videoUrl: "/videos/For%20Loops.html",
+      videoTitle: "For Loop — Video",
       instructions: `Task: Use the three forms of range() to print number sequences.
 
 Steps:
