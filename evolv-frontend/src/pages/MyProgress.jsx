@@ -15,6 +15,7 @@ import {
   Zap,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import EvolvLoader from "../components/EvolvLoader";
 
 import Navbar from "../components/Navbar";
 import Rightbar from "../components/Rightbar";
