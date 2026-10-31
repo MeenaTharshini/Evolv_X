@@ -779,7 +779,8 @@ print(age + 1)`,
 
     {
       type: "hands-on",
-
+      videoUrl: "/videos/User%20Input.html",
+      videoTitle: "User Input — Video",
       instructions: `Task: Ask for a name and an age, then greet the user and calculate their age next year.
 
 Steps:
@@ -2724,7 +2725,8 @@ Common mistakes
 
     "It avoids repeating the same instruction manually.",
 
-    {
+    { videoUrl: "/videos/Why%20Loops.html",
+      videoTitle: "Why Loops? — Video",
       instructions: `Task: Use a loop to print a numbered practice reminder.
 
 Steps:
@@ -2849,7 +2851,8 @@ Common mistakes
 
     "It appears before the loop variable.",
 
-    {
+    { videoUrl: "/videos/For%20Loops.html",
+      videoTitle: "For Loop — Video",
       instructions: `Task: Loop through a list of subjects, first plainly and then with numbers.
 
 Steps:

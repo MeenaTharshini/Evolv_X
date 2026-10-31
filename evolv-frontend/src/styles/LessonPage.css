@@ -3530,3 +3530,123 @@
     line-height: 1.85;
   }
 }
+
+/* ============================================================
+   HEART SYSTEM
+   ============================================================ */
+.lesson-heart-count {
+  transition: transform 180ms ease, background-color 180ms ease;
+}
+
+.lesson-heart-count.is-low {
+  color: #c62845;
+  background: #ffe3e9;
+  border-color: #f6b8c5;
+  animation: lesson-heart-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes lesson-heart-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.045); }
+}
+
+.lesson-heart-warning {
+  margin: 14px 0 0;
+  padding: 12px 14px;
+  border: 1px solid #f3b9c4;
+  border-radius: 12px;
+  background: #fff0f3;
+  color: #a51e3a;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.55;
+}
+
+.concept-quick-option:disabled {
+  cursor: not-allowed !important;
+  opacity: 0.58;
+}
+
+.lesson-quiz-submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+  box-shadow: none;
+}
+
+.lesson-hearts-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(18, 28, 40, 0.58);
+  backdrop-filter: blur(7px);
+}
+
+.lesson-hearts-dialog {
+  width: min(100%, 430px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 13px;
+  padding: 34px 30px 30px;
+  border: 1px solid #f5d6dc;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 24px 80px rgba(17, 24, 39, 0.24);
+  text-align: center;
+  animation: lesson-hearts-appear 220ms ease-out;
+}
+
+.lesson-hearts-dialog-icon {
+  width: 72px;
+  height: 72px;
+  display: grid;
+  place-items: center;
+  border-radius: 22px;
+  background: #fff0f3;
+  color: #df4663;
+}
+
+.lesson-hearts-dialog .lesson-eyebrow {
+  margin: 5px 0 0;
+  color: #d14a64;
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0.13em;
+}
+
+.lesson-hearts-dialog h2 {
+  margin: 0;
+  color: #172333;
+  font-size: clamp(23px, 4vw, 30px);
+  line-height: 1.2;
+}
+
+.lesson-hearts-dialog > p:not(.lesson-eyebrow) {
+  margin: 0 0 7px;
+  color: #647184;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.lesson-hearts-dialog .lesson-primary-button,
+.lesson-hearts-dialog .lesson-secondary-button {
+  width: 100%;
+  justify-content: center;
+  text-decoration: none;
+}
+
+@keyframes lesson-hearts-appear {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lesson-heart-count.is-low,
+  .lesson-hearts-dialog {
+    animation: none;
+  }
+}

@@ -1,4 +1,10 @@
-import { createContext, useContext, useEffect, useState } from "react";
+
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 import {
   HashRouter,
@@ -16,6 +22,7 @@ import Home from "./pages/Home";
 import StudyMap from "./pages/StudyMap";
 import LessonPage from "./pages/LessonPage";
 import MyProgress from "./pages/MyProgress";
+import Leaderboard from "./pages/Leaderboard";
 
 // ==================================================
 // AUTH CONTEXT
@@ -42,6 +49,7 @@ function AuthProvider({ children }) {
   useEffect(() => {
     let mounted = true;
 
+    // Subscribe to authentication changes.
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, newSession) => {
@@ -51,6 +59,7 @@ function AuthProvider({ children }) {
       setLoading(false);
     });
 
+    // Initialize the current authentication session.
     async function initializeAuth() {
       try {
         const {
@@ -66,7 +75,10 @@ function AuthProvider({ children }) {
           setSession(currentSession);
         }
       } catch (error) {
-        console.error("Authentication initialization failed:", error);
+        console.error(
+          "Authentication initialization failed:",
+          error
+        );
 
         if (mounted) {
           setSession(null);
@@ -105,7 +117,11 @@ function AuthProvider({ children }) {
 
 function LoadingScreen() {
   return (
-    <div className="auth-loading" role="status" aria-live="polite">
+    <div
+      className="auth-loading"
+      role="status"
+      aria-live="polite"
+    >
       <p>Loading EVOLV...</p>
     </div>
   );
@@ -228,12 +244,22 @@ function AppRoutes() {
         }
       />
 
-      {/* Progress */}
+      {/* My Progress */}
       <Route
         path="/progress"
         element={
           <ProtectedRoute>
             <MyProgress />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Leaderboard */}
+      <Route
+        path="/leaderboard"
+        element={
+          <ProtectedRoute>
+            <Leaderboard />
           </ProtectedRoute>
         }
       />

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Why Loops Are Useful — EVOLV Adventure World</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#070b17;--card:#0b1226;--c2:#10192f;--line:#1e2d52;--cy:#4fd1ff;--am:#ffb84a;--gr:#4ade80;--rd:#ff6b81;--tx:#eef2ff;--mu:#8493b8;--mono:"JetBrains Mono",ui-monospace,Menlo,monospace;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;background:radial-gradient(1100px 560px at 50% -8%,#10204a,transparent 60%),var(--bg);color:var(--tx);font-family:Outfit,"Noto Sans Tamil",system-ui,sans-serif}
+body.paused *{animation-play-state:paused!important}
+.app{max-width:900px;margin:0 auto;padding:14px}
+.stage{position:relative;overflow:hidden;background:linear-gradient(180deg,#0c1329,#080d1d);border:1px solid var(--line);border-radius:22px;padding:20px 18px 18px}
+.stage::before{content:"";position:absolute;inset:0;background:linear-gradient(#4f8cff12 1px,transparent 1px) 0 0/34px 34px,linear-gradient(90deg,#4f8cff12 1px,transparent 1px) 0 0/34px 34px;pointer-events:none}
+.stage>*{position:relative}
+.ff{position:absolute!important;width:5px;height:5px;border-radius:50%;background:var(--gr);box-shadow:0 0 10px 3px #4ade8088;animation:ff 7s ease-in-out infinite;pointer-events:none}
+@keyframes ff{0%,100%{transform:translate(0,0);opacity:.15}50%{transform:translate(24px,-30px);opacity:1}}
+.logo{display:flex;justify-content:center;align-items:center;gap:12px;font-weight:800;letter-spacing:.28em;font-size:19px}
+.world{text-align:center;font:600 12px var(--mono);color:var(--gr);letter-spacing:.2em;margin-top:4px}
+.path{margin:6px 0 4px}.path svg{width:100%;height:auto;display:block;overflow:visible}
+#pBase{fill:none;stroke:#1b2a50;stroke-width:7;stroke-linecap:round;stroke-dasharray:2 12}
+#pLit{fill:none;stroke:var(--gr);stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset 1.2s ease;filter:drop-shadow(0 0 8px #4ade80)}
+.nd circle{fill:#0f1830;stroke:#2b3d6b;stroke-width:3;transition:.5s}.nd text{fill:var(--mu);font:700 22px Outfit;text-anchor:middle;dominant-baseline:central}
+.nd.done circle{fill:#0e3a2a;stroke:var(--gr);filter:drop-shadow(0 0 8px #4ade80)}.nd.done text{fill:var(--gr)}
+.nd.cur circle{stroke:var(--am);animation:pl 1.4s ease-in-out infinite}.nd.cur text{fill:var(--am)}
+@keyframes pl{50%{stroke-width:7;filter:drop-shadow(0 0 10px #ffb84a)}}
+.view{padding-top:6px}.view.in{animation:rise .5s ease}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}}
+.tags{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px}
+.pill{font:600 12px var(--mono);border:1px solid #2d6a55;color:var(--gr);background:#0d2a24;border-radius:99px;padding:5px 12px}
+.pill.lv{border-color:#6b5320;color:var(--am);background:#2a2110}.cnt{margin-left:auto;color:var(--mu);font-size:13px}
+h1{font-size:clamp(26px,5.5vw,42px);line-height:1.15;text-align:center;margin:14px 0}h1 em{font-style:normal;color:var(--am)}
+h2.qt{font-size:clamp(20px,4vw,27px);margin:4px 0 12px}
+.win{max-width:580px;margin:0 auto 14px;background:#0f1830;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 10px 30px #0008}
+.wh{display:flex;align-items:center;gap:7px;padding:9px 14px;border-bottom:1px solid var(--line);background:#0c1429;font:12px var(--mono);color:#7d8fc0}
+.wh i{width:11px;height:11px;border-radius:50%}.wh span:last-child{margin-left:auto;font-size:11px}
+.ln{display:flex;gap:14px;padding:4px 14px;font:15px/1.5 var(--mono);white-space:pre;transition:.5s;border-left:3px solid transparent;overflow-x:auto}
+.ln .n{color:#4a5a86;min-width:14px}.ln.on{background:#4ade8018;border-left-color:var(--gr)}.ln.off{opacity:.35}
+i.k{color:#a78bfa;font-style:normal;font-weight:600}i.s{color:var(--am);font-style:normal}i.n{color:#6ee7a0;font-style:normal}i.b{color:var(--cy);font-style:normal;font-weight:600}i.f{color:#7dd3fc;font-style:normal}
+.blank{display:inline-block;min-width:70px;text-align:center;border-bottom:2px dashed var(--am);color:var(--am);animation:pl2 1.4s infinite}.blank.fill{border-bottom-color:var(--gr);background:#4ade8022;animation:none;padding:0 6px}
+@keyframes pl2{50%{background:#ffb84a22}}
+.ask{color:#c9d4f5;margin:6px 0 10px;font-size:17px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{display:flex;gap:10px;align-items:center;text-align:left;background:var(--c2);color:var(--tx);border:1px solid var(--line);border-radius:12px;padding:12px;font:600 14px var(--mono);cursor:pointer;transition:.2s}
+.opt:hover:not(:disabled){border-color:var(--cy);transform:translateY(-2px)}.opt b{display:grid;place-items:center;flex:none;min-width:26px;height:26px;border-radius:8px;background:#1a2748;color:var(--cy);font:700 13px Outfit}
+.opt.bad{border-color:var(--rd);background:#2a1220;opacity:.6;animation:sh .4s}.opt.good{border-color:var(--gr);background:#0e3a2a;box-shadow:0 0 18px #4ade8066}
+.opt:disabled{cursor:default}@keyframes sh{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.hint{margin-top:10px;border:1px solid #6b5320;background:#2a2110;color:#ffd998;border-radius:12px;padding:10px 14px;animation:rise .4s}
+.conds{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.cd{display:flex;align-items:center;gap:10px;border-radius:10px;padding:7px 12px;border:1px solid;animation:pop .35s;font-size:13px}
+.cd code{font-family:var(--mono)}.cd b{font-size:11px;letter-spacing:.1em;padding:2px 8px;border-radius:99px;color:#04130b}
+.c1{border-color:#2d6a55;background:#0d2a24}.c1 b{background:var(--gr)}.c0{border-color:#7a2d44;background:#2a1220}.c0 b{background:var(--rd)}
+.c2{border-color:#1d5a73;background:#0b2233}.c2 b{background:var(--cy)}.c3{border-color:#6b5320;background:#2a2110}.c3 b{background:var(--am)}
+@keyframes pop{from{transform:scale(.6);opacity:0}}
+.out{margin-top:12px;background:#050912;border:1px solid var(--line);border-radius:12px;padding:10px 14px;font:600 16px var(--mono);color:var(--gr)}
+.out small{display:block;color:var(--mu);font-size:11px;letter-spacing:.14em;margin-bottom:4px}#ot{white-space:pre-wrap}
+.why{margin-top:12px;border:1px solid #1d5a73;background:#0b2233;border-radius:12px;padding:12px 14px;line-height:1.5;animation:rise .4s}.why strong{color:var(--cy)}
+.btn{display:block;margin:14px auto 0;background:var(--am);color:#2a1a00;border:0;border-radius:99px;padding:12px 28px;font:800 16px Outfit;cursor:pointer;transition:.2s;animation:pop .4s}.btn:hover{transform:scale(1.05)}
+.btn:disabled{background:var(--gr);cursor:default;transform:none}.btn.alt{background:var(--c2);color:var(--tx);border:1px solid var(--line)}
+.nar{display:flex;gap:12px;align-items:center;margin-top:16px}
+.evo{flex:none;width:58px;height:58px;filter:drop-shadow(0 0 10px #4fd1ff88);animation:fl 3s ease-in-out infinite}@keyframes fl{50%{transform:translateY(-5px)}}
+.eye{animation:bl 4s infinite;transform-origin:center;transform-box:fill-box}@keyframes bl{94%,100%{transform:scaleY(1)}97%{transform:scaleY(.1)}}
+.sub{flex:1;background:#0a1020;border:1px solid var(--line);border-radius:12px;padding:12px 16px;text-align:center;font-size:16px;line-height:1.45;min-height:50px}
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px;margin:14px 0}
+.chip{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13px;font-weight:600;color:#cfd8f5}
+.chip .bar{height:4px;border-radius:9px;background:#26345c;margin-bottom:8px;overflow:hidden}.chip .bar i{display:block;height:100%;width:0;background:var(--cy);transition:width .6s}
+.chip.cur{border-color:var(--cy)}.chip.done .bar i{background:var(--gr)}.chip span{color:var(--mu);margin-right:5px}
+.ctl{display:flex;flex-wrap:wrap;gap:10px}
+.ctl button,.ctl select{background:var(--c2);color:var(--tx);border:1px solid var(--line);border-radius:99px;padding:12px 20px;font:600 15px Outfit;cursor:pointer}
+.ctl button.am{background:var(--am);color:#2a1a00;border-color:var(--am)}.ctl button.on{border-color:var(--cy);color:var(--cy)}
+.topics{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0}.topics span{border:1px solid var(--line);background:var(--c2);border-radius:99px;padding:6px 12px;font-size:13px;color:#c9d4f5}
+.meadow svg{width:100%;display:block;border-radius:14px;box-shadow:0 0 40px #4ade8033}
+.bl{transform-box:fill-box;transform-origin:50% 100%;animation:sway 2.4s ease-in-out infinite}@keyframes sway{50%{transform:rotate(6deg)}}
+.fl{transform-box:fill-box;transform-origin:50% 100%;animation:pop .6s backwards}
+.sun{animation:sun 2.4s ease-out}@keyframes sun{from{transform:translateY(70px);opacity:0}}
+.bf{animation:bf 8s ease-in-out infinite}.b2{animation-duration:11s;animation-direction:reverse}@keyframes bf{50%{transform:translate(120px,-14px)}}
+.res{display:flex;justify-content:center;align-items:center;gap:22px;flex-wrap:wrap;margin:14px 0 4px}
+.badge{width:110px;animation:pop .8s,fl 3s 1s infinite;filter:drop-shadow(0 0 16px #4ade8099)}
+.score{font-size:58px;font-weight:800;color:var(--gr);line-height:1}.score small{font-size:20px;color:var(--mu)}
+.dots{display:flex;gap:6px;margin-top:8px}.dots i{width:14px;height:14px;border-radius:50%;background:var(--am);animation:pop .4s backwards}.dots i.g{background:var(--gr);box-shadow:0 0 10px #4ade80}
+.xp{max-width:420px;margin:10px auto;text-align:center}.xp .tr{height:12px;background:#1a2748;border-radius:9px;overflow:hidden;margin-top:6px}.xp .tr i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cy),var(--gr));transition:width 1.8s ease}
+.tg{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin:12px 0}.tg div{display:flex;justify-content:space-between;gap:8px;border:1px solid var(--line);background:var(--c2);border-radius:10px;padding:8px 12px;font-size:14px}
+.tg .ok{border-color:#2d6a55}.tg .rv{border-color:#6b5320;color:#ffd998}
+.cf{position:absolute!important;top:-12px;width:9px;height:14px;border-radius:2px;animation:fall linear forwards;pointer-events:none;z-index:3}@keyframes fall{to{transform:translateY(1000px) rotate(720deg);opacity:.6}}
+.ban{text-align:center;font:800 13px Outfit;letter-spacing:.3em;color:var(--am);margin-top:6px}
+@media(max-width:560px){.opts{grid-template-columns:1fr}.ctl button,.ctl select{padding:10px 15px;font-size:14px}.sub{font-size:14px}.evo{width:46px;height:46px}}
+.lg{display:grid;grid-template-columns:1.1fr .9fr;gap:14px;align-items:start}.lg .win{max-width:none;margin:0 0 12px}
+@media(max-width:720px){.lg{grid-template-columns:1fr}}
+.mem{background:#0a1226;border:1px dashed #2b4a6b;border-radius:14px;padding:12px;min-height:150px;margin-top:10px}.lg .mem{margin-top:0}
+.mem small{color:var(--mu);letter-spacing:.14em;font-size:11px;display:block;margin-bottom:12px}
+#boxes{display:flex;flex-wrap:wrap;gap:16px;justify-content:center}
+.vb{text-align:center;animation:pop .5s}.vb.str{--c:#ffb84a}.vb.int{--c:#4fd1ff}.vb.float{--c:#4ade80}.vb.bool{--c:#a78bfa}
+.lab{display:inline-block;background:var(--c);color:#06101f;font:700 13px var(--mono);padding:2px 10px;border-radius:7px 7px 0 0}
+.bx{min-width:112px;height:72px;display:grid;place-items:center;padding:0 12px;border:2px solid var(--c);border-radius:4px 12px 12px 12px;background:linear-gradient(#ffffff0d,transparent);box-shadow:0 0 18px -3px var(--c)}
+.val{font:600 20px var(--mono);animation:drop .6s}.val s{color:var(--rd);opacity:.7}
+.vb.chg .bx{animation:flash .9s}.ty{margin-top:5px;font-size:11px;color:var(--c);letter-spacing:.06em}
+@keyframes drop{from{transform:translateY(-44px) scale(.6);opacity:0}}@keyframes flash{50%{background:#ffb84a33;transform:scale(1.08)}}
+#ot:empty::before{content:"nothing printed yet";color:#4a5a86;font-weight:400}.ol{animation:rise .4s}
+#cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;margin-top:12px}#cards:empty{display:none}
+.nm{border:1px solid;border-radius:12px;padding:12px;animation:pop .4s}.nm code{display:block;font:600 17px var(--mono);margin-bottom:6px}
+.nm b{font-size:11px;letter-spacing:.1em;padding:2px 8px;border-radius:99px;color:#04130b}.nm p{margin:8px 0 0;font-size:14px;color:#c9d4f5}
+.chip{cursor:pointer}.chip:hover{border-color:var(--cy)}#qa .win{margin-top:8px}#why .btn{margin-bottom:4px}
+.gate{position:absolute!important;inset:0;z-index:5;display:grid;place-items:center;text-align:center;background:#070b17ee;backdrop-filter:blur(4px);padding:20px}.gate p{color:var(--mu);margin:0 0 6px}.ctl select{max-width:100%}
+.brow{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:10px 0;animation:rise .4s}
+.nb{min-width:54px;height:54px;display:grid;place-items:center;padding:0 10px;border-radius:12px;font:700 22px var(--mono);background:#10264a;border:2px solid var(--cy);color:var(--cy);box-shadow:0 0 16px -3px var(--cy);animation:drop .6s backwards}
+.nb.rs{border-color:var(--gr);color:var(--gr);background:#0e3a2a;box-shadow:0 0 22px -2px var(--gr);transform:scale(1.1)}
+.op{font:800 26px var(--mono);color:var(--am);animation:pop .4s backwards}
+.dg{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:8px}.grp{display:flex;flex-wrap:wrap;gap:4px;width:92px;padding:8px;border:2px dashed #2b4a6b;border-radius:12px;justify-content:center;transition:.5s}
+.grp i{width:14px;height:14px;border-radius:50%;background:var(--cy);animation:pop .4s backwards}.grp.left i{background:var(--am)}
+.dg.q .grp:not(.left){border-color:var(--gr);box-shadow:0 0 16px -2px var(--gr)}.dg.r .grp.left{border-color:var(--am);box-shadow:0 0 16px -2px var(--am)}
+.dl{width:100%;text-align:center;color:#c9d4f5;font-size:14px;min-height:20px}
+.ln.hid{opacity:0;transform:translateX(-16px)}
+.rc{font:700 26px var(--mono);text-align:center;color:var(--am);margin-top:4px}.rc.done{color:var(--gr);font-size:20px}.rc span{font-size:16px;color:var(--mu)}
+.rd{display:flex;gap:8px;justify-content:center;margin:10px 0}.rd i{width:18px;height:18px;border-radius:50%;background:#1a2748;transition:.3s}.rd i.on{background:var(--gr);box-shadow:0 0 12px var(--gr)}
+.cps{display:flex;justify-content:space-between;position:relative;margin-top:14px}.cps::before{content:"";position:absolute;left:6%;right:6%;top:47px;height:4px;background:#1b2a50}
+.cp{position:relative;padding-top:30px}.cp i{position:relative;display:grid;place-items:center;width:38px;height:38px;border-radius:50%;border:3px solid #2b3d6b;background:#0f1830;font:700 15px var(--mono);font-style:normal;color:var(--mu);transition:.4s}
+.cp.on i{border-color:var(--gr);color:var(--gr);background:#0e3a2a;box-shadow:0 0 14px var(--gr)}
+.bot{position:absolute;top:0;left:50%;transform:translate(-50%,8px);font-size:24px;opacity:0;transition:.4s}.cp.cur .bot{opacity:1;transform:translate(-50%,0)}
+.cmpg{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:720px){.cmpg{grid-template-columns:1fr}}.cmpg .win{max-width:none;margin:0 0 10px}
+.cl{font:800 14px Outfit;margin-bottom:6px}.cl.bad{color:var(--rd)}.cl.good{color:var(--gr)}.oo{white-space:pre}.oo:empty::before{content:"nothing printed yet";color:#4a5a86;font-weight:400}
+.tr{transform-box:fill-box;transform-origin:50% 100%;animation:sway 3.2s ease-in-out infinite}.fc{animation:bk2 3s ease-in-out infinite}@keyframes bk2{50%{opacity:.1}}
+.nar.tired .evo{animation:shk .35s infinite}@keyframes shk{25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+.nar.tired::before,.nar.happy::before{position:absolute;left:34px;top:-16px;font-size:22px;z-index:2;animation:pop .4s}.nar.tired::before{content:"😩"}.nar.happy::before{content:"🎉"}
+</style></head><body>
+<div class="app">
+<section class="stage" id="stage">
+ <div class="logo"><svg width="34" height="34" viewBox="0 0 34 34"><rect x="2" y="18" width="8" height="14" rx="3" fill="#ffb84a"/><rect x="13" y="8" width="8" height="24" rx="3" fill="#4fd1ff"/><rect x="24" y="2" width="8" height="30" rx="3" fill="#ff6b9a"/></svg>EVOLV</div>
+ <div class="world">CODE FOREST · LOOPS · WHY LOOPS ARE USEFUL</div>
+ <div class="gate" id="gate"><div><h1 style="margin:0 0 10px">Ready to enter the <em>Code Forest</em>?</h1><p>🔊 Turn your volume up — EVO will narrate every scene.</p><button class="btn" id="go">▶ Start lesson with voice</button><button class="btn alt" id="go2">Start without voice</button></div></div>
+ <div class="view" id="view"></div>
+ <div class="nar"><svg class="evo" viewBox="0 0 60 60"><line x1="30" y1="4" x2="30" y2="12" stroke="#ffb84a" stroke-width="3"/><circle cx="30" cy="4" r="3.5" fill="#ffb84a"/><circle cx="30" cy="34" r="22" fill="#4fd1ff"/><rect x="14" y="24" width="32" height="20" rx="10" fill="#07102a"/><ellipse class="eye" cx="23" cy="34" rx="3.5" ry="4.5" fill="#4ade80"/><ellipse class="eye" cx="37" cy="34" rx="3.5" ry="4.5" fill="#4ade80"/></svg><div class="sub" id="sub"></div></div>
+</section>
+<div class="chips" id="chips"></div>
+<div class="ctl"><button class="am" id="bP">Pause</button><button id="bRp">Replay</button><button id="bV">Voice</button><button id="bM">Music</button><select id="vsel" aria-label="Voice"><option>Default voice</option></select><select id="asel" aria-label="Audio language"><option value="en">Audio: English</option><option value="ta">Audio: தமிழ் · Tamil</option></select>
+<select id="sel" aria-label="Subtitles"><option value="en">Subtitles: English</option><option value="ta">Subtitles: தமிழ் · Tamil</option><option value="off">Subtitles: Off</option></select></div>
+</div>
+<script>
+const $=s=>document.querySelector(s),esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+let run=0,paused=false,voiceOn=false,sub="en",nar=["",""],sc=0,qs=0,speaking=false,aud="en",VO=null,spk=0;
+const hi=l=>esc(l).replace(/("[^"]*")|\b(True|False)\b|\b(\d+(?:\.\d+)?)\b|\b(for|in)\b|\b(?:print|range)\b/g,(m,a,b,n,k)=>k?`<i class=k>${m}</i>`:a?`<i class=s>${m}</i>`:b?`<i class=b>${m}</i>`:n?`<i class=n>${m}</i>`:`<i class=f>${m}</i>`);
+const win=(c,f)=>`<div class="win"><div class="wh"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span>${f}</span><span>Python 3</span></div>${c.split("\n").map((l,k)=>`<div class="ln"><span class="n">${k+1}</span><code>${hi(l)}</code></div>`).join("")}</div>`;
+function meadow(){let g="",f="";for(let i=0;i<46;i++){const x=10+i*13+Math.random()*6,h=14+Math.random()*26,y=150+Math.random()*34;g+=`<path class="bl" d="M${x} ${y} q${(Math.random()-.5)*8} -${h/2} ${(Math.random()-.5)*10} -${h}" stroke="${i%3?"#4ade80":"#22c55e"}" stroke-width="2.5" fill="none" stroke-linecap="round" style="animation-delay:${Math.random()*2}s"/>`}
+ for(let i=0;i<14;i++){const x=30+i*42+Math.random()*16,y=135+Math.random()*40;f+=`<g class="fl" style="animation-delay:${.3+i*.12}s"><path d="M${x} ${y+16} V${y}" stroke="#2fa866" stroke-width="2"/><circle cx="${x}" cy="${y}" r="6" fill="${["#ffb84a","#ff6b9a","#4fd1ff","#ffffff"][i%4]}"/><circle cx="${x}" cy="${y}" r="2.5" fill="#fde68a"/></g>`}
+ return`<svg viewBox="0 0 600 190"><defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b1740"/><stop offset="1" stop-color="#14425a"/></linearGradient><radialGradient id="sg"><stop offset="0" stop-color="#ffe9a8"/><stop offset="1" stop-color="#ffb84a"/></radialGradient></defs><rect width="600" height="190" fill="url(#sk)"/><g class="sun"><circle cx="300" cy="104" r="46" fill="#ffb84a" opacity=".22"/><circle cx="300" cy="104" r="30" fill="url(#sg)"/></g><path d="M0 120 C100 80 200 130 300 105 S520 80 600 115 V190 H0Z" fill="#0f4a38"/><path d="M0 150 C120 110 240 160 360 135 S540 115 600 140 V190 H0Z" fill="#157a4a"/><path d="M0 172 C150 145 300 185 450 160 S560 150 600 160 V190 H0Z" fill="#1fa35f"/>${g}${f}<text class="bf" x="80" y="70" font-size="22">🦋</text><text class="bf b2" x="420" y="60" font-size="18">🦋</text></svg>`}
+
+const TY={str:"str · text",int:"int · whole number",float:"float · decimal",bool:"bool · True / False"},LB=["PROBLEM","GOOD","RECAP","TASK"];
+const NM=["name",'"Maya"',"str"],AG=["age","19","int"];
+const E=(a,o,b,c)=>({clr:1,bk:[a,o,b,"=",c]});
+function bk(t){const r=document.createElement("div");r.className="brow";r.innerHTML=t.map((x,i)=>/^-?[\d.]+$/.test(x)?`<span class="nb${t[i-1]==="="?" rs":""}" style="animation-delay:${i*.18}s">${x}</span>`:`<span class="op" style="animation-delay:${i*.18}s">${esc(x)}</span>`).join("");$("#bk").appendChild(r);if(t.includes("="))sfx("drop")}
+function dots([n,g],h){const q=Math.floor(n/g),r=n%g,G=(c,k)=>`<div class="grp ${k}">${"<i></i>".repeat(c)}</div>`;let e=$("#dg");if(!e){e=document.createElement("div");e.id="dg";$("#bk").appendChild(e)}
+ e.className="dg "+(h||"");e.innerHTML=Array.from({length:q},()=>G(g,"")).join("")+(r?G(r,"left"):"")+`<div class="dl">${h==="q"?`${q} full groups of ${g} → quotient ${q}`:h==="r"?`${r} left over → remainder ${r}`:`${n} sweets to share`}</div>`}
+const BZ={};async function anim(id,f){BZ[id]=(BZ[id]||0)+1;try{await f()}finally{BZ[id]--}}
+async function nap(ms,id){let t=0;while(t<ms){await new Promise(r=>setTimeout(r,50));if(id!==run)return;if(!paused)t+=50}}
+async function outs(a,id){for(const x of a){out(x);if(a.length>1){await nap(400,id);if(id!==run)return}}}
+const hlx=h=>document.querySelectorAll(".ln").forEach((l,j)=>l.className="ln"+(j===h?" on":""));
+const mood=m=>{const n=document.querySelector(".nar");n.classList.toggle("tired",m==="tired");n.classList.toggle("happy",m==="happy")};
+function rev(k){document.querySelectorAll(".ln").forEach((l,j)=>{l.classList.toggle("hid",j>k);l.classList.toggle("on",j===k)});sfx("drop")}
+function board(n,cp){$("#bk").innerHTML=`<div class="rc" id="rc"><b id="rn">Round 0</b> of ${n}</div><div class="rd">${"<i></i>".repeat(n)}</div>`+(cp?`<div class="cps">${Array.from({length:n},(_,k)=>`<div class="cp"><b class="bot">🤖</b><i>${k+1}</i></div>`).join("")}</div>`:"")}
+function loopRun(c,id){anim(id,async()=>{const n=c.n;if(!$("#rc"))board(n,c.cp);
+ for(let k=0;k<n;k++){if(id!==run)return;$("#rn").textContent="Round "+(k+1);document.querySelectorAll(".rd i")[k].classList.add("on");
+  document.querySelectorAll(".cp").forEach((e,j)=>{e.classList.toggle("cur",j===k);if(j<=k)e.classList.add("on")});
+  if(c.v)setVar(c.v,String((c.from||0)+k),"int",id);hlx(c.head);sfx("tick");await nap(450,id);if(id!==run)return;hlx(c.body);out(c.out);await nap(750,id)}
+ if(id!==run)return;hlx(-1);$("#rc").classList.add("done");$("#rn").textContent="✓ Loop finished after "+n+" rounds";sfx("good")})}
+function cmpRun(w,n,id){anim(id,async()=>{const L=document.querySelectorAll("#w"+w+" .ln"),o=$("#o"+w),hl=h=>L.forEach((l,j)=>l.className="ln"+(j===h?" on":""));
+ for(let k=1;k<=n;k++){if(id!==run)return;if(w===1)hl(k-1);else{hl(0);await nap(300,id);hl(1)}o.insertAdjacentHTML("beforeend",`<div class="ol">${k}</div>`);sfx("tick");await nap(w===1?600:550,id)}hl(-1)})}
+const L1='print(1)\nprint(2)\nprint(3)\nprint(4)\nprint(5)',L2='for i in range(1, 6):\n    print(i)';
+function cmpH(){const P=(w,t,c,f)=>`<div><div class="cl ${w==1?"bad":"good"}">${t}</div><div id="w${w}">${win(c,f)}</div><div class="out"><small>▶ OUTPUT</small><div id="o${w}" class="oo"></div></div></div>`;return`<div class="cmpg">${P(1,"❌ Without a loop",L1,"without_loop.py")}${P(2,"✅ With a loop",L2,"with_loop.py")}</div>`}
+function forest(){let t="",f="";for(let i=0;i<26;i++){const x=10+i*24+Math.random()*10,h=46+Math.random()*64,w=20+h*.12,c=["#0f4a38","#157a4a","#1fa35f"][i%3];t+=`<g class="tr" style="animation-delay:${Math.random()*2}s"><path d="M${x} ${190-h} L${x-w} ${190-h*.3} H${x+w}Z M${x} ${190-h*.7} L${x-w*1.2} 190 H${x+w*1.2}Z" fill="${c}"/></g>`}
+ for(let i=0;i<16;i++)f+=`<circle class="fc" cx="${Math.random()*600}" cy="${60+Math.random()*110}" r="2.6" fill="#ffe08a" style="animation-delay:${Math.random()*4}s"/>`;
+ return`<svg viewBox="0 0 600 190"><defs><linearGradient id="fk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a1235"/><stop offset="1" stop-color="#0d3b3a"/></linearGradient></defs><rect width="600" height="190" fill="url(#fk)"/><circle cx="500" cy="48" r="44" fill="#ffe9a8" opacity=".12"/><circle cx="500" cy="48" r="26" fill="#ffe9a8" opacity=".9"/>${t}<path d="M-10 186 C140 150 300 188 450 164 S580 156 620 166" stroke="#4ade80" stroke-width="7" fill="none" stroke-linecap="round" style="filter:drop-shadow(0 0 8px #4ade80)"/>${f}</svg>`}
+const H5=["Hello!","Hello!","Hello!","Hello!","Hello!"],LOOP='for i in range(5):\n    print("Hello!")';
+const SC=[
+{t:"Welcome to Code Forest",m:1,st:[
+["Welcome to Code Forest! I’m EVO, your guide. This forest is full of puzzles, and I’ve just found a tricky one.","Code Forest-க்கு வரவேற்கிறேன்! நான் EVO. இந்தக் காட்டில் நிறைய புதிர்கள் உள்ளன; ஒரு சிக்கலான புதிரைக் கண்டுபிடித்தேன்."],
+["My task: print the word Hello five times. That sounds easy, right?","என் வேலை: Hello-வை ஐந்து முறை print செய்ய வேண்டும். எளிதாகத் தெரிகிறது, இல்லையா?",{card:["Print Hello! five times",3,"Easy… or is it?","THE TASK"]}],
+["But if I type the same line again, and again, and again, my fingers will get tired! There must be a smarter way.","ஆனால் அதே வரியைத் திரும்பத் திரும்ப type செய்தால் விரல் வலிக்கும்! ஒரு புத்திசாலித்தனமான வழி இருக்க வேண்டும்.",{mood:"tired"}],
+["First, let’s see what happens when we do it the long way. Then you’ll see how Python makes it easy.","முதலில் நீண்ட வழியில் செய்தால் என்ன ஆகும் என்று பார்ப்போம். பிறகு Python எப்படி எளிதாக்குகிறது என்று பார்ப்பாய்.",{mood:""}]]},
+{t:"The Repetition Problem",code:'print("Hello!")\nprint("Hello!")\nprint("Hello!")\nprint("Hello!")\nprint("Hello!")',hide:1,st:[
+["Here’s the long way. We write one print instruction for every Hello. Let’s add them one at a time.","இது நீண்ட வழி. ஒவ்வொரு Hello-க்கும் ஒரு print வரி. ஒவ்வொன்றாகச் சேர்ப்போம்."],
+["Line one.","முதல் வரி.",{rev:0}],["Line two. The exact same instruction again.","இரண்டாம் வரி. அதே instruction மீண்டும்.",{rev:1}],
+["Line three. Copy and paste again.","மூன்றாம் வரி. மீண்டும் copy, paste.",{rev:2}],["Line four. Getting tired yet?","நான்காம் வரி. களைப்பா?",{rev:3,mood:"tired"}],
+["And line five, finally!","ஐந்தாம் வரி, கடைசியாக!",{rev:4}],
+["Now we run it. Python prints Hello five times, so it works!","இப்போது run செய்வோம். Python Hello-வை ஐந்து முறை print செய்கிறது; வேலை செய்கிறது!",{hl:-1,out:H5,mood:""}],
+["But there’s a problem. Imagine printing Hello one hundred times. That’s one hundred lines to write, and changing the message means editing every single line. Repeated code is long, tiring, and easy to get wrong.","ஆனால் ஒரு பிரச்சனை. Hello-வை நூறு முறை print செய்ய வேண்டுமானால் நூறு வரிகள்! செய்தியை மாற்றினால் ஒவ்வொரு வரியையும் மாற்ற வேண்டும்.",{mood:"tired",bk:["5","lines","for","1","task"],card:["Repeated code",0,"Long to write, hard to change, easy to get wrong."]}]]},
+{t:"The Power of Loops",code:LOOP,st:[
+["Now meet the loop. Don’t worry about every detail yet. The word for starts a loop, and range five says: repeat five times.","இப்போது loop-ஐப் பார்ப்போம். for என்பது loop-ஐத் தொடங்கும்; range(5) என்றால் ஐந்து முறை repeat.",{hl:0}],
+["The indented line underneath is the instruction we want to repeat. Python will run it again and again for us.","உள்தள்ளிய வரி தான் repeat ஆக வேண்டிய instruction. Python அதைத் திரும்பத் திரும்ப இயக்கும்.",{hl:1}],
+["Watch closely! Each repeat is one round. A counter lights up, and Hello prints every round.","கவனி! ஒவ்வொரு repeat-ம் ஒரு round. Counter ஒளிரும்; ஒவ்வொரு round-லும் Hello print ஆகும்.",{run:{n:5,head:0,body:1,out:"Hello!",v:"i"}}],
+["Five rounds, five Hellos, and only two lines of code. The letter i is a counter that Python updates for us. It starts at zero, so it counts zero to four, which is still five rounds.","ஐந்து rounds, ஐந்து Hello, இரண்டு வரி code மட்டும். i என்பது Python புதுப்பிக்கும் counter; 0-லிருந்து தொடங்குவதால் 0 முதல் 4 வரை, அதுவும் ஐந்து rounds.",{mood:"happy"}],
+["That’s the power of a loop. We write the instruction once, and Python repeats it for us.","இதுதான் loop-ன் சக்தி. ஒரு முறை எழுது; Python repeat செய்யும்.",{hl:-1}]]},
+{t:"Real-Life Applications",st:[
+["Loops are everywhere in real programs. Whenever a task needs to happen again and again, a loop can help. Here are five examples.","உண்மையான programs-ல் loops எங்கும் உள்ளன. ஒரு வேலை திரும்பத் திரும்ப நடக்க வேண்டுமானால் loop உதவும். ஐந்து உதாரணங்கள்:"],
+["First, sending repeated reminders: the same message, sent again whenever it’s needed.","முதலாவது, நினைவூட்டல்கள்: அதே செய்தி மீண்டும் மீண்டும்.",{card:["🔔 Repeated reminders",2,"Send the same message again and again.","REPEAT"]}],
+["Second, displaying a list of learning topics: show every topic, one after another.","இரண்டாவது, கற்றல் topics பட்டியல்: ஒவ்வொரு topic-ஐயும் வரிசையாகக் காட்டுவது.",{card:["📚 Learning topics",2,"Show each topic, one after another.","REPEAT"]}],
+["Third, counting points in a game: add up each point the player earns.","மூன்றாவது, game-ல் points எண்ணுவது: வீரர் பெறும் ஒவ்வொரு point-ஐயும் கூட்டுவது.",{card:["🎮 Game points",2,"Count every point the player earns.","REPEAT"]}],
+["Fourth, repeating a task for many students, like printing a report for every student in a class.","நான்காவது, பல மாணவர்களுக்கு ஒரே வேலை: வகுப்பில் ஒவ்வொரு மாணவருக்கும் report print செய்வது.",{card:["🧑‍🎓 Many students",2,"Do the same task for each student.","REPEAT"]}],
+["And fifth, processing many pieces of information, like checking every item on a shopping list.","ஐந்தாவது, பல தகவல்களைச் செயலாக்குவது: shopping list-ல் ஒவ்வொரு பொருளையும் சரிபார்ப்பது.",{card:["🗂️ Lots of information",2,"Check or process every item in a collection.","REPEAT"]}],
+["In every example the steps stay the same, and only the item changes. That’s exactly when loops shine.","எல்லா உதாரணங்களிலும் steps ஒன்றே; பொருள் மட்டும் மாறும். இங்கே தான் loops சிறந்தவை.",{mood:"happy"}]]},
+{t:"Understanding Iteration",code:LOOP,st:[
+["Let’s picture a loop as a walk through the forest. I will visit five glowing checkpoints, and each checkpoint is one iteration.","Loop-ஐ காட்டில் ஒரு நடை போல நினைத்துப் பார். நான் ஐந்து ஒளிரும் checkpoints-ஐ பார்வையிடுவேன்; ஒவ்வொன்றும் ஒரு iteration.",{hl:-1,cp:5}],
+["Iteration is a fancy word for one pass through the loop: one time the repeated instructions run.","Iteration என்றால் loop வழியாக ஒரு முறை செல்வது: repeat ஆகும் instructions ஒரு முறை இயங்குவது."],
+["Off I go! At every checkpoint the counter goes up, the code runs once, and Hello is printed.","கிளம்புகிறேன்! ஒவ்வொரு checkpoint-லும் counter உயரும்; code ஒரு முறை இயங்கும்; Hello print ஆகும்.",{run:{n:5,head:0,body:1,out:"Hello!",cp:1}}],
+["After the fifth iteration the counter has reached five, and the loop stops by itself. Python then moves on.","ஐந்தாவது iteration-க்குப் பிறகு counter 5-ஐ அடைந்து loop தானாக நிற்கிறது. பிறகு Python அடுத்த வேலைக்குச் செல்லும்.",{mood:"happy"}],
+["So five iterations means the instructions ran five times. One repeat equals one iteration.","ஐந்து iterations என்றால் instructions ஐந்து முறை இயங்கின. ஒரு repeat = ஒரு iteration."]]},
+{t:"Without Loops vs With Loops",cmp:1,st:[
+["Let’s compare two ways to print the numbers one to five.","ஒன்று முதல் ஐந்து வரை எண்களை print செய்ய இரண்டு வழிகளை ஒப்பிடுவோம்."],
+["On the left, with no loop, we write five separate print instructions. Each line prints one number.","இடப்பக்கம், loop இல்லாமல் ஐந்து தனித்தனி print வரிகள். ஒவ்வொன்றும் ஒரு எண்ணை print செய்யும்.",{seq:[1,5]}],
+["On the right, a loop does the same job in two lines. Range one comma six starts at one and stops just before six, so i is one, two, three, four, five.","வலப்பக்கம், loop அதே வேலையை இரண்டு வரிகளில் செய்கிறது. range(1, 6) 1-ல் தொடங்கி 6-க்கு முன் நிற்கும்; அதனால் i = 1, 2, 3, 4, 5.",{seq:[2,5]}],
+["Both versions give exactly the same output: one to five.","இரண்டு வழிகளும் ஒரே output தருகின்றன: 1 முதல் 5.",{card:["Same output",1,"1 2 3 4 5 — both versions agree.","MATCH"]}],
+["Now imagine counting to one hundred. The left version needs one hundred lines. The loop only changes one number, from six to one hundred and one.","நூறு வரை எண்ண வேண்டும் என்றால், இடப்பக்கம் நூறு வரிகள் வேண்டும். Loop-ல் ஒரு எண்ணை மட்டும் மாற்றினால் போதும்: 6-ஐ 101 ஆக.",{card:["Easy to change",1,"One small edit instead of ninety-five extra lines.","LOOP WINS"]}],
+["That’s why programmers love loops: shorter code, fewer mistakes, and changes that take seconds.","அதனால் தான் programmers loops-ஐ விரும்புகிறார்கள்: குறைந்த code, குறைந்த தவறுகள், விரைவான மாற்றங்கள்.",{mood:"happy"}]]},
+{t:"Quick Challenge",quiz:[
+{code:'for i in range(3):\n    print("Hi!")',q:"Predict: how many times will Hi! be printed?",o:["1","2","3","4"],a:2,out:["Hi!","Hi!","Hi!"],h:"range(3) means the loop runs three rounds.",w:"range(3) makes the loop repeat its instruction three times, so Hi! is printed three times.",en:"Quick challenge! Predict how many times this loop prints before I run it.",ta:"Quick challenge! இந்த loop எத்தனை முறை print செய்யும் என்று கணி!"},
+{q:"You need to print “Welcome to EVOLV!” twenty times. Which approach is easier to maintain?",o:["Writing twenty print() statements","Using a loop","Both are equally easy to maintain","Neither can print it twenty times"],a:1,h:"Think about what happens if you later need fifty welcomes, or want to change the message.",w:"A loop keeps the instruction in one place. Need fifty welcomes, or a new message? You change one line instead of editing twenty.",en:"Here’s the big question. Twenty welcomes: which approach is easier to maintain?",ta:"பெரிய கேள்வி. இருபது வரவேற்புகள்: எந்த முறையைப் பராமரிப்பது எளிது?"},
+{q:"In a loop, what does one iteration mean?",o:["The loop stops forever","One time the repeated instructions run","A mistake in the code","Printing the number zero"],a:1,h:"Think of one checkpoint on EVO’s walk.",w:"An iteration is one pass through the loop, which means one time the repeated instructions run.",en:"Last one! What does one iteration mean?",ta:"கடைசி கேள்வி! ஒரு iteration என்றால் என்ன?"}]},
+{t:"Lesson Recap",m:1,st:[
+["Great job! Let’s recap why loops are useful.","அருமை! Loops ஏன் பயனுள்ளவை என்று நினைவுபடுத்துவோம்.",{mood:"happy"}],
+["Repetition means doing the same task again and again.","Repetition என்றால் ஒரே வேலையைத் திரும்பத் திரும்பச் செய்வது.",{card:["Repetition",2,"The same task, again and again."]}],
+["Writing repeated lines by hand makes programs long and hard to change.","மீண்டும் மீண்டும் வரிகளை எழுதினால் program நீளமாகி, மாற்றுவது கடினம்.",{card:["The problem",0,"Copied lines are long and easy to get wrong."]}],
+["A loop fixes this. We write the instruction once, and Python repeats it.","Loop இதைத் தீர்க்கும். Instruction-ஐ ஒரு முறை எழுது; Python repeat செய்யும்.",{card:["The loop",1,"Write once. Python repeats it.","SOLUTION"]}],
+["Each repeat is called an iteration, and the loop stops after the last one.","ஒவ்வொரு repeat-ம் iteration; கடைசிக்குப் பிறகு loop நிற்கும்.",{card:["Iteration",2,"One pass through the loop."]}],
+["Loops help with reminders, lists, scores, students and lots of data.","Reminders, lists, scores, மாணவர்கள், நிறைய data – எல்லாவற்றிற்கும் loops உதவும்.",{card:["Real life",2,"Whenever a task repeats."]}],
+["Next time, in For Loops in Python, you’ll learn how to write loops yourself. See you there!","அடுத்த பாடம் For Loops in Python-ல் loops-ஐ நீயே எழுதக் கற்றுக்கொள்வாய். சந்திப்போம்!",{mood:"happy",card:["Next: For Loops in Python",3,"Learn how for and range really work.","UP NEXT"]}]]}];
+const CH=["Welcome","Problem","Loops","Real life","Iteration","Compare","Challenge","Recap"],TAN="பரவாயில்லை! Hint-ஐப் பார்த்து மீண்டும் முயற்சி செய்!";
+const sp=t=>t.replace(/Score2|score2/g,"score two").replace(/2score/g,"two score");
+const hasTa=()=>speechSynthesis.getVoices().some(v=>/^ta/i.test(v.lang));
+function pickVoice(l){const all=speechSynthesis.getVoices(),vs=all.filter(v=>v.lang.toLowerCase().startsWith(l));if(l==="ta")return vs[0];const c=VO&&all.find(v=>v.name===VO);return c||vs.find(v=>/google uk english female|natural|online|aria|jenny|sonia|libby|samantha/i.test(v.name))||vs.find(v=>/en[-_](GB|US)/i.test(v.lang))||vs[0]}
+function fillV(){if(!window.speechSynthesis)return;const vs=speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang));if(!vs.length)return;VO=null;const b=pickVoice("en");VO=b&&b.name;$("#vsel").innerHTML=vs.map(v=>`<option>${v.name}</option>`).join("");$("#vsel").value=VO}
+function duck(on){try{if(mg&&ac)mg.gain.setTargetAtTime(on?.012:.05,ac.currentTime,.15)}catch(e){}}
+function say(en,ta){nar=[en,ta];showSub();const tk=++spk;speaking=false;if(!window.speechSynthesis)return;speechSynthesis.cancel();if(!voiceOn)return;const tm=aud==="ta"&&hasTa(),u=new SpeechSynthesisUtterance(sp(tm?ta:en)),v=pickVoice(tm?"ta":"en");if(v){u.voice=v;u.lang=v.lang}else u.lang=tm?"ta-IN":"en-GB";u.rate=.92;speaking=true;duck(true);u.onend=u.onerror=()=>{if(tk===spk){speaking=false;duck(false)}};speechSynthesis.speak(u)}
+let sx;const SF={drop:[[420,0,.14,"triangle"],[300,.07,.22,"triangle"]],swap:[[300,0,.12],[500,.1,.12],[760,.2,.2]],tick:[[1300,0,.05,"square"]],good:[[523,0,.14],[659,.1,.14],[784,.2,.3]],bad:[[190,0,.28,"sawtooth"]],chime:[[660,0,.16],[880,.12,.28]],ping:[[880,0,.18]],fan:[[523,0,.2],[659,.15,.2],[784,.3,.2],[1047,.45,.6]]};
+function sfx(k){if(paused)return;try{sx=sx||new(window.AudioContext||window.webkitAudioContext)();if(sx.state==="suspended")sx.resume();for(const[f,s,d,ty]of SF[k]){const o=sx.createOscillator(),g=sx.createGain(),t=sx.currentTime+s;o.type=ty||"sine";o.frequency.value=f;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(k==="tick"||k==="bad"?.04:.09,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(sx.destination);o.start(t);o.stop(t+d+.05)}}catch(e){}}
+function showSub(){const e=$("#sub");e.style.visibility=sub==="off"?"hidden":"visible";e.textContent=sub==="ta"?nar[1]:nar[0]}
+async function wait(ms,id){let t=0;const min=voiceOn?1200:ms;while(t<min||(voiceOn&&speaking&&t<ms*2+6000)||BZ[id]>0){await new Promise(r=>setTimeout(r,100));if(id!==run)return;if(!paused)t+=100}
+ if(voiceOn){await new Promise(r=>setTimeout(r,450))}}
+function chips(){$("#chips").innerHTML=CH.map((c,i)=>`<div class="chip ${i<sc?"done":i===sc?"cur":""}" onclick="play(${i})"><div class="bar"><i style="width:${i<sc?100:i===sc?40:0}%"></i></div><span>${i+1}</span>${c}</div>`).join("")}
+function setVar(n,v,t,id){let e=$("#vb_"+n);if(!e){$("#boxes").insertAdjacentHTML("beforeend",`<div class="vb ${t}" id="vb_${n}"><div class="lab">${n}</div><div class="bx"><span class="val">${hi(v)}</span></div><div class="ty">${TY[t]}</div></div>`);sfx("drop");return}
+ const val=e.querySelector(".val");sfx("swap");val.innerHTML=`<s>${val.innerHTML}</s>`;e.classList.add("chg");setTimeout(()=>{if(id===run){val.innerHTML=hi(v);e.classList.remove("chg");val.style.animation="none";void val.offsetWidth;val.style.animation=""}},900)}
+const out=t=>{sfx("tick");$("#ot").insertAdjacentHTML("beforeend",`<div class="ol">${esc(t)}</div>`)};
+function apply(a,id){if("hl" in a){const h=a.hl;document.querySelectorAll(".ln").forEach((l,k)=>l.className="ln"+(k===h?" on":h>=0&&k>h?" off":""))}
+ if(a.rev!=null)rev(a.rev);if(a.run)loopRun(a.run,id);if(a.cp)board(a.cp,true);if(a.seq)cmpRun(a.seq[0],a.seq[1],id);if("mood" in a)mood(a.mood);if(a.clr)$("#bk").innerHTML="";if(a.bk)bk(a.bk);if(a.dots)dots(a.dots,a.hot);if(a.set)(Array.isArray(a.set[0])?a.set:[a.set]).forEach(v=>setVar(...v,id));if(a.out!=null)outs([].concat(a.out),id);
+ if(a.card)sfx(a.card[1]===0?"bad":a.card[1]===1?"good":"ping");if(a.card)$("#cards").insertAdjacentHTML("beforeend",`<div class="nm c${a.card[1]}"><code>${esc(a.card[0])}</code><b>${a.card[3]||LB[a.card[1]]}</b><p>${a.card[2]}</p></div>`)}
+function render(i){const S=SC[i],v=$("#view");document.querySelector(".nar").className="nar";v.className="view";void v.offsetWidth;v.className="view in";
+ v.innerHTML=`<div class="tags"><span class="pill lv">Scene ${i+1} of ${SC.length}</span><span class="pill">${S.t}</span></div>`+(S.m?`<div class="meadow">${forest()}</div>`:"")+(S.cmp?cmpH():"")+(S.code?`<div class="lg"><div>${win(S.code,"loops.py")}<div class="out"><small>▶ OUTPUT</small><div id="ot"></div></div></div><div class="mem"><small>LOOP LAB</small><div id="boxes"></div><div id="bk"></div></div></div>`:S.mem?`<div class="mem"><small>LOOP LAB</small><div id="boxes"></div><div id="bk"></div></div>`:"")+`<div id="cards"></div><div id="qa"></div>`;if(S.hide)document.querySelectorAll(".ln").forEach(l=>l.classList.add("hid"))}
+async function ask(q,id){say(q.en,q.ta);const qa=$("#qa");
+ qa.innerHTML=`${q.code?win(q.code,"challenge.py")+'<div class="out"><small>▶ OUTPUT</small><div id="ot"></div></div>':""}<div class="ask">${q.q}</div><div class="opts">${q.o.map((o,k)=>`<button class="opt" data-k="${k}"><b>${"ABCD"[k]}</b><span>${esc(o)}</span></button>`).join("")}</div><div class="hint" id="hint" hidden></div><div id="why"></div>`;
+ const tr=await new Promise(res=>{let t=0;qa.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{if(paused||id!==run)return;const k=+b.dataset.k;
+  if(k!==q.a){t++;sfx("bad");b.classList.add("bad");b.disabled=true;const h=$("#hint");h.hidden=false;h.innerHTML="💡 <strong>Hint:</strong> "+q.h;say("Not quite — read the hint and try again!",TAN);return}
+  qa.querySelectorAll(".opt").forEach(x=>x.disabled=true);b.classList.add("good");sfx("good");$("#hint").hidden=true;res(t)})});
+ if(id!==run)return false;if(!tr)qs++;say(tr?"You got it! Let’s see why.":"Correct! Let’s see why.","சரி! ஏன் என்று பார்ப்போம்.");
+ if(q.code){const L=document.querySelectorAll("#qa .ln");for(let k=0;k<L.length;k++){L.forEach((l,j)=>l.className="ln"+(j===k?" on":j>k?" off":""));await nap(800,id);if(id!==run)return false}[].concat(q.out).forEach(x=>out(x))}
+ $("#why").innerHTML=`<div class="why"><strong>Why?</strong> ${q.w}</div><button class="btn" id="cont">Continue →</button>`;
+ await new Promise(r=>$("#cont").onclick=r);return id===run}
+async function play(i){const id=++run,S=SC[i];sc=i;chips();render(i);sfx("chime");$("#stage").scrollIntoView({behavior:"smooth",block:"start"});
+ if(S.quiz){for(const q of S.quiz)if(!await ask(q,id))return}
+ else for(const[en,ta,a]of S.st){say(en,ta);apply(a||{},id);await wait(2500+en.split(" ").length*380,id);if(id!==run)return}
+ if(id!==run)return;i<SC.length-1?play(i+1):finish(id)}
+function finish(id){sc=SC.length;chips();sfx("fan");const xp=40+qs*20;
+ $("#view").innerHTML=`<div class="meadow">${forest()}</div><div class="ban">✦ LESSON COMPLETE ✦</div><h1 style="margin:6px 0">Loop Power <em>Unlocked!</em></h1><p style="text-align:center;font-size:18px;margin:4px 0">Challenge score: <b style="color:var(--gr)">${qs} / 3</b> on the first try · <b style="color:var(--am)">+${xp} XP</b></p><p style="text-align:center;color:var(--mu);margin:4px 0">You know why loops save time and what iteration means. Next up: For Loops in Python!</p><button class="btn" onclick="this.textContent='🔓 Next lesson is ready!';this.disabled=true">Continue to For Loops in Python →</button><button class="btn alt" onclick="play(0)">Watch again</button>`;
+ say("You did it! You now know why loops are useful and what iteration means. Next up: For Loops in Python. See you there!","சபாஷ்! Loops ஏன் பயனுள்ளவை, iteration என்றால் என்ன என்று இப்போது தெரியும். அடுத்தது: For Loops in Python!");
+ const st=$("#stage");for(let i=0;i<40;i++){const c=document.createElement("i");c.className="cf";c.style.cssText=`left:${Math.random()*100}%;background:${["#4fd1ff","#ffb84a","#4ade80","#ff6b9a"][i%4]};animation-duration:${2.5+Math.random()*2.5}s;animation-delay:${Math.random()}s`;st.appendChild(c);setTimeout(()=>c.remove(),6500)}}
+$("#bRp").onclick=()=>{qs=0;if(window.speechSynthesis)speechSynthesis.cancel();play(0)};
+$("#bP").onclick=e=>{paused=!paused;document.body.classList.toggle("paused",paused);e.target.textContent=paused?"Resume":"Pause";if(window.speechSynthesis)paused?speechSynthesis.pause():speechSynthesis.resume()};
+$("#bV").onclick=e=>{voiceOn=!voiceOn;e.target.classList.toggle("on",voiceOn);if(voiceOn)say(...nar);else{speaking=false;spk++;duck(false);if(window.speechSynthesis)speechSynthesis.cancel()}};
+$("#sel").onchange=e=>{sub=e.target.value;showSub()};
+let ac,mOn=false,mg;
+$("#bM").onclick=e=>{mOn=!mOn;e.target.classList.toggle("on",mOn);try{if(!ac){ac=new(window.AudioContext||window.webkitAudioContext)();const m=mg=ac.createGain();m.gain.value=.05;m.connect(ac.destination);[196,247,294,392].forEach((f,k)=>{const o=ac.createOscillator(),g=ac.createGain(),l=ac.createOscillator(),lg=ac.createGain();o.frequency.value=f;g.gain.value=.25;l.frequency.value=.1+k*.07;lg.gain.value=.2;l.connect(lg);lg.connect(g.gain);o.connect(g);g.connect(m);o.start();l.start()})}mOn?ac.resume():ac.suspend()}catch(x){}};
+const stg=$("#stage");for(let i=0;i<14;i++){const f=document.createElement("i");f.className="ff";f.style.cssText=`left:${Math.random()*96}%;top:${Math.random()*92}%;animation-delay:${Math.random()*6}s;animation-duration:${5+Math.random()*5}s`;stg.appendChild(f)}
+$("#asel").onchange=e=>{aud=e.target.value;if(aud==="ta"&&!hasTa()){aud="en";e.target.value="en";say("Your device has no Tamil voice installed, so I’ll keep speaking English. Subtitles can still be in Tamil.","உங்கள் device-ல் Tamil voice இல்லை; English-ல் பேசுகிறேன்.");return}say(...nar)};
+$("#vsel").onchange=e=>{VO=e.target.value;say(...nar)};
+if(window.speechSynthesis){speechSynthesis.onvoiceschanged=fillV;fillV()}
+$("#go").onclick=()=>{voiceOn=true;$("#bV").classList.add("on");$("#gate").remove();play(0)};
+$("#go2").onclick=()=>{$("#gate").remove();play(0)};
+</script></body></html>

@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 
 import {
@@ -5,6 +6,7 @@ import {
   LayoutDashboard,
   Map,
   ChartNoAxesColumnIncreasing,
+  Trophy,
   LogOut,
   Menu,
   X,
@@ -19,6 +21,7 @@ import {
 
 import { supabase } from "../lib/supabaseClient";
 import { getUserProfile } from "../lib/userService";
+
 import "../styles/navbar.css";
 
 const navigationItems = [
@@ -37,6 +40,11 @@ const navigationItems = [
     path: "/progress",
     icon: ChartNoAxesColumnIncreasing,
   },
+  {
+    label: "Leaderboard",
+    path: "/leaderboard",
+    icon: Trophy,
+  },
 ];
 
 export default function Navbar() {
@@ -54,12 +62,17 @@ export default function Navbar() {
 
   useEffect(() => {
     let active = true;
+    let profileRequest = 0;
 
     async function loadProfile() {
+      const requestId = ++profileRequest;
+
       try {
         const profile = await getUserProfile();
 
-        if (!active) return;
+        if (!active || requestId !== profileRequest) {
+          return;
+        }
 
         const name =
           profile?.full_name?.trim() ||
@@ -68,7 +81,9 @@ export default function Navbar() {
 
         setDisplayName(name);
       } catch (error) {
-        if (!active) return;
+        if (!active || requestId !== profileRequest) {
+          return;
+        }
 
         console.error("Unable to load EVOLV profile:", error);
         setDisplayName("Learner");
@@ -77,13 +92,14 @@ export default function Navbar() {
 
     loadProfile();
 
-    // Refresh the displayed name when authentication changes.
+    // Refresh the displayed profile when authentication changes.
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event) => {
       if (!active) return;
 
       if (event === "SIGNED_OUT") {
+        profileRequest += 1;
         setDisplayName("Learner");
         return;
       }
@@ -93,8 +109,8 @@ export default function Navbar() {
         event === "USER_UPDATED" ||
         event === "TOKEN_REFRESHED"
       ) {
-        // Defer Supabase queries to avoid performing another
-        // Supabase operation inside the auth callback itself.
+        // Defer profile loading to avoid starting another
+        // Supabase operation inside the auth callback.
         setTimeout(() => {
           if (active) {
             loadProfile();
@@ -125,8 +141,17 @@ export default function Navbar() {
       return location.pathname.startsWith("/study/python");
     }
 
+    if (path === "/leaderboard") {
+      return location.pathname === "/leaderboard";
+    }
+
     return location.pathname === path;
   }
+
+  // Close the mobile sidebar when the route changes.
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [location.pathname]);
 
   // --------------------------------------------------
   // LOGOUT
@@ -147,7 +172,7 @@ export default function Navbar() {
       }
 
       // Clear obsolete custom-backend authentication values.
-      // Do not clear XP, lesson progress, or app preferences.
+      // Keep XP, lesson progress, and app preferences.
       try {
         localStorage.removeItem("evolv_token");
         localStorage.removeItem("evolv_user");
@@ -168,7 +193,8 @@ export default function Navbar() {
       console.error("EVOLV logout failed:", error);
 
       setLogoutError(
-        error?.message || "Unable to log out. Please try again."
+        error?.message ||
+          "Unable to log out. Please try again."
       );
     } finally {
       setLoggingOut(false);
@@ -193,6 +219,7 @@ export default function Navbar() {
 
       {/* Sidebar */}
       <aside
+        id="ev-navbar"
         className={`ev-navbar ${
           menuOpen ? "ev-navbar-open" : ""
         }`}

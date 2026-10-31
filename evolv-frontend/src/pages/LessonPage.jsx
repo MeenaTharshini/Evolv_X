@@ -61,7 +61,7 @@ import "../styles/LessonPage.css";
 // ==================================================
 
 const DEFAULT_COURSE = "python";
-const STARTING_HEARTS = 3;
+const STARTING_HEARTS = 5;
 const DEFAULT_COMPLETION_XP = 20;
 
 const STAGES = ["video", "concept", "hands-on", "quiz"];
@@ -834,9 +834,22 @@ export default function LessonPage() {
     readNumber(xpKey(courseId))
   );
 
-  const [hearts] = useState(() =>
-    readNumber(heartsKey(courseId), STARTING_HEARTS)
+  const [hearts, setHearts] = useState(() =>
+    Math.min(STARTING_HEARTS, readNumber(heartsKey(courseId), STARTING_HEARTS))
   );
+
+  useEffect(() => {
+    const storedHearts = Math.min(
+      STARTING_HEARTS,
+      readNumber(heartsKey(courseId), STARTING_HEARTS)
+    );
+    setHearts(storedHearts);
+  }, [courseId]);
+
+  // A concept quick-check is one question: changing the selected option
+  // must not repeatedly charge hearts for the same mistake.
+  const [quickMistakeRecorded, setQuickMistakeRecorded] =
+    useState(false);
 
   const [quizScores, setQuizScores] = useState(() =>
     readObject(quizScoreKey(courseId))
@@ -1245,6 +1258,7 @@ export default function LessonPage() {
     setVideoFinished(false);
 
     setQuickAnswer(null);
+    setQuickMistakeRecorded(false);
     setRevealedActivities({});
 
     setPracticeCode(
@@ -1296,6 +1310,7 @@ export default function LessonPage() {
   // ------------------------------------------------
 
   function finishVideo() {
+    if (hearts <= 0) return;
     setVideoFinished(true);
   }
 
@@ -1312,7 +1327,7 @@ export default function LessonPage() {
   }
 
   async function runPractice() {
-    if (isRunning) {
+    if (hearts <= 0 || isRunning) {
       return;
     }
 
@@ -1446,6 +1461,8 @@ export default function LessonPage() {
   }
 
   function markPracticeReviewed() {
+    if (hearts <= 0) return;
+
     if (!practiceCode.trim()) {
       setPracticeMessage(
         "Write some code before marking this task reviewed."
@@ -1499,11 +1516,47 @@ export default function LessonPage() {
   }
 
   // ------------------------------------------------
+  // Hearts
+  // ------------------------------------------------
+
+  function deductHearts(amount = 1) {
+    const deduction = Math.max(0, Math.floor(Number(amount) || 0));
+    if (!deduction) return 0;
+
+    const current = readNumber(heartsKey(courseId), hearts);
+    const next = Math.max(0, current - deduction);
+    setHearts(next);
+    writeStorage(heartsKey(courseId), String(next));
+    window.dispatchEvent(new Event("evolv-hearts-updated"));
+    return next;
+  }
+
+  function handleQuickAnswer(index) {
+    if (hearts <= 0 || (quickAnswer !== null && Number(quickAnswer) === Number(index))) return;
+
+    const isCorrect = Number(index) === Number(lesson.answer);
+    if (!isCorrect && !quickMistakeRecorded) {
+      deductHearts(1);
+      setQuickMistakeRecorded(true);
+    }
+    setQuickAnswer(index);
+  }
+
+  function restoreHearts() {
+    setHearts(STARTING_HEARTS);
+    writeStorage(heartsKey(courseId), String(STARTING_HEARTS));
+    setQuickMistakeRecorded(false);
+    window.dispatchEvent(new Event("evolv-hearts-updated"));
+  }
+
+  // ------------------------------------------------
   // Quiz
   // ------------------------------------------------
 
   function submitQuiz(event) {
     event.preventDefault();
+
+    if (hearts <= 0 || quizSubmitted) return;
 
     const validQuestions =
       questions.length > 0 &&
@@ -1525,6 +1578,10 @@ export default function LessonPage() {
           : 0),
       0
     );
+
+    // Each incorrect question costs one heart, capped at zero.
+    const mistakes = questions.length - score;
+    if (mistakes > 0) deductHearts(mistakes);
 
     const prevScores = readObject(quizScoreKey(courseId));
     const existing =
@@ -1568,6 +1625,7 @@ export default function LessonPage() {
   }
 
   function restartQuiz() {
+    if (hearts <= 0) return;
     setAnswers({});
     setQuizSubmitted(false);
     setCurrentScore(null);
@@ -1579,6 +1637,7 @@ export default function LessonPage() {
 
   function canCompleteStage() {
     if (
+      hearts <= 0 ||
       !lesson ||
       currentStageCompleted ||
       !currentStageUnlocked
@@ -1658,6 +1717,7 @@ export default function LessonPage() {
 
   async function completeStage() {
     if (
+      hearts <= 0 ||
       !lesson ||
       !currentStageUnlocked ||
       !canCompleteStage() ||
@@ -1968,6 +2028,22 @@ export default function LessonPage() {
     <main
       className={`lesson-page course-${course.color || "green"}`}
     >
+      {hearts <= 0 && (
+        <div className="lesson-hearts-overlay" role="dialog" aria-modal="true" aria-labelledby="lesson-hearts-title">
+          <section className="lesson-hearts-dialog">
+            <span className="lesson-hearts-dialog-icon"><Heart size={34} fill="currentColor" /></span>
+            <p className="lesson-eyebrow">PAUSE AND RECHARGE</p>
+            <h2 id="lesson-hearts-title">You’re out of hearts!</h2>
+            <p>Every mistake is a chance to learn. Restore your hearts to continue your EVOLV adventure.</p>
+            <button type="button" className="lesson-primary-button" onClick={restoreHearts}>
+              <Heart size={18} fill="currentColor" /> Restore 5 hearts
+            </button>
+            <Link to={`/study/${courseId}`} className="lesson-secondary-button">
+              <ArrowLeft size={17} /> Review the Study Map
+            </Link>
+          </section>
+        </div>
+      )}
       <header className="lesson-topbar">
         <nav
           className="lesson-topbar-nav"
@@ -1999,8 +2075,9 @@ export default function LessonPage() {
 
         <div className="lesson-topbar-status">
           <span
-            className="lesson-heart-count"
+            className={`lesson-heart-count ${hearts <= 1 ? "is-low" : ""}`}
             title="Remaining hearts"
+            aria-label={`${hearts} hearts remaining`}
           >
             <Heart size={18} fill="currentColor" />
             {hearts}
@@ -2562,8 +2639,9 @@ export default function LessonPage() {
                                 className="concept-quick-option"
                                 key={`${option}-${index}`}
                                 onClick={() =>
-                                  setQuickAnswer(index)
+                                  handleQuickAnswer(index)
                                 }
+                                disabled={hearts <= 0}
                                 aria-pressed={picked}
                                 style={{
                                   cursor: "pointer",
@@ -3133,7 +3211,7 @@ export default function LessonPage() {
                       <button
                         type="submit"
                         className="lesson-primary-button lesson-quiz-submit"
-                        disabled={!allQuestionsAnswered}
+                        disabled={!allQuestionsAnswered || hearts <= 0}
                       >
                         Submit quiz
                         <ArrowRight size={18} />
@@ -3141,8 +3219,12 @@ export default function LessonPage() {
 
                       {!allQuestionsAnswered && (
                         <p className="lesson-completion-note">
-                          Answer every question to submit your
-                          quiz.
+                          Answer every question to submit your quiz.
+                        </p>
+                      )}
+                      {hearts <= 0 && (
+                        <p className="lesson-heart-warning" role="alert">
+                          You are out of hearts. Restore your hearts to continue answering questions.
                         </p>
                       )}
                     </form>
@@ -3193,7 +3275,7 @@ export default function LessonPage() {
                 Study Map
               </Link>
 
-              {currentStageCompleted ? (
+              {currentStageCompleted && hearts > 0 ? (
                 <Link
                   to={continueInfo.to}
                   className="lesson-primary-button"
@@ -3207,6 +3289,7 @@ export default function LessonPage() {
                   className="lesson-primary-button"
                   onClick={() => void completeStage()}
                   disabled={
+                    hearts <= 0 ||
                     !completionReady ||
                     savingStage ||
                     progressLoading

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>For Loops in Python — EVOLV Adventure World</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#070b17;--card:#0b1226;--c2:#10192f;--line:#1e2d52;--cy:#4fd1ff;--am:#ffb84a;--gr:#4ade80;--rd:#ff6b81;--tx:#eef2ff;--mu:#8493b8;--mono:"JetBrains Mono",ui-monospace,Menlo,monospace;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;background:radial-gradient(1100px 560px at 50% -8%,#10204a,transparent 60%),var(--bg);color:var(--tx);font-family:Outfit,"Noto Sans Tamil",system-ui,sans-serif}
+body.paused *{animation-play-state:paused!important}
+.app{max-width:900px;margin:0 auto;padding:14px}
+.stage{position:relative;overflow:hidden;background:linear-gradient(180deg,#0c1329,#080d1d);border:1px solid var(--line);border-radius:22px;padding:20px 18px 18px}
+.stage::before{content:"";position:absolute;inset:0;background:linear-gradient(#4f8cff12 1px,transparent 1px) 0 0/34px 34px,linear-gradient(90deg,#4f8cff12 1px,transparent 1px) 0 0/34px 34px;pointer-events:none}
+.stage>*{position:relative}
+.ff{position:absolute!important;width:5px;height:5px;border-radius:50%;background:var(--gr);box-shadow:0 0 10px 3px #4ade8088;animation:ff 7s ease-in-out infinite;pointer-events:none}
+@keyframes ff{0%,100%{transform:translate(0,0);opacity:.15}50%{transform:translate(24px,-30px);opacity:1}}
+.logo{display:flex;justify-content:center;align-items:center;gap:12px;font-weight:800;letter-spacing:.28em;font-size:19px}
+.world{text-align:center;font:600 12px var(--mono);color:var(--gr);letter-spacing:.2em;margin-top:4px}
+.path{margin:6px 0 4px}.path svg{width:100%;height:auto;display:block;overflow:visible}
+#pBase{fill:none;stroke:#1b2a50;stroke-width:7;stroke-linecap:round;stroke-dasharray:2 12}
+#pLit{fill:none;stroke:var(--gr);stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset 1.2s ease;filter:drop-shadow(0 0 8px #4ade80)}
+.nd circle{fill:#0f1830;stroke:#2b3d6b;stroke-width:3;transition:.5s}.nd text{fill:var(--mu);font:700 22px Outfit;text-anchor:middle;dominant-baseline:central}
+.nd.done circle{fill:#0e3a2a;stroke:var(--gr);filter:drop-shadow(0 0 8px #4ade80)}.nd.done text{fill:var(--gr)}
+.nd.cur circle{stroke:var(--am);animation:pl 1.4s ease-in-out infinite}.nd.cur text{fill:var(--am)}
+@keyframes pl{50%{stroke-width:7;filter:drop-shadow(0 0 10px #ffb84a)}}
+.view{padding-top:6px}.view.in{animation:rise .5s ease}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}}
+.tags{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px}
+.pill{font:600 12px var(--mono);border:1px solid #2d6a55;color:var(--gr);background:#0d2a24;border-radius:99px;padding:5px 12px}
+.pill.lv{border-color:#6b5320;color:var(--am);background:#2a2110}.cnt{margin-left:auto;color:var(--mu);font-size:13px}
+h1{font-size:clamp(26px,5.5vw,42px);line-height:1.15;text-align:center;margin:14px 0}h1 em{font-style:normal;color:var(--am)}
+h2.qt{font-size:clamp(20px,4vw,27px);margin:4px 0 12px}
+.win{max-width:580px;margin:0 auto 14px;background:#0f1830;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 10px 30px #0008}
+.wh{display:flex;align-items:center;gap:7px;padding:9px 14px;border-bottom:1px solid var(--line);background:#0c1429;font:12px var(--mono);color:#7d8fc0}
+.wh i{width:11px;height:11px;border-radius:50%}.wh span:last-child{margin-left:auto;font-size:11px}
+.ln{display:flex;gap:14px;padding:4px 14px;font:15px/1.5 var(--mono);white-space:pre;transition:.5s;border-left:3px solid transparent;overflow-x:auto}
+.ln .n{color:#4a5a86;min-width:14px}.ln.on{background:#4ade8018;border-left-color:var(--gr)}.ln.off{opacity:.35}
+i.k{color:#a78bfa;font-style:normal;font-weight:600}i.s{color:var(--am);font-style:normal}i.n{color:#6ee7a0;font-style:normal}i.b{color:var(--cy);font-style:normal;font-weight:600}i.f{color:#7dd3fc;font-style:normal}
+.blank{display:inline-block;min-width:70px;text-align:center;border-bottom:2px dashed var(--am);color:var(--am);animation:pl2 1.4s infinite}.blank.fill{border-bottom-color:var(--gr);background:#4ade8022;animation:none;padding:0 6px}
+@keyframes pl2{50%{background:#ffb84a22}}
+.ask{color:#c9d4f5;margin:6px 0 10px;font-size:17px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{display:flex;gap:10px;align-items:center;text-align:left;background:var(--c2);color:var(--tx);border:1px solid var(--line);border-radius:12px;padding:12px;font:600 14px var(--mono);cursor:pointer;transition:.2s}
+.opt:hover:not(:disabled){border-color:var(--cy);transform:translateY(-2px)}.opt b{display:grid;place-items:center;flex:none;min-width:26px;height:26px;border-radius:8px;background:#1a2748;color:var(--cy);font:700 13px Outfit}
+.opt.bad{border-color:var(--rd);background:#2a1220;opacity:.6;animation:sh .4s}.opt.good{border-color:var(--gr);background:#0e3a2a;box-shadow:0 0 18px #4ade8066}
+.opt:disabled{cursor:default}@keyframes sh{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.hint{margin-top:10px;border:1px solid #6b5320;background:#2a2110;color:#ffd998;border-radius:12px;padding:10px 14px;animation:rise .4s}
+.conds{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.cd{display:flex;align-items:center;gap:10px;border-radius:10px;padding:7px 12px;border:1px solid;animation:pop .35s;font-size:13px}
+.cd code{font-family:var(--mono)}.cd b{font-size:11px;letter-spacing:.1em;padding:2px 8px;border-radius:99px;color:#04130b}
+.c1{border-color:#2d6a55;background:#0d2a24}.c1 b{background:var(--gr)}.c0{border-color:#7a2d44;background:#2a1220}.c0 b{background:var(--rd)}
+.c2{border-color:#1d5a73;background:#0b2233}.c2 b{background:var(--cy)}.c3{border-color:#6b5320;background:#2a2110}.c3 b{background:var(--am)}
+@keyframes pop{from{transform:scale(.6);opacity:0}}
+.out{margin-top:12px;background:#050912;border:1px solid var(--line);border-radius:12px;padding:10px 14px;font:600 16px var(--mono);color:var(--gr)}
+.out small{display:block;color:var(--mu);font-size:11px;letter-spacing:.14em;margin-bottom:4px}#ot{white-space:pre-wrap}
+.why{margin-top:12px;border:1px solid #1d5a73;background:#0b2233;border-radius:12px;padding:12px 14px;line-height:1.5;animation:rise .4s}.why strong{color:var(--cy)}
+.btn{display:block;margin:14px auto 0;background:var(--am);color:#2a1a00;border:0;border-radius:99px;padding:12px 28px;font:800 16px Outfit;cursor:pointer;transition:.2s;animation:pop .4s}.btn:hover{transform:scale(1.05)}
+.btn:disabled{background:var(--gr);cursor:default;transform:none}.btn.alt{background:var(--c2);color:var(--tx);border:1px solid var(--line)}
+.nar{display:flex;gap:12px;align-items:center;margin-top:16px}
+.evo{flex:none;width:58px;height:58px;filter:drop-shadow(0 0 10px #4fd1ff88);animation:fl 3s ease-in-out infinite}@keyframes fl{50%{transform:translateY(-5px)}}
+.eye{animation:bl 4s infinite;transform-origin:center;transform-box:fill-box}@keyframes bl{94%,100%{transform:scaleY(1)}97%{transform:scaleY(.1)}}
+.sub{flex:1;background:#0a1020;border:1px solid var(--line);border-radius:12px;padding:12px 16px;text-align:center;font-size:16px;line-height:1.45;min-height:50px}
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px;margin:14px 0}
+.chip{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13px;font-weight:600;color:#cfd8f5}
+.chip .bar{height:4px;border-radius:9px;background:#26345c;margin-bottom:8px;overflow:hidden}.chip .bar i{display:block;height:100%;width:0;background:var(--cy);transition:width .6s}
+.chip.cur{border-color:var(--cy)}.chip.done .bar i{background:var(--gr)}.chip span{color:var(--mu);margin-right:5px}
+.ctl{display:flex;flex-wrap:wrap;gap:10px}
+.ctl button,.ctl select{background:var(--c2);color:var(--tx);border:1px solid var(--line);border-radius:99px;padding:12px 20px;font:600 15px Outfit;cursor:pointer}
+.ctl button.am{background:var(--am);color:#2a1a00;border-color:var(--am)}.ctl button.on{border-color:var(--cy);color:var(--cy)}
+.topics{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0}.topics span{border:1px solid var(--line);background:var(--c2);border-radius:99px;padding:6px 12px;font-size:13px;color:#c9d4f5}
+.meadow svg{width:100%;display:block;border-radius:14px;box-shadow:0 0 40px #4ade8033}
+.bl{transform-box:fill-box;transform-origin:50% 100%;animation:sway 2.4s ease-in-out infinite}@keyframes sway{50%{transform:rotate(6deg)}}
+.fl{transform-box:fill-box;transform-origin:50% 100%;animation:pop .6s backwards}
+.sun{animation:sun 2.4s ease-out}@keyframes sun{from{transform:translateY(70px);opacity:0}}
+.bf{animation:bf 8s ease-in-out infinite}.b2{animation-duration:11s;animation-direction:reverse}@keyframes bf{50%{transform:translate(120px,-14px)}}
+.res{display:flex;justify-content:center;align-items:center;gap:22px;flex-wrap:wrap;margin:14px 0 4px}
+.badge{width:110px;animation:pop .8s,fl 3s 1s infinite;filter:drop-shadow(0 0 16px #4ade8099)}
+.score{font-size:58px;font-weight:800;color:var(--gr);line-height:1}.score small{font-size:20px;color:var(--mu)}
+.dots{display:flex;gap:6px;margin-top:8px}.dots i{width:14px;height:14px;border-radius:50%;background:var(--am);animation:pop .4s backwards}.dots i.g{background:var(--gr);box-shadow:0 0 10px #4ade80}
+.xp{max-width:420px;margin:10px auto;text-align:center}.xp .tr{height:12px;background:#1a2748;border-radius:9px;overflow:hidden;margin-top:6px}.xp .tr i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cy),var(--gr));transition:width 1.8s ease}
+.tg{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin:12px 0}.tg div{display:flex;justify-content:space-between;gap:8px;border:1px solid var(--line);background:var(--c2);border-radius:10px;padding:8px 12px;font-size:14px}
+.tg .ok{border-color:#2d6a55}.tg .rv{border-color:#6b5320;color:#ffd998}
+.cf{position:absolute!important;top:-12px;width:9px;height:14px;border-radius:2px;animation:fall linear forwards;pointer-events:none;z-index:3}@keyframes fall{to{transform:translateY(1000px) rotate(720deg);opacity:.6}}
+.ban{text-align:center;font:800 13px Outfit;letter-spacing:.3em;color:var(--am);margin-top:6px}
+@media(max-width:560px){.opts{grid-template-columns:1fr}.ctl button,.ctl select{padding:10px 15px;font-size:14px}.sub{font-size:14px}.evo{width:46px;height:46px}}
+.lg{display:grid;grid-template-columns:1.1fr .9fr;gap:14px;align-items:start}.lg .win{max-width:none;margin:0 0 12px}
+@media(max-width:720px){.lg{grid-template-columns:1fr}}
+.mem{background:#0a1226;border:1px dashed #2b4a6b;border-radius:14px;padding:12px;min-height:150px;margin-top:10px}.lg .mem{margin-top:0}
+.mem small{color:var(--mu);letter-spacing:.14em;font-size:11px;display:block;margin-bottom:12px}
+#boxes{display:flex;flex-wrap:wrap;gap:16px;justify-content:center}
+.vb{text-align:center;animation:pop .5s}.vb.str{--c:#ffb84a}.vb.int{--c:#4fd1ff}.vb.float{--c:#4ade80}.vb.bool{--c:#a78bfa}
+.lab{display:inline-block;background:var(--c);color:#06101f;font:700 13px var(--mono);padding:2px 10px;border-radius:7px 7px 0 0}
+.bx{min-width:112px;height:72px;display:grid;place-items:center;padding:0 12px;border:2px solid var(--c);border-radius:4px 12px 12px 12px;background:linear-gradient(#ffffff0d,transparent);box-shadow:0 0 18px -3px var(--c)}
+.val{font:600 20px var(--mono);animation:drop .6s}.val s{color:var(--rd);opacity:.7}
+.vb.chg .bx{animation:flash .9s}.ty{margin-top:5px;font-size:11px;color:var(--c);letter-spacing:.06em}
+@keyframes drop{from{transform:translateY(-44px) scale(.6);opacity:0}}@keyframes flash{50%{background:#ffb84a33;transform:scale(1.08)}}
+#ot:empty::before{content:"nothing printed yet";color:#4a5a86;font-weight:400}.ol{animation:rise .4s}
+#cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;margin-top:12px}#cards:empty{display:none}
+.nm{border:1px solid;border-radius:12px;padding:12px;animation:pop .4s}.nm code{display:block;font:600 17px var(--mono);margin-bottom:6px}
+.nm b{font-size:11px;letter-spacing:.1em;padding:2px 8px;border-radius:99px;color:#04130b}.nm p{margin:8px 0 0;font-size:14px;color:#c9d4f5}
+.chip{cursor:pointer}.chip:hover{border-color:var(--cy)}#qa .win{margin-top:8px}#why .btn{margin-bottom:4px}
+.gate{position:absolute!important;inset:0;z-index:5;display:grid;place-items:center;text-align:center;background:#070b17ee;backdrop-filter:blur(4px);padding:20px}.gate p{color:var(--mu);margin:0 0 6px}.ctl select{max-width:100%}
+.brow{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:10px 0;animation:rise .4s}
+.nb{min-width:54px;height:54px;display:grid;place-items:center;padding:0 10px;border-radius:12px;font:700 22px var(--mono);background:#10264a;border:2px solid var(--cy);color:var(--cy);box-shadow:0 0 16px -3px var(--cy);animation:drop .6s backwards}
+.nb.rs{border-color:var(--gr);color:var(--gr);background:#0e3a2a;box-shadow:0 0 22px -2px var(--gr);transform:scale(1.1)}
+.op{font:800 26px var(--mono);color:var(--am);animation:pop .4s backwards}
+.dg{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:8px}.grp{display:flex;flex-wrap:wrap;gap:4px;width:92px;padding:8px;border:2px dashed #2b4a6b;border-radius:12px;justify-content:center;transition:.5s}
+.grp i{width:14px;height:14px;border-radius:50%;background:var(--cy);animation:pop .4s backwards}.grp.left i{background:var(--am)}
+.dg.q .grp:not(.left){border-color:var(--gr);box-shadow:0 0 16px -2px var(--gr)}.dg.r .grp.left{border-color:var(--am);box-shadow:0 0 16px -2px var(--am)}
+.dl{width:100%;text-align:center;color:#c9d4f5;font-size:14px;min-height:20px}
+.ln.hid{opacity:0;transform:translateX(-16px)}
+.rc{font:700 26px var(--mono);text-align:center;color:var(--am);margin-top:4px}.rc.done{color:var(--gr);font-size:20px}.rc span{font-size:16px;color:var(--mu)}
+.rd{display:flex;gap:8px;justify-content:center;margin:10px 0}.rd i{width:18px;height:18px;border-radius:50%;background:#1a2748;transition:.3s}.rd i.on{background:var(--gr);box-shadow:0 0 12px var(--gr)}
+.cps{display:flex;justify-content:space-between;position:relative;margin-top:14px}.cps::before{content:"";position:absolute;left:6%;right:6%;top:47px;height:4px;background:#1b2a50}
+.cp{position:relative;padding-top:30px}.cp i{position:relative;display:grid;place-items:center;width:38px;height:38px;border-radius:50%;border:3px solid #2b3d6b;background:#0f1830;font:700 15px var(--mono);font-style:normal;color:var(--mu);transition:.4s}
+.cp.on i{border-color:var(--gr);color:var(--gr);background:#0e3a2a;box-shadow:0 0 14px var(--gr)}
+.bot{position:absolute;top:0;left:50%;transform:translate(-50%,8px);font-size:24px;opacity:0;transition:.4s}.cp.cur .bot{opacity:1;transform:translate(-50%,0)}
+.cmpg{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:720px){.cmpg{grid-template-columns:1fr}}.cmpg .win{max-width:none;margin:0 0 10px}
+.cl{font:800 14px Outfit;margin-bottom:6px}.cl.bad{color:var(--rd)}.cl.good{color:var(--gr)}.oo{white-space:pre}.oo:empty::before{content:"nothing printed yet";color:#4a5a86;font-weight:400}
+.tr{transform-box:fill-box;transform-origin:50% 100%;animation:sway 3.2s ease-in-out infinite}.fc{animation:bk2 3s ease-in-out infinite}@keyframes bk2{50%{opacity:.1}}
+.nar.tired .evo{animation:shk .35s infinite}@keyframes shk{25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+.nar.tired::before,.nar.happy::before{position:absolute;left:34px;top:-16px;font-size:22px;z-index:2;animation:pop .4s}.nar.tired::before{content:"😩"}.nar.happy::before{content:"🎉"}
+u{text-decoration:none;border-radius:5px;padding:0 2px;transition:.3s}
+[data-part=var] u[data-p=var]{background:#4fd1ff33;box-shadow:0 0 0 2px var(--cy);color:var(--cy)}
+[data-part=rng] u[data-p=rng]{background:#ffb84a33;box-shadow:0 0 0 2px var(--am)}
+[data-part=colon] u[data-p=colon]{background:#4ade8044;box-shadow:0 0 0 2px var(--gr);color:var(--gr)}
+[data-part=body] .ln.bd{background:#ffb84a22;border-left-color:var(--am)}
+[data-part=indent] .ln.bd{background:#4ade8018;border-left-color:var(--gr)}[data-part=indent] .ln.ot{background:#ffb84a18;border-left-color:var(--am)}
+[data-part=indent] .ln.bd::after{content:"inside the loop";margin-left:auto;color:var(--gr);font:600 11px Outfit}
+[data-part=indent] .ln.ot::after{content:"outside the loop";margin-left:auto;color:var(--am);font:600 11px Outfit}
+.tl{display:flex;gap:10px;justify-content:center;margin-top:14px}.tl b{width:48px;height:48px;display:grid;place-items:center;border-radius:12px;border:2px solid #2b3d6b;background:#0f1830;font:700 22px var(--mono);color:var(--mu);transition:.3s}
+.tl b.on{border-color:var(--am);color:var(--am);background:#2a2110;box-shadow:0 0 18px -2px var(--am);transform:translateY(-6px)}.er{color:var(--rd)!important}
+</style></head><body>
+<div class="app">
+<section class="stage" id="stage">
+ <div class="logo"><svg width="34" height="34" viewBox="0 0 34 34"><rect x="2" y="18" width="8" height="14" rx="3" fill="#ffb84a"/><rect x="13" y="8" width="8" height="24" rx="3" fill="#4fd1ff"/><rect x="24" y="2" width="8" height="30" rx="3" fill="#ff6b9a"/></svg>EVOLV</div>
+ <div class="world">LOOP FOREST · FOR LOOPS IN PYTHON</div>
+ <div class="gate" id="gate"><div><h1 style="margin:0 0 10px">Ready to enter <em>Loop Forest</em>?</h1><p>🔊 Turn your volume up — EVO will narrate every scene.</p><button class="btn" id="go">▶ Start lesson with voice</button><button class="btn alt" id="go2">Start without voice</button></div></div>
+ <div class="view" id="view"></div>
+ <div class="nar"><svg class="evo" viewBox="0 0 60 60"><line x1="30" y1="4" x2="30" y2="12" stroke="#ffb84a" stroke-width="3"/><circle cx="30" cy="4" r="3.5" fill="#ffb84a"/><circle cx="30" cy="34" r="22" fill="#4fd1ff"/><rect x="14" y="24" width="32" height="20" rx="10" fill="#07102a"/><ellipse class="eye" cx="23" cy="34" rx="3.5" ry="4.5" fill="#4ade80"/><ellipse class="eye" cx="37" cy="34" rx="3.5" ry="4.5" fill="#4ade80"/></svg><div class="sub" id="sub"></div></div>
+</section>
+<div class="chips" id="chips"></div>
+<div class="ctl"><button class="am" id="bP">Pause</button><button id="bRp">Replay</button><button id="bV">Voice</button><button id="bM">Music</button><select id="vsel" aria-label="Voice"><option>Default voice</option></select><select id="asel" aria-label="Audio language"><option value="en">Audio: English</option><option value="ta">Audio: தமிழ் · Tamil</option></select>
+<select id="sel" aria-label="Subtitles"><option value="en">Subtitles: English</option><option value="ta">Subtitles: தமிழ் · Tamil</option><option value="off">Subtitles: Off</option></select></div>
+</div>
+<script>
+const $=s=>document.querySelector(s),esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+let run=0,paused=false,voiceOn=false,sub="en",nar=["",""],sc=0,qs=0,speaking=false,aud="en",VO=null,spk=0;
+const hi=l=>esc(l).replace(/("[^"]*")|\b(True|False)\b|\b(\d+(?:\.\d+)?)\b|\b(for|in)\b|\b(?:print|range)\b/g,(m,a,b,n,k)=>k?`<i class=k>${m}</i>`:a?`<i class=s>${m}</i>`:b?`<i class=b>${m}</i>`:n?`<i class=n>${m}</i>`:`<i class=f>${m}</i>`);
+const win=(c,f)=>`<div class="win"><div class="wh"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span>${f}</span><span>Python 3</span></div>${wl(c)}</div>`;
+function meadow(){let g="",f="";for(let i=0;i<46;i++){const x=10+i*13+Math.random()*6,h=14+Math.random()*26,y=150+Math.random()*34;g+=`<path class="bl" d="M${x} ${y} q${(Math.random()-.5)*8} -${h/2} ${(Math.random()-.5)*10} -${h}" stroke="${i%3?"#4ade80":"#22c55e"}" stroke-width="2.5" fill="none" stroke-linecap="round" style="animation-delay:${Math.random()*2}s"/>`}
+ for(let i=0;i<14;i++){const x=30+i*42+Math.random()*16,y=135+Math.random()*40;f+=`<g class="fl" style="animation-delay:${.3+i*.12}s"><path d="M${x} ${y+16} V${y}" stroke="#2fa866" stroke-width="2"/><circle cx="${x}" cy="${y}" r="6" fill="${["#ffb84a","#ff6b9a","#4fd1ff","#ffffff"][i%4]}"/><circle cx="${x}" cy="${y}" r="2.5" fill="#fde68a"/></g>`}
+ return`<svg viewBox="0 0 600 190"><defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b1740"/><stop offset="1" stop-color="#14425a"/></linearGradient><radialGradient id="sg"><stop offset="0" stop-color="#ffe9a8"/><stop offset="1" stop-color="#ffb84a"/></radialGradient></defs><rect width="600" height="190" fill="url(#sk)"/><g class="sun"><circle cx="300" cy="104" r="46" fill="#ffb84a" opacity=".22"/><circle cx="300" cy="104" r="30" fill="url(#sg)"/></g><path d="M0 120 C100 80 200 130 300 105 S520 80 600 115 V190 H0Z" fill="#0f4a38"/><path d="M0 150 C120 110 240 160 360 135 S540 115 600 140 V190 H0Z" fill="#157a4a"/><path d="M0 172 C150 145 300 185 450 160 S560 150 600 160 V190 H0Z" fill="#1fa35f"/>${g}${f}<text class="bf" x="80" y="70" font-size="22">🦋</text><text class="bf b2" x="420" y="60" font-size="18">🦋</text></svg>`}
+
+const TY={str:"str · text",int:"int · whole number",float:"float · decimal",bool:"bool · True / False"},LB=["PROBLEM","GOOD","RECAP","TASK"];
+const NM=["name",'"Maya"',"str"],AG=["age","19","int"];
+const E=(a,o,b,c)=>({clr:1,bk:[a,o,b,"=",c]});
+function bk(t){const r=document.createElement("div");r.className="brow";r.innerHTML=t.map((x,i)=>/^-?[\d.]+$/.test(x)?`<span class="nb${t[i-1]==="="?" rs":""}" style="animation-delay:${i*.18}s">${x}</span>`:`<span class="op" style="animation-delay:${i*.18}s">${esc(x)}</span>`).join("");$("#bk").appendChild(r);if(t.includes("="))sfx("drop")}
+function dots([n,g],h){const q=Math.floor(n/g),r=n%g,G=(c,k)=>`<div class="grp ${k}">${"<i></i>".repeat(c)}</div>`;let e=$("#dg");if(!e){e=document.createElement("div");e.id="dg";$("#bk").appendChild(e)}
+ e.className="dg "+(h||"");e.innerHTML=Array.from({length:q},()=>G(g,"")).join("")+(r?G(r,"left"):"")+`<div class="dl">${h==="q"?`${q} full groups of ${g} → quotient ${q}`:h==="r"?`${r} left over → remainder ${r}`:`${n} sweets to share`}</div>`}
+const BZ={};async function anim(id,f){BZ[id]=(BZ[id]||0)+1;try{await f()}finally{BZ[id]--}}
+async function nap(ms,id){let t=0;while(t<ms){await new Promise(r=>setTimeout(r,50));if(id!==run)return;if(!paused)t+=50}}
+async function outs(a,id){for(const x of a){out(x);if(a.length>1){await nap(400,id);if(id!==run)return}}}
+const hlx=h=>document.querySelectorAll(".ln").forEach((l,j)=>{l.classList.toggle("on",j===h);l.classList.remove("off")});
+const mood=m=>{const n=document.querySelector(".nar");n.classList.toggle("tired",m==="tired");n.classList.toggle("happy",m==="happy")};
+function rev(k){document.querySelectorAll(".ln").forEach((l,j)=>{l.classList.toggle("hid",j>k);l.classList.toggle("on",j===k)});sfx("drop")}
+function board(n,cp){$("#bk").innerHTML=`<div class="rc" id="rc"><b id="rn">Round 0</b> of ${n}</div><div class="rd">${"<i></i>".repeat(n)}</div>`+(cp?`<div class="cps">${Array.from({length:n},(_,k)=>`<div class="cp"><b class="bot">🤖</b><i>${k+1}</i></div>`).join("")}</div>`:"")}
+function cmpRun(w,n,id){anim(id,async()=>{const L=document.querySelectorAll("#w"+w+" .ln"),o=$("#o"+w),hl=h=>L.forEach((l,j)=>l.className="ln"+(j===h?" on":""));
+ for(let k=1;k<=n;k++){if(id!==run)return;if(w===1)hl(k-1);else{hl(0);await nap(300,id);hl(1)}o.insertAdjacentHTML("beforeend",`<div class="ol">${k}</div>`);sfx("tick");await nap(w===1?600:550,id)}hl(-1)})}
+const L1='print(1)\nprint(2)\nprint(3)\nprint(4)\nprint(5)',L2='for i in range(1, 6):\n    print(i)';
+function cmpH(){const P=(w,t,c,f)=>`<div><div class="cl ${w==1?"bad":"good"}">${t}</div><div id="w${w}">${win(c,f)}</div><div class="out"><small>▶ OUTPUT</small><div id="o${w}" class="oo"></div></div></div>`;return`<div class="cmpg">${P(1,"❌ Without a loop",L1,"without_loop.py")}${P(2,"✅ With a loop",L2,"with_loop.py")}</div>`}
+function forest(){let t="",f="";for(let i=0;i<26;i++){const x=10+i*24+Math.random()*10,h=46+Math.random()*64,w=20+h*.12,c=["#0f4a38","#157a4a","#1fa35f"][i%3];t+=`<g class="tr" style="animation-delay:${Math.random()*2}s"><path d="M${x} ${190-h} L${x-w} ${190-h*.3} H${x+w}Z M${x} ${190-h*.7} L${x-w*1.2} 190 H${x+w*1.2}Z" fill="${c}"/></g>`}
+ for(let i=0;i<16;i++)f+=`<circle class="fc" cx="${Math.random()*600}" cy="${60+Math.random()*110}" r="2.6" fill="#ffe08a" style="animation-delay:${Math.random()*4}s"/>`;
+ return`<svg viewBox="0 0 600 190"><defs><linearGradient id="fk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a1235"/><stop offset="1" stop-color="#0d3b3a"/></linearGradient></defs><rect width="600" height="190" fill="url(#fk)"/><circle cx="500" cy="48" r="44" fill="#ffe9a8" opacity=".12"/><circle cx="500" cy="48" r="26" fill="#ffe9a8" opacity=".9"/>${t}<path d="M-10 186 C140 150 300 188 450 164 S580 156 620 166" stroke="#4ade80" stroke-width="7" fill="none" stroke-linecap="round" style="filter:drop-shadow(0 0 8px #4ade80)"/>${f}</svg>`}
+const H5=["Hello!","Hello!","Hello!","Hello!","Hello!"],LOOP='for i in range(5):\n    print("Hello!")';
+function wl(c){let inL=0;return c.split("\n").map((l,k)=>{const m=l.match(/^for (\w+) in (.+):$/);let cl="ln",h;
+ if(m){inL=1;h=`<i class=k>for</i> <u data-p="var">${esc(m[1])}</u> <i class=k>in</i> <u data-p="rng">${hi(m[2])}</u><u data-p="colon">:</u>`}
+ else{h=hi(l);if(/^ {4}/.test(l))cl+=" bd";else if(inL&&l.trim())cl+=" ot"}
+ return`<div class="${cl}"><span class="n">${k+1}</span><code>${h}</code></div>`}).join("")}
+const setcode=c=>{$("#wc").innerHTML=win(c,"loops.py");$("#ot").innerHTML=""};
+const err=t=>{$("#ot").insertAdjacentHTML("beforeend",`<div class="ol er">${esc(t)}</div>`);sfx("bad")};
+function loopRun(c,id){anim(id,async()=>{const n=c.n;if(!$("#rc"))board(n,c.cp);
+ if(c.tiles)$("#bk").insertAdjacentHTML("beforeend",`<div class="tl">${c.vals.map(v=>`<b>${v}</b>`).join("")}</div>`);
+ for(let k=0;k<n;k++){if(id!==run)return;const v=c.vals?String(c.vals[k]):String((c.from||0)+k);
+  $("#rn").textContent="Round "+(k+1);document.querySelectorAll(".rd i")[k].classList.add("on");
+  document.querySelectorAll(".cp").forEach((e,j)=>{e.classList.toggle("cur",j===k);if(j<=k)e.classList.add("on")});
+  document.querySelectorAll(".tl b").forEach((e,j)=>e.classList.toggle("on",j===k));
+  if(c.v)setVar(c.v,c.str?`"${v}"`:v,c.str?"str":"int",id);hlx(c.head);sfx("tick");await nap(500,id);if(id!==run)return;
+  hlx(c.body);const o=c.out!=null?c.out:v;if(o!=="")out(o);await nap(750,id)}
+ if(id!==run)return;if(c.after){hlx(c.al);await nap(500,id);out(c.after);await nap(700,id)}
+ if(id!==run)return;hlx(-1);$("#rc").classList.add("done");$("#rn").textContent="✓ Loop finished after "+n+" rounds";sfx("good")})}
+const N5=["0","1","2","3","4"],C0='for i in range(5):\n    print(i)',C1='for i in range(3):\n    print(i)',F=(a,b)=>`for i in range(${a}):\n    print(i)`;
+const SC=[
+{t:"Welcome to Loop Forest",m:1,mem:1,st:[
+["Welcome to Loop Forest! I’m EVO. Look, a magical path with five glowing checkpoints.","Loop Forest-க்கு வரவேற்கிறேன்! நான் EVO. பாருங்கள், ஐந்து ஒளிரும் checkpoints கொண்ட மாயப் பாதை.",{cp:5}],
+["Each checkpoint is one iteration of a loop: one time the loop repeats its instructions.","ஒவ்வொரு checkpoint-ம் loop-ன் ஒரு iteration: loop தன் instructions-ஐ ஒரு முறை repeat செய்வது."],
+["Watch me walk the path. At every checkpoint, the counter goes up by one.","நான் பாதையில் நடப்பதைப் பார். ஒவ்வொரு checkpoint-லும் counter ஒன்று உயரும்.",{run:{n:5,cp:1,out:""}}],
+["In Python, the for loop lets us build paths like this. Today you’ll learn exactly how it works.","Python-ல் for loop இப்படிப் பாதைகளை உருவாக்க உதவும். இன்று அது எப்படி வேலை செய்கிறது என்று கற்போம்.",{mood:"happy"}]]},
+{t:"Understanding the for Loop",code:'for i in range(5):\n    print("Hello!")',st:[
+["Here’s our first for loop. Let’s take it apart, piece by piece.","இது நம் முதல் for loop. ஒவ்வொரு பகுதியாகப் பிரித்துப் பார்ப்போம்.",{hl:-1}],
+["First, i is the loop variable. It’s a name that holds the current value in each round.","முதலில், i என்பது loop variable. ஒவ்வொரு round-லும் தற்போதைய மதிப்பை வைத்திருக்கும் பெயர்.",{hl:0,part:"var"}],
+["Next, range five makes the numbers zero, one, two, three and four. That’s five numbers, so the loop runs five times.","அடுத்து, range(5) 0, 1, 2, 3, 4 என்ற எண்களை உருவாக்கும். ஐந்து எண்கள், அதனால் loop ஐந்து முறை ஓடும்.",{part:"rng"}],
+["The colon ends the for line. It tells Python: the instructions to repeat come next.","Colon for வரியை முடிக்கும். 'Repeat ஆக வேண்டிய instructions அடுத்து வருகின்றன' என்று Python-க்குச் சொல்கிறது.",{part:"colon"}],
+["The indented line is the statement that repeats. The indent shows Python that it belongs to the loop.","உள்தள்ளிய வரி repeat ஆகும் statement. அது loop-ஐச் சேர்ந்தது என்று indent காட்டுகிறது.",{hl:1,part:"body"}],
+["Now watch it run. Five rounds, and Hello prints each time.","இப்போது ஓடுவதைப் பார். ஐந்து rounds; ஒவ்வொரு முறையும் Hello.",{part:"",run:{n:5,v:"i",head:0,body:1,out:"Hello!"}}],
+["Remember: range five gives zero to four, so the instruction runs five times.","நினைவில் வை: range(5) 0 முதல் 4 வரை; அதனால் ஐந்து முறை இயங்கும்.",{mood:"happy"}]]},
+{t:"Understanding the Loop Variable",code:C0,st:[
+["Same loop, but now we print i itself, instead of the word Hello.","அதே loop; ஆனால் இப்போது Hello அல்ல, i-ஐயே print செய்கிறோம்.",{hl:1}],
+["Watch the box called i. Each round, Python puts the next number inside it, and print shows it.","i பெட்டியைக் கவனி. ஒவ்வொரு round-லும் Python அடுத்த எண்ணை உள்ளே வைக்கும்; print அதைக் காட்டும்.",{run:{n:5,v:"i",head:0,body:1}}],
+["So the loop variable takes the next value every time the loop runs: zero, one, two, three, four.","ஒவ்வொரு முறையும் loop variable அடுத்த மதிப்பை எடுக்கும்: 0, 1, 2, 3, 4.",{mood:"happy"}],
+["We can use i inside the loop for messages or calculations. Python does the counting for us.","Loop உள்ளே i-ஐ செய்திகளுக்கும் கணக்குகளுக்கும் பயன்படுத்தலாம். எண்ணுவதை Python பார்த்துக்கொள்ளும்.",{hl:-1}]]},
+{t:"range() with Start and Stop",code:'for i in range(1, 6):\n    print(i)',st:[
+["Often we want to start counting at one, not zero. For that, range takes two numbers: start and stop.","பல நேரங்களில் 0 அல்ல, 1-லிருந்து எண்ண வேண்டும். அதற்கு range-க்கு இரண்டு எண்கள்: start, stop.",{hl:0,part:"rng"}],
+["The start value is included, but the stop value is excluded. So range one comma six begins at one and stops just before six.","Start மதிப்பு சேரும்; stop மதிப்பு சேராது. range(1, 6) 1-ல் தொடங்கி 6-க்கு முன் நிற்கும்.",{card:["range(1, 6)",2,"1 is included. 6 is not.","START · STOP"]}],
+["Let’s run it: one, two, three, four, five.","ஓட்டிப் பார்ப்போம்: 1, 2, 3, 4, 5.",{part:"",run:{n:5,v:"i",head:0,body:1,from:1}}],
+["Handy trick: the number of rounds is stop minus start. Six minus one is five.","எளிய உத்தி: rounds எண்ணிக்கை = stop − start. 6 − 1 = 5.",{mood:"happy"}]]},
+{t:"Using a Step Value",code:'for i in range(2, 11, 2):\n    print(i)',st:[
+["range can take a third number, called the step. The step says how big each jump is.","range-க்கு மூன்றாவது எண்ணும் கொடுக்கலாம்: step. ஒவ்வொரு தாவலும் எவ்வளவு என்பதை அது சொல்லும்.",{hl:0,part:"rng"}],
+["Start is where counting begins. Here it’s two.","Start என்பது எண்ணுவது தொடங்கும் இடம். இங்கே 2.",{card:["start = 2",2,"Where counting begins (included).","START"]}],
+["Stop is where counting ends, and it is never included. Here it’s eleven.","Stop என்பது முடியும் இடம்; அது சேராது. இங்கே 11.",{card:["stop = 11",2,"Counting stops before this number.","STOP"]}],
+["Step is the size of each jump. Here we jump by two.","Step என்பது ஒவ்வொரு தாவலின் அளவு. இங்கே 2.",{card:["step = 2",2,"Add 2 each time.","STEP"]}],
+["Watch the counter jump by two each time: two, four, six, eight, ten.","Counter ஒவ்வொரு முறையும் இரண்டு தாவுவதைப் பார்: 2, 4, 6, 8, 10.",{part:"",run:{n:5,v:"i",head:0,body:1,vals:[2,4,6,8,10]}}],
+["Ten is the last number, because the next jump would be twelve, and that passes the stop value.","10 தான் கடைசி; அடுத்த தாவல் 12, அது stop மதிப்பைத் தாண்டிவிடும்.",{mood:"happy"}]]},
+{t:"Looping Through a String",code:'for letter in "EVO":\n    print(letter)',st:[
+["A for loop can also walk through a string, one character at a time. Here the loop variable is called letter.","for loop string-ஐயும் ஒரு எழுத்தாக நடந்து செல்லும். இங்கே loop variable-ன் பெயர் letter.",{hl:0,part:"var"}],
+["Instead of range, we give the loop the string EVO. Python will pick its characters one by one: E, then V, then O.","range-க்கு பதிலாக EVO என்ற string. Python அதன் எழுத்துகளை ஒவ்வொன்றாக எடுக்கும்: E, V, O.",{part:"rng"}],
+["Watch each character get selected, one at a time.","ஒவ்வொரு எழுத்தும் ஒவ்வொன்றாகத் தேர்ந்தெடுக்கப்படுவதைப் பார்.",{part:"",run:{n:3,v:"letter",str:1,tiles:1,vals:["E","V","O"],head:0,body:1}}],
+["Three characters, three rounds, three lines of output. A for loop can process every character in a string.","மூன்று எழுத்துகள், மூன்று rounds, மூன்று வரி output. String-ன் ஒவ்வொரு எழுத்தையும் for loop செயலாக்கும்.",{mood:"happy"}]]},
+{t:"Understanding Indentation",code:'for i in range(3):\n    print("Inside loop")\nprint("Outside loop")',st:[
+["Indentation means the spaces at the start of a line. The green line is indented, so it’s inside the loop. The amber line isn’t, so it’s outside.","Indentation என்பது வரியின் தொடக்கத்தில் உள்ள இடைவெளி. பச்சை வரி உள்தள்ளியது, அதனால் loop உள்ளே. ஆம்பர் வரி வெளியே.",{hl:-1,part:"indent"}],
+["Watch: the indented line repeats three times. The outside line runs just once, after the loop finishes.","கவனி: உள்தள்ளிய வரி மூன்று முறை repeat ஆகும். வெளி வரி loop முடிந்தபின் ஒரு முறை மட்டும்.",{run:{n:3,head:0,body:1,out:"Inside loop",after:"Outside loop",al:2}}],
+["Indentation decides which statements repeat. Use four spaces for every line inside the loop.","எந்த statements repeat ஆகும் என்பதை indentation தீர்மானிக்கும். Loop உள்ளே ஒவ்வொரு வரிக்கும் நான்கு spaces.",{mood:"happy"}]]},
+{t:"Common Mistakes",code:'for i in range(3)\n    print(i)',st:[
+["Even experts make mistakes. Let’s look at four common ones, so you can spot them quickly.","நிபுணர்களும் தவறு செய்வார்கள். நான்கு பொதுவான தவறுகளைப் பார்ப்போம்."],
+["Mistake one: forgetting the colon at the end of the for line. Python can’t understand the loop and shows a SyntaxError.","தவறு ஒன்று: for வரியின் இறுதியில் colon மறப்பது. Python-க்குப் புரியாது; SyntaxError காட்டும்.",{hl:0,err:"SyntaxError: expected ':'",mood:"tired"}],
+["The fix: add the colon, and the loop works.","தீர்வு: colon சேர்; loop வேலை செய்யும்.",{setcode:C1,out:["0","1","2"],mood:""}],
+["Mistake two: forgetting indentation. Python can’t tell which line belongs to the loop, so it shows an IndentationError.","தவறு இரண்டு: indentation மறப்பது. எந்த வரி loop-ஐச் சேர்ந்தது என்று Python-க்குத் தெரியாது; IndentationError.",{setcode:'for i in range(3):\nprint(i)',err:"IndentationError: expected an indented block",mood:"tired"}],
+["The fix: indent the line by four spaces.","தீர்வு: வரியை நான்கு spaces உள்தள்ளு.",{setcode:C1,out:["0","1","2"],mood:""}],
+["Mistake three: expecting range five to include five. It stops just before five, so the last number is four.","தவறு மூன்று: range(5) 5-ஐயும் சேர்க்கும் என்று நினைப்பது. 5-க்கு முன் நிற்கும்; கடைசி எண் 4.",{setcode:C0,out:N5}],
+["Mistake four: wrong start, stop or step values. This prints one to four, not one to five. For one to five, use range one comma six. And if the start is bigger than the stop, nothing is printed.","தவறு நான்கு: start, stop, step தவறாகக் கொடுப்பது. இது 1 முதல் 4 வரை மட்டும். 1 முதல் 5 வேண்டுமானால் range(1, 6). Start பெரியதாக இருந்தால் எதுவும் print ஆகாது.",{setcode:F("1, 5"),out:["1","2","3","4"]}]]},
+{t:"Quick Challenge",quiz:[
+{code:F(4),q:"Predict the output:",o:["0, 1, 2, 3","1, 2, 3, 4","0, 1, 2, 3, 4","1, 2, 3"],a:0,out:["0","1","2","3"],it:["i = 0","i = 1","i = 2","i = 3"],h:"range(4) starts at 0 and stops before 4.",w:"range(4) gives 0, 1, 2 and 3: four numbers, so four rounds. It never reaches 4.",en:"Quick challenge! Predict what this loop prints.",ta:"Quick challenge! இந்த loop என்ன print செய்யும் என்று கணி!"},
+{code:'for number in range(1, 5):\n    print(number * 2)',q:"Predict the output:",o:["1, 2, 3, 4","2, 4, 6, 8, 10","2, 4, 6, 8","2, 4, 6"],a:2,out:["2","4","6","8"],it:["number = 1 → 1 * 2 = 2","number = 2 → 2 * 2 = 4","number = 3 → 3 * 2 = 6","number = 4 → 4 * 2 = 8"],h:"range(1, 5) starts at 1 and stops before 5. Each number is doubled.",w:"number takes the values 1, 2, 3 and 4. Each round prints number * 2, giving 2, 4, 6 and 8. The stop value 5 is never used.",en:"Now a trickier one. Each number gets doubled. What will it print?",ta:"இப்போது கொஞ்சம் கடினம். ஒவ்வொரு எண்ணும் இரட்டிப்பாகும். என்ன print ஆகும்?"},
+{code:'for i in range(2):\n    print("A")\nprint("B")',q:"Which output is correct?",o:["A, B, A, B","A, A, B","A, B, B","B, A, A"],a:1,out:["A","A","B"],h:"Only the indented line repeats.",w:"print(“A”) is indented, so it runs twice. print(“B”) isn’t indented, so it runs once, after the loop.",en:"Last one in this round. Watch the indentation!",ta:"இந்தச் சுற்றின் கடைசி. Indentation-ஐ கவனி!"}]},
+{t:"Lesson Recap",m:1,st:[
+["Great work! Let’s recap everything about for loops.","அருமை! for loops பற்றிய அனைத்தையும் நினைவுபடுத்துவோம்.",{mood:"happy"}],
+["The syntax: for, a loop variable, in, a sequence, and a colon.","Syntax: for, loop variable, in, ஒரு sequence, colon.",{card:["for i in range(5):",2,"Then indent the lines to repeat.","SYNTAX"]}],
+["The loop variable takes the next value each round.","Loop variable ஒவ்வொரு round-லும் அடுத்த மதிப்பை எடுக்கும்.",{card:["Loop variable",2,"i = 0, then 1, then 2…","VARIABLE"]}],
+["Range can take a stop, or a start and stop, or a start, stop and step. The stop is never included.","range-க்கு stop; அல்லது start, stop; அல்லது start, stop, step கொடுக்கலாம். Stop சேராது.",{card:["range()",2,"range(5) · range(1, 6) · range(2, 11, 2)","RANGE"]}],
+["A for loop can also visit each character in a string.","for loop string-ன் ஒவ்வொரு எழுத்தையும் பார்வையிடும்.",{card:["Strings",2,"for letter in “EVO”","STRINGS"]}],
+["And indentation decides which lines repeat.","Indentation எந்த வரிகள் repeat ஆகும் என்று தீர்மானிக்கும்.",{card:["Indentation",2,"Indented lines repeat. Others run once.","INDENT"]}],
+["Now, one last coding challenge. After that, get ready for While Loops!","இப்போது கடைசி coding challenge. பிறகு While Loops-க்குத் தயாராகு!",{mood:"happy"}]]},
+{t:"Coding Challenge",quiz:[
+{code:'for i in range(___):\n    print(i)',fix:'for i in range(10, 40, 10):\n    print(i)',q:"Complete the code so it prints 10, 20 and 30. What goes in the blank?",o:["10, 40, 10","10, 30, 10","1, 4","10, 30"],a:0,out:["10","20","30"],it:["i = 10","i = 20","i = 30"],h:"Start at 10, jump by 10, and remember the stop value is not included.",w:"range(10, 40, 10) starts at 10, jumps by 10 and stops before 40, giving 10, 20 and 30. With a stop of 30, the 30 would be left out.",en:"Final coding challenge! Complete the loop so it prints ten, twenty and thirty.",ta:"இறுதி coding challenge! 10, 20, 30 print ஆகும்படி loop-ஐ முடி."}]}];
+const CH=["Welcome","for loop","Variable","Start/Stop","Step","Strings","Indent","Mistakes","Challenge","Recap","Code"],TAN="பரவாயில்லை! Hint-ஐப் பார்த்து மீண்டும் முயற்சி செய்!";
+const sp=t=>t.replace(/Score2|score2/g,"score two").replace(/2score/g,"two score");
+const hasTa=()=>speechSynthesis.getVoices().some(v=>/^ta/i.test(v.lang));
+function pickVoice(l){const all=speechSynthesis.getVoices(),vs=all.filter(v=>v.lang.toLowerCase().startsWith(l));if(l==="ta")return vs[0];const c=VO&&all.find(v=>v.name===VO);return c||vs.find(v=>/google uk english female|natural|online|aria|jenny|sonia|libby|samantha/i.test(v.name))||vs.find(v=>/en[-_](GB|US)/i.test(v.lang))||vs[0]}
+function fillV(){if(!window.speechSynthesis)return;const vs=speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang));if(!vs.length)return;VO=null;const b=pickVoice("en");VO=b&&b.name;$("#vsel").innerHTML=vs.map(v=>`<option>${v.name}</option>`).join("");$("#vsel").value=VO}
+function duck(on){try{if(mg&&ac)mg.gain.setTargetAtTime(on?.012:.05,ac.currentTime,.15)}catch(e){}}
+function say(en,ta){nar=[en,ta];showSub();const tk=++spk;speaking=false;if(!window.speechSynthesis)return;speechSynthesis.cancel();if(!voiceOn)return;const tm=aud==="ta"&&hasTa(),u=new SpeechSynthesisUtterance(sp(tm?ta:en)),v=pickVoice(tm?"ta":"en");if(v){u.voice=v;u.lang=v.lang}else u.lang=tm?"ta-IN":"en-GB";u.rate=.92;speaking=true;duck(true);u.onend=u.onerror=()=>{if(tk===spk){speaking=false;duck(false)}};speechSynthesis.speak(u)}
+let sx;const SF={drop:[[420,0,.14,"triangle"],[300,.07,.22,"triangle"]],swap:[[300,0,.12],[500,.1,.12],[760,.2,.2]],tick:[[1300,0,.05,"square"]],good:[[523,0,.14],[659,.1,.14],[784,.2,.3]],bad:[[190,0,.28,"sawtooth"]],chime:[[660,0,.16],[880,.12,.28]],ping:[[880,0,.18]],fan:[[523,0,.2],[659,.15,.2],[784,.3,.2],[1047,.45,.6]]};
+function sfx(k){if(paused)return;try{sx=sx||new(window.AudioContext||window.webkitAudioContext)();if(sx.state==="suspended")sx.resume();for(const[f,s,d,ty]of SF[k]){const o=sx.createOscillator(),g=sx.createGain(),t=sx.currentTime+s;o.type=ty||"sine";o.frequency.value=f;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(k==="tick"||k==="bad"?.04:.09,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(sx.destination);o.start(t);o.stop(t+d+.05)}}catch(e){}}
+function showSub(){const e=$("#sub");e.style.visibility=sub==="off"?"hidden":"visible";e.textContent=sub==="ta"?nar[1]:nar[0]}
+async function wait(ms,id){let t=0;const min=voiceOn?1200:ms;while(t<min||(voiceOn&&speaking&&t<ms*2+6000)||BZ[id]>0){await new Promise(r=>setTimeout(r,100));if(id!==run)return;if(!paused)t+=100}
+ if(voiceOn){await new Promise(r=>setTimeout(r,450))}}
+function chips(){$("#chips").innerHTML=CH.map((c,i)=>`<div class="chip ${i<sc?"done":i===sc?"cur":""}" onclick="play(${i})"><div class="bar"><i style="width:${i<sc?100:i===sc?40:0}%"></i></div><span>${i+1}</span>${c}</div>`).join("")}
+function setVar(n,v,t,id){let e=$("#vb_"+n);if(!e){$("#boxes").insertAdjacentHTML("beforeend",`<div class="vb ${t}" id="vb_${n}"><div class="lab">${n}</div><div class="bx"><span class="val">${hi(v)}</span></div><div class="ty">${TY[t]}</div></div>`);sfx("drop");return}
+ const val=e.querySelector(".val");sfx("swap");val.innerHTML=`<s>${val.innerHTML}</s>`;e.classList.add("chg");setTimeout(()=>{if(id===run){val.innerHTML=hi(v);e.classList.remove("chg");val.style.animation="none";void val.offsetWidth;val.style.animation=""}},900)}
+const out=t=>{sfx("tick");$("#ot").insertAdjacentHTML("beforeend",`<div class="ol">${esc(t)}</div>`)};
+function apply(a,id){if(a.setcode)setcode(a.setcode);if("part" in a)$("#view").dataset.part=a.part;if("hl" in a){const h=a.hl;document.querySelectorAll(".ln").forEach((l,k)=>{l.classList.toggle("on",k===h);l.classList.toggle("off",h>=0&&k>h)})}
+ if(a.err)err(a.err);if(a.rev!=null)rev(a.rev);if(a.run)loopRun(a.run,id);if(a.cp)board(a.cp,true);if(a.seq)cmpRun(a.seq[0],a.seq[1],id);if("mood" in a)mood(a.mood);if(a.clr)$("#bk").innerHTML="";if(a.bk)bk(a.bk);if(a.dots)dots(a.dots,a.hot);if(a.set)(Array.isArray(a.set[0])?a.set:[a.set]).forEach(v=>setVar(...v,id));if(a.out!=null)outs([].concat(a.out),id);
+ if(a.card)sfx(a.card[1]===0?"bad":a.card[1]===1?"good":"ping");if(a.card)$("#cards").insertAdjacentHTML("beforeend",`<div class="nm c${a.card[1]}"><code>${esc(a.card[0])}</code><b>${a.card[3]||LB[a.card[1]]}</b><p>${a.card[2]}</p></div>`)}
+function render(i){const S=SC[i],v=$("#view");document.querySelector(".nar").className="nar";v.dataset.part="";v.className="view";void v.offsetWidth;v.className="view in";
+ v.innerHTML=`<div class="tags"><span class="pill lv">Scene ${i+1} of ${SC.length}</span><span class="pill">${S.t}</span></div>`+(S.m?`<div class="meadow">${forest()}</div>`:"")+(S.cmp?cmpH():"")+(S.code?`<div class="lg"><div><div id="wc">${win(S.code,"loops.py")}</div><div class="out"><small>▶ OUTPUT</small><div id="ot"></div></div></div><div class="mem"><small>LOOP LAB</small><div id="boxes"></div><div id="bk"></div></div></div>`:S.mem?`<div class="mem"><small>LOOP LAB</small><div id="boxes"></div><div id="bk"></div></div>`:"")+`<div id="cards"></div><div id="qa"></div>`;if(S.hide)document.querySelectorAll(".ln").forEach(l=>l.classList.add("hid"))}
+async function ask(q,id){say(q.en,q.ta);const qa=$("#qa");
+ qa.innerHTML=`${q.code?win(q.code,"challenge.py")+'<div class="out"><small>▶ OUTPUT</small><div id="ot"></div></div>':""}<div class="ask">${q.q}</div><div class="opts">${q.o.map((o,k)=>`<button class="opt" data-k="${k}"><b>${"ABCD"[k]}</b><span>${esc(o)}</span></button>`).join("")}</div><div class="hint" id="hint" hidden></div><div class="conds" id="itc"></div><div id="why"></div>`;
+ const tr=await new Promise(res=>{let t=0;qa.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{if(paused||id!==run)return;const k=+b.dataset.k;
+  if(k!==q.a){t++;sfx("bad");b.classList.add("bad");b.disabled=true;const h=$("#hint");h.hidden=false;h.innerHTML="💡 <strong>Hint:</strong> "+q.h;say("Not quite — read the hint and try again!",TAN);return}
+  qa.querySelectorAll(".opt").forEach(x=>x.disabled=true);b.classList.add("good");sfx("good");$("#hint").hidden=true;res(t)})});
+ if(id!==run)return false;if(!tr)qs++;say(tr?"You got it! Let’s see why.":"Correct! Let’s see why.","சரி! ஏன் என்று பார்ப்போம்.");
+ if(q.fix)$("#qa .win").outerHTML=win(q.fix,"challenge.py");if(q.it){for(let k=0;k<q.it.length;k++){hlx(0);await nap(450,id);if(id!==run)return false;hlx(1);$("#itc").insertAdjacentHTML("beforeend",`<span class="cd c2"><code>${esc(q.it[k])}</code><b>ROUND ${k+1}</b></span>`);out(q.out[k]);await nap(900,id);if(id!==run)return false}hlx(-1)}else if(q.code){const L=document.querySelectorAll("#qa .ln");for(let k=0;k<L.length;k++){L.forEach((l,j)=>l.className="ln"+(j===k?" on":j>k?" off":""));await nap(800,id);if(id!==run)return false}[].concat(q.out).forEach(x=>out(x))}
+ $("#why").innerHTML=`<div class="why"><strong>Why?</strong> ${q.w}</div><button class="btn" id="cont">Continue →</button>`;
+ await new Promise(r=>$("#cont").onclick=r);return id===run}
+async function play(i){const id=++run,S=SC[i];sc=i;chips();render(i);sfx("chime");$("#stage").scrollIntoView({behavior:"smooth",block:"start"});
+ if(S.quiz){for(const q of S.quiz)if(!await ask(q,id))return}
+ else for(const[en,ta,a]of S.st){say(en,ta);apply(a||{},id);await wait(2500+en.split(" ").length*380,id);if(id!==run)return}
+ if(id!==run)return;i<SC.length-1?play(i+1):finish(id)}
+function finish(id){sc=SC.length;chips();sfx("fan");const xp=40+qs*20;
+ $("#view").innerHTML=`<div class="meadow">${forest()}</div><div class="ban">✦ LESSON COMPLETE ✦</div><h1 style="margin:6px 0">For Loops <em>Mastered!</em></h1><p style="text-align:center;font-size:18px;margin:4px 0">Challenge score: <b style="color:var(--gr)">${qs} / 4</b> on the first try · <b style="color:var(--am)">+${xp} XP</b></p><p style="text-align:center;color:var(--mu);margin:4px 0">You can write for loops with range, step values, strings and indentation. Next up: While Loops!</p><button class="btn" onclick="this.textContent='🔓 Next lesson is ready!';this.disabled=true">Continue to While Loops →</button><button class="btn alt" onclick="play(0)">Watch again</button>`;
+ say("You did it! You can now write for loops with range, steps, strings and indentation. Next up: While Loops. See you there!","சபாஷ்! இனி range, step, strings, indentation உடன் for loops எழுதலாம். அடுத்தது: While Loops!");
+ const st=$("#stage");for(let i=0;i<40;i++){const c=document.createElement("i");c.className="cf";c.style.cssText=`left:${Math.random()*100}%;background:${["#4fd1ff","#ffb84a","#4ade80","#ff6b9a"][i%4]};animation-duration:${2.5+Math.random()*2.5}s;animation-delay:${Math.random()}s`;st.appendChild(c);setTimeout(()=>c.remove(),6500)}}
+$("#bRp").onclick=()=>{qs=0;if(window.speechSynthesis)speechSynthesis.cancel();play(0)};
+$("#bP").onclick=e=>{paused=!paused;document.body.classList.toggle("paused",paused);e.target.textContent=paused?"Resume":"Pause";if(window.speechSynthesis)paused?speechSynthesis.pause():speechSynthesis.resume()};
+$("#bV").onclick=e=>{voiceOn=!voiceOn;e.target.classList.toggle("on",voiceOn);if(voiceOn)say(...nar);else{speaking=false;spk++;duck(false);if(window.speechSynthesis)speechSynthesis.cancel()}};
+$("#sel").onchange=e=>{sub=e.target.value;showSub()};
+let ac,mOn=false,mg;
+$("#bM").onclick=e=>{mOn=!mOn;e.target.classList.toggle("on",mOn);try{if(!ac){ac=new(window.AudioContext||window.webkitAudioContext)();const m=mg=ac.createGain();m.gain.value=.05;m.connect(ac.destination);[196,247,294,392].forEach((f,k)=>{const o=ac.createOscillator(),g=ac.createGain(),l=ac.createOscillator(),lg=ac.createGain();o.frequency.value=f;g.gain.value=.25;l.frequency.value=.1+k*.07;lg.gain.value=.2;l.connect(lg);lg.connect(g.gain);o.connect(g);g.connect(m);o.start();l.start()})}mOn?ac.resume():ac.suspend()}catch(x){}};
+const stg=$("#stage");for(let i=0;i<14;i++){const f=document.createElement("i");f.className="ff";f.style.cssText=`left:${Math.random()*96}%;top:${Math.random()*92}%;animation-delay:${Math.random()*6}s;animation-duration:${5+Math.random()*5}s`;stg.appendChild(f)}
+$("#asel").onchange=e=>{aud=e.target.value;if(aud==="ta"&&!hasTa()){aud="en";e.target.value="en";say("Your device has no Tamil voice installed, so I’ll keep speaking English. Subtitles can still be in Tamil.","உங்கள் device-ல் Tamil voice இல்லை; English-ல் பேசுகிறேன்.");return}say(...nar)};
+$("#vsel").onchange=e=>{VO=e.target.value;say(...nar)};
+if(window.speechSynthesis){speechSynthesis.onvoiceschanged=fillV;fillV()}
+$("#go").onclick=()=>{voiceOn=true;$("#bV").classList.add("on");$("#gate").remove();play(0)};
+$("#go2").onclick=()=>{$("#gate").remove();play(0)};
+</script></body></html>

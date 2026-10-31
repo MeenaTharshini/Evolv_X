@@ -1,4 +1,3 @@
-
 /* =========================================
    EVOLV — RIGHT LEARNING SIDEBAR
    ========================================= */
@@ -57,6 +56,10 @@
   font: inherit;
 }
 
+.ev-rightbar svg {
+  flex-shrink: 0;
+}
+
 /* =========================================
    HEADER
    ========================================= */
@@ -66,13 +69,11 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-
   flex-shrink: 0;
 }
 
 .ev-rightbar-eyebrow {
   display: block;
-
   color: #8b9990;
   font-size: 9px;
   font-weight: 850;
@@ -82,7 +83,6 @@
 
 .ev-rightbar-header h2 {
   margin: 6px 0 0;
-
   color: #23352d;
   font-size: 21px;
   font-weight: 800;
@@ -140,8 +140,8 @@
   display: flex;
   align-items: center;
   gap: 12px;
-
   flex-shrink: 0;
+
   padding: 15px;
 
   background: linear-gradient(
@@ -215,7 +215,6 @@
 
 .ev-rightbar-state p {
   margin: 0;
-
   font-size: 11px;
   line-height: 1.6;
 }
@@ -252,7 +251,6 @@
 }
 
 .ev-rightbar-error > svg {
-  flex-shrink: 0;
   margin-top: 1px;
 }
 
@@ -263,7 +261,6 @@
 
 .ev-rightbar-error strong {
   display: block;
-
   color: #9d3e37;
   font-size: 11px;
   font-weight: 800;
@@ -318,7 +315,6 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 11px;
-
   flex-shrink: 0;
 }
 
@@ -352,7 +348,6 @@
     #fffaf0 0%,
     #fffdf8 100%
   );
-
   border-color: #f1e8d2;
 }
 
@@ -367,7 +362,6 @@
     #fff6ed 0%,
     #fffaf6 100%
   );
-
   border-color: #f3e4d5;
 }
 
@@ -380,7 +374,6 @@
   display: flex;
   align-items: center;
   gap: 8px;
-
   min-width: 0;
 }
 
@@ -452,7 +445,217 @@
 }
 
 /* =========================================
-   SHARED CARDS
+   HEARTS CARD
+   ========================================= */
+
+.ev-rightbar-hearts {
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  min-width: 0;
+
+  margin: 0;
+  padding: 17px;
+
+  background: linear-gradient(
+    145deg,
+    #fff8f8 0%,
+    #fff 65%,
+    #fff3f5 100%
+  );
+
+  border: 1px solid #f5d8dc;
+  border-radius: 17px;
+
+  box-shadow: 0 5px 18px rgb(190 60 80 / 6%);
+
+  transition:
+    border-color 200ms ease,
+    box-shadow 200ms ease,
+    background 200ms ease;
+}
+
+.ev-rightbar-hearts:hover {
+  border-color: #f0b9c2;
+  box-shadow: 0 8px 22px rgb(190 60 80 / 10%);
+}
+
+/* Hearts heading */
+
+.ev-rightbar-hearts-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+
+  margin-bottom: 15px;
+}
+
+.ev-rightbar-hearts-icon {
+  display: grid;
+  flex: 0 0 42px;
+
+  width: 42px;
+  height: 42px;
+  place-items: center;
+
+  color: #e34d68;
+  background: #ffe5e9;
+  border: 1px solid #fbd5dc;
+  border-radius: 13px;
+}
+
+.ev-rightbar-hearts-title {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ev-rightbar-hearts-title > span {
+  color: #a15a67;
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 1.1px;
+  line-height: 1.5;
+}
+
+.ev-rightbar-hearts-title > strong {
+  color: #312b35;
+  font-size: 22px;
+  font-weight: 850;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Five-heart display */
+
+.ev-rightbar-hearts-list {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+
+  min-width: 0;
+  margin: 4px 0 13px;
+  padding: 0 2px;
+}
+
+.ev-rightbar-heart-filled,
+.ev-rightbar-heart-empty {
+  flex: 0 1 23px;
+  width: 23px;
+  max-width: 23px;
+  min-width: 0;
+  height: auto;
+}
+
+.ev-rightbar-heart-filled {
+  color: #ef526e;
+  filter: drop-shadow(0 2px 3px rgb(239 82 110 / 16%));
+  animation: ev-heart-appear 300ms ease both;
+}
+
+.ev-rightbar-heart-empty {
+  color: #e8cbd0;
+  opacity: 0.95;
+}
+
+/* Available hearts hint */
+
+.ev-rightbar-hearts-hint {
+  margin: 0;
+
+  color: #8c6b73;
+  font-size: 11px;
+  font-weight: 550;
+  line-height: 1.65;
+
+  overflow-wrap: anywhere;
+}
+
+/* =========================================
+   ZERO-HEARTS STATE
+   ========================================= */
+
+.ev-rightbar-hearts.ev-rightbar-hearts-empty {
+  background: linear-gradient(
+    145deg,
+    #fff0f1 0%,
+    #fff9f9 100%
+  );
+
+  border-color: #f1c7cd;
+  box-shadow: 0 5px 20px rgb(190 60 80 / 8%);
+}
+
+.ev-rightbar-hearts-empty .ev-rightbar-hearts-icon {
+  color: #c83f57;
+  background: #ffdade;
+  border-color: #f7c6ce;
+}
+
+.ev-rightbar-hearts-empty .ev-rightbar-hearts-title > span {
+  color: #a8495b;
+}
+
+.ev-rightbar-hearts-empty .ev-rightbar-hearts-title > strong {
+  color: #c83f57;
+}
+
+.ev-rightbar-hearts-empty .ev-rightbar-heart-empty {
+  color: #edc7cd;
+}
+
+.ev-rightbar-hearts-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+
+  min-width: 0;
+  margin-top: 12px;
+  padding: 12px;
+
+  color: #b63e53;
+  background: rgb(255 255 255 / 85%);
+  border: 1px solid #f4d3d8;
+  border-radius: 12px;
+}
+
+.ev-rightbar-hearts-message > svg {
+  flex: 0 0 19px;
+  margin-top: 2px;
+}
+
+.ev-rightbar-hearts-message > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.ev-rightbar-hearts-message strong {
+  display: block;
+  margin-bottom: 5px;
+
+  color: #a93249;
+  font-size: 11px;
+  font-weight: 850;
+  line-height: 1.5;
+
+  overflow-wrap: anywhere;
+}
+
+.ev-rightbar-hearts-message p {
+  margin: 0;
+
+  color: #81545d;
+  font-size: 10px;
+  line-height: 1.7;
+
+  overflow-wrap: anywhere;
+}
+
+/* =========================================
+   SHARED LEARNING CARDS
    ========================================= */
 
 .ev-rightbar-card {
@@ -477,7 +680,6 @@
   display: flex;
   align-items: center;
   gap: 9px;
-
   min-width: 0;
 }
 
@@ -617,10 +819,6 @@
   color: #18804c;
   background: #dcfce7;
   border-color: #bceacb;
-}
-
-.ev-rightbar-week-day.ev-week-day-active .ev-rightbar-week-dot svg {
-  display: block;
 }
 
 /* Today's activity */
@@ -773,6 +971,8 @@
   font-size: 11px;
   font-weight: 800;
   line-height: 1.5;
+
+  overflow-wrap: anywhere;
 }
 
 .ev-rightbar-reminder p {
@@ -829,10 +1029,6 @@
   cursor: not-allowed;
 }
 
-.ev-rightbar svg {
-  flex-shrink: 0;
-}
-
 /* =========================================
    ANIMATIONS
    ========================================= */
@@ -844,6 +1040,18 @@
 
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes ev-heart-appear {
+  from {
+    opacity: 0.5;
+    transform: scale(0.85);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 
@@ -892,6 +1100,14 @@
     padding: 4px 5px;
     font-size: 8px;
   }
+
+  .ev-rightbar-hearts {
+    padding: 15px;
+  }
+
+  .ev-rightbar-hearts-list {
+    gap: 6px;
+  }
 }
 
 /* =========================================
@@ -935,6 +1151,43 @@
 
   .ev-rightbar-week {
     margin-top: 15px;
+  }
+
+  .ev-rightbar-hearts {
+    padding: 14px;
+  }
+
+  .ev-rightbar-hearts-heading {
+    margin-bottom: 11px;
+  }
+
+  .ev-rightbar-hearts-message {
+    padding: 10px;
+  }
+}
+
+/* =========================================
+   NARROW SIDEBAR
+   ========================================= */
+
+@media (max-width: 340px) and (min-width: 901px) {
+  .ev-rightbar {
+    width: 250px;
+    padding-right: 14px;
+    padding-left: 14px;
+  }
+
+  .ev-rightbar-hearts {
+    padding: 13px;
+  }
+
+  .ev-rightbar-hearts-list {
+    gap: 5px;
+  }
+
+  .ev-rightbar-hearts-message {
+    gap: 7px;
+    padding: 9px;
   }
 }
 

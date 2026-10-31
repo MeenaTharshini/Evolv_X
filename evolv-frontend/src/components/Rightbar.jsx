@@ -16,6 +16,8 @@ import {
   RefreshCw,
   AlertCircle,
   CheckCircle2,
+  Heart,
+  CalendarClock,
 } from "lucide-react";
 
 import { supabase } from "../lib/supabaseClient";
@@ -32,6 +34,13 @@ const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 const INDIA_TIME_ZONE = "Asia/Kolkata";
 
+const MAX_HEARTS = 5;
+
+const HEART_KEY_PREFIX = "evolv_";
+const HEART_KEY_SUFFIX = "_hearts";
+
+const HEARTS_UPDATED_EVENT = "evolv:hearts-updated";
+
 const INITIAL_STATS = {
   totalXP: 0,
   currentStreak: 0,
@@ -46,8 +55,7 @@ const INITIAL_STATS = {
 // --------------------------------------------------
 
 /**
- * Get today's date in India Standard Time.
- * Returns YYYY-MM-DD regardless of the browser's timezone.
+ * Returns today's date in India Standard Time.
  */
 function getIndiaDateString(date = new Date()) {
   const parts = new Intl.DateTimeFormat("en-CA", {
@@ -65,8 +73,7 @@ function getIndiaDateString(date = new Date()) {
 }
 
 /**
- * Parse YYYY-MM-DD safely for calendar calculations.
- * UTC is used only for date arithmetic.
+ * Safely parses YYYY-MM-DD for date arithmetic.
  */
 function parseDateKey(dateKey) {
   if (typeof dateKey !== "string") {
@@ -135,6 +142,172 @@ function getWeekDates(todayKey = getIndiaDateString()) {
       future: date > todayKey,
     };
   });
+}
+
+// --------------------------------------------------
+// HEART HELPERS
+// --------------------------------------------------
+
+/**
+ * Heart storage is course-specific:
+ *
+ * evolv_python_hearts
+ * evolv_<courseId>_hearts
+ *
+ * Try to select the course associated with the current URL.
+ * If that isn't possible, prefer Python when available.
+ */
+function getCourseHeartKey() {
+  try {
+    const matchingKeys = [];
+
+    for (let index = 0; index < localStorage.length; index += 1) {
+      const key = localStorage.key(index);
+
+      if (
+        key &&
+        key.startsWith(HEART_KEY_PREFIX) &&
+        key.endsWith(HEART_KEY_SUFFIX)
+      ) {
+        matchingKeys.push(key);
+      }
+    }
+
+    if (matchingKeys.length === 0) {
+      return "evolv_python_hearts";
+    }
+
+    const path = window.location.pathname.toLowerCase();
+
+    // Prefer a heart key matching a course identifier in the URL.
+    const matchingPathKey = matchingKeys.find((key) => {
+      const courseId = key
+        .slice(
+          HEART_KEY_PREFIX.length,
+          -HEART_KEY_SUFFIX.length
+        )
+        .toLowerCase();
+
+      return courseId && path.includes(courseId);
+    });
+
+    if (matchingPathKey) {
+      return matchingPathKey;
+    }
+
+    // Python is the initial EVOLV course.
+    const pythonKey = matchingKeys.find(
+      (key) => key.toLowerCase() === "evolv_python_hearts"
+    );
+
+    if (pythonKey) {
+      return pythonKey;
+    }
+
+    // Use the only available course if there is just one.
+    if (matchingKeys.length === 1) {
+      return matchingKeys[0];
+    }
+
+    // Otherwise use the first available course key.
+    return matchingKeys[0];
+  } catch (error) {
+    console.error("Unable to locate course heart storage:", error);
+
+    return "evolv_python_hearts";
+  }
+}
+
+/**
+ * Read and validate the heart count.
+ */
+function readHearts(key) {
+  try {
+    const storedValue = localStorage.getItem(key);
+
+    // Match the initial heart count used by the current EVOLV UI.
+    if (storedValue === null) {
+      return MAX_HEARTS;
+    }
+
+    const value = Number(storedValue);
+
+    if (!Number.isFinite(value)) {
+      return MAX_HEARTS;
+    }
+
+    return Math.max(0, Math.min(MAX_HEARTS, Math.floor(value)));
+  } catch (error) {
+    console.error("Unable to read hearts:", error);
+
+    return MAX_HEARTS;
+  }
+}
+
+/**
+ * Track the day on which hearts first reached zero.
+ *
+ * When the learner returns on a later India-time date,
+ * refill the stored hearts to MAX_HEARTS.
+ */
+function getHeartsForToday(key) {
+  const today = getIndiaDateString();
+
+  const refillDateKey = `${key}_refill_date`;
+  const exhaustedDateKey = `${key}_exhausted_date`;
+
+  try {
+    let hearts = readHearts(key);
+
+    if (hearts > 0) {
+      return hearts;
+    }
+
+    let exhaustedDate = localStorage.getItem(exhaustedDateKey);
+
+    // Record the date when zero hearts are first detected.
+    if (!exhaustedDate) {
+      exhaustedDate = today;
+
+      localStorage.setItem(exhaustedDateKey, today);
+    }
+
+    const validExhaustedDate = parseDateKey(exhaustedDate);
+
+    if (!validExhaustedDate) {
+      localStorage.setItem(exhaustedDateKey, today);
+
+      return 0;
+    }
+
+    // Refill on a later India-time calendar day.
+    if (today > exhaustedDate) {
+      localStorage.setItem(key, String(MAX_HEARTS));
+      localStorage.setItem(refillDateKey, today);
+      localStorage.removeItem(exhaustedDateKey);
+
+      hearts = MAX_HEARTS;
+    }
+
+    return hearts;
+  } catch (error) {
+    console.error("Unable to refresh hearts:", error);
+
+    return readHearts(key);
+  }
+}
+
+/**
+ * Used when the heart count changes.
+ */
+function getHeartDisplayData() {
+  const key = getCourseHeartKey();
+
+  return {
+    key,
+    hearts: getHeartsForToday(key),
+    maxHearts: MAX_HEARTS,
+  };
 }
 
 // --------------------------------------------------
@@ -316,11 +489,27 @@ export default function Rightbar() {
 
   const [userId, setUserId] = useState(null);
 
+  const [heartData, setHeartData] = useState(
+    getHeartDisplayData
+  );
+
   const requestIdRef = useRef(0);
 
   const mountedRef = useRef(false);
 
   const refreshingRef = useRef(false);
+
+  // --------------------------------------------------
+  // REFRESH HEARTS
+  // --------------------------------------------------
+
+  const refreshHearts = useCallback(() => {
+    if (!mountedRef.current) {
+      return;
+    }
+
+    setHeartData(getHeartDisplayData());
+  }, []);
 
   // --------------------------------------------------
   // LOAD LEARNER DATA
@@ -358,12 +547,13 @@ export default function Rightbar() {
           setUserId(null);
           setProfileName("Learner");
           setStats(getInitialStats());
+          setHeartData(getHeartDisplayData());
           setError("");
 
           return;
         }
 
-        // Clear previous user's data immediately when accounts change.
+        // Clear previous user's data when accounts change.
         setUserId((previousId) => {
           if (previousId && previousId !== user.id) {
             setProfileName("Learner");
@@ -372,6 +562,9 @@ export default function Rightbar() {
 
           return user.id;
         });
+
+        // Refresh hearts as part of every data refresh.
+        setHeartData(getHeartDisplayData());
 
         // Load profile and streak independently.
         const [profileResult, streakResult] =
@@ -387,10 +580,7 @@ export default function Rightbar() {
           return;
         }
 
-        // ----------------------------------------------
         // PROFILE
-        // ----------------------------------------------
-
         if (profileResult.status === "fulfilled") {
           setProfileName(
             getDisplayName(profileResult.value, user)
@@ -404,10 +594,7 @@ export default function Rightbar() {
           setProfileName(getDisplayName(null, user));
         }
 
-        // ----------------------------------------------
         // LEARNING STATISTICS
-        // ----------------------------------------------
-
         if (streakResult.status === "fulfilled") {
           setStats(normalizeStats(streakResult.value));
           setError("");
@@ -417,7 +604,6 @@ export default function Rightbar() {
             streakResult.reason
           );
 
-          // Keep previously loaded statistics when a refresh fails.
           setError(
             "Your learning statistics couldn't be loaded. Please try refreshing."
           );
@@ -468,15 +654,18 @@ export default function Rightbar() {
         }
 
         if (event === "SIGNED_OUT") {
-          // Invalidate outstanding requests.
           requestIdRef.current += 1;
 
           setUserId(null);
           setProfileName("Learner");
           setStats(getInitialStats());
+          setHeartData(getHeartDisplayData());
+
           setLoading(false);
           setRefreshing(false);
+
           refreshingRef.current = false;
+
           setError("");
 
           return;
@@ -487,7 +676,6 @@ export default function Rightbar() {
           event === "USER_UPDATED" ||
           event === "TOKEN_REFRESHED"
         ) {
-          // Avoid calling Supabase APIs directly inside its auth callback.
           setTimeout(() => {
             if (mountedRef.current) {
               void loadRightbarData({
@@ -507,14 +695,17 @@ export default function Rightbar() {
       }
     );
 
-    // ----------------------------------------------
-    // PROGRESS UPDATE EVENTS
-    // ----------------------------------------------
+    // ------------------------------------------------
+    // PROGRESS AND HEART UPDATE EVENTS
+    // ------------------------------------------------
 
     const handleProgressUpdated = () => {
-      if (mountedRef.current) {
-        void loadRightbarData();
+      if (!mountedRef.current) {
+        return;
       }
+
+      refreshHearts();
+      void loadRightbarData();
     };
 
     window.addEventListener(
@@ -537,12 +728,35 @@ export default function Rightbar() {
       handleProgressUpdated
     );
 
+    window.addEventListener(
+      HEARTS_UPDATED_EVENT,
+      handleProgressUpdated
+    );
+
+    // The storage event fires when another tab updates localStorage.
+    const handleStorageChange = (event) => {
+      if (
+        !event.key ||
+        event.key.endsWith(HEART_KEY_SUFFIX) ||
+        event.key.includes("_exhausted_date") ||
+        event.key.includes("_refill_date")
+      ) {
+        refreshHearts();
+      }
+    };
+
+    window.addEventListener(
+      "storage",
+      handleStorageChange
+    );
+
     // Refresh when the learner returns to the tab.
     const handleVisibilityChange = () => {
       if (
         document.visibilityState === "visible" &&
         mountedRef.current
       ) {
+        refreshHearts();
         void loadRightbarData();
       }
     };
@@ -551,6 +765,17 @@ export default function Rightbar() {
       "visibilitychange",
       handleVisibilityChange
     );
+
+    // Check periodically so a new India-time day can trigger a refill
+    // even if the learner leaves this page open overnight.
+    const heartRefreshInterval = window.setInterval(() => {
+      if (
+        mountedRef.current &&
+        document.visibilityState === "visible"
+      ) {
+        refreshHearts();
+      }
+    }, 60_000);
 
     return () => {
       mountedRef.current = false;
@@ -581,15 +806,31 @@ export default function Rightbar() {
         handleProgressUpdated
       );
 
+      window.removeEventListener(
+        HEARTS_UPDATED_EVENT,
+        handleProgressUpdated
+      );
+
+      window.removeEventListener(
+        "storage",
+        handleStorageChange
+      );
+
       document.removeEventListener(
         "visibilitychange",
         handleVisibilityChange
       );
+
+      window.clearInterval(heartRefreshInterval);
     };
-  }, [loadRightbarData, userId]);
+  }, [
+    loadRightbarData,
+    refreshHearts,
+    userId,
+  ]);
 
   // --------------------------------------------------
-  // REFRESH
+  // MANUAL REFRESH
   // --------------------------------------------------
 
   const handleRefresh = useCallback(async () => {
@@ -601,8 +842,10 @@ export default function Rightbar() {
 
     setRefreshing(true);
 
+    refreshHearts();
+
     await loadRightbarData();
-  }, [loadRightbarData]);
+  }, [loadRightbarData, refreshHearts]);
 
   // --------------------------------------------------
   // WEEKLY ACTIVITY
@@ -638,6 +881,8 @@ export default function Rightbar() {
 
   const firstName =
     profileName.split(/\s+/)[0] || "Learner";
+
+  const noHeartsLeft = heartData.hearts <= 0;
 
   // --------------------------------------------------
   // RENDER
@@ -734,11 +979,11 @@ export default function Rightbar() {
       {/* LEARNING STATISTICS */}
       {!loading && (
         <>
+          {/* XP AND STREAK */}
           <section
             className="ev-rightbar-stats"
             aria-label="Learning statistics"
           >
-            {/* TOTAL XP */}
             <article className="ev-rightbar-stat ev-stat-xp">
               <div className="ev-rightbar-stat-top">
                 <span className="ev-rightbar-stat-icon">
@@ -757,7 +1002,6 @@ export default function Rightbar() {
               <small>Experience earned</small>
             </article>
 
-            {/* CURRENT STREAK */}
             <article className="ev-rightbar-stat ev-stat-streak">
               <div className="ev-rightbar-stat-top">
                 <span className="ev-rightbar-stat-icon">
@@ -777,6 +1021,86 @@ export default function Rightbar() {
                   : "Days in a row"}
               </small>
             </article>
+          </section>
+
+          {/* HEARTS */}
+          <section
+            className={[
+              "ev-rightbar-hearts",
+              noHeartsLeft
+                ? "ev-rightbar-hearts-empty"
+                : "",
+            ]
+              .filter(Boolean)
+              .join(" ")}
+            aria-label="Available learning hearts"
+            aria-live="polite"
+          >
+            <div className="ev-rightbar-hearts-heading">
+              <div className="ev-rightbar-hearts-icon">
+                <Heart
+                  size={21}
+                  fill={noHeartsLeft ? "none" : "currentColor"}
+                />
+              </div>
+
+              <div className="ev-rightbar-hearts-title">
+                <span>YOUR HEARTS</span>
+
+                <strong>
+                  {heartData.hearts}/{heartData.maxHearts}
+                </strong>
+              </div>
+            </div>
+
+            <div
+              className="ev-rightbar-hearts-list"
+              aria-label={`${heartData.hearts} of ${heartData.maxHearts} hearts remaining`}
+            >
+              {Array.from(
+                { length: heartData.maxHearts },
+                (_, index) => {
+                  const filled = index < heartData.hearts;
+
+                  return (
+                    <Heart
+                      key={index}
+                      size={23}
+                      strokeWidth={2}
+                      className={
+                        filled
+                          ? "ev-rightbar-heart-filled"
+                          : "ev-rightbar-heart-empty"
+                      }
+                      fill={filled ? "currentColor" : "none"}
+                    />
+                  );
+                }
+              )}
+            </div>
+
+            {noHeartsLeft ? (
+              <div className="ev-rightbar-hearts-message">
+                <CalendarClock size={19} />
+
+                <div>
+                  <strong>You've used all your hearts!</strong>
+
+                  <p>
+                    Come back tomorrow to continue learning.
+                    Your hearts will refill then.
+                  </p>
+                </div>
+              </div>
+            ) : heartData.hearts === 1 ? (
+              <p className="ev-rightbar-hearts-hint">
+                Only one heart left. Keep it safe!
+              </p>
+            ) : (
+              <p className="ev-rightbar-hearts-hint">
+                Keep learning and make every heart count.
+              </p>
+            )}
           </section>
 
           {/* WEEKLY ACTIVITY */}
@@ -878,15 +1202,19 @@ export default function Rightbar() {
 
             <div>
               <strong>
-                {stats.activeToday
-                  ? "Great work today!"
-                  : "Your journey continues"}
+                {noHeartsLeft
+                  ? "Rest up and return tomorrow!"
+                  : stats.activeToday
+                    ? "Great work today!"
+                    : "Your journey continues"}
               </strong>
 
               <p>
-                {stats.activeToday
-                  ? "You've shown up today. Keep building your momentum!"
-                  : "Complete a lesson or quiz today to build your learning habit."}
+                {noHeartsLeft
+                  ? "Your learning hearts will refill tomorrow. Come back ready for your next adventure!"
+                  : stats.activeToday
+                    ? "You've shown up today. Keep building your momentum!"
+                    : "Complete a lesson or quiz today to build your learning habit."}
               </p>
             </div>
           </section>
